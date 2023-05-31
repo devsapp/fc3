@@ -1,0 +1,24 @@
+edition: 1.0.0        #  命令行YAML规范版本，遵循语义化版本（Semantic Versioning）规范
+name: component-test   #  项目名称
+access: quanxi # 密钥别名
+vars: # [全局变量，提供给各个服务使用]
+  domain: xxxx.yyy.com
+
+services:
+  # component-test:
+  #   component: ${path(../..)}  # 这里引入的是相对路径，正式配置替换成你自己的component名称即可 
+  #   props:
+  #     name: ${component-test2.props.name}
+  #     otherInput: ${component-test2.output.hello}
+  #     envshow: ${vars.domain}
+  component-test2:
+    component: ${path(../..)}  # 这里引入的是相对路径，正式配置替换成你自己的component名称即可 
+    props:
+      region: cn-hangzhou
+      name: hello
+      otherInput: world
+      runtime: custom-container
+      codeUri: ./code
+      customContainerConfig:
+        image: registry-vpc.cn-hangzhou.aliyuncs.com/fc-demo2/test233:v1001
+      envshow: ${env(USER)}
