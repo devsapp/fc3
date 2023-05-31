@@ -1,34 +1,106 @@
-# 规范文档参考:
-# 中文：https://github.com/Serverless-Devs/Serverless-Devs/blob/master/spec/zh/0.0.2/serverless_package_model/3.package_model.md#组件模型规范
-# English: https://github.com/Serverless-Devs/Serverless-Devs/blob/master/spec/en/0.0.2/serverless_package_model/3.package_model.md#Component-model-specification
-# --------------
-# Package 开发发布最佳实践:
-#   - [社区讨论 #62](https://github.com/Serverless-Devs/Serverless-Devs/discussions/62);
-#   - [社区讨论 #407](https://github.com/Serverless-Devs/Serverless-Devs/discussions/407);
-#   - [社区讨论 #439](https://github.com/Serverless-Devs/Serverless-Devs/discussions/439);
-
 Type: Component
-Name: 名称
+Name: fc-build
 Provider:
-  - 云厂商名称 
-Version: 版本，例如0.0.1
-Description: 简短的描述/介绍
-HomePage: 项目首页地址
+  - 阿里云
+Version: 0.0.1
+Description: 阿里云函数计算构建功能
+HomePage: https://github.com/devsapp/fc-build
 Tags: #标签详情
-  - 部署函数
-  - 部署组件
-Category: 分类 # 基础云服务/Web框架/全栈应用/人工智能/音视频处理/图文处理/监控告警/大数据/IoT/新手入门/其它/开源项目
-Service: # 使用的服务
-  服务名:  # 函数计算/容器服务/镜像服务/消息队列/工作流/CDN/对象存储/表格存储/MNS/日志服务/API网关/数据库/解析服务/云应用/其它
-    # Runtime: Python 3.6 如果服务是函数，还需要增加Runtime
-    Authorities: #权限描述
-      - 创建函数 # 所需要的权限
-Commands: # 指令，格式为指令：指令描述，例如：
-  deploy: 部署函数
-  invoke: 调用函数
+  - 构建
+  - build
+  - 函数计算
+Category: 基础云服务
+Commands:
+  build: 构建功能
+Service:
+  函数计算:
+    Authorities:
+      - 本地相关文件创建权限
 Properties:
-  Region: # 参数
-    Description: 参数描述
-    Required: true # 参数必选，true/false
-    Type: # 参数类型
-      - String
+  region:
+    Description: 地域
+    Required: true
+    Type:
+      - Enum:
+          - cn-beijing
+          - cn-hangzhou
+          - cn-shanghai
+          - cn-qingdao
+          - cn-zhangjiakou
+          - cn-huhehaote
+          - cn-shenzhen
+          - cn-chengdu
+          - cn-hongkong
+          - ap-southeast-1
+          - ap-southeast-2
+          - ap-southeast-3
+          - ap-southeast-5
+          - ap-northeast-1
+          - eu-central-1
+          - eu-west-1
+          - us-west-1
+          - us-east-1
+          - ap-south-1
+  service:
+    Description: 服务
+    Required: true
+    Type:
+      - Struct:
+          name:
+            Description: 服务名称
+            Required: true
+            Type:
+              - String
+  function:
+    Description: 函数
+    Required: true
+    Type:
+      - Struct:
+          name:
+            Description: 函数名称
+            Required: true
+            Type:
+              - String
+          runtime:
+            Description: 运行时
+            Required: true
+            Type:
+              - Enum:
+                  - nodejs6
+                  - nodejs8
+                  - nodejs10
+                  - nodejs12
+                  - python3
+                  - python2.7
+                  - java8
+                  - custom-container
+                  - dotnetcore2.1
+                  - php7.2
+          codeUri:
+            Description: 代码路径
+            Required: false
+            Type:
+              - String
+          customContainerConfig:
+            Description: 自定义镜像
+            Required: false
+            Type:
+              - Struct:
+                  image:
+                    Description: 仓库地址
+                    Required: true
+                    Example: "registry.cn-hongkong.aliyuncs.com/s-devs-generate/fc-com-test-build-image:v0.1"
+                    Type:
+                      - String
+                  command:
+                    Description: 命令
+                    Required: true
+                    Example: '["node"]'
+                    Type:
+                      - String
+                  args:
+                    Description: 参数
+                    Required: true
+                    Example: '["index.js"]'
+                    Type:
+                      - String
