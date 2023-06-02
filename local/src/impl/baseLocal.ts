@@ -1,0 +1,280 @@
+import { InputProps, ICredentials, ICodeUri } from './interface';
+import { getTimeZone, vpcImage2InternetImage, formatJsonString } from './utils';
+import path from 'path';
+import logger from '../common/logger';
+import { lodash as _ } from '@serverless-devs/core';
+import { defaultFcDockerVersion, IDE_VSCODE } from './const';
+import { runShellCommand } from "./runCommand";
+import * as core from '@serverless-devs/core';
+import { v4 as uuidv4 } from 'uuid';
+import extract = require("extract-zip");
+import tmpDir from 'temp-dir';
+import * as fs from 'fs-extra';
+import * as rimraf from 'rimraf';
+
+
+export class BaseLocalInvoke {
+  protected inputProps: InputProps;
+  protected defaultDebugArgs: string;
+  protected _argsData: object;
+  protected unzippedCodeDir?: string;
+  constructor(props: InputProps) {
+    this.inputProps = props;
+  }
+
+  getProps(): any {
+    return this.inputProps.props;
+  }
+
+  getArgsData(): object {
+    if (!_.isEmpty(this._argsData)) {
+      return this._argsData;
+    }
+    const parsedArgs: { [key: string]: any } = core.commandParse(this.inputProps, {
+      string: ['event'],
+      alias: { event: 'e' },
+    });
+    const argsData: any = parsedArgs?.data || {};
+    logger.debug(`argsData ====> ${JSON.stringify(argsData)})`);
+    this._argsData = argsData;
+    return this._argsData;
+  }
+
+  getFunctionProps(): any {
+    return this.inputProps.props.function;
+  }
+
+  getRuntime(): string {
+    return this.getFunctionProps().runtime;
+  }
+
+  getFunctionName(): string {
+    return this.getFunctionProps().name;
+  }
+
+  getHandler(): string {
+    return this.getFunctionProps().handler;
+  }
+
+  getTimeout(): number {
+    return this.getFunctionProps().timeout as number;
+  }
+
+  getInitializer(): string {
+    return this.getFunctionProps().initializer;
+  }
+
+  getInitializerTimeout(): number {
+    return this.getFunctionProps().initializerTimeout as number;
+  }
+
+  getMemorySize(): number {
+    return this.getFunctionProps().memorySize as number;
+  }
+
+  getRegion(): string {
+    return this.getProps().region;
+  }
+
+  getCredentials(): ICredentials {
+    return this.inputProps.credentials;
+  }
+
+  getAcrEEInstanceID(): string {
+    return _.get(this.getFunctionProps().customContainerConfig.acrInstanceID);
+  }
+
+  isCustomContainerRuntime(): boolean {
+    return this.getFunctionProps().runtime === "custom-container";
+  }
+
+  async getCodeUri(): Promise<string> {
+    if (this.unzippedCodeDir) {
+      return this.unzippedCodeDir;
+    }
+    const codeUri = this.getFunctionProps().codeUri;
+    let src: string = _.isString(codeUri) ? codeUri as string : (codeUri as ICodeUri).src;
+
+    if (_.endsWith(src, '.zip') || _.endsWith(src, '.jar') || _.endsWith(src, '.war')) {
+      const tmpCodeDir: string = path.join(tmpDir, uuidv4());
+      await fs.ensureDir(tmpCodeDir);
+      logger.log(`codeUri is a zip format, will unzipping to ${tmpCodeDir}`);
+      await extract(src, { dir: tmpCodeDir });
+      this.unzippedCodeDir = tmpCodeDir;
+      return tmpCodeDir;
+    } else {
+      const baseDir = process.cwd();
+      const resolvedCodeUri = path.isAbsolute(src) ? src : path.join(baseDir, src);
+      return resolvedCodeUri;
+    }
+  }
+
+  checkCodeUri(): boolean {
+    const codeUri = this.getFunctionProps().codeUri;
+    if (!codeUri) {
+      return false;
+    }
+    const src: string = _.isString(codeUri) ? codeUri as string : (codeUri as ICodeUri).src;
+    if (!src) {
+      logger.info('No Src configured');
+      return false;
+    }
+    return true;
+  }
+
+  getRuntimeRunImage(): string {
+    if (this.isCustomContainerRuntime()) {
+      let image = vpcImage2InternetImage(this.getProps().customContainerConfig.image);
+      return image;
+    } else {
+      // TODO, use fc.conf
+      const fcDockerV = defaultFcDockerVersion;
+      let image = `aliyunfc/runtime-${this.getRuntime()}:${fcDockerV}`;
+      if (getTimeZone() === "UTC+8") {
+        image = `registry.cn-beijing.aliyuncs.com/aliyunfc/runtime-${this.getRuntime()}:${fcDockerV}`;
+      } else {
+        image = `aliyunfc/runtime-${this.getRuntime()}:${fcDockerV}`;
+      }
+      logger.debug(`use fc docker image: ${image}`);
+      return image;
+    }
+  }
+
+  beforeInvoke(): boolean {
+    logger.debug("beforeBuild ...");
+    const codeUriValid = this.checkCodeUri();
+    logger.debug(`checkCodeUri = ${codeUriValid}`)
+    if ((!codeUriValid && !this.isCustomContainerRuntime())) {
+      logger.error("codeUri is invalid when runtime is not custom-container");
+      return false;
+    }
+    if ((!_.isEmpty(this.getDebugIDE) && _.isEmpty(this.getDebugPort)) || (_.isEmpty(this.getDebugIDE) && !_.isEmpty(this.getDebugPort))) {
+      logger.error("Args config and debug-port must exist simultaneously")
+      return false;
+    }
+    return true;
+  }
+
+  afterInvoke() {
+    logger.debug("afterInvoke ...");
+    if (this.unzippedCodeDir) {
+      rimraf.sync(this.unzippedCodeDir);
+      console.log(`clean tmp code dir ${this.unzippedCodeDir} successfully`);
+      this.unzippedCodeDir = null;
+    }
+  }
+
+  async invoke() {
+    const check = this.beforeInvoke();
+    if (!check) {
+      return;
+    }
+    await this.runInvoke();
+    this.afterInvoke();
+  }
+
+  async runInvoke() {
+    const cmdStr = await this.getLocalInvokeCmdStr();
+    await runShellCommand(cmdStr, true);
+  }
+
+  async getMountString(): Promise<string> {
+    // TODO: layer and  tmp dir
+    const codeUri = await this.getCodeUri();
+    let mntStr = `-v ${codeUri}:/code`;
+    return mntStr;
+  }
+
+  getEnvString(): string {
+    const sysEnvs = {
+      "FC_ACCOUNT_ID": this.getCredentials().AccountID || "",
+      "FC_ACCESS_KEY_ID": this.getCredentials().AccessKeyID || "",
+      "FC_ACCESS_KEY_SECRET": this.getCredentials().AccessKeySecret || "",
+      "FC_SECURITY_TOKEN": this.getCredentials().SecurityToken || "",
+      "FC_HANDLER": this.getHandler(),
+      "FC_TIMEOUT": this.getTimeout(),
+      "FC_MEMORY_SIZE": this.getMemorySize(),
+      "FC_FUNCTION_NAME": this.getFunctionName(),
+    };
+    if (!_.isEmpty(this.getInitializer())) {
+      sysEnvs["FC_INITIALIZER"] = this.getInitializer();
+      sysEnvs["FC_INITIALIZATION_TIMEOUT"] = this.getInitializerTimeout();
+    }
+
+    let envStr = "";
+    for (const item in sysEnvs) {
+      console.log(`${item}: ${sysEnvs[item]}`);
+      envStr += ` -e "${item}=${sysEnvs[item]}"`
+    }
+
+    // function envs
+    if ("environmentVariables" in this.getFunctionProps()) {
+      const envs = this.getFunctionProps().environmentVariables
+      for (const item in envs) {
+        console.log(`${item}: ${envs[item]}`);
+        envStr += ` -e "${item}=${envs[item]}"`
+      }
+    }
+
+    // breakpoint debugging
+    logger.debug(`debug args ===> ${this.getDebugArgs()}`);
+    if (!_.isEmpty(this.getDebugArgs())) {
+      envStr += ` -e "${this.getDebugArgs()}" -p ${this.getDebugPort()}:${this.getDebugPort()}`
+    }
+    return envStr;
+  }
+
+  getEventString(): string {
+    let eventStr = this.getArgsData()['event']
+    if (!_.isEmpty(_.trim(eventStr))) {
+      return `--event ${formatJsonString(eventStr)}`
+    }
+    // TODO:  stdin or file
+    return "";
+  }
+
+  async getLocalInvokeCmdStr(): Promise<string> {
+    const mntStr = await this.getMountString();
+    let dockerCmdStr = `docker run --rm ${mntStr} ${this.getEnvString()} ${this.getRuntimeRunImage()} ${this.getEventString()}`;
+    if (!_.isEmpty(this.getDebugArgs())) {
+      if (this.getDebugIDE() == IDE_VSCODE) {
+        logger.log('You can paste these config to .vscode/launch.json, and then attach to your running function', 'yellow');
+        logger.log('///////////////// config begin /////////////////');
+        logger.log(this.generateVscodeDebugConfig());
+        logger.log('///////////////// config end /////////////////');
+        this.writeVscodeDebugConfig();
+      }
+    }
+    return dockerCmdStr
+  }
+
+  writeVscodeDebugConfig() {
+    const baseDir = process.cwd();
+    const dotVsCodeDir = path.join(baseDir, ".vscode");
+    if (!fs.existsSync(dotVsCodeDir)) {
+      fs.mkdirSync(dotVsCodeDir);
+    }
+    const filename = path.join(dotVsCodeDir, "launch.json");
+    try {
+      fs.writeFileSync(filename, this.generateVscodeDebugConfig(), 'utf-8');
+    } catch (err) {
+      logger.error(`Failed to write file ${filename}: ${err.message}`);
+    }
+  }
+
+  generateVscodeDebugConfig(): string {
+    return "";
+  }
+
+  getDebugArgs(): string {
+    return "";
+  }
+
+  getDebugPort(): number {
+    return this.getArgsData()['debug-port'] as number;
+  }
+
+  getDebugIDE(): string {
+    return this.getArgsData()['config'] as string;
+  }
+}

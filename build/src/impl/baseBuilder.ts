@@ -1,11 +1,11 @@
 
-import { InputProps, ICredentials } from './interface';
-import { checkCodeUri, isAcreeRegistry, getTimeZone, vpcImage2InternetImage } from './utils';
+import { InputProps, ICredentials, ICodeUri } from './interface';
+import { isAcreeRegistry, getTimeZone, vpcImage2InternetImage } from './utils';
 import path from 'path';
 import logger from '../common/logger';
 import { lodash as _, loadComponent } from '@serverless-devs/core';
 import { mockDockerConfigFile } from './docker/acr-login'
-import { defaultFcDockerVersion } from './consts';
+import { defaultFcDockerVersion } from './const';
 
 
 export class Builder {
@@ -35,19 +35,41 @@ export class Builder {
     return _.get(this.getProps().customContainerConfig.acrInstanceID);
   }
 
-  isCustomConatinerRuntime(): boolean {
+  isCustomContainerRuntime(): boolean {
     return this.getProps().runtime === "custom-container";
   }
 
   getCodeUri(): string {
-    const src = checkCodeUri(this.inputProps.props.codeUri);
+    if (!this.checkCodeUri()) {
+      return "";
+    }
+    const codeUri = this.inputProps.props.codeUri;
+    const src: string = _.isString(codeUri) ? codeUri as string : (codeUri as ICodeUri).src;
     const baseDir = process.cwd();
     const resolvedCodeUri = path.isAbsolute(src) ? src : path.join(baseDir, src);
     return resolvedCodeUri;
   }
 
+  checkCodeUri(): boolean {
+    const codeUri = this.inputProps.props.codeUri;
+    if (!codeUri) {
+      return false;
+    }
+    const src: string = _.isString(codeUri) ? codeUri as string : (codeUri as ICodeUri).src;
+    if (!src) {
+      logger.info('No Src configured, skip building.');
+      return false;
+    }
+
+    if (_.endsWith(src, '.zip') || _.endsWith(src, '.jar') || _.endsWith(src, '.war')) {
+      logger.info('Artifact configured, skip building.');
+      return false;
+    }
+    return true;
+  }
+
   getRuntimeBuildImage(): string {
-    if (this.isCustomConatinerRuntime()) {
+    if (this.isCustomContainerRuntime()) {
       let image = vpcImage2InternetImage(this.getProps().customContainerConfig.image);
       return image;
     } else {
@@ -66,11 +88,12 @@ export class Builder {
 
   beforeBuild(): boolean {
     logger.debug("beforeBuild ...");
-    const codeUri = this.getCodeUri()
-    logger.debug(`codeUri = ${codeUri}`)
-    if ((_.isEmpty(_.trim(codeUri)))) {
+    const codeUriValid = this.checkCodeUri();
+    logger.debug(`checkCodeUri = ${codeUriValid}`)
+    if ((!codeUriValid)) {
       return false;
     }
+    logger.debug(`codeUri = ${this.getCodeUri()}`)
     return true;
   }
 

@@ -1,18 +1,11 @@
 import { spawn } from 'child_process';
-import { isDebug } from '../const';
-import logger from '../../common/logger';
+import { isDebug } from './const';
+import logger from '../common/logger';
 
-export async function runCommand(command: string, shellScript?: string, showStdout?: boolean) {
-  logger.debug(`runCommand command = ${command}`);
-  const [cmd, ...args] = command.split(' ');
-  logger.debug(`runCommand cmd = ${cmd}`);
-  if (shellScript) {
-    args.push(shellScript);
-  }
-  logger.debug(`runCommand args = ${args}`);
-
+export async function runShellCommand(command: string, showStdout?: boolean) {
+  logger.debug(`runShellCommand command = ${command}`);
   return new Promise<void>((resolve, reject) => {
-    const dProcess = spawn(cmd, args);
+    const dProcess = spawn(command, { shell: true });
 
     dProcess.stdout.on('data', (data) => {
       if (isDebug || showStdout) {
@@ -34,4 +27,3 @@ export async function runCommand(command: string, shellScript?: string, showStdo
     });
   });
 }
-

@@ -81,11 +81,11 @@ done
 
 startTimestamp="$(date '+%s%N')"
 
-[[ -z ${FC_HANDLER} ]] && handler=${FC_HANDLER}
-[[ -z ${FC_TIMEOUT} ]] && timeout=${FC_TIMEOUT}
-[[ -z ${FC_INITIALIZER} ]] && initializer=${FC_INITIALIZER}
-[[ -z ${FC_MEMORY_SIZE} ]] && memory=${FC_MEMORY_SIZE}
-[[ -z ${FC_INITIALIZATION_TIMEOUT} ]] && initializationTimeout=${FC_INITIALIZATION_TIMEOUT}
+[[ -n ${FC_HANDLER} ]] && handler=${FC_HANDLER}
+[[ -n ${FC_TIMEOUT} ]] && timeout=${FC_TIMEOUT}
+[[ -n ${FC_INITIALIZER} ]] && initializer=${FC_INITIALIZER}
+[[ -n ${FC_MEMORY_SIZE} ]] && memory=${FC_MEMORY_SIZE}
+[[ -n ${FC_INITIALIZATION_TIMEOUT} ]] && initializationTimeout=${FC_INITIALIZATION_TIMEOUT}
 
 curlUtil() {
     curl -s -X POST $3 localhost:${serverPort}/$1 \

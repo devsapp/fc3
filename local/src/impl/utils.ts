@@ -1,3 +1,4 @@
+// most copy from build, todo combine
 import { lodash as _ } from '@serverless-devs/core';
 
 export function isAcreeRegistry(imageUrl: string): boolean { // 容器镜像企业服务
@@ -22,3 +23,14 @@ export function getTimeZone(): string {
   const timeZone = 'UTC+' + (0 - new Date().getTimezoneOffset() / 60);
   return timeZone;
 }
+
+export function formatJsonString(str: string): string {
+  try {
+    const jsonObj = JSON.parse(str);
+    const formattedStr = JSON.stringify(jsonObj, null, 0);
+    return formattedStr.replace(/s/g, '');
+  } catch (e) {
+    return str;
+  }
+}
+

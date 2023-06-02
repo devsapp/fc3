@@ -1,0 +1,16 @@
+node_modules
+**/.s
+
+# package-lock.json
+
+**/.idea
+**/__pycache__
+.DS_Store
+
+.tmp
+example/java8-event/target
+
+doc/
+
+**/.classpath
+**/.project
