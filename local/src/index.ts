@@ -1,10 +1,11 @@
 import logger from './common/logger';
 import { InputProps } from './impl/interface';
-import { NodejsLocalInvoke  } from './impl/nodejsLocal';
-import { PythonLocalInvoke  } from './impl/pythonLocal';
-import { JavaLocalInvoke  } from './impl/javaLocal';
-import { PhpLocalInvoke  } from './impl/phpLocal';
-import { DotnetLocalInvoke  } from './impl/dotnetLocal';
+import { NodejsLocalInvoke } from './impl/nodejsLocal';
+import { PythonLocalInvoke } from './impl/pythonLocal';
+import { JavaLocalInvoke } from './impl/javaLocal';
+import { PhpLocalInvoke } from './impl/phpLocal';
+import { DotnetLocalInvoke } from './impl/dotnetLocal';
+import { CustomLocalInvoke } from './impl/customLocal';
 
 export default class ComponentBuild {
   /**
@@ -42,6 +43,11 @@ export default class ComponentBuild {
       case "dotnetcore2.1":
         let dotnetLocalInvoker = new DotnetLocalInvoke(inputs);
         dotnetLocalInvoker.invoke();
+        break;
+      case "custom":
+      case "custom.debian10":
+        let customLocalInvoker = new CustomLocalInvoke(inputs);
+        customLocalInvoker.invoke();
         break;
       default:
         logger.warn(`${inputs.props.function.runtime} is not supported`);

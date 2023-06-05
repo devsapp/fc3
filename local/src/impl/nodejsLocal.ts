@@ -29,8 +29,8 @@ export class NodejsLocalInvoke extends BaseLocalInvoke {
     return "";
   }
 
-  generateVscodeDebugConfig(): string {
-    const codePath = this.getCodeUri();
+  async generateVscodeDebugConfig(): Promise<string> {
+    const codePath = await this.getCodeUri();
     const debugPort = this.getDebugPort();
     const functionName = this.getFunctionName();
 

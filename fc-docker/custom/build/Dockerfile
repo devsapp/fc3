@@ -30,7 +30,7 @@ COPY commons/pycompile  /usr/bin/
 
 # custom maven speedup
 COPY custom/build/pom.xml .
-COPY custom/build/settings.xml /usr/share/maven/conf/settings.xml
+COPY custom/build/settings.xml /root/.m2/settings.xml
 RUN ["mvn", "dependency:go-offline"]
 RUN rm -f pom.xml
 

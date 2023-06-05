@@ -7,7 +7,7 @@ import { defaultFcDockerVersion, IDE_VSCODE } from './const';
 import { runShellCommand } from "./runCommand";
 import * as core from '@serverless-devs/core';
 import { v4 as uuidv4 } from 'uuid';
-import extract = require("extract-zip");
+import extract from "extract-zip";
 import tmpDir from 'temp-dir';
 import * as fs from 'fs-extra';
 import * as rimraf from 'rimraf';
@@ -53,7 +53,11 @@ export class BaseLocalInvoke {
   }
 
   getHandler(): string {
-    return this.getFunctionProps().handler;
+    let handler = this.getFunctionProps().handler;
+    if (this.getRuntime().startsWith("custom") && handler == undefined) {
+      handler = "index.handler"
+    }
+    return handler
   }
 
   getTimeout(): number {
@@ -93,7 +97,7 @@ export class BaseLocalInvoke {
       return this.unzippedCodeDir;
     }
     const codeUri = this.getFunctionProps().codeUri;
-    let src: string = _.isString(codeUri) ? codeUri as string : (codeUri as ICodeUri).src;
+    let src: string = _.isString(codeUri) ? codeUri as string : (codeUri as ICodeUri).src as string;
 
     if (_.endsWith(src, '.zip') || _.endsWith(src, '.jar') || _.endsWith(src, '.war')) {
       const tmpCodeDir: string = path.join(tmpDir, uuidv4());
@@ -114,7 +118,7 @@ export class BaseLocalInvoke {
     if (!codeUri) {
       return false;
     }
-    const src: string = _.isString(codeUri) ? codeUri as string : (codeUri as ICodeUri).src;
+    const src: string = _.isString(codeUri) ? codeUri as string : (codeUri as ICodeUri).src as string;
     if (!src) {
       logger.info('No Src configured');
       return false;
@@ -160,7 +164,7 @@ export class BaseLocalInvoke {
     if (this.unzippedCodeDir) {
       rimraf.sync(this.unzippedCodeDir);
       console.log(`clean tmp code dir ${this.unzippedCodeDir} successfully`);
-      this.unzippedCodeDir = null;
+      this.unzippedCodeDir = undefined;
     }
   }
 
@@ -203,7 +207,7 @@ export class BaseLocalInvoke {
 
     let envStr = "";
     for (const item in sysEnvs) {
-      console.log(`${item}: ${sysEnvs[item]}`);
+      // console.log(`${item}: ${sysEnvs[item]}`);
       envStr += ` -e "${item}=${sysEnvs[item]}"`
     }
 
@@ -211,7 +215,7 @@ export class BaseLocalInvoke {
     if ("environmentVariables" in this.getFunctionProps()) {
       const envs = this.getFunctionProps().environmentVariables
       for (const item in envs) {
-        console.log(`${item}: ${envs[item]}`);
+        //console.log(`${item}: ${envs[item]}`);
         envStr += ` -e "${item}=${envs[item]}"`
       }
     }
@@ -219,15 +223,19 @@ export class BaseLocalInvoke {
     // breakpoint debugging
     logger.debug(`debug args ===> ${this.getDebugArgs()}`);
     if (!_.isEmpty(this.getDebugArgs())) {
-      envStr += ` -e "${this.getDebugArgs()}" -p ${this.getDebugPort()}:${this.getDebugPort()}`
+      envStr += ` -e "${this.getDebugArgs()}"`
+      if (!this.getRuntime().startsWith("php")) {
+        envStr += ` -p ${this.getDebugPort()}:${this.getDebugPort()}`
+      }
     }
+
     return envStr;
   }
 
   getEventString(): string {
     let eventStr = this.getArgsData()['event']
     if (!_.isEmpty(_.trim(eventStr))) {
-      return `--event ${formatJsonString(eventStr)}`
+      return `--event '${formatJsonString(eventStr)}'`
     }
     // TODO:  stdin or file
     return "";
@@ -238,32 +246,33 @@ export class BaseLocalInvoke {
     let dockerCmdStr = `docker run --rm ${mntStr} ${this.getEnvString()} ${this.getRuntimeRunImage()} ${this.getEventString()}`;
     if (!_.isEmpty(this.getDebugArgs())) {
       if (this.getDebugIDE() == IDE_VSCODE) {
-        logger.log('You can paste these config to .vscode/launch.json, and then attach to your running function', 'yellow');
-        logger.log('///////////////// config begin /////////////////');
-        logger.log(this.generateVscodeDebugConfig());
-        logger.log('///////////////// config end /////////////////');
-        this.writeVscodeDebugConfig();
+        await this.writeVscodeDebugConfig();
       }
     }
     return dockerCmdStr
   }
 
-  writeVscodeDebugConfig() {
+  async writeVscodeDebugConfig(): Promise<void> {
     const baseDir = process.cwd();
     const dotVsCodeDir = path.join(baseDir, ".vscode");
     if (!fs.existsSync(dotVsCodeDir)) {
       fs.mkdirSync(dotVsCodeDir);
     }
     const filename = path.join(dotVsCodeDir, "launch.json");
+    const vscodeDebugConfig = await this.generateVscodeDebugConfig();
+    logger.log('You can paste these config to .vscode/launch.json, and then attach to your running function', 'yellow');
+    logger.log('///////////////// config begin /////////////////');
+    logger.log(vscodeDebugConfig);
+    logger.log('///////////////// config end /////////////////');
     try {
-      fs.writeFileSync(filename, this.generateVscodeDebugConfig(), 'utf-8');
+      fs.writeFileSync(filename, vscodeDebugConfig, 'utf-8');
     } catch (err) {
       logger.error(`Failed to write file ${filename}: ${err.message}`);
     }
   }
 
-  generateVscodeDebugConfig(): string {
-    return "";
+  async generateVscodeDebugConfig(): Promise<string> {
+    return Promise.resolve('');
   }
 
   getDebugArgs(): string {

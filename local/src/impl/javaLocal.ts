@@ -1,7 +1,21 @@
 import { BaseLocalInvoke } from './baseLocal';
 import { lodash as _ } from '@serverless-devs/core';
+import { IDE_INTELLIJ } from './const';
+import logger from '../common/logger';
 
 export class JavaLocalInvoke extends BaseLocalInvoke {
+
+  beforeInvoke(): boolean {
+    const ret = super.beforeInvoke();
+    if (!ret) {
+      return ret;
+    }
+    if (!_.isEmpty(this.getDebugIDE()) && this.getDebugIDE() != IDE_INTELLIJ) {
+      logger.error("nodejs runtime debug only support intellij");
+      return false;
+    }
+    return true;
+  }
 
   getDebugArgs(): string {
     if (_.isFinite(this.getDebugPort())) {

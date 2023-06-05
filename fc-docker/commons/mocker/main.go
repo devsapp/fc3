@@ -45,10 +45,10 @@ type HTTPParams struct {
 	Host       string              `json:"host"`
 }
 
-func waitHostPortAvailable(hostport string) error {
+func waitHostPortAvailable(hostPort string) error {
 
 	for {
-		conn, _ := net.DialTimeout("tcp", hostport, time.Duration(10)*time.Minute)
+		conn, _ := net.DialTimeout("tcp", hostPort, time.Duration(10)*time.Minute)
 		if conn != nil {
 			return conn.Close()
 		}
@@ -75,7 +75,15 @@ func min(x, y uint64) uint64 {
 }
 
 func queryMemoryLimit() string {
-	limitInBytesFileContent, err := ioutil.ReadFile("/sys/fs/cgroup/memory/memory.limit_in_bytes")
+	limitInBytesFileContent := []byte{}
+	_, err := os.Stat("/sys/fs/cgroup/cgroup.controllers")
+	if os.IsNotExist(err) {
+		// docker 20 版本有变更: https://github.com/oracle/docker-images/issues/1939
+		limitInBytesFileContent, err = ioutil.ReadFile("/sys/fs/cgroup/memory/memory.limit_in_bytes")
+	} else {
+		limitInBytesFileContent = []byte("8589934592")
+	}
+
 	checkError(err)
 
 	limitInBytes, _ := strconv.ParseUint(strings.TrimSpace(string(limitInBytesFileContent)), 10, 64)
@@ -89,7 +97,15 @@ func queryMemoryLimit() string {
 }
 
 func queryMemoryUsage() string {
-	usageInBytesFileContent, err := ioutil.ReadFile("/sys/fs/cgroup/memory/memory.usage_in_bytes")
+	usageInBytesFileContent := []byte{}
+	_, err := os.Stat("/sys/fs/cgroup/cgroup.controllers")
+	if os.IsNotExist(err) {
+		// docker 20 版本有变更: https://github.com/oracle/docker-images/issues/1939
+		usageInBytesFileContent, err = ioutil.ReadFile("/sys/fs/cgroup/memory/memory.usage_in_bytes")
+	} else {
+		usageInBytesFileContent, err = ioutil.ReadFile("/sys/fs/cgroup/memory.current")
+	}
+
 	checkError(err)
 
 	usageInBytes, _ := strconv.ParseUint(strings.TrimSpace(string(usageInBytesFileContent)), 10, 64)
@@ -149,10 +165,10 @@ func main() {
 		var agentExe *exec.Cmd
 
 		// start process
-		agentExe = exec.Command("sh", "-c", fmt.Sprintf("%s", agentDir+"/"+agentScript))
+		agentExe = exec.Command("bash", "-c", agentScript)
 		agentExe.Stdout = os.Stdout
 		agentExe.Stderr = os.Stderr
-
+		agentExe.Dir = agentDir
 		err := agentExe.Start()
 		checkError(err)
 
