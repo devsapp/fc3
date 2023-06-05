@@ -59,6 +59,10 @@ build: check-runtime-env
 		echo "docker build -f \"$(DIR)/Dockerfile\" -t \"$(IMAGE)\" --build-arg TAG=$(BUILD_ARG_TAG) ."; \
 		if ! docker build -f "$(DIR)/Dockerfile" -t "$(IMAGE)" --build-arg TAG=$(BUILD_ARG_TAG) .; then \
 			exit 1; \
+		else \
+			if [ -n "$(REGISTRY)" ]; then \
+				docker tag $(IMAGE) $(REGISTRY)/$(IMAGE); \
+			fi \
 		fi \
 	else \
 		for VARIANT in "base" "build" "run" ; do \
@@ -96,11 +100,12 @@ build-all:
 
 push: check-runtime-env login
 	@if [ -n "$(VARIANT)" ]; then \
-		echo "docker push $(IMAGE)"; \
 		if [ -n "$(REGISTRY)" ]; then \
+			echo "docker push $(REGISTRY)/$(IMAGE)"; \
 			docker tag $(IMAGE) $(REGISTRY)/$(IMAGE) && \
 			docker push $(REGISTRY)/$(IMAGE); \
 		else \
+			echo "docker push $(IMAGE)"; \
 			docker push $(IMAGE); \
 		fi \
 	else \

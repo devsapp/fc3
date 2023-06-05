@@ -24,3 +24,4 @@ apt-archives
 3rd-packages
 fc/build/example/php/code/vendor
 target
+.vs

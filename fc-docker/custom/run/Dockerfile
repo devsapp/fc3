@@ -5,8 +5,7 @@ COPY commons/mocker /code
 
 WORKDIR /code
 
-# https://github.com/goproxy/goproxy.cn
-ENV GOPROXY https://goproxy.io
+ENV GOPROXY=https://goproxy.cn
 
 RUN go mod download
 

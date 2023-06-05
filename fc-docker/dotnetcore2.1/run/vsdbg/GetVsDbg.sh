@@ -350,7 +350,8 @@ download_and_extract()
 {
     vsdbgZip="vsdbg-${__RuntimeID}.zip"
     target="$(echo "${__VsDbgVersion}" | tr '.' '-')"
-    url="https://vsdebugger.azureedge.net/vsdbg-${target}/${vsdbgZip}"
+    # url="https://vsdebugger.azureedge.net/vsdbg-${target}/${vsdbgZip}"
+    url="https://serverless-tool-others.oss-cn-hangzhou.aliyuncs.com/vsdbg-${target}/${vsdbgZip}"
 
     echo "Downloading ${url}"
     if ! hash unzip 2>/dev/null; then

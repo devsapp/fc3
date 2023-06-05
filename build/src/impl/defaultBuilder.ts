@@ -52,6 +52,7 @@ export class DefaultBuilder extends Builder {
         }
         break
       case "custom":
+      case "custom.debian10":
         if (this.existManifest("requirements.txt")) {
           tasks.push("pip install -t 3rd-packages -r requirements.txt --upgrade");
         }
@@ -61,9 +62,20 @@ export class DefaultBuilder extends Builder {
         if (this.existManifest("composer.json")) {
           tasks.push("composer install");
         }
+        if (this.existManifest("pom.xml")) {
+          tasks.push("mvn package -DskipTests");
+        }
         break
+      case "java8":
+      case "java11":
+        logger.warn(`build is not supported in ${runtime}, Using "mvn package -DskipTests" directly with java runtime, assuming you have installed the OpenJDK locally.`);
+      case "go1":
+        logger.warn(`build is not supported in ${runtime}, Using "GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o target/main main.go" directly with go runtime, assuming you have installed the Golang SDK locally.`);
+      case "dotnetcore2.1":
+      case "dotnetcore3.1":
+        logger.warn(`build is not supported in ${runtime}, Using "dotnet publish -c Release -o ./target" directly with go runtime, assuming you have installed the DotnetCore SDK locally.`);
       default:
-        logger.warn(`build is not supported in ${runtime}, \n1. Using "mvn package -DskipTests" directly with java runtime, assuming you have installed the OpenJDK locally. \n2. Using "GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o target/main main.go" directly with go runtime, assuming you have installed the Golang SDK locally. \n3. you can use --use-sandbox to enter the sandbox container of ${runtime} runtime.`)
+        logger.warn(`build is not supported in ${runtime}, you can use --use-sandbox to enter the sandbox container of ${runtime} runtime.`)
     }
     return tasks;
   }

@@ -12,4 +12,44 @@ export class DotnetLocalInvoke extends BaseLocalInvoke {
     }
     return "";
   }
+
+  async generateVscodeDebugConfig(): Promise<string> {
+    const codePath = await this.getCodeUri();
+    const debugPort = this.getDebugPort();
+    const functionName = this.getFunctionName();
+    return JSON.stringify({
+      'version': '0.2.0',
+      'configurations': [
+        {
+          'name': `fc/${functionName}`,
+          'type': 'coreclr',
+          'request': 'attach',
+          'processName': 'dotnet',
+          'pipeTransport': {
+            'pipeProgram': 'sh',
+            'pipeArgs': [
+              '-c',
+              `docker exec -i $(docker ps -q -f publish=${debugPort}) \${debuggerCommand}`
+            ],
+            'debuggerPath': '/vsdbg/vsdbg',
+            'pipeCwd': '${workspaceFolder}'
+          },
+          'windows': {
+            'pipeTransport': {
+              'pipeProgram': 'powershell',
+              'pipeArgs': [
+                '-c',
+                `docker exec -i $(docker ps -q -f publish=${debugPort}) \${debuggerCommand}`
+              ],
+              'debuggerPath': '/vsdbg/vsdbg',
+              'pipeCwd': '${workspaceFolder}'
+            }
+          },
+          'sourceFileMap': {
+            '/code': codePath
+          }
+        }
+      ]
+    }, null, 4);
+  }
 }

@@ -45,6 +45,6 @@ RUN apt-get update && apt-get install -y nfs-common --no-install-recommends && r
 WORKDIR /code
 
 ENV AGENT_DIR=/var/fc/runtime/dotnetcore2.1 \
-  AGENT_SCRIPT=agent.sh
+  AGENT_SCRIPT=/var/fc/runtime/dotnetcore2.1/agent.sh
 
 ENTRYPOINT ["/var/fc/runtime/dotnetcore2.1/mock"]

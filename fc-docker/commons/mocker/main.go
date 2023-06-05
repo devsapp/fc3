@@ -76,21 +76,15 @@ func min(x, y uint64) uint64 {
 
 func queryMemoryLimit() string {
 	limitInBytesFileContent := []byte{}
+	dockerMemoryLimit, _ := strconv.ParseUint(strings.TrimSpace(os.Getenv("FC_MEMORY_SIZE")), 10, 64)
 	_, err := os.Stat("/sys/fs/cgroup/cgroup.controllers")
 	if os.IsNotExist(err) {
-		// docker 20 版本有变更: https://github.com/oracle/docker-images/issues/1939
 		limitInBytesFileContent, err = ioutil.ReadFile("/sys/fs/cgroup/memory/memory.limit_in_bytes")
-	} else {
-		limitInBytesFileContent = []byte("8589934592")
+		limitInBytes, _ := strconv.ParseUint(strings.TrimSpace(string(limitInBytesFileContent)), 10, 64)
+		dockerMemoryLimit = limitInBytes / 1024 / 1024
 	}
-
 	checkError(err)
-
-	limitInBytes, _ := strconv.ParseUint(strings.TrimSpace(string(limitInBytesFileContent)), 10, 64)
-
-	dockerMemoryLimit := limitInBytes / 1024 / 1024
 	hostMemoryLimit := memory.TotalMemory() / 1024 / 1024
-
 	memoryLimit := min(dockerMemoryLimit, hostMemoryLimit)
 
 	return strconv.FormatUint(memoryLimit, 10)
@@ -98,9 +92,9 @@ func queryMemoryLimit() string {
 
 func queryMemoryUsage() string {
 	usageInBytesFileContent := []byte{}
+	// docker 20 版本有变更: https://github.com/oracle/docker-images/issues/1939
 	_, err := os.Stat("/sys/fs/cgroup/cgroup.controllers")
 	if os.IsNotExist(err) {
-		// docker 20 版本有变更: https://github.com/oracle/docker-images/issues/1939
 		usageInBytesFileContent, err = ioutil.ReadFile("/sys/fs/cgroup/memory/memory.usage_in_bytes")
 	} else {
 		usageInBytesFileContent, err = ioutil.ReadFile("/sys/fs/cgroup/memory.current")
@@ -208,7 +202,11 @@ func convertToPlainResponse(resp *http.Response, body []byte) bytes.Buffer {
 	return buffer
 }
 
-func addFcReqHeaders(req *http.Request, reqeustId, controlPath string) {
+func stringPtr(s string) *string {
+	return &s
+}
+
+func addFcReqHeaders(req *http.Request, requestId, controlPath string) {
 	functionName := getEnv("FC_FUNCTION_NAME", "fc-docker")
 
 	securityToken := os.Getenv("FC_SECURITY_TOKEN")
@@ -216,9 +214,21 @@ func addFcReqHeaders(req *http.Request, reqeustId, controlPath string) {
 	accessKeySecret := os.Getenv("FC_ACCESS_KEY_SECRET")
 	region := os.Getenv("FC_REGION")
 	accountId := os.Getenv("FC_ACCOUNT_ID")
+	if os.Getenv("FC_HANDLER") != "" {
+		handler = stringPtr(os.Getenv("FC_HANDLER"))
+	}
+	if os.Getenv("FC_TIMEOUT") != "" {
+		timeout = stringPtr(os.Getenv("FC_TIMEOUT"))
+	}
+	if os.Getenv("FC_INITIALIZER") != "" {
+		initializer = stringPtr(os.Getenv("FC_INITIALIZER"))
+	}
+	if os.Getenv("FC_INITIALIZATION_TIMEOUT") != "" {
+		initializationTimeout = stringPtr(os.Getenv("FC_INITIALIZATION_TIMEOUT"))
+	}
 
 	req.Header.Add("Content-Type", "application/octet-stream")
-	req.Header.Add("x-fc-request-id", reqeustId)
+	req.Header.Add("x-fc-request-id", requestId)
 	req.Header.Add("x-fc-function-name", functionName)
 	req.Header.Add("x-fc-function-memory", queryMemoryLimit())
 	req.Header.Add("x-fc-function-timeout", *timeout)
@@ -272,14 +282,14 @@ func doRequest(req *http.Request) *http.Response {
 
 func request(path, method, controlPath string, requestBody []byte) {
 	startTime := time.Now().UnixNano()
-	reqeustId := uuid.New().String()
+	requestId := uuid.New().String()
 
 	memoryLimit := queryMemoryLimit()
 
 	req, err := http.NewRequest(method, fmt.Sprintf("http://localhost:%d%s", serverPort, path), nil)
 	checkError(err)
 
-	addFcReqHeaders(req, reqeustId, controlPath)
+	addFcReqHeaders(req, requestId, controlPath)
 
 	if *httpFlag {
 		updateHttpReqByHttpParams(req)
@@ -306,11 +316,12 @@ func request(path, method, controlPath string, requestBody []byte) {
 		fmt.Println("--------------------response end-----------------")
 
 		fmt.Println("--------------------execution info begin-----------------")
-		execInfo := fmt.Sprintf("%s\n%d\n%s\n%s", reqeustId, billedTime, memoryLimit, queryMemoryUsage())
+		execInfo := fmt.Sprintf("%s\n%d\n%s\n%s", requestId, billedTime, memoryLimit, queryMemoryUsage())
 
 		fmt.Println(base64.StdEncoding.EncodeToString([]byte(execInfo)))
 		fmt.Println("--------------------execution info end-----------------")
 	} else {
 		fmt.Println(string(body))
+		fmt.Println(fmt.Sprintf("\nRequestId: %s  Billed Duration: %d ms    Memory Size: %s MB    Max Memory Used: %s MB", requestId, billedTime, memoryLimit, queryMemoryUsage()))
 	}
 }
