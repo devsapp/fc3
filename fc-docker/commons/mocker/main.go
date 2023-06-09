@@ -35,6 +35,8 @@ var (
 	eventDecode           = flag.Bool("event-decode", false, "")
 )
 
+var serverPort = getEnv("FC_SERVER_PORT", "9000")
+
 type HTTPParams struct {
 	Path       string              `json:"path"`
 	Method     string              `json:"method"`
@@ -56,10 +58,6 @@ func waitHostPortAvailable(hostPort string) error {
 		time.Sleep(time.Duration(10) * time.Millisecond)
 	}
 }
-
-const (
-	serverPort = 9000
-)
 
 func checkError(err error) {
 	if err != nil {
@@ -173,7 +171,7 @@ func main() {
 		}
 	}
 
-	err = waitHostPortAvailable("127.0.0.1:9000")
+	err = waitHostPortAvailable(fmt.Sprintf("127.0.0.1:%s", serverPort))
 
 	checkError(err)
 
@@ -253,7 +251,7 @@ func updateHttpReqByHttpParams(req *http.Request) {
 
 	json.Unmarshal(decodeBytes, &httpParams)
 
-	req.URL, err = url.Parse(fmt.Sprintf("http://localhost:%d%s", serverPort, httpParams.RequestURI))
+	req.URL, err = url.Parse(fmt.Sprintf("http://localhost:%s%s", serverPort, httpParams.RequestURI))
 
 	checkError(err)
 
@@ -286,7 +284,7 @@ func request(path, method, controlPath string, requestBody []byte) {
 
 	memoryLimit := queryMemoryLimit()
 
-	req, err := http.NewRequest(method, fmt.Sprintf("http://localhost:%d%s", serverPort, path), nil)
+	req, err := http.NewRequest(method, fmt.Sprintf("http://localhost:%s%s", serverPort, path), nil)
 	checkError(err)
 
 	addFcReqHeaders(req, requestId, controlPath)

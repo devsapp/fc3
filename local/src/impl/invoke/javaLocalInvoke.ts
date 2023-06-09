@@ -1,7 +1,7 @@
-import { BaseLocalInvoke } from './baseLocal';
+import { BaseLocalInvoke } from './baseLocalInvoke';
 import { lodash as _ } from '@serverless-devs/core';
-import { IDE_INTELLIJ } from './const';
-import logger from '../common/logger';
+import { IDE_INTELLIJ } from '../const';
+import logger from '../../common/logger';
 
 export class JavaLocalInvoke extends BaseLocalInvoke {
 
@@ -10,8 +10,8 @@ export class JavaLocalInvoke extends BaseLocalInvoke {
     if (!ret) {
       return ret;
     }
-    if (!_.isEmpty(this.getDebugIDE()) && this.getDebugIDE() != IDE_INTELLIJ) {
-      logger.error("nodejs runtime debug only support intellij");
+    if (_.isString(this.getDebugIDE()) && this.getDebugIDE() != IDE_INTELLIJ) {
+      logger.error("java runtime debug only support intellij");
       return false;
     }
     return true;

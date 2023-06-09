@@ -10,7 +10,6 @@ import { defaultFcDockerVersion } from './const';
 
 export class Builder {
   inputProps: InputProps;
-  fcCore: any;
   constructor(props: InputProps) {
     this.inputProps = props;
   }
@@ -116,12 +115,11 @@ export class Builder {
   private checkAcreeInstanceID(imageName: string, instanceID: string) {
     // 如果是企业镜像，并且非正常 build 验证，企业镜像配置
     if (isAcreeRegistry(imageName) && !instanceID) {
-      throw new this.fcCore.CatchableError('When an enterprise version instance is selected for the container image, you need to add an instanceID to the enterprise version of the container image service. Refer to: https://docs.serverless-devs.com/fc/yaml/function#customcontainerconfig');
+      throw new Error('When an enterprise version instance is selected for the container image, you need to add an instanceID to the enterprise version of the container image service. Refer to: https://docs.serverless-devs.com/fc/yaml/function#customcontainerconfig');
     }
   }
 
   async mockDockerLogin() {
-    this.fcCore = await loadComponent('devsapp/fc-core');
     const acrInstanceID = this.getAcrEEInstanceID();
     logger.info(`acrInstanceID: ${acrInstanceID}`);
     let imageName = this.getRuntimeBuildImage();

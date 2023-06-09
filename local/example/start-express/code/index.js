@@ -3,10 +3,10 @@ var express = require('express');
 var app = express();
 
 app.get('*', (req, res) => {
-    res.header('Content-Type', 'text/html;charset=utf-8')
-    console.log('test');
+  res.header('Content-Type', 'text/html;charset=utf-8')
+  console.log('test');
 
-    res.send(`<html xmlns="http://www.w3.org/1999/xhtml">
+  res.send(`<html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <title>Serverless Devs - Powered By Serverless Devs</title>
@@ -34,7 +34,7 @@ app.get('*', (req, res) => {
 })
 
 app.listen(9001, () => {
-    console.log('start success.');
+  console.log('start success.');
 }).on('error', (e) => {
-    console.error(e.code, e.message)
+  console.error(e.code, e.message)
 })

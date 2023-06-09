@@ -1,7 +1,7 @@
-import { BaseLocalInvoke } from './baseLocal';
+import { BaseLocalInvoke } from './baseLocalInvoke';
 import { lodash as _ } from '@serverless-devs/core';
-import { IDE_VSCODE } from './const';
-import logger from '../common/logger';
+import { IDE_VSCODE } from '../const';
+import logger from '../../common/logger';
 
 export class NodejsLocalInvoke extends BaseLocalInvoke {
 
@@ -10,7 +10,7 @@ export class NodejsLocalInvoke extends BaseLocalInvoke {
     if (!ret) {
       return ret;
     }
-    if (!_.isEmpty(this.getDebugIDE()) && this.getDebugIDE() != IDE_VSCODE) {
+    if (_.isString(this.getDebugIDE()) && this.getDebugIDE() != IDE_VSCODE) {
       logger.error("nodejs runtime debug only support vscode");
       return false;
     }

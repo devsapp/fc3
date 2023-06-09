@@ -1,11 +1,12 @@
 import logger from './common/logger';
 import { InputProps } from './impl/interface';
-import { NodejsLocalInvoke } from './impl/nodejsLocal';
-import { PythonLocalInvoke } from './impl/pythonLocal';
-import { JavaLocalInvoke } from './impl/javaLocal';
-import { PhpLocalInvoke } from './impl/phpLocal';
-import { DotnetLocalInvoke } from './impl/dotnetLocal';
-import { CustomLocalInvoke } from './impl/customLocal';
+import { NodejsLocalInvoke } from './impl/invoke/nodejsLocalInvoke';
+import { PythonLocalInvoke } from './impl/invoke/pythonLocalInvoke';
+import { JavaLocalInvoke } from './impl/invoke/javaLocalInvoke';
+import { PhpLocalInvoke } from './impl/invoke/phpLocalInvoke';
+import { DotnetLocalInvoke } from './impl/invoke/dotnetLocalInvoke';
+import { CustomLocalInvoke } from './impl/invoke/customLocalInvoke';
+import { CustomLocalStart } from './impl/start/customLocalStart';
 
 export default class ComponentBuild {
   /**
@@ -13,8 +14,11 @@ export default class ComponentBuild {
    * @returns
    */
   public async invoke(inputs: InputProps) {
-    logger.debug(`input: ${JSON.stringify(inputs.props)}`);
-    logger.info('command invoke');
+    logger.debug(`invoke input: ${JSON.stringify(inputs.props)}`);
+    if (inputs.props.triggers?.[0].type === "http") {
+      logger.warn("http function should use local start");
+      return {};
+    }
     switch (inputs.props.function.runtime) {
       case "nodejs6":
       case "nodejs8":
@@ -49,9 +53,35 @@ export default class ComponentBuild {
         let customLocalInvoker = new CustomLocalInvoke(inputs);
         customLocalInvoker.invoke();
         break;
+      // TODO
+      // case "custom-container":
+      //   break;
       default:
         logger.warn(`${inputs.props.function.runtime} is not supported`);
     }
     return {};
+  }
+
+  public async start(inputs: InputProps) {
+    logger.debug(`start input: ${JSON.stringify(inputs.props)}`);
+    if (!(inputs.props.triggers?.[0].type === "http")) {
+      logger.warn("http function should use local invoke");
+      return {};
+    }
+
+    switch (inputs.props.function.runtime) {
+      case "custom":
+      case "custom.debian10":
+        let customLocalInvoker = new CustomLocalStart(inputs);
+        customLocalInvoker.start();
+        break;
+      // TODO
+      // case "custom-container":
+      //   break;
+      default:
+        logger.warn(`${inputs.props.function.runtime} is not supported`);
+    }
+
+
   }
 }

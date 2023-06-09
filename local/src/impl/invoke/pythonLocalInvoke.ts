@@ -1,7 +1,7 @@
-import { BaseLocalInvoke } from './baseLocal';
+import { BaseLocalInvoke } from './baseLocalInvoke';
 import { lodash as _ } from '@serverless-devs/core';
-import { IDE_VSCODE } from './const'
-import logger from '../common/logger';
+import { IDE_VSCODE } from '../const'
+import logger from '../../common/logger';
 
 export class PythonLocalInvoke extends BaseLocalInvoke {
 
@@ -11,7 +11,7 @@ export class PythonLocalInvoke extends BaseLocalInvoke {
       return ret;
     }
     const debugIDEArray: string[] = [IDE_VSCODE];
-    if (!_.isEmpty(this.getDebugIDE()) && !debugIDEArray.includes(this.getDebugIDE())) {
+    if (_.isString(this.getDebugIDE()) && !debugIDEArray.includes(this.getDebugIDE())) {
       logger.error("python runtime debug only support vscode");
       return false;
     }

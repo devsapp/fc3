@@ -1,4 +1,4 @@
-import { BaseLocalInvoke } from './baseLocal';
+import { BaseLocalInvoke } from './baseLocalInvoke';
 import { lodash as _ } from '@serverless-devs/core';
 
 export class DotnetLocalInvoke extends BaseLocalInvoke {

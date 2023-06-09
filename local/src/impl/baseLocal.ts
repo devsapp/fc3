@@ -1,10 +1,9 @@
 import { InputProps, ICredentials, ICodeUri } from './interface';
-import { getTimeZone, vpcImage2InternetImage, formatJsonString } from './utils';
+import { getTimeZone, vpcImage2InternetImage } from './utils';
 import path from 'path';
 import logger from '../common/logger';
 import { lodash as _ } from '@serverless-devs/core';
 import { defaultFcDockerVersion, IDE_VSCODE } from './const';
-import { runShellCommand } from "./runCommand";
 import * as core from '@serverless-devs/core';
 import { v4 as uuidv4 } from 'uuid';
 import extract from "extract-zip";
@@ -13,7 +12,7 @@ import * as fs from 'fs-extra';
 import * as rimraf from 'rimraf';
 
 
-export class BaseLocalInvoke {
+export class BaseLocal {
   protected inputProps: InputProps;
   protected defaultDebugArgs: string;
   protected _argsData: object;
@@ -42,6 +41,10 @@ export class BaseLocalInvoke {
 
   getFunctionProps(): any {
     return this.inputProps.props.function;
+  }
+
+  getFunctionTriggers(): any {
+    return this.inputProps.props.triggers;
   }
 
   getRuntime(): string {
@@ -73,7 +76,7 @@ export class BaseLocalInvoke {
   }
 
   getMemorySize(): number {
-    return this.getFunctionProps().memorySize as number;
+    return this.getFunctionProps().memorySize as number || 128;
   }
 
   getRegion(): string {
@@ -86,6 +89,10 @@ export class BaseLocalInvoke {
 
   getAcrEEInstanceID(): string {
     return _.get(this.getFunctionProps().customContainerConfig.acrInstanceID);
+  }
+
+  isHttpFunction(): boolean {
+    return this.getFunctionTriggers()?.[0].type === "http";
   }
 
   isCustomContainerRuntime(): boolean {
@@ -144,44 +151,6 @@ export class BaseLocalInvoke {
     }
   }
 
-  beforeInvoke(): boolean {
-    logger.debug("beforeBuild ...");
-    const codeUriValid = this.checkCodeUri();
-    logger.debug(`checkCodeUri = ${codeUriValid}`)
-    if ((!codeUriValid && !this.isCustomContainerRuntime())) {
-      logger.error("codeUri is invalid when runtime is not custom-container");
-      return false;
-    }
-    if ((!_.isEmpty(this.getDebugIDE) && _.isEmpty(this.getDebugPort)) || (_.isEmpty(this.getDebugIDE) && !_.isEmpty(this.getDebugPort))) {
-      logger.error("Args config and debug-port must exist simultaneously")
-      return false;
-    }
-    return true;
-  }
-
-  afterInvoke() {
-    logger.debug("afterInvoke ...");
-    if (this.unzippedCodeDir) {
-      rimraf.sync(this.unzippedCodeDir);
-      console.log(`clean tmp code dir ${this.unzippedCodeDir} successfully`);
-      this.unzippedCodeDir = undefined;
-    }
-  }
-
-  async invoke() {
-    const check = this.beforeInvoke();
-    if (!check) {
-      return;
-    }
-    await this.runInvoke();
-    this.afterInvoke();
-  }
-
-  async runInvoke() {
-    const cmdStr = await this.getLocalInvokeCmdStr();
-    await runShellCommand(cmdStr, true);
-  }
-
   async getMountString(): Promise<string> {
     // TODO: layer and  tmp dir
     const codeUri = await this.getCodeUri();
@@ -199,6 +168,7 @@ export class BaseLocalInvoke {
       "FC_TIMEOUT": this.getTimeout(),
       "FC_MEMORY_SIZE": this.getMemorySize(),
       "FC_FUNCTION_NAME": this.getFunctionName(),
+      "FC_REGION": this.getRegion(),
     };
     if (!_.isEmpty(this.getInitializer())) {
       sysEnvs["FC_INITIALIZER"] = this.getInitializer();
@@ -230,26 +200,6 @@ export class BaseLocalInvoke {
     }
 
     return envStr;
-  }
-
-  getEventString(): string {
-    let eventStr = this.getArgsData()['event']
-    if (!_.isEmpty(_.trim(eventStr))) {
-      return `--event '${formatJsonString(eventStr)}'`
-    }
-    // TODO:  stdin or file
-    return "";
-  }
-
-  async getLocalInvokeCmdStr(): Promise<string> {
-    const mntStr = await this.getMountString();
-    let dockerCmdStr = `docker run --rm --memory=${this.getMemorySize()}m ${mntStr} ${this.getEnvString()} ${this.getRuntimeRunImage()} ${this.getEventString()}`;
-    if (!_.isEmpty(this.getDebugArgs())) {
-      if (this.getDebugIDE() == IDE_VSCODE) {
-        await this.writeVscodeDebugConfig();
-      }
-    }
-    return dockerCmdStr
   }
 
   async writeVscodeDebugConfig(): Promise<void> {
@@ -285,5 +235,33 @@ export class BaseLocalInvoke {
 
   getDebugIDE(): string {
     return this.getArgsData()['config'] as string;
+  }
+
+  debugIDEIsVsCode(): boolean {
+    return this.getDebugIDE() == IDE_VSCODE;
+  }
+
+  before(): boolean {
+    logger.debug("before ...");
+    const codeUriValid = this.checkCodeUri();
+    logger.debug(`checkCodeUri = ${codeUriValid}`)
+    if ((!codeUriValid && !this.isCustomContainerRuntime())) {
+      logger.error("codeUri is invalid when runtime is not custom-container");
+      return false;
+    }
+    if ((!_.isString(this.getDebugIDE()) && _.isFinite(this.getDebugPort())) || (_.isString(this.getDebugIDE()) && !_.isFinite(this.getDebugPort()))) {
+      logger.error("Args config and debug-port must exist simultaneously");
+      return false;
+    }
+    return true;
+  }
+
+  after() {
+    logger.debug("after ...");
+    if (this.unzippedCodeDir) {
+      rimraf.sync(this.unzippedCodeDir);
+      console.log(`clean tmp code dir ${this.unzippedCodeDir} successfully`);
+      this.unzippedCodeDir = undefined;
+    }
   }
 }
