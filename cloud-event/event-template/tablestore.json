@@ -1,0 +1,25 @@
+{
+  "Version": "string",
+  "Records": [
+    {
+      "Type": "string",
+      "Info": {
+        "Timestamp": "int64"
+      },
+      "PrimaryKey": [
+        {
+          "ColumnName": "string",
+          "Value": "formated_value"
+        }
+      ],
+      "Columns": [
+        {
+          "Type": "string",
+          "ColumnName": "string",
+          "Value": "formated_value",
+          "Timestamp": "int64"
+        }
+      ]
+    }
+  ]
+}

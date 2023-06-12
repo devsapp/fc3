@@ -1,5 +1,9 @@
 // most copy from build, todo combine
 import { lodash as _ } from '@serverless-devs/core';
+import http from 'http';
+import fs from 'fs';
+import { promisify } from 'util';
+import logger from '../common/logger';
 
 export function isAcreeRegistry(imageUrl: string): boolean { // 容器镜像企业服务
   const registry = _.split(imageUrl, '/')[0];
@@ -34,3 +38,15 @@ export function formatJsonString(str: string): string {
   }
 }
 
+
+export async function downloadFile(url: string, filename: string) {
+  try {
+    const file = fs.createWriteStream(filename);
+    const pipeline = promisify(require('stream').pipeline);
+    const response = await http.get(url);
+    await pipeline(response, file);
+    logger.info(`${url}  ==>   ${filename} has been downloaded.`);
+  } catch (err) {
+    logger.error(`Error downloading file: ${err}`);
+  }
+}

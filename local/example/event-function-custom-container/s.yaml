@@ -38,11 +38,13 @@ services:
         description: 'hello world by serverless devs'
         timeout: 30
         memorySize: 1024
-        runtime: custom
+        runtime: custom-container
         caPort: 9001
         codeUri: ./code
         instanceConcurrency: 4
-        customRuntimeConfig:
+        customContainerConfig:
+          image: 'registry.cn-beijing.aliyuncs.com/fc-demo/node-express:v1002'
           command:
             - node
+          args:
             - server.js

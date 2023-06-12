@@ -5,7 +5,7 @@ import logger from '../common/logger';
 import { lodash as _ } from '@serverless-devs/core';
 import { defaultFcDockerVersion, IDE_VSCODE } from './const';
 import * as core from '@serverless-devs/core';
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidV4 } from 'uuid';
 import extract from "extract-zip";
 import tmpDir from 'temp-dir';
 import * as fs from 'fs-extra';
@@ -53,6 +53,10 @@ export class BaseLocal {
 
   getFunctionName(): string {
     return this.getFunctionProps().name;
+  }
+
+  getCaPort(): number {
+    return this.getFunctionProps().caPort as number || 9000;
   }
 
   getHandler(): string {
@@ -107,7 +111,7 @@ export class BaseLocal {
     let src: string = _.isString(codeUri) ? codeUri as string : (codeUri as ICodeUri).src as string;
 
     if (_.endsWith(src, '.zip') || _.endsWith(src, '.jar') || _.endsWith(src, '.war')) {
-      const tmpCodeDir: string = path.join(tmpDir, uuidv4());
+      const tmpCodeDir: string = path.join(tmpDir, uuidV4());
       await fs.ensureDir(tmpCodeDir);
       logger.log(`codeUri is a zip format, will unzipping to ${tmpCodeDir}`);
       await extract(src, { dir: tmpCodeDir });
@@ -135,7 +139,7 @@ export class BaseLocal {
 
   getRuntimeRunImage(): string {
     if (this.isCustomContainerRuntime()) {
-      let image = vpcImage2InternetImage(this.getProps().customContainerConfig.image);
+      let image = vpcImage2InternetImage(this.getFunctionProps().customContainerConfig.image);
       return image;
     } else {
       // TODO, use fc.conf
@@ -169,6 +173,7 @@ export class BaseLocal {
       "FC_MEMORY_SIZE": this.getMemorySize(),
       "FC_FUNCTION_NAME": this.getFunctionName(),
       "FC_REGION": this.getRegion(),
+      "FC_SERVER_PORT": this.getCaPort(),
     };
     if (!_.isEmpty(this.getInitializer())) {
       sysEnvs["FC_INITIALIZER"] = this.getInitializer();

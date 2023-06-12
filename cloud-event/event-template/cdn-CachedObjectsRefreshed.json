@@ -1,0 +1,29 @@
+{
+  "events": [
+    {
+      "eventName": "CachedObjectsRefreshed",
+      "eventVersion": "1.0.0",
+      "eventSource": "cdn",
+      "region": "cn-hangzhou",
+      "eventTime": "2018-03-16T14:19:55+08:00",
+      "traceId": "cf89e5a8-7d59-4bb5-a33e-4c3d08e25acf",
+      "resource": {
+        "domain": "example.com"
+      },
+      "eventParameter": {
+        "objectPath": [
+          "/2018/03/16/13/33b430c57e7.mp4",
+          "/2018/03/16/14/4ff6b9bd54d.mp4"
+        ],
+        "createTime": 1521180769,
+        "domain": "example.com",
+        "completeTime": 1521180777,
+        "objectType": "File",
+        "taskId": 2089687230
+      },
+      "userIdentity": {
+        "aliUid": "1xxxxxxxxxx"
+      }
+    }
+  ]
+}

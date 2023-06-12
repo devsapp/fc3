@@ -1,0 +1,41 @@
+edition: 1.0.0
+name: framework
+access: 'default'
+
+services:
+  framework:
+    component: ${path(../..)}
+    # actions:
+    #   pre-deploy:
+    #     - component: fc build --use-docker --dockerfile ./code/Dockerfile
+    props:
+      region: cn-beijing
+      service:
+        name: web-framework
+        description: 'Serverless Devs Web Framework Service'
+      function:
+        name: express
+        description: 'Serverless Devs Web Framework Express Function'
+        codeUri: './code'
+        runtime: custom-container
+        timeout: 60
+        caPort: 9001
+        customContainerConfig:
+          image: 'registry.cn-beijing.aliyuncs.com/fc-demo/node-express:v1001'
+          command:
+            - node
+          args:
+            - index.js
+
+      triggers:
+        - name: httpTrigger
+          type: http
+          config:
+            authType: anonymous
+            methods:
+              - GET
+      customDomains:
+        - domainName: auto
+          protocol: HTTP
+          routeConfigs:
+            - path: '/*'

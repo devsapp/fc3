@@ -33,7 +33,7 @@ app.post('/invoke', (req, res) => {
     return res.status(404).send(e.stack || e);
   }
 
-  res.send('OK');
+  res.send('OK\n');
   console.log(`FC Invoke End RequestId: ${rid}`)
 });
 

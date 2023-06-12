@@ -33,7 +33,7 @@ export class BaseLocalInvoke extends BaseLocal {
   getEventString(): string {
     let eventStr = this.getArgsData()['event']
     if (!_.isEmpty(_.trim(eventStr))) {
-      return `--event '${formatJsonString(eventStr)}'`
+      return formatJsonString(eventStr);
     }
     // TODO:  stdin or file
     return "";
@@ -41,7 +41,7 @@ export class BaseLocalInvoke extends BaseLocal {
 
   async getLocalInvokeCmdStr(): Promise<string> {
     const mntStr = await this.getMountString();
-    let dockerCmdStr = `docker run --rm --memory=${this.getMemorySize()}m ${mntStr} ${this.getEnvString()} ${this.getRuntimeRunImage()} ${this.getEventString()}`;
+    let dockerCmdStr = `docker run --rm --memory=${this.getMemorySize()}m ${mntStr} ${this.getEnvString()} ${this.getRuntimeRunImage()} --event '${this.getEventString()}'`;
     if (!_.isEmpty(this.getDebugArgs())) {
       if (this.debugIDEIsVsCode()) {
         await this.writeVscodeDebugConfig();

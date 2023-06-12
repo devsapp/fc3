@@ -1,0 +1,11 @@
+node_modules
+.s
+tsconfig.json
+LICENSE
+package-lock.json
+.prettierrc.js
+.gitignore
+./example
+./src
+.git*
+.DS_Store

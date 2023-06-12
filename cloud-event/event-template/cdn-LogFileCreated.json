@@ -1,0 +1,25 @@
+{
+  "events": [
+    {
+      "eventName": "LogFileCreated",
+      "eventSource": "cdn",
+      "region": "cn-hangzhou",
+      "eventVersion": "1.0.0",
+      "eventTime": "2018-06-14T15:31:49+08:00",
+      "traceId": "c6459282-6a4d-4413-894c-e4ea39686738",
+      "userIdentity": {
+        "aliUid": "1xxxxxxxxxxxx"
+      },
+      "resource": {
+        "domain": "example.com"
+      },
+      "eventParameter": {
+        "domain": "example.com",
+        "endTime": 1528959900,
+        "fileSize": 1788115,
+        "filePath": "http://cdnlog.cn-hangzhou.oss.aliyun-inc.com/www.aliyun.com/2017_12_27/www.aliyun.com_2017_12_27_0800_0900.gz?OSSAccessKeyId=xxxx&Expires=xxxx&Signature=xxxx",
+        "startTime": 1528959600
+      },
+    }
+  ]
+}

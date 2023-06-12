@@ -6,7 +6,9 @@ import { JavaLocalInvoke } from './impl/invoke/javaLocalInvoke';
 import { PhpLocalInvoke } from './impl/invoke/phpLocalInvoke';
 import { DotnetLocalInvoke } from './impl/invoke/dotnetLocalInvoke';
 import { CustomLocalInvoke } from './impl/invoke/customLocalInvoke';
+import { CustomContainerLocalInvoke } from './impl/invoke/customContainerLocalInvoke';
 import { CustomLocalStart } from './impl/start/customLocalStart';
+import { CustomContainerLocalStart } from './impl/start/customContainerLocalStart';
 
 export default class ComponentBuild {
   /**
@@ -53,9 +55,10 @@ export default class ComponentBuild {
         let customLocalInvoker = new CustomLocalInvoke(inputs);
         customLocalInvoker.invoke();
         break;
-      // TODO
-      // case "custom-container":
-      //   break;
+      case "custom-container":
+        let customContainerLocalInvoker = new CustomContainerLocalInvoke(inputs);
+        customContainerLocalInvoker.invoke();
+        break;
       default:
         logger.warn(`${inputs.props.function.runtime} is not supported`);
     }
@@ -75,13 +78,12 @@ export default class ComponentBuild {
         let customLocalInvoker = new CustomLocalStart(inputs);
         customLocalInvoker.start();
         break;
-      // TODO
-      // case "custom-container":
-      //   break;
+      case "custom-container":
+        let customContainerLocalInvoker = new CustomContainerLocalStart(inputs);
+        customContainerLocalInvoker.start();
+        break;
       default:
         logger.warn(`${inputs.props.function.runtime} is not supported`);
     }
-
-
   }
 }
