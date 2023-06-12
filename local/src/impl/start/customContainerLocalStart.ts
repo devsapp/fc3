@@ -2,6 +2,7 @@ import { BaseLocalStart } from './baseLocalStart';
 import { lodash as _ } from '@serverless-devs/core';
 import logger from '../../common/logger';
 import * as portFinder from 'portfinder';
+import { exec } from 'child_process';
 
 export class CustomContainerLocalStart extends BaseLocalStart {
 
@@ -42,6 +43,22 @@ export class CustomContainerLocalStart extends BaseLocalStart {
       }
     }
     return dockerCmdStr
+  }
+
+  async runStart() {
+    process.on('SIGINT', () => {
+      console.log('SIGINT, stop container');
+      exec(`docker ps -a | grep ${this.getRuntimeRunImage()} | awk '{print $1}' | xargs docker kill`, (error, stdout, stderr) => {
+        if (error) {
+          console.error(`error: ${error}`);
+          return;
+        }
+        console.log(`stdout: ${stdout}`);
+        console.error(`stderr: ${stderr}`);
+        process.exit();
+      });
+    });
+    super.runStart();
   }
 
 }

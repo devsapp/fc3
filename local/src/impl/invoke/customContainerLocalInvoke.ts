@@ -3,6 +3,7 @@ import { lodash as _ } from '@serverless-devs/core';
 import logger from '../../common/logger';
 import * as portFinder from 'portfinder';
 import { v4 as uuidV4 } from 'uuid';
+import { exec } from 'child_process';
 
 export class CustomContainerLocalInvoke extends BaseLocalInvoke {
 
@@ -53,5 +54,21 @@ export class CustomContainerLocalInvoke extends BaseLocalInvoke {
       }
     }
     return dockerCmdStr
+  }
+
+  async runInvoke() {
+    process.on('SIGINT', () => {
+      console.log('SIGINT, stop container');
+      exec(`docker ps -a | grep ${this.getRuntimeRunImage()} | awk '{print $1}' | xargs docker kill`, (error, stdout, stderr) => {
+        if (error) {
+          console.error(`error: ${error}`);
+          return;
+        }
+        console.log(`stdout: ${stdout}`);
+        console.error(`stderr: ${stderr}`);
+        process.exit();
+      });
+    });
+    super.runInvoke();
   }
 }
