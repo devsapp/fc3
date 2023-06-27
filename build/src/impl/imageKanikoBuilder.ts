@@ -1,6 +1,6 @@
 import { Builder } from './baseBuilder';
 import logger from '../common/logger';
-import { runCommand } from "./docker/runCommand";
+import { runCommand } from './docker/runCommand';
 import path from 'path';
 
 export class ImageKanikoBuilder extends Builder {
@@ -9,7 +9,7 @@ export class ImageKanikoBuilder extends Builder {
     await this.mockDockerLogin();
 
     // TODO: parse dockerfile and context from args
-    const dockerFile = path.join(this.getCodeUri(), "Dockerfile");
+    const dockerFile = path.join(this.getCodeUri(), 'Dockerfile');
     const context = this.getCodeUri();
 
     let cmdStr = `executor --force=true --cache=false --use-new-run=true --dockerfile ${dockerFile} --context ${context} --destination ${this.getRuntimeBuildImage()}`;

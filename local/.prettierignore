@@ -12,3 +12,6 @@ src/eslint-plugin-tslint/tests/test-tslint-rules-directory/alwaysFailRule.js
 src/eslint-plugin/src/configs/*.json
 .all-contributorsrc
 CONTRIBUTORS.md
+node_modules/
+examples/
+dist/

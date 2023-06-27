@@ -11,7 +11,7 @@ export default class ComponentBuild {
   public async build(inputs: InputProps) {
     logger.debug(`input: ${JSON.stringify(inputs.props)}`);
     logger.info('command build');
-    if (inputs.props.runtime === "custom-container") {
+    if (inputs.props.runtime === 'custom-container') {
       let dockerBuilder = BuilderFactory.getBuilder(BuildType.ImageDocker, inputs);
       dockerBuilder.build();
     } else {

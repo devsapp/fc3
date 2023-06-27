@@ -6,43 +6,54 @@ import { v4 as uuidV4 } from 'uuid';
 import { exec } from 'child_process';
 
 export class CustomContainerLocalInvoke extends BaseLocalInvoke {
-
   getDebugArgs(): string {
     if (_.isFinite(this.getDebugPort())) {
       // TODO 参数支持自定义调试参数实现断点调试
       // 比如调试的是 node 编写的 custom runtime 函数， DebugArgs 可以和 nodejs runtime 的看齐
     }
-    return "";
+    return '';
   }
 
   getEnvString(): string {
     let envStr = super.getEnvString();
     if (!_.isEmpty(this.getBootStrap())) {
-      envStr += ` -e "AGENT_SCRIPT=${this.getBootStrap()}"`
+      envStr += ` -e "AGENT_SCRIPT=${this.getBootStrap()}"`;
     }
     return envStr;
   }
 
   getBootStrap(): string {
     if (!this.isCustomContainerRuntime()) {
-      throw new Error("only custom container get command and args");
+      throw new Error('only custom container get command and args');
     }
-    let bootStrap = "";
+    let bootStrap = '';
     const customContainerConfig = this.getFunctionProps().customContainerConfig;
-    if (_.has(customContainerConfig, "command")) {
+    if (_.has(customContainerConfig, 'command')) {
       bootStrap += customContainerConfig.command.join(' ');
     }
-    if (_.has(customContainerConfig, "args")) {
-      bootStrap += " " + customContainerConfig.args.join(' ');
+    if (_.has(customContainerConfig, 'args')) {
+      bootStrap += ' ' + customContainerConfig.args.join(' ');
     }
-    return bootStrap
+    return bootStrap;
   }
-
 
   async getLocalInvokeCmdStr(): Promise<string> {
     const port = await portFinder.getPortPromise({ port: this.getCaPort() });
-    logger.log(`You can use curl or Postman to make an HTTP request to 127.0.0.1:${port} to test the function. for example:`, "yellow");
-    console.log(`curl -X POST 127.0.0.1:${port}/invoke -H "Content-Type: application/octet-stream" -H "x-fc-request-id: ${uuidV4()}" -H "x-fc-function-name: ${this.getFunctionName()}" -H "x-fc-function-memory: ${this.getMemorySize()}" -H "x-fc-function-timeout: ${this.getTimeout()}" -H "x-fc-initialization-timeout: ${this.getInitializerTimeout()}" -H "x-fc-function- nitializer: ${this.getInitializer()}" -H "x-fc-function-handler: ${this.getHandler()}" -H "x-fc-account-id: ${this.getCredentials().AccountID}" -H "x-fc-region: ${this.getRegion()}" -H "x-fc-access-key-id: ${this.getCredentials().AccessKeyID || ''} " -H "x-fc-access-key-secret: ${this.getCredentials().AccessKeySecret || ''}" -H "x-fc-security-token: ${this.getCredentials().SecurityToken || ''}" -d '${this.getEventString()}'`);
+    logger.log(
+      `You can use curl or Postman to make an HTTP request to 127.0.0.1:${port} to test the function. for example:`,
+      'yellow',
+    );
+    console.log(
+      `curl -X POST 127.0.0.1:${port}/invoke -H "Content-Type: application/octet-stream" -H "x-fc-request-id: ${uuidV4()}" -H "x-fc-function-name: ${this.getFunctionName()}" -H "x-fc-function-memory: ${this.getMemorySize()}" -H "x-fc-function-timeout: ${this.getTimeout()}" -H "x-fc-initialization-timeout: ${this.getInitializerTimeout()}" -H "x-fc-function- nitializer: ${this.getInitializer()}" -H "x-fc-function-handler: ${this.getHandler()}" -H "x-fc-account-id: ${
+        this.getCredentials().AccountID
+      }" -H "x-fc-region: ${this.getRegion()}" -H "x-fc-access-key-id: ${
+        this.getCredentials().AccessKeyID || ''
+      } " -H "x-fc-access-key-secret: ${
+        this.getCredentials().AccessKeySecret || ''
+      }" -H "x-fc-security-token: ${
+        this.getCredentials().SecurityToken || ''
+      }" -d '${this.getEventString()}'`,
+    );
 
     let dockerCmdStr = `docker run --rm -p ${port}:${this.getCaPort()} --memory=${this.getMemorySize()}m ${this.getEnvString()} ${this.getRuntimeRunImage()}`;
     if (!_.isEmpty(this.getBootStrap())) {
@@ -53,21 +64,24 @@ export class CustomContainerLocalInvoke extends BaseLocalInvoke {
         await this.writeVscodeDebugConfig();
       }
     }
-    return dockerCmdStr
+    return dockerCmdStr;
   }
 
   async runInvoke() {
     process.on('SIGINT', () => {
       console.log('SIGINT, stop container');
-      exec(`docker ps -a | grep ${this.getRuntimeRunImage()} | awk '{print $1}' | xargs docker kill`, (error, stdout, stderr) => {
-        if (error) {
-          console.error(`error: ${error}`);
-          return;
-        }
-        console.log(`stdout: ${stdout}`);
-        console.error(`stderr: ${stderr}`);
-        process.exit();
-      });
+      exec(
+        `docker ps -a | grep ${this.getRuntimeRunImage()} | awk '{print $1}' | xargs docker kill`,
+        (error, stdout, stderr) => {
+          if (error) {
+            console.error(`error: ${error}`);
+            return;
+          }
+          console.log(`stdout: ${stdout}`);
+          console.error(`stderr: ${stderr}`);
+          process.exit();
+        },
+      );
     });
     super.runInvoke();
   }

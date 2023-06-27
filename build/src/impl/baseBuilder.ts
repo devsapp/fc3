@@ -1,12 +1,10 @@
-
 import { InputProps, ICredentials, ICodeUri } from './interface';
 import { isAcreeRegistry, getTimeZone, vpcImage2InternetImage } from './utils';
 import path from 'path';
 import logger from '../common/logger';
 import { lodash as _, loadComponent } from '@serverless-devs/core';
-import { mockDockerConfigFile } from './docker/acr-login'
+import { mockDockerConfigFile } from './docker/acr-login';
 import { defaultFcDockerVersion } from './const';
-
 
 export class Builder {
   inputProps: InputProps;
@@ -35,15 +33,15 @@ export class Builder {
   }
 
   isCustomContainerRuntime(): boolean {
-    return this.getProps().runtime === "custom-container";
+    return this.getProps().runtime === 'custom-container';
   }
 
   getCodeUri(): string {
     if (!this.checkCodeUri()) {
-      return "";
+      return '';
     }
     const codeUri = this.inputProps.props.codeUri;
-    const src: string = _.isString(codeUri) ? codeUri as string : (codeUri as ICodeUri).src;
+    const src: string = _.isString(codeUri) ? (codeUri as string) : (codeUri as ICodeUri).src;
     const baseDir = process.cwd();
     const resolvedCodeUri = path.isAbsolute(src) ? src : path.join(baseDir, src);
     return resolvedCodeUri;
@@ -54,7 +52,7 @@ export class Builder {
     if (!codeUri) {
       return false;
     }
-    const src: string = _.isString(codeUri) ? codeUri as string : (codeUri as ICodeUri).src;
+    const src: string = _.isString(codeUri) ? (codeUri as string) : (codeUri as ICodeUri).src;
     if (!src) {
       logger.info('No Src configured, skip building.');
       return false;
@@ -75,7 +73,7 @@ export class Builder {
       // TODO, use fc.conf
       const fcDockerV = defaultFcDockerVersion;
       let image = `aliyunfc/runtime-${this.getRuntime()}:build-${fcDockerV}`;
-      if (getTimeZone() === "UTC+8") {
+      if (getTimeZone() === 'UTC+8') {
         image = `registry.cn-beijing.aliyuncs.com/aliyunfc/runtime-${this.getRuntime()}:build-${fcDockerV}`;
       } else {
         image = `aliyunfc/runtime-${this.getRuntime()}:build-${fcDockerV}`;
@@ -86,18 +84,18 @@ export class Builder {
   }
 
   beforeBuild(): boolean {
-    logger.debug("beforeBuild ...");
+    logger.debug('beforeBuild ...');
     const codeUriValid = this.checkCodeUri();
-    logger.debug(`checkCodeUri = ${codeUriValid}`)
-    if ((!codeUriValid)) {
+    logger.debug(`checkCodeUri = ${codeUriValid}`);
+    if (!codeUriValid) {
       return false;
     }
-    logger.debug(`codeUri = ${this.getCodeUri()}`)
+    logger.debug(`codeUri = ${this.getCodeUri()}`);
     return true;
   }
 
   afterBuild() {
-    logger.debug("afterBuild ...");
+    logger.debug('afterBuild ...');
   }
 
   public async build() {
@@ -109,13 +107,14 @@ export class Builder {
     this.afterBuild();
   }
 
-  public async runBuild() {
-  }
+  public async runBuild() {}
 
   private checkAcreeInstanceID(imageName: string, instanceID: string) {
     // 如果是企业镜像，并且非正常 build 验证，企业镜像配置
     if (isAcreeRegistry(imageName) && !instanceID) {
-      throw new Error('When an enterprise version instance is selected for the container image, you need to add an instanceID to the enterprise version of the container image service. Refer to: https://docs.serverless-devs.com/fc/yaml/function#customcontainerconfig');
+      throw new Error(
+        'When an enterprise version instance is selected for the container image, you need to add an instanceID to the enterprise version of the container image service. Refer to: https://docs.serverless-devs.com/fc/yaml/function#customcontainerconfig',
+      );
     }
   }
 
@@ -125,6 +124,6 @@ export class Builder {
     let imageName = this.getRuntimeBuildImage();
     this.checkAcreeInstanceID(imageName, acrInstanceID);
     await mockDockerConfigFile(this.getRegion(), imageName, this.getCredentials(), acrInstanceID);
-    logger.info("docker login successed with cr_tmp user!")
+    logger.info('docker login successed with cr_tmp user!');
   }
 }

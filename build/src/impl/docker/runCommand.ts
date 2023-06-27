@@ -34,4 +34,3 @@ export async function runCommand(command: string, shellScript?: string, showStdo
     });
   });
 }
-

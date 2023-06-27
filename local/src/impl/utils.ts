@@ -5,7 +5,8 @@ import fs from 'fs';
 import { promisify } from 'util';
 import logger from '../common/logger';
 
-export function isAcreeRegistry(imageUrl: string): boolean { // 容器镜像企业服务
+export function isAcreeRegistry(imageUrl: string): boolean {
+  // 容器镜像企业服务
   const registry = _.split(imageUrl, '/')[0];
   return registry.includes('registry') && registry.endsWith('cr.aliyuncs.com');
 }
@@ -37,7 +38,6 @@ export function formatJsonString(str: string): string {
     return str;
   }
 }
-
 
 export async function downloadFile(url: string, filename: string) {
   try {

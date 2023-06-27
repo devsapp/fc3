@@ -2,17 +2,16 @@ import { BaseLocal } from '../baseLocal';
 import { formatJsonString } from '../utils';
 import logger from '../../common/logger';
 import { lodash as _ } from '@serverless-devs/core';
-import { runShellCommand } from "../runCommand";
-
+import { runShellCommand } from '../runCommand';
 
 export class BaseLocalInvoke extends BaseLocal {
   beforeInvoke(): boolean {
-    logger.debug("beforeInvoke ...");
+    logger.debug('beforeInvoke ...');
     return super.before();
   }
 
   afterInvoke() {
-    logger.debug("afterInvoke ...");
+    logger.debug('afterInvoke ...');
     return super.after();
   }
 
@@ -31,12 +30,12 @@ export class BaseLocalInvoke extends BaseLocal {
   }
 
   getEventString(): string {
-    let eventStr = this.getArgsData()['event']
+    let eventStr = this.getArgsData()['event'];
     if (!_.isEmpty(_.trim(eventStr))) {
       return formatJsonString(eventStr);
     }
     // TODO:  stdin or file
-    return "";
+    return '';
   }
 
   async getLocalInvokeCmdStr(): Promise<string> {
@@ -47,6 +46,6 @@ export class BaseLocalInvoke extends BaseLocal {
         await this.writeVscodeDebugConfig();
       }
     }
-    return dockerCmdStr
+    return dockerCmdStr;
   }
 }

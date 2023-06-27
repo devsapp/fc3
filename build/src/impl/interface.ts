@@ -10,13 +10,13 @@ export interface ICredentials {
   TenantID?: string;
   ClientID?: string;
   ClientSecret?: string;
-  PrivateKeyData?: string
+  PrivateKeyData?: string;
 }
 
 export interface InputProps {
   props: any; // 用户自定义输入
   credentials: ICredentials; // 用户秘钥
-  appName: string; // 
+  appName: string; //
   project: {
     component: string; // 组件名（支持本地绝对路径）
     access: string; // 访问秘钥名
@@ -26,8 +26,8 @@ export interface InputProps {
   args: string; // 命令行 扩展参数
   argsObj: any;
   path: {
-    configPath: string // 配置路径
-  }
+    configPath: string; // 配置路径
+  };
 }
 
 export interface ICodeUri {

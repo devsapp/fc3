@@ -1,6 +1,7 @@
 import { lodash as _ } from '@serverless-devs/core';
 
-export function isAcreeRegistry(imageUrl: string): boolean { // 容器镜像企业服务
+export function isAcreeRegistry(imageUrl: string): boolean {
+  // 容器镜像企业服务
   const registry = _.split(imageUrl, '/')[0];
   return registry.includes('registry') && registry.endsWith('cr.aliyuncs.com');
 }

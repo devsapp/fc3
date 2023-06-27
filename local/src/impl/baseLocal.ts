@@ -6,11 +6,10 @@ import { lodash as _ } from '@serverless-devs/core';
 import { defaultFcDockerVersion, IDE_VSCODE } from './const';
 import * as core from '@serverless-devs/core';
 import { v4 as uuidV4 } from 'uuid';
-import extract from "extract-zip";
+import extract from 'extract-zip';
 import tmpDir from 'temp-dir';
 import * as fs from 'fs-extra';
 import * as rimraf from 'rimraf';
-
 
 export class BaseLocal {
   protected inputProps: InputProps;
@@ -56,15 +55,15 @@ export class BaseLocal {
   }
 
   getCaPort(): number {
-    return this.getFunctionProps().caPort as number || 9000;
+    return (this.getFunctionProps().caPort as number) || 9000;
   }
 
   getHandler(): string {
     let handler = this.getFunctionProps().handler;
-    if (this.getRuntime().startsWith("custom") && handler == undefined) {
-      handler = "index.handler"
+    if (this.getRuntime().startsWith('custom') && handler == undefined) {
+      handler = 'index.handler';
     }
-    return handler
+    return handler;
   }
 
   getTimeout(): number {
@@ -80,7 +79,7 @@ export class BaseLocal {
   }
 
   getMemorySize(): number {
-    return this.getFunctionProps().memorySize as number || 128;
+    return (this.getFunctionProps().memorySize as number) || 128;
   }
 
   getRegion(): string {
@@ -96,11 +95,11 @@ export class BaseLocal {
   }
 
   isHttpFunction(): boolean {
-    return this.getFunctionTriggers()?.[0].type === "http";
+    return this.getFunctionTriggers()?.[0].type === 'http';
   }
 
   isCustomContainerRuntime(): boolean {
-    return this.getFunctionProps().runtime === "custom-container";
+    return this.getFunctionProps().runtime === 'custom-container';
   }
 
   async getCodeUri(): Promise<string> {
@@ -108,7 +107,9 @@ export class BaseLocal {
       return this.unzippedCodeDir;
     }
     const codeUri = this.getFunctionProps().codeUri;
-    let src: string = _.isString(codeUri) ? codeUri as string : (codeUri as ICodeUri).src as string;
+    let src: string = _.isString(codeUri)
+      ? (codeUri as string)
+      : ((codeUri as ICodeUri).src as string);
 
     if (_.endsWith(src, '.zip') || _.endsWith(src, '.jar') || _.endsWith(src, '.war')) {
       const tmpCodeDir: string = path.join(tmpDir, uuidV4());
@@ -129,7 +130,9 @@ export class BaseLocal {
     if (!codeUri) {
       return false;
     }
-    const src: string = _.isString(codeUri) ? codeUri as string : (codeUri as ICodeUri).src as string;
+    const src: string = _.isString(codeUri)
+      ? (codeUri as string)
+      : ((codeUri as ICodeUri).src as string);
     if (!src) {
       logger.info('No Src configured');
       return false;
@@ -145,7 +148,7 @@ export class BaseLocal {
       // TODO, use fc.conf
       const fcDockerV = defaultFcDockerVersion;
       let image = `aliyunfc/runtime-${this.getRuntime()}:${fcDockerV}`;
-      if (getTimeZone() === "UTC+8") {
+      if (getTimeZone() === 'UTC+8') {
         image = `registry.cn-beijing.aliyuncs.com/aliyunfc/runtime-${this.getRuntime()}:${fcDockerV}`;
       } else {
         image = `aliyunfc/runtime-${this.getRuntime()}:${fcDockerV}`;
@@ -164,43 +167,43 @@ export class BaseLocal {
 
   getEnvString(): string {
     const sysEnvs = {
-      "FC_ACCOUNT_ID": this.getCredentials().AccountID || "",
-      "FC_ACCESS_KEY_ID": this.getCredentials().AccessKeyID || "",
-      "FC_ACCESS_KEY_SECRET": this.getCredentials().AccessKeySecret || "",
-      "FC_SECURITY_TOKEN": this.getCredentials().SecurityToken || "",
-      "FC_HANDLER": this.getHandler(),
-      "FC_TIMEOUT": this.getTimeout(),
-      "FC_MEMORY_SIZE": this.getMemorySize(),
-      "FC_FUNCTION_NAME": this.getFunctionName(),
-      "FC_REGION": this.getRegion(),
-      "FC_SERVER_PORT": this.getCaPort(),
+      FC_ACCOUNT_ID: this.getCredentials().AccountID || '',
+      FC_ACCESS_KEY_ID: this.getCredentials().AccessKeyID || '',
+      FC_ACCESS_KEY_SECRET: this.getCredentials().AccessKeySecret || '',
+      FC_SECURITY_TOKEN: this.getCredentials().SecurityToken || '',
+      FC_HANDLER: this.getHandler(),
+      FC_TIMEOUT: this.getTimeout(),
+      FC_MEMORY_SIZE: this.getMemorySize(),
+      FC_FUNCTION_NAME: this.getFunctionName(),
+      FC_REGION: this.getRegion(),
+      FC_SERVER_PORT: this.getCaPort(),
     };
     if (!_.isEmpty(this.getInitializer())) {
-      sysEnvs["FC_INITIALIZER"] = this.getInitializer();
-      sysEnvs["FC_INITIALIZATION_TIMEOUT"] = this.getInitializerTimeout();
+      sysEnvs['FC_INITIALIZER'] = this.getInitializer();
+      sysEnvs['FC_INITIALIZATION_TIMEOUT'] = this.getInitializerTimeout();
     }
 
-    let envStr = "";
+    let envStr = '';
     for (const item in sysEnvs) {
       // console.log(`${item}: ${sysEnvs[item]}`);
-      envStr += ` -e "${item}=${sysEnvs[item]}"`
+      envStr += ` -e "${item}=${sysEnvs[item]}"`;
     }
 
     // function envs
-    if ("environmentVariables" in this.getFunctionProps()) {
-      const envs = this.getFunctionProps().environmentVariables
+    if ('environmentVariables' in this.getFunctionProps()) {
+      const envs = this.getFunctionProps().environmentVariables;
       for (const item in envs) {
         //console.log(`${item}: ${envs[item]}`);
-        envStr += ` -e "${item}=${envs[item]}"`
+        envStr += ` -e "${item}=${envs[item]}"`;
       }
     }
 
     // breakpoint debugging
     logger.debug(`debug args ===> ${this.getDebugArgs()}`);
     if (!_.isEmpty(this.getDebugArgs())) {
-      envStr += ` -e "${this.getDebugArgs()}"`
-      if (!this.getRuntime().startsWith("php")) {
-        envStr += ` -p ${this.getDebugPort()}:${this.getDebugPort()}`
+      envStr += ` -e "${this.getDebugArgs()}"`;
+      if (!this.getRuntime().startsWith('php')) {
+        envStr += ` -p ${this.getDebugPort()}:${this.getDebugPort()}`;
       }
     }
 
@@ -209,13 +212,16 @@ export class BaseLocal {
 
   async writeVscodeDebugConfig(): Promise<void> {
     const baseDir = process.cwd();
-    const dotVsCodeDir = path.join(baseDir, ".vscode");
+    const dotVsCodeDir = path.join(baseDir, '.vscode');
     if (!fs.existsSync(dotVsCodeDir)) {
       fs.mkdirSync(dotVsCodeDir);
     }
-    const filename = path.join(dotVsCodeDir, "launch.json");
+    const filename = path.join(dotVsCodeDir, 'launch.json');
     const vscodeDebugConfig = await this.generateVscodeDebugConfig();
-    logger.log('You can paste these config to .vscode/launch.json, and then attach to your running function', 'yellow');
+    logger.log(
+      'You can paste these config to .vscode/launch.json, and then attach to your running function',
+      'yellow',
+    );
     logger.log('///////////////// config begin /////////////////');
     logger.log(vscodeDebugConfig);
     logger.log('///////////////// config end /////////////////');
@@ -231,7 +237,7 @@ export class BaseLocal {
   }
 
   getDebugArgs(): string {
-    return "";
+    return '';
   }
 
   getDebugPort(): number {
@@ -247,22 +253,25 @@ export class BaseLocal {
   }
 
   before(): boolean {
-    logger.debug("before ...");
+    logger.debug('before ...');
     const codeUriValid = this.checkCodeUri();
-    logger.debug(`checkCodeUri = ${codeUriValid}`)
-    if ((!codeUriValid && !this.isCustomContainerRuntime())) {
-      logger.error("codeUri is invalid when runtime is not custom-container");
+    logger.debug(`checkCodeUri = ${codeUriValid}`);
+    if (!codeUriValid && !this.isCustomContainerRuntime()) {
+      logger.error('codeUri is invalid when runtime is not custom-container');
       return false;
     }
-    if ((!_.isString(this.getDebugIDE()) && _.isFinite(this.getDebugPort())) || (_.isString(this.getDebugIDE()) && !_.isFinite(this.getDebugPort()))) {
-      logger.error("Args config and debug-port must exist simultaneously");
+    if (
+      (!_.isString(this.getDebugIDE()) && _.isFinite(this.getDebugPort())) ||
+      (_.isString(this.getDebugIDE()) && !_.isFinite(this.getDebugPort()))
+    ) {
+      logger.error('Args config and debug-port must exist simultaneously');
       return false;
     }
     return true;
   }
 
   after() {
-    logger.debug("after ...");
+    logger.debug('after ...');
     if (this.unzippedCodeDir) {
       rimraf.sync(this.unzippedCodeDir);
       console.log(`clean tmp code dir ${this.unzippedCodeDir} successfully`);

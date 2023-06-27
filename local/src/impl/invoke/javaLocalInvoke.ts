@@ -4,14 +4,13 @@ import { IDE_INTELLIJ } from '../const';
 import logger from '../../common/logger';
 
 export class JavaLocalInvoke extends BaseLocalInvoke {
-
   beforeInvoke(): boolean {
     const ret = super.beforeInvoke();
     if (!ret) {
       return ret;
     }
     if (_.isString(this.getDebugIDE()) && this.getDebugIDE() != IDE_INTELLIJ) {
-      logger.error("java runtime debug only support intellij");
+      logger.error('java runtime debug only support intellij');
       return false;
     }
     return true;
@@ -19,11 +18,11 @@ export class JavaLocalInvoke extends BaseLocalInvoke {
 
   getDebugArgs(): string {
     if (_.isFinite(this.getDebugPort())) {
-      if (this.getRuntime() === "java8") {
+      if (this.getRuntime() === 'java8') {
         return `DEBUG_OPTIONS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,quiet=y,address=${this.getDebugPort()}`;
       }
       return `DEBUG_OPTIONS=agentlib:jdwp=transport=dt_socket,server=y,suspend=y,quiet=y,address=*:${this.getDebugPort()}`;
     }
-    return "";
+    return '';
   }
 }

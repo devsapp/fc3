@@ -5,14 +5,13 @@ import { IDE_VSCODE } from '../const';
 import logger from '../../common/logger';
 
 export class PhpLocalInvoke extends BaseLocalInvoke {
-
   beforeInvoke(): boolean {
     const ret = super.beforeInvoke();
     if (!ret) {
       return ret;
     }
     if (_.isString(this.getDebugIDE()) && this.getDebugIDE() != IDE_VSCODE) {
-      logger.error("php runtime debug only support vscode");
+      logger.error('php runtime debug only support vscode');
       return false;
     }
     return true;
@@ -24,7 +23,7 @@ export class PhpLocalInvoke extends BaseLocalInvoke {
     if (_.isFinite(this.getDebugPort())) {
       return `XDEBUG_CONFIG=remote_enable=1 remote_autostart=1 remote_port=${this.getDebugPort()} remote_host=${remoteIp}`;
     }
-    return "";
+    return '';
   }
 
   async generateVscodeDebugConfig(): Promise<string> {
@@ -32,23 +31,25 @@ export class PhpLocalInvoke extends BaseLocalInvoke {
     const debugPort = this.getDebugPort();
     const functionName = this.getFunctionName();
 
-    return JSON.stringify({
-      'version': '0.2.0',
-      'configurations': [
-        {
-          'name': `fc/${functionName}`,
-          'type': 'php',
-          'request': 'launch',
-          'port': debugPort,
-          'stopOnEntry': false,
-          'pathMappings': {
-            '/code': `${codePath}`
+    return JSON.stringify(
+      {
+        version: '0.2.0',
+        configurations: [
+          {
+            name: `fc/${functionName}`,
+            type: 'php',
+            request: 'launch',
+            port: debugPort,
+            stopOnEntry: false,
+            pathMappings: {
+              '/code': `${codePath}`,
+            },
+            ignore: ['/var/fc/runtime/**'],
           },
-          'ignore': [
-            '/var/fc/runtime/**'
-          ]
-        }
-      ]
-    }, null, 4);
+        ],
+      },
+      null,
+      4,
+    );
   }
 }

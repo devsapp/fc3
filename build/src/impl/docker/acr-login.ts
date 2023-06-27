@@ -8,7 +8,10 @@ import { ICredentials } from '../interface';
 
 const { ROAClient } = require('@alicloud/pop-core');
 
-interface IDockerTmpConfig { dockerTmpUser: string; dockerTmpToken: string }
+interface IDockerTmpConfig {
+  dockerTmpUser: string;
+  dockerTmpToken: string;
+}
 
 function getAcrClient(region: string, credentials: ICredentials) {
   const acrClient = new ROAClient({
@@ -20,7 +23,11 @@ function getAcrClient(region: string, credentials: ICredentials) {
   });
   return acrClient;
 }
-async function getPopClient(credentials: ICredentials, endpoint: string, apiVersion: string): Promise<Pop> {
+async function getPopClient(
+  credentials: ICredentials,
+  endpoint: string,
+  apiVersion: string,
+): Promise<Pop> {
   return new Pop({
     endpoint,
     apiVersion,
@@ -41,7 +48,14 @@ async function getAuthorizationToken(region: string, credentials: ICredentials):
   };
   const requestOption = {};
   const acrClient = getAcrClient(region, credentials);
-  const response = await acrClient.request(httpMethod, uriPath, queries, body, headers, requestOption);
+  const response = await acrClient.request(
+    httpMethod,
+    uriPath,
+    queries,
+    body,
+    headers,
+    requestOption,
+  );
 
   return {
     dockerTmpUser: response?.data?.tempUserName,
@@ -49,7 +63,11 @@ async function getAuthorizationToken(region: string, credentials: ICredentials):
   };
 }
 
-async function createUserInfo(region: string, credentials: ICredentials, pwd: string): Promise<any> {
+async function createUserInfo(
+  region: string,
+  credentials: ICredentials,
+  pwd: string,
+): Promise<any> {
   const httpMethod = 'PUT';
   const uriPath = '/users';
   const queries = {};
@@ -66,19 +84,27 @@ async function createUserInfo(region: string, credentials: ICredentials, pwd: st
   await acrClient.request(httpMethod, uriPath, queries, body, headers, requestOption);
 }
 
-async function getAuthorizationTokenOfRegisrty(region: string, credentials: ICredentials): Promise<IDockerTmpConfig> {
+async function getAuthorizationTokenOfRegisrty(
+  region: string,
+  credentials: ICredentials,
+): Promise<IDockerTmpConfig> {
   let response;
   try {
     response = await getAuthorizationToken(region, credentials);
   } catch (e) {
     if (
-      e.statusCode === 401 || e.statusCode === 404 || e.result?.message === 'user is not exist.' || e.result?.code === 'USER_NOT_EXIST'
+      e.statusCode === 401 ||
+      e.statusCode === 404 ||
+      e.result?.message === 'user is not exist.' ||
+      e.result?.code === 'USER_NOT_EXIST'
     ) {
       // 子账号第一次需要先设置 Regisrty 的登陆密码后才能获取登录 Registry 的临时账号和临时密码
       // acr 密码要求: 8-32位，必须包含字母、符号或数字中的至少两项
       // 这里默认 uid:region:random(4) 生成一个初始密码
       const pwd = `${credentials.AccountID}_${random(4)}`;
-      logger.info(`Aliyun ACR need the sub account to set password(init is ${pwd}) for logging in the registry https://cr.${region}.aliyuncs.com first if you want fc component to push image automatically`);
+      logger.info(
+        `Aliyun ACR need the sub account to set password(init is ${pwd}) for logging in the registry https://cr.${region}.aliyuncs.com first if you want fc component to push image automatically`,
+      );
       await createUserInfo(region, credentials, pwd);
       response = await getAuthorizationToken(region, credentials);
     } else {
@@ -89,21 +115,28 @@ async function getAuthorizationTokenOfRegisrty(region: string, credentials: ICre
   return response;
 }
 
-async function getAuthorizationTokenForAcrEE(region: string, credentials: ICredentials, instanceID: string): Promise<IDockerTmpConfig> {
+async function getAuthorizationTokenForAcrEE(
+  region: string,
+  credentials: ICredentials,
+  instanceID: string,
+): Promise<IDockerTmpConfig> {
   const client = await getPopClient(credentials, `https://cr.${region}.aliyuncs.com`, '2018-12-01');
   const requestOption = {
     method: 'POST',
     formatParams: false,
   };
 
-  const result: any = await client.request('GetAuthorizationToken', { InstanceId: instanceID }, requestOption);
+  const result: any = await client.request(
+    'GetAuthorizationToken',
+    { InstanceId: instanceID },
+    requestOption,
+  );
   // logger.debug(`GetAuthorizationToken result: ${JSON.stringify(result)}`);
   return {
     dockerTmpUser: result.TempUsername,
     dockerTmpToken: result.AuthorizationToken,
   };
 }
-
 
 async function getDockerConfigInformation() {
   // https://docs.docker.com/engine/reference/commandline/cli/
@@ -129,7 +162,12 @@ async function getDockerConfigInformation() {
   };
 }
 
-async function setDockerConfigInformation(dockerConfigPath: string, fileContent: any, image: string, auth: string) {
+async function setDockerConfigInformation(
+  dockerConfigPath: string,
+  fileContent: any,
+  image: string,
+  auth: string,
+) {
   if (lodash.get(fileContent, `auths.${image}`)) {
     fileContent.auths[image].auth = auth;
   } else if (lodash.get(fileContent, 'auths')) {
@@ -143,18 +181,26 @@ async function setDockerConfigInformation(dockerConfigPath: string, fileContent:
   await fse.outputFile(dockerConfigPath, JSON.stringify(fileContent, null, 2));
 }
 
-export async function mockDockerConfigFile(region: string, imageName: string, credentials: ICredentials, instanceID: string) {
-  const {
-    fileContent,
-    dockerConfigPath,
-  } = await getDockerConfigInformation();
+export async function mockDockerConfigFile(
+  region: string,
+  imageName: string,
+  credentials: ICredentials,
+  instanceID: string,
+) {
+  const { fileContent, dockerConfigPath } = await getDockerConfigInformation();
 
   let dockerTmpConfig = await getDockerTmpUser(region, credentials, instanceID);
-  const auth = Buffer.from(`${dockerTmpConfig.dockerTmpUser}:${dockerTmpConfig.dockerTmpToken}`).toString('base64');
+  const auth = Buffer.from(
+    `${dockerTmpConfig.dockerTmpUser}:${dockerTmpConfig.dockerTmpToken}`,
+  ).toString('base64');
   await setDockerConfigInformation(dockerConfigPath, fileContent, imageName.split('/')[0], auth);
 }
 
-export async function getDockerTmpUser(region: string, credentials: ICredentials, instanceID: string): Promise<IDockerTmpConfig> {
+export async function getDockerTmpUser(
+  region: string,
+  credentials: ICredentials,
+  instanceID: string,
+): Promise<IDockerTmpConfig> {
   let dockerTmpConfig: IDockerTmpConfig;
   if (instanceID) {
     dockerTmpConfig = await getAuthorizationTokenForAcrEE(region, credentials, instanceID);
@@ -163,4 +209,3 @@ export async function getDockerTmpUser(region: string, credentials: ICredentials
   }
   return dockerTmpConfig;
 }
-

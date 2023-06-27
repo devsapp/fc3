@@ -10,7 +10,7 @@ export interface ICredentials {
   TenantID?: string;
   ClientID?: string;
   ClientSecret?: string;
-  PrivateKeyData?: string
+  PrivateKeyData?: string;
 }
 
 export interface InputProps {
@@ -26,8 +26,8 @@ export interface InputProps {
   args: string; // 命令行 扩展参数
   argsObj: any;
   path: {
-    configPath: string // 配置路径
-  }
+    configPath: string; // 配置路径
+  };
 }
 
 export interface ICodeUri {

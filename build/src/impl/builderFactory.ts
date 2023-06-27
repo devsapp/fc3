@@ -1,6 +1,6 @@
 import { InputProps } from './interface';
-import { ImageBuiltKitBuilder } from './imageBuiltKitBuilder'
-import { ImageDockerBuilder } from './imageDockerBuilder'
+import { ImageBuiltKitBuilder } from './imageBuiltKitBuilder';
+import { ImageDockerBuilder } from './imageDockerBuilder';
 import { ImageKanikoBuilder } from './imageKanikoBuilder';
 import { DefaultBuilder } from './defaultBuilder';
 import { BuildType } from './enum';
