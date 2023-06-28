@@ -26,6 +26,8 @@
     "start": "npm run watch",
     "watch": "npm run doc && tsc -w",
     "publish": "npm run build && s cli platform publish",
+    "format": "prettier --write src/",
+    "prebuild": "rimraf dist && npm run format && npm i",
     "build": "esbuild src/index.ts --bundle --log-level=error --minify --platform=node --format=cjs --target=node10.4 --external:electron --outfile=lib/index.js",
     "postbuild": "npm run doc",
     "doc": "npx typedoc --entryPointStrategy expand ./src/index.ts --json doc/doc.json --out doc"
@@ -45,6 +47,8 @@
     "@typescript-eslint/eslint-plugin": "^3.10.0",
     "@typescript-eslint/parser": "^3.10.0",
     "eslint": "^7.7.0",
+    "prettier": "^2.8.4",
+    "rimraf": "^3.0.2",
     "ts-node": "^8.10.2",
     "typedoc": "^0.22.*",
     "typescript": "^4.4.3",

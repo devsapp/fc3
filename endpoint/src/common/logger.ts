@@ -1,4 +1,3 @@
-
 import { Logger } from '@serverless-devs/core';
 
 export default class ComponentLogger {
@@ -25,9 +24,7 @@ export default class ComponentLogger {
     Logger.warn(ComponentLogger.CONTENT, m);
   }
 
-
   static success(m) {
     Logger.log(m, 'green');
   }
 }
-

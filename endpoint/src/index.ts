@@ -41,34 +41,42 @@ export default class Component {
     const comParse = commandParse({ args: inputs.args }, apts);
     // @ts-ignore
     if (comParse.data && comParse.data.help) {
-      help([{
-        header: 'Usage',
-        content: 's cli fc-default set [type] [value]',
-      }, {
-        header: 'Commands',
-        content: [
-          {
-            desc: 'fc-endpoint',
-            example: 'Deploy rsource to fc with the custom endpoint;\n Example: [s cli fc-default set fc-endpoint xxx]',
-          },
-          {
-            desc: 'enable-fc-endpoint',
-            example: 'Enable the defined fc-endpoint by user;\n Example: [s cli fc-default set enable-fc-endpoint true]',
-          },
-          {
-            desc: 'fc-cluster-ip',
-            example: 'Deploy resource to fc with the specific cluster ip;\n Example: [s cli fc-default set fc-cluster-ip xxx]',
-          },
-          {
-            desc: 'api-default-region',
-            example: 'Default region when executing [s cli fc api];\n Example: [s cli fc-default set region cn-hangzhou]',
-          },
-          {
-            desc: 'api-default-version',
-            example: 'Default API version when executing [s cli fc api], values: 20210416, 20160815;\n Example: [s cli fc-default set version 20210416]',
-          },
-        ],
-      }]);
+      help([
+        {
+          header: 'Usage',
+          content: 's cli fc-default set [type] [value]',
+        },
+        {
+          header: 'Commands',
+          content: [
+            {
+              desc: 'fc-endpoint',
+              example:
+                'Deploy rsource to fc with the custom endpoint;\n Example: [s cli fc-default set fc-endpoint xxx]',
+            },
+            {
+              desc: 'enable-fc-endpoint',
+              example:
+                'Enable the defined fc-endpoint by user;\n Example: [s cli fc-default set enable-fc-endpoint true]',
+            },
+            {
+              desc: 'fc-cluster-ip',
+              example:
+                'Deploy resource to fc with the specific cluster ip;\n Example: [s cli fc-default set fc-cluster-ip xxx]',
+            },
+            {
+              desc: 'api-default-region',
+              example:
+                'Default region when executing [s cli fc api];\n Example: [s cli fc-default set region cn-hangzhou]',
+            },
+            {
+              desc: 'api-default-version',
+              example:
+                'Default API version when executing [s cli fc api], values: 20210416, 20160815;\n Example: [s cli fc-default set version 20210416]',
+            },
+          ],
+        },
+      ]);
       return;
     }
     // @ts-ignore
@@ -80,7 +88,7 @@ export default class Component {
           // @ts-ignore
           await this.writeToFile('api-default-version', comParse.data._[1]);
         } else {
-          throw new Error('The value range is [\'20210416\', \'20160815\']');
+          throw new Error("The value range is ['20210416', '20160815']");
         }
       }
       // @ts-ignore
@@ -106,7 +114,9 @@ export default class Component {
         try {
           await this.updateHostsFile(ip, DEFAULT_FC_DEV_ENDPOINT);
         } catch (e) {
-          logger.warning(`Update /etc/hosts failed, please use sudo to execute the command or append '${ip}  ${DEFAULT_FC_DEV_ENDPOINT}' to /etc/hosts manually.`);
+          logger.warning(
+            `Update /etc/hosts failed, please use sudo to execute the command or append '${ip}  ${DEFAULT_FC_DEV_ENDPOINT}' to /etc/hosts manually.`,
+          );
         }
         logger.debug(`fc cluster ip is ${ip}`);
         await this.writeToFile('fc-endpoint', `http://${DEFAULT_FC_DEV_ENDPOINT}`);
@@ -135,35 +145,37 @@ export default class Component {
     const comParse = commandParse({ args: args || '' }, apts);
     // @ts-ignore
     if (comParse?.data?.help) {
-      help([{
-        header: 'Usage',
-        content: 's cli fc-default get [type]',
-      },
-      {
-        header: 'Examples',
-        content: [
-          {
-            desc: 'fc-endpoint',
-            example: 'Deploy rsource to fc with the custom endpoint',
-          },
-          {
-            desc: 'enable-fc-endpoint',
-            example: 'Enable the defined fc-endpoint by user',
-          },
-          {
-            desc: 'fc-cluster-ip',
-            example: 'Deploy resource to fc with the specific cluster ip',
-          },
-          {
-            desc: 'api-default-region',
-            example: 'Default region when executing [s cli fc api]',
-          },
-          {
-            desc: 'api-default-version',
-            example: 'Default API version when executing [s cli fc api]',
-          },
-        ],
-      }]);
+      help([
+        {
+          header: 'Usage',
+          content: 's cli fc-default get [type]',
+        },
+        {
+          header: 'Examples',
+          content: [
+            {
+              desc: 'fc-endpoint',
+              example: 'Deploy rsource to fc with the custom endpoint',
+            },
+            {
+              desc: 'enable-fc-endpoint',
+              example: 'Enable the defined fc-endpoint by user',
+            },
+            {
+              desc: 'fc-cluster-ip',
+              example: 'Deploy resource to fc with the specific cluster ip',
+            },
+            {
+              desc: 'api-default-region',
+              example: 'Default region when executing [s cli fc api]',
+            },
+            {
+              desc: 'api-default-version',
+              example: 'Default API version when executing [s cli fc api]',
+            },
+          ],
+        },
+      ]);
       return;
     }
     // @ts-ignore
@@ -192,13 +204,15 @@ export default class Component {
       }
       // @ts-ignore
       if (comParse.data._[0] === 'api-default-region') {
-        const defaultRegion = (await this.getConfigFromFile())['api-default-region'] || 'cn-hangzhou';
+        const defaultRegion =
+          (await this.getConfigFromFile())['api-default-region'] || 'cn-hangzhou';
         await this.writeToFile('api-default-region', defaultRegion);
         return defaultRegion;
       }
       // @ts-ignore
       if (comParse.data._[0] === 'api-default-version') {
-        const defaultAPIVersion = (await this.getConfigFromFile())['api-default-version'] || '20210416';
+        const defaultAPIVersion =
+          (await this.getConfigFromFile())['api-default-version'] || '20210416';
         await this.writeToFile('api-default-version', defaultAPIVersion);
         return defaultAPIVersion;
       }
@@ -218,11 +232,26 @@ export default class Component {
         'api-default-version': '20160815',
       };
     }
-    yamlData['fc-endpoint'] = process.env['s-default-fc-endpoint'] || process.env.s_default_fc_endpoint || yamlData['fc-endpoint'];
-    yamlData['enable-fc-endpoint'] = process.env['s-default-enable-fc-endpoint'] || process.env.s_default_enable_fc_endpoint || yamlData['enable-fc-endpoint'];
-    yamlData['fc-cluster-ip'] = process.env['s-default-fc-cluster-ip'] || process.env.s_default_fc_cluster_ip || yamlData['fc-cluster-ip'];
-    yamlData['api-default-region'] = process.env['s-default-api-default-region'] || process.env.s_default_api_default_region || yamlData['api-default-region'];
-    yamlData['api-default-version'] = process.env['s-default-api-default-version'] || process.env.s_default_api_default_version || yamlData['api-default-version'];
+    yamlData['fc-endpoint'] =
+      process.env['s-default-fc-endpoint'] ||
+      process.env.s_default_fc_endpoint ||
+      yamlData['fc-endpoint'];
+    yamlData['enable-fc-endpoint'] =
+      process.env['s-default-enable-fc-endpoint'] ||
+      process.env.s_default_enable_fc_endpoint ||
+      yamlData['enable-fc-endpoint'];
+    yamlData['fc-cluster-ip'] =
+      process.env['s-default-fc-cluster-ip'] ||
+      process.env.s_default_fc_cluster_ip ||
+      yamlData['fc-cluster-ip'];
+    yamlData['api-default-region'] =
+      process.env['s-default-api-default-region'] ||
+      process.env.s_default_api_default_region ||
+      yamlData['api-default-region'];
+    yamlData['api-default-version'] =
+      process.env['s-default-api-default-version'] ||
+      process.env.s_default_api_default_version ||
+      yamlData['api-default-version'];
 
     return yamlData;
   }
