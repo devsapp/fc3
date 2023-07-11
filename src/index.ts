@@ -1,5 +1,5 @@
 import { parseArgv } from '@serverless-devs/utils';
-import { IInputs } from './interface';
+import { IInputs, Runtime } from './interface';
 import _ from 'lodash';
 
 import Base from './common/base';
@@ -9,13 +9,20 @@ import BuilderFactory, { BuildType } from './subCommands/build';
 import Local from './subCommands/local';
 
 export default class Fc extends Base {
+  // 部署函数
   public async deploy(inputs: IInputs) {
     logger.debug(`input: ${JSON.stringify(inputs.props)}`);
+    super.checkProps(inputs.props);
+    await super.handlePreRun(inputs);
   }
 
   public async build(inputs: IInputs) {
     logger.debug(`input: ${JSON.stringify(inputs.props)}`);
-    if (inputs.props.runtime === 'custom-container') {
+    super.checkProps(inputs.props);
+    await super.handlePreRun(inputs);
+
+    const runtime = _.get(inputs, 'props.function.runtime');
+    if (runtime === Runtime['custom-container']) {
       let dockerBuilder = BuilderFactory.getBuilder(BuildType.ImageDocker, inputs);
       await dockerBuilder.build();
     } else {
@@ -27,6 +34,8 @@ export default class Fc extends Base {
 
   public async local(inputs: IInputs) {
     logger.debug(`input: ${JSON.stringify(inputs.props)}`);
+    super.checkProps(inputs.props);
+    await super.handlePreRun(inputs);
 
     const { _: command } = parseArgv(inputs.args);
     const subCommand = _.get(command, '[0]');

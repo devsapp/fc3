@@ -6,6 +6,7 @@ import IRegion from './region';
 export * from './function';
 export * from './region';
 export * from './trigger';
+export * from './base';
 
 export interface IProps {
   region: IRegion;

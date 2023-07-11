@@ -18,13 +18,13 @@ export default class ComponentBuild {
    */
   public async invoke(inputs: IInputs) {
     logger.debug(`invoke input: ${JSON.stringify(inputs.props)}`);
-    if (inputs.props.triggers?.[0].type === 'http') {
+    if (inputs.props.triggers?.[0].triggerType === 'http') {
       logger.warn('http function should use local start');
       return {};
     }
     switch (inputs.props.function.runtime) {
-      case 'nodejs6':
-      case 'nodejs8':
+      // case 'nodejs6':
+      // case 'nodejs8':
       case 'nodejs10':
       case 'nodejs12':
       case 'nodejs14':
@@ -68,7 +68,7 @@ export default class ComponentBuild {
 
   public async start(inputs: IInputs) {
     logger.debug(`start input: ${JSON.stringify(inputs.props)}`);
-    if (!(inputs.props.triggers?.[0].type === 'http')) {
+    if (!(inputs.props.triggers?.[0].triggerType === 'http')) {
       logger.warn('http function should use local invoke');
       return {};
     }

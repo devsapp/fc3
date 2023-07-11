@@ -108,10 +108,8 @@ export class BaseLocal {
     if (this.unzippedCodeDir) {
       return this.unzippedCodeDir;
     }
-    const codeUri = this.getFunctionProps().codeUri;
-    let src: string = _.isString(codeUri)
-      ? (codeUri as string)
-      : ((codeUri as ICodeUri).src as string);
+    const codeUri = this.getFunctionProps().codeUri as ICodeUri;
+    let src: string = typeof codeUri === 'string' ? codeUri : codeUri.src;
 
     if (_.endsWith(src, '.zip') || _.endsWith(src, '.jar') || _.endsWith(src, '.war')) {
       const tmpCodeDir: string = path.join(tmpDir, uuidV4());
@@ -132,9 +130,7 @@ export class BaseLocal {
     if (!codeUri) {
       return false;
     }
-    const src: string = _.isString(codeUri)
-      ? (codeUri as string)
-      : ((codeUri as ICodeUri).src as string);
+    const src: string = typeof codeUri === 'string' ? codeUri : codeUri.src;
     if (!src) {
       logger.info('No Src configured');
       return false;

@@ -20,6 +20,8 @@ export enum Runtime {
   'custom-container' = 'custom-container',
 }
 
+export const RuntimeList = Object.values(Runtime);
+
 export type IRuntime = `${Runtime}`;
 
 export interface ILifecycleHook {
@@ -110,7 +112,7 @@ export default interface IFunction {
   functionName: string;
   runtime: IRuntime;
   handler?: string;
-  code?: ICodeUri;
+  codeUri?: ICodeUri;
   description?: string;
   diskSize?: 512 | 10240;
   internetAccess?: boolean;

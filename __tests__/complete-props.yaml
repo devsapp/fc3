@@ -9,8 +9,7 @@ resources:
     props: # 组件的属性值
       region: cn-hangzhou
       function:
-        code:
-          checksum: string
+        codeUri:
           ossBucketName: string
           ossObjectName: string
           zipFile: string
