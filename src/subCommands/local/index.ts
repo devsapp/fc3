@@ -8,7 +8,7 @@ import { CustomContainerLocalInvoke } from './impl/invoke/customContainerLocalIn
 import { CustomLocalStart } from './impl/start/customLocalStart';
 import { CustomContainerLocalStart } from './impl/start/customContainerLocalStart';
 
-import { IInputs } from '@serverless-devs/component-interface';
+import { IInputs } from '../../interface';
 import logger from '../../common/logger';
 
 export default class ComponentBuild {

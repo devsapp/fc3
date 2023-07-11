@@ -1,5 +1,5 @@
 import { parseArgv } from '@serverless-devs/utils';
-import { IInputs } from '@serverless-devs/component-interface';
+import { IInputs } from './interface';
 import _ from 'lodash';
 
 import Base from "./common/base";
@@ -9,8 +9,9 @@ import BuilderFactory, { BuildType } from './subCommands/build';
 import Local from './subCommands/local';
 
 export default class Fc extends Base {
-  deploy(inputs: IInputs) {
-    logger.info('Deploy');
+  public async deploy(inputs: IInputs) {
+    logger.debug(`input: ${JSON.stringify(inputs.props)}`);
+    
   }
 
   public async build(inputs: IInputs) {

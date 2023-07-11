@@ -1,5 +1,5 @@
-import { ICodeUri } from '../../../interface';
-import { IInputs, ICredentials } from '@serverless-devs/component-interface';
+import { ICodeUri, IInputs } from '../../../interface';
+import { ICredentials } from '@serverless-devs/component-interface';
 import { isAcreeRegistry, getTimeZone, vpcImage2InternetImage } from './utils';
 import path from 'path';
 import _ from 'lodash';

@@ -1,4 +1,4 @@
-import { IInputs } from '@serverless-devs/component-interface';
+import { IInputs } from '../../interface';
 
 import { ImageBuiltKitBuilder } from './impl/imageBuiltKitBuilder';
 import { ImageDockerBuilder } from './impl/imageDockerBuilder';
