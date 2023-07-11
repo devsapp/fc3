@@ -1,0 +1,194 @@
+edition: 3.0.0 #  命令行YAML规范版本，遵循语义化版本（Semantic Versioning）规范
+name: framework #  项目名称
+access: quanxi
+
+# TODO: 需要完善
+resources:
+  framework: # 业务名称/模块名称
+    component: ${path('../')} # 组件名称
+    props: # 组件的属性值
+      region: cn-hangzhou
+      function:
+        code:
+          checksum: string
+          ossBucketName: string
+          ossObjectName: string
+          zipFile: string
+        cpu: 0.05
+        customContainerConfig:
+          accelerationType: string
+          acrInstanceID: string
+          command:
+            - string
+          entrypoint:
+            - string
+          healthCheckConfig:
+            failureThreshold: 0
+            httpGetUrl: string
+            initialDelaySeconds: 0
+            periodSeconds: 0
+            successThreshold: 0
+            timeoutSeconds: 0
+          image: string
+          port: 0
+        customDNS:
+          dnsOptions:
+            -
+              name: string
+              value: string
+          nameServers:
+            - string
+          searches:
+            - string
+        customRuntimeConfig:
+          args:
+            - string
+          command:
+            - string
+          healthCheckConfig:
+            failureThreshold: 0
+            httpGetUrl: string
+            initialDelaySeconds: 0
+            periodSeconds: 0
+            successThreshold: 0
+            timeoutSeconds: 0
+          port: 0
+        description: string
+        diskSize: 512
+        environmentVariables:
+          additionalProp1: string
+          additionalProp2: string
+          additionalProp3: string
+        functionName: string
+        gpuConfig:
+          gpuMemorySize: 128
+          gpuType: string
+        handler: string
+        instanceLifecycleConfig:
+          initializer:
+            handler: string
+            timeout: 1
+          preStop:
+            handler: string
+            timeout: 1
+        internetAccess: true
+        layers:
+          - string
+        logConfig:
+          enableInstanceMetrics: true
+          enableRequestMetrics: true
+          logBeginRule: string
+          logstore: string
+          project: string
+        memorySize: 128
+        nasConfig:
+          groupId: 65534
+          mountPoints:
+            -
+              enableTLS: true
+              mountDir: string
+              serverAddr: string
+          userId: 65534
+        ossMountConfig:
+          mountPoints:
+            -
+              bucketName: string
+              bucketPath: string
+              endpoint: string
+              mountDir: string
+              readOnly: true
+        role: string
+        runtime: string
+        timeout: 1
+        tracingConfig:
+          jaegerConfig:
+            endpoint: string
+          params: string
+          type: string
+        vpcBinding:
+          vpcIds:
+            - string
+        vpcConfig:
+          securityGroupId: string
+          vSwitchIds:
+            - string
+          vpcId: string
+      triggers:
+        - name: httpTrigger # 触发器名称
+          type: http # 触发器类型
+          qualifier: xxx # 触发服务的版本
+          config: # 触发器配置，包括OSS触发器, Log触发器, Log触发器, Timer触发器, Http触发器, MNS触发器, CDN触发器
+            authType: anonymous # 鉴权类型，可选值：anonymous、function
+            disableURLInternet: false # 是否禁用公网访问 URL
+            methods: # HTTP 触发器支持的访问方法，可选值：GET、POST、PUT、DELETE、HEAD
+              - GET
+        - name: timerTrigger # 触发器名称
+          type: timer # 触发器类型
+          qualifier: xxx # 触发服务的版本
+          config: # 触发器配置，包括OSS触发器, Log触发器, Log触发器, Timer触发器, Http触发器, MNS触发器, CDN触发器
+            cronExpression: '0 0 8 * * *' # 时间触发器表达式，支持两种设置：@every、cron 表达式
+            enable: true # 是否启用该触发器
+            payload: 'awesome-fc' # 代表触发器事件本身的输入内容
+        - name: ossTrigger # 触发器名称
+          type: oss # 触发器类型
+          role: xxx # 使用一个 RAM 角色的 ARN 为函数指定执行角色，事件源会使用该角色触发函数执行，请确保该角色有调用函数的权限
+          sourceArn: xxx # 触发器事件源的 ARN
+          qualifier: xxx # 触发服务的版本
+          config: # 触发器配置，包括OSS触发器, Log触发器, Log触发器, Timer触发器, Http触发器, MNS触发器, CDN触发器
+            bucketName: fassdemo # OSS 中目标 bucket 名称
+            events: # OSS 端触发函数执行的事件列表，参考文档：https://help.aliyun.com/document_detail/62922.html#section-mf3-l4l-1nf
+              - oss:ObjectCreated:*
+              - oss:ObjectRemoved:DeleteObject
+            filter: # 触发条件
+              Key: # 键值
+                Prefix: source/ # 前缀
+                Suffix: .png # 后缀
+        - name: logTrigger # 触发器名称
+          type: log # 触发器类型
+          role: xxx # 使用一个 RAM 角色的 ARN 为函数指定执行角色，事件源会使用该角色触发函数执行，请确保该角色有调用函数的权限
+          sourceArn: xxx # 触发器事件源的 ARN
+          qualifier: xxx # 触发服务的版本
+          config: # 触发器配置，包括OSS触发器, Log触发器, Log触发器, Timer触发器, Http触发器, MNS触发器, CDN触发器
+            logConfig: # 日志配置
+              project: fass-demo # 日志项目名称
+              logstore: fc-log # 日志仓库名称，日志服务触发函数执行过程的日志会记录到该日志仓库中
+            jobConfig: # job配置
+              maxRetryTime: 1 # 表示日志服务触发函数执行时，如果遇到错误，所允许的最大尝试次数，取值范围：[0,100]
+              triggerInterval: 30 # 日志服务触发函数运行的时间间隔，取值范围：[3,600]，单位：秒
+            sourceConfig: # source配置
+              logstore: function-log # 触发器会定时从该日志仓库中订阅数据到函数服务进行自定义加工
+            functionParameter: # 该参数将作为函数Event的Parameter传入函数。默认值为空（{}）
+              key: val
+            enable: true # 触发器开关
+        - name: mnsTrigger # 触发器名称
+          type: mns_topic # 触发器类型
+          role: xxx # 使用一个 RAM 角色的 ARN 为函数指定执行角色，事件源会使用该角色触发函数执行，请确保该角色有调用函数的权限
+          sourceArn: xxx # 触发器事件源的 ARN
+          qualifier: xxx # 触发服务的版本
+          config: # 触发器配置，包括OSS触发器, Log触发器, Log触发器, Timer触发器, Http触发器, MNS触发器, CDN触发器
+            topicName: test-topic # mns topic的名字
+            region: cn-hangzhou # mns topic 所在的 region，如果不填，默认为和函数一样的 region
+            notifyContentFormat: 'JSON' # 推送给函数入参 event 的格式，可选值：STREAM, JSON
+            notifyStrategy: 'BACKOFF_RETRY' # 调用函数的重试策略，可选值：BACKOFF_RETRY, EXPONENTIAL_DECAY_RETRY
+            filterTag: abc # 描述了该订阅中消息过滤的标签（标签一致的消息才会被推送）,不超过 16 个字符的字符串，默认不进行消息过滤，即默认不填写该字段
+        - name: cdnTrigger # 触发器名称
+          type: cdn_events # 触发器类型
+          role: xxx # 使用一个 RAM 角色的 ARN 为函数指定执行角色，事件源会使用该角色触发函数执行，请确保该角色有调用函数的权限
+          sourceArn: xxx # 触发器事件源的 ARN
+          qualifier: xxx # 触发服务的版本
+          config: # 触发器配置，包括OSS触发器, Log触发器, Log触发器, Timer触发器, Http触发器, MNS触发器, CDN触发器
+            eventName: LogFileCreated # 为 CDN 端触发函数执行的事件，一经创建不能更改
+            eventVersion: '1.0.0' # 为 CDN 端触发函数执行事件的版本，一经创建不能更改
+            notes: cdn events trigger test # 备注信息
+            filter: # 过滤器（至少需要一个过滤器）
+              domain: # 过滤参数值的集合
+                - 'www.taobao.com'
+                - 'www.tmall.com'
+        - name: tablestoreTrigger # 触发器名称
+          type: tablestore # 触发器类型
+          role: xxx # 使用一个 RAM 角色的 ARN 为函数指定执行角色，事件源会使用该角色触发函数执行，请确保该角色有调用函数的权限
+          sourceArn: xxx # 触发器事件源的 ARN
+          qualifier: xxx # 触发服务的版本
+          config: # 触发器配置，包括OSS触发器, Log触发器, Log触发器, Timer触发器, Http触发器, MNS触发器, CDN触发器
+            instanceName: xxx # 表格存储实例的名称
+            tableName: xxxs # 实例中的表名称
