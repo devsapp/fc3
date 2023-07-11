@@ -1,15 +1,16 @@
-import { InputProps, ICredentials, ICodeUri } from '../../interface';
+import { ICodeUri } from '../../../interface';
+import { IInputs, ICredentials } from '@serverless-devs/component-interface';
 import { isAcreeRegistry, getTimeZone, vpcImage2InternetImage } from './utils';
 import path from 'path';
 import _ from 'lodash';
 
 import { mockDockerConfigFile } from './docker/acr-login';
-import { defaultFcDockerVersion } from '../../constant';
-import logger from '../../logger';
+import { defaultFcDockerVersion } from '../../../constant';
+import logger from '../../../common/logger';
 
 export class Builder {
-  inputProps: InputProps;
-  constructor(props: InputProps) {
+  inputProps: IInputs;
+  constructor(props: IInputs) {
     this.inputProps = props;
   }
 
@@ -25,8 +26,8 @@ export class Builder {
     return this.getProps().region;
   }
 
-  getCredentials(): ICredentials {
-    return this.inputProps.credentials;
+  async getCredentials(): Promise<ICredentials> {
+    return  this.inputProps.getCredential();
   }
 
   getAcrEEInstanceID(): string {
@@ -124,7 +125,8 @@ export class Builder {
     logger.info(`acrInstanceID: ${acrInstanceID}`);
     let imageName = this.getRuntimeBuildImage();
     this.checkAcreeInstanceID(imageName, acrInstanceID);
-    await mockDockerConfigFile(this.getRegion(), imageName, this.getCredentials(), acrInstanceID);
+    const credential = await this.getCredentials();
+    await mockDockerConfigFile(this.getRegion(), imageName, credential, acrInstanceID);
     logger.info('docker login successed with cr_tmp user!');
   }
 }

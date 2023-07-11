@@ -1,6 +1,6 @@
 import { BaseLocalInvoke } from './baseLocalInvoke';
 import _ from 'lodash';
-import logger from '../../../../logger';
+import logger from '../../../../common/logger';
 import * as portFinder from 'portfinder';
 import { v4 as uuidV4 } from 'uuid';
 import { exec } from 'child_process';

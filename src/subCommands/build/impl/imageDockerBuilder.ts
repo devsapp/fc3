@@ -1,6 +1,6 @@
 import path from 'path';
 import { Builder } from './baseBuilder';
-import logger from '../../logger';
+import logger from '../../../common/logger';
 import { runCommand } from './docker/runCommand';
 import { getDockerTmpUser } from './docker/acr-login';
 
@@ -15,9 +15,10 @@ export class ImageDockerBuilder extends Builder {
     let dockerCmdStr = `docker build -t ${this.getRuntimeBuildImage()} -f ${dockerFile} ${context}`;
     await runCommand(dockerCmdStr, undefined, true);
 
+    const credential = await this.getCredentials();
     let dockerTmpConfig = await getDockerTmpUser(
       this.getRegion(),
-      this.getCredentials(),
+      credential,
       this.getAcrEEInstanceID(),
     );
     dockerCmdStr = `docker login ${this.getRuntimeBuildImage()} --username=${

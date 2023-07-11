@@ -1,4 +1,4 @@
-import { InputProps } from '@serverless-devs/component-interface';
+import { IInputs } from '@serverless-devs/component-interface';
 
 import { ImageBuiltKitBuilder } from './impl/imageBuiltKitBuilder';
 import { ImageDockerBuilder } from './impl/imageDockerBuilder';
@@ -6,7 +6,7 @@ import { ImageKanikoBuilder } from './impl/imageKanikoBuilder';
 import { DefaultBuilder } from './impl/defaultBuilder';
 import { Builder } from './impl/baseBuilder';
 
-import logger from '../../logger';
+import logger from '../../common/logger';
 
 export enum BuildType {
   ImageDocker = 'IAMGE_BULD_DOCKER',
@@ -16,7 +16,7 @@ export enum BuildType {
 }
 
 export default class BuilderFactory {
-  public static getBuilder(buildType: BuildType, props: InputProps): Builder {
+  public static getBuilder(buildType: BuildType, props: IInputs): Builder {
     switch (buildType) {
       case BuildType.ImageDocker:
         return new ImageDockerBuilder(props);

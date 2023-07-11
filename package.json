@@ -12,7 +12,7 @@
     "type": "git"
   },
   "devDependencies": {
-    "@serverless-devs/component-interface": "^0.0.1",
+    "@serverless-devs/component-interface": "^0.0.2",
     "@types/node": "^14.0.23",
     "esbuild": "^0.13.8",
     "husky": "^8.0.1",

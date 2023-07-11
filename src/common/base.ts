@@ -3,7 +3,7 @@ import Logger from "./logger";
 export default class Base {
   commands: any;
 
-  constructor({ logger }) {
+  constructor({ logger }: any) {
     Logger._set(logger);
 
     this.commands = {
