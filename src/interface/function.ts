@@ -1,4 +1,4 @@
-import { IKV, ICodeUri } from "./base";
+import { IKV, ICodeUri } from './base';
 
 export enum Runtime {
   'nodejs10' = 'nodejs10',

@@ -2,5 +2,4 @@ node_modules/
 __test__/
 dist/
 
-src/
-!src/**/*.ts
+*.json

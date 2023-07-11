@@ -1,4 +1,3 @@
-
 export enum TriggerType {
   oss = 'oss',
   log = 'log',
@@ -97,5 +96,13 @@ export default interface ITrigger {
   sourceArn?: string;
   invocationRole?: string;
 
-  triggerConfig: IOssTriggerConfig | ILogTriggerConfig | ITimerTriggerConfig | IHttpTriggerConfig | IMnsTriggerConfig | ICdnTriggerConfig | IOtsConfig | IEventBridge;
+  triggerConfig:
+    | IOssTriggerConfig
+    | ILogTriggerConfig
+    | ITimerTriggerConfig
+    | IHttpTriggerConfig
+    | IMnsTriggerConfig
+    | ICdnTriggerConfig
+    | IOtsConfig
+    | IEventBridge;
 }

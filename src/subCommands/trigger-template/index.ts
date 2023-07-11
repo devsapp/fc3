@@ -11,9 +11,7 @@ export default class ComponentDemo {
    */
   public async oss() {
     await fse.mkdirs('./event-template/');
-    const templateData = await fse.readFileSync(
-      path.join(__dirname, 'event-template/oss.json'),
-    );
+    const templateData = await fse.readFileSync(path.join(__dirname, 'event-template/oss.json'));
     await fse.writeFileSync(path.join('./event-template/', 'oss-event.json'), templateData);
     logger.write(`
 
@@ -34,9 +32,7 @@ export default class ComponentDemo {
    */
   public async sls() {
     await fse.mkdirs('./event-template/');
-    const templateData = await fse.readFileSync(
-      path.join(__dirname, 'event-template/sls.json'),
-    );
+    const templateData = await fse.readFileSync(path.join(__dirname, 'event-template/sls.json'));
     await fse.writeFileSync(path.join('./event-template/', 'sls-event.json'), templateData);
     logger.write(`
 
@@ -57,9 +53,7 @@ export default class ComponentDemo {
    */
   public async http() {
     await fse.mkdirs('./event-template/');
-    const templateData = await fse.readFileSync(
-      path.join(__dirname, 'event-template/http.json'),
-    );
+    const templateData = await fse.readFileSync(path.join(__dirname, 'event-template/http.json'));
     await fse.writeFileSync(path.join('./event-template/', 'http-parameter.json'), templateData);
     logger.write(`
 

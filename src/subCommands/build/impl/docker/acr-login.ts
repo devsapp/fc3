@@ -1,4 +1,3 @@
-
 import _ from 'lodash';
 import fse from 'fs-extra';
 import * as os from 'os';
