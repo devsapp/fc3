@@ -6,7 +6,9 @@
   "scripts": {
     "start": "tsc -w",
     "build": "npm run esbuild",
-    "esbuild": "esbuild src/index.ts --bundle --log-level=error --minify --platform=node --format=cjs --target=node10.4 --outfile=dist/index.js"
+    "esbuild": "esbuild src/index.ts --bundle --log-level=error --minify --platform=node --format=cjs --target=node10.4 --outfile=dist/index.js",
+    "format": "prettier --write src/",
+    "prepare": "husky install"
   },
   "repository": {
     "type": "git"
@@ -24,6 +26,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@alicloud/fc20230330": "^2.0.0",
     "@alicloud/pop-core": "^1.7.13",
     "@serverless-devs/utils": "^0.0.7",
     "extract-zip": "^2.0.1",
