@@ -21,5 +21,6 @@ export enum Region {
   'us-west-1' = 'us-west-1',
   'ap-south-1' = 'ap-south-1',
 }
+type IRegion = `${Region}`;
 
-export type IRegion = `${Region}`;
+export default IRegion;
