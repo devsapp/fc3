@@ -1,7 +1,7 @@
 import { BaseLocalInvoke } from './baseLocalInvoke';
 import _ from 'lodash';
 import { IDE_VSCODE } from '../../../../constant';
-import logger from '../../../../logger';
+import logger from '../../../../common/logger';
 
 export class PythonLocalInvoke extends BaseLocalInvoke {
   beforeInvoke(): boolean {

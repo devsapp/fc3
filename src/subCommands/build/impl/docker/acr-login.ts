@@ -5,8 +5,8 @@ import * as os from 'os';
 import path from 'path';
 import random from 'string-random';
 import Pop from '@alicloud/pop-core';
-import logger from '../../../../logger';
-import { ICredentials } from '../../../../interface';
+import logger from '../../../../common/logger';
+import { ICredentials } from '@serverless-devs/component-interface';
 
 const { ROAClient } = require('@alicloud/pop-core');
 

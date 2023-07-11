@@ -1,5 +1,5 @@
 import { Builder } from './baseBuilder';
-import logger from '../../logger';
+import logger from '../../../common/logger';
 
 export class ImageBuiltKitBuilder extends Builder {
   async runBuild() {

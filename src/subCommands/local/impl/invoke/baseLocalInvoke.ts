@@ -1,6 +1,6 @@
 import { BaseLocal } from '../baseLocal';
 import { formatJsonString } from '../utils';
-import logger from '../../../../logger';
+import logger from '../../../../common/logger';
 import _ from 'lodash';
 import { runShellCommand } from '../runCommand';
 

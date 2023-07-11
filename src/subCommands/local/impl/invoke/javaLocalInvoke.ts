@@ -1,7 +1,7 @@
 import { BaseLocalInvoke } from './baseLocalInvoke';
 import _ from 'lodash';
 import { IDE_INTELLIJ } from '../../../../constant';
-import logger from '../../../../logger';
+import logger from '../../../../common/logger';
 
 export class JavaLocalInvoke extends BaseLocalInvoke {
   beforeInvoke(): boolean {

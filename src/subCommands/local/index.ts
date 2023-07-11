@@ -8,15 +8,15 @@ import { CustomContainerLocalInvoke } from './impl/invoke/customContainerLocalIn
 import { CustomLocalStart } from './impl/start/customLocalStart';
 import { CustomContainerLocalStart } from './impl/start/customContainerLocalStart';
 
-import { InputProps } from '@serverless-devs/component-interface';
-import logger from '../../logger';
+import { IInputs } from '@serverless-devs/component-interface';
+import logger from '../../common/logger';
 
 export default class ComponentBuild {
   /**
    * @param inputs
    * @returns
    */
-  public async invoke(inputs: InputProps) {
+  public async invoke(inputs: IInputs) {
     logger.debug(`invoke input: ${JSON.stringify(inputs.props)}`);
     if (inputs.props.triggers?.[0].type === 'http') {
       logger.warn('http function should use local start');
@@ -66,7 +66,7 @@ export default class ComponentBuild {
     return {};
   }
 
-  public async start(inputs: InputProps) {
+  public async start(inputs: IInputs) {
     logger.debug(`start input: ${JSON.stringify(inputs.props)}`);
     if (!(inputs.props.triggers?.[0].type === 'http')) {
       logger.warn('http function should use local invoke');

@@ -1,6 +1,6 @@
 import { spawn } from 'child_process';
 import { isDebug } from '../../../constant';
-import logger from '../../../logger';
+import logger from '../../../common/logger';
 
 export async function runShellCommand(command: string, showStdout?: boolean) {
   logger.debug(`runShellCommand command = ${command}`);
