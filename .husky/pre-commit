@@ -1,0 +1,9 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# 全局检测文件文档中写的是这个位置
+if [ -f ~/.git-hooksPath/hooks/pre-commit ]; then
+  ~/.git-hooksPath/hooks/pre-commit
+fi
+
+npm run format
