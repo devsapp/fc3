@@ -7,7 +7,6 @@ export * from './function';
 export * from './region';
 export * from './trigger';
 
-
 export interface IProps {
   region: IRegion;
   function: IFunction;

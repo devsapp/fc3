@@ -1,4 +1,3 @@
-
 export enum Region {
   'cn-hangzhou' = 'cn-hangzhou',
   'cn-shanghai' = 'cn-shanghai',

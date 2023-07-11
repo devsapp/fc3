@@ -23,4 +23,4 @@ export default (region: string, credentials: ICredentials) => {
   });
 
   return new FCClient(config);
-}
+};

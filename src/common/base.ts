@@ -1,4 +1,4 @@
-import Logger from "./logger";
+import Logger from './logger';
 
 export default class Base {
   commands: any;
@@ -17,11 +17,11 @@ export default class Base {
           ],
         },
         subCommands: {
-          service: { },
-          function: { },
+          service: {},
+          function: {},
         },
       },
-      remove: { },
-    }
+      remove: {},
+    };
   }
 }

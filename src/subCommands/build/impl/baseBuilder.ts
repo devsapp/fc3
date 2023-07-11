@@ -27,7 +27,7 @@ export class Builder {
   }
 
   async getCredentials(): Promise<ICredentials> {
-    return  this.inputProps.getCredential();
+    return this.inputProps.getCredential();
   }
 
   getAcrEEInstanceID(): string {
