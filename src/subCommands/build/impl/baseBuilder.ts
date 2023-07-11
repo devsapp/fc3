@@ -10,8 +10,8 @@ import logger from '../../../common/logger';
 
 export class Builder {
   inputProps: IInputs;
-  constructor(props: IInputs) {
-    this.inputProps = props;
+  constructor(inputs: IInputs) {
+    this.inputProps = inputs;
   }
 
   getProps(): any {
@@ -42,19 +42,19 @@ export class Builder {
     if (!this.checkCodeUri()) {
       return '';
     }
-    const codeUri = this.inputProps.props.codeUri;
-    const src: string = _.isString(codeUri) ? (codeUri as string) : (codeUri as ICodeUri).src;
+    const codeUri = _.get(this.inputProps, 'props.function.codeUri') as ICodeUri;
+    const src: string = typeof codeUri === 'string' ? codeUri : codeUri.src;
     const baseDir = process.cwd();
     const resolvedCodeUri = path.isAbsolute(src) ? src : path.join(baseDir, src);
     return resolvedCodeUri;
   }
 
   checkCodeUri(): boolean {
-    const codeUri = this.inputProps.props.codeUri;
+    const codeUri = _.get(this.inputProps, 'props.function.codeUri') as ICodeUri;
     if (!codeUri) {
       return false;
     }
-    const src: string = _.isString(codeUri) ? (codeUri as string) : (codeUri as ICodeUri).src;
+    const src: string = typeof codeUri === 'string' ? codeUri : codeUri.src;
     if (!src) {
       logger.info('No Src configured, skip building.');
       return false;

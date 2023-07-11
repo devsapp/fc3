@@ -1,4 +1,4 @@
-export enum Region {
+enum Region {
   'cn-hangzhou' = 'cn-hangzhou',
   'cn-shanghai' = 'cn-shanghai',
   'cn-qingdao' = 'cn-qingdao',
@@ -20,6 +20,9 @@ export enum Region {
   'us-west-1' = 'us-west-1',
   'ap-south-1' = 'ap-south-1',
 }
+
 type IRegion = `${Region}`;
+
+export const RegionList = Object.values(Region);
 
 export default IRegion;
