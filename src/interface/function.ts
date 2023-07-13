@@ -108,7 +108,7 @@ export interface IVpcConfig {
   vpcId: string;
 }
 
-export default interface IFunction {
+export interface IFunction {
   functionName: string;
   runtime: IRuntime;
   handler?: string;

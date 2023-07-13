@@ -1,7 +1,7 @@
 import { IInputs as _IInputs } from '@serverless-devs/component-interface';
-import IFunction from './function';
-import ITrigger from './trigger';
-import IRegion from './region';
+import { IFunction } from './function';
+import { ITrigger } from './trigger';
+import { IRegion } from './region';
 
 export * from './function';
 export * from './region';

@@ -21,8 +21,6 @@ enum Region {
   'ap-south-1' = 'ap-south-1',
 }
 
-type IRegion = `${Region}`;
+export type IRegion = `${Region}`;
 
 export const RegionList = Object.values(Region);
-
-export default IRegion;
