@@ -1,8 +1,25 @@
 import { ICredentials } from '@serverless-devs/component-interface';
 import { Config } from '@alicloud/openapi-client';
 import FCClient from '@alicloud/fc20230330';
+import FC2 from '@alicloud/fc2';
+import { getCustomEndpoint, timeout } from '../default/client';
 
-export default (region: string, credentials: ICredentials) => {
+
+export const fc2Client = (region: string, credentials: ICredentials) => {
+  const { endpoint } = getCustomEndpoint();
+
+  return new FC2(credentials.AccountID, {
+    accessKeyID: credentials.AccessKeyID,
+    accessKeySecret: credentials.AccessKeySecret,
+    securityToken: credentials.SecurityToken,
+    region,
+    endpoint,
+    secure: true,
+    timeout,
+  });
+}
+
+const fc20230330Client = (region: string, credentials: ICredentials): FCClient => {
   const {
     AccountID: accountID,
     AccessKeyID: accessKeyId,
@@ -10,17 +27,22 @@ export default (region: string, credentials: ICredentials) => {
     SecurityToken: securityToken,
   } = credentials;
 
-  const endpoint = `${accountID}.${region}.fc.aliyuncs.com`;
-  const protocol = 'https';
+  const {
+    host: endpoint = `${accountID}.${region}.fc.aliyuncs.com`,
+    protocol = 'https',
+  } = getCustomEndpoint();
 
   const config = new Config({
     accessKeyId,
     accessKeySecret,
     securityToken,
-
     protocol,
     endpoint,
+    readTimeout: timeout,
+    connectTimeout: timeout,
   });
 
   return new FCClient(config);
-};
+}
+
+export default fc20230330Client;
