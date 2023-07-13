@@ -1,7 +1,5 @@
 import _ from 'lodash';
-import assert from 'assert';
 import { IInputs } from '@serverless-devs/component-interface';
-import { IProps, RegionList, RuntimeList } from '../interface';
 import Logger from './logger';
 
 export default class Base {
@@ -27,18 +25,6 @@ export default class Base {
       },
       remove: {},
     };
-  }
-
-  // 验证入参
-  checkProps(props: IProps) {
-    const region = _.get(props, 'region');
-    assert.ok(RegionList.includes(region), `Region not support ${region}`);
-
-    const runtime = _.get(props, 'function.runtime');
-    assert.ok(RuntimeList.includes(runtime), `Runtime not support ${region}`);
-
-    const functionName = _.get(props, 'function.functionName');
-    assert(functionName, `FunctionName cannot be empty`);
   }
 
   // 在运行方法之前运行

@@ -13,15 +13,14 @@ export default class Fc extends Base {
   // 部署函数
   public async deploy(inputs: IInputs) {
     logger.debug(`input: ${JSON.stringify(inputs.props)}`);
-    super.checkProps(inputs.props);
     await super.handlePreRun(inputs);
+
     const deploy = new Deploy(inputs);
     return await deploy.run();
   }
 
   public async build(inputs: IInputs) {
     logger.debug(`input: ${JSON.stringify(inputs.props)}`);
-    super.checkProps(inputs.props);
     await super.handlePreRun(inputs);
 
     const runtime = _.get(inputs, 'props.function.runtime');
@@ -37,7 +36,6 @@ export default class Fc extends Base {
 
   public async local(inputs: IInputs) {
     logger.debug(`input: ${JSON.stringify(inputs.props)}`);
-    super.checkProps(inputs.props);
     await super.handlePreRun(inputs);
 
     const { _: command } = parseArgv(inputs.args);

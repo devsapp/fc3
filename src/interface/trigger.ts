@@ -87,7 +87,7 @@ export interface IEventBridge {
   // TODO
 }
 
-export default interface ITrigger {
+export interface ITrigger {
   triggerName: string;
   triggerType: ITriggerType;
 
