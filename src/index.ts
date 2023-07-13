@@ -7,6 +7,7 @@ import logger from './common/logger';
 
 import BuilderFactory, { BuildType } from './subCommands/build';
 import Local from './subCommands/local';
+import Deploy from './subCommands/deploy';
 
 export default class Fc extends Base {
   // 部署函数
@@ -14,6 +15,8 @@ export default class Fc extends Base {
     logger.debug(`input: ${JSON.stringify(inputs.props)}`);
     super.checkProps(inputs.props);
     await super.handlePreRun(inputs);
+    const deploy = new Deploy(inputs);
+    return await deploy.run();
   }
 
   public async build(inputs: IInputs) {

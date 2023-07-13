@@ -1,21 +1,22 @@
-{  "events": [
-  {
-    "eventName": "CdnDomainStarted",
-    "eventVersion": "1.0.0",
-    "eventSource": "cdn",
-    "region": "cn-hangzhou",
-    "eventTime": "2018-03-16T14:19:55+08:00",
-    "traceId": "cf89e5a8-7d59-4bb5-a33e-4c3d08e25acf",
-    "resource": {
-      "domain": "chongshi.alicdn.com"
-    },
-    "eventParameter": {
-      "domain": "chongshi.alicdn.com",
-      "status": "online"
-    },
-    "userIdentity": {
-      "aliUid": "12345678"
+{
+  "events": [
+    {
+      "eventName": "CdnDomainStarted",
+      "eventVersion": "1.0.0",
+      "eventSource": "cdn",
+      "region": "cn-hangzhou",
+      "eventTime": "2018-03-16T14:19:55+08:00",
+      "traceId": "cf89e5a8-7d59-4bb5-a33e-4c3d08e25acf",
+      "resource": {
+        "domain": "chongshi.alicdn.com"
+      },
+      "eventParameter": {
+        "domain": "chongshi.alicdn.com",
+        "status": "online"
+      },
+      "userIdentity": {
+        "aliUid": "12345678"
+      }
     }
-  }
-]
+  ]
 }

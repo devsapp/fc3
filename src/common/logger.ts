@@ -1,6 +1,4 @@
 class Logger {
-  loggerInstance: any;
-
   log: (...args: unknown[]) => void;
   info: (...args: unknown[]) => void;
   debug: (...args: unknown[]) => void;
@@ -11,8 +9,6 @@ class Logger {
   progress: (...args: unknown[]) => void;
 
   _set = (logger) => {
-    this.loggerInstance = logger;
-
     this.log = (...args) => logger.log.apply(logger, args);
     this.info = (...args) => logger.info.apply(logger, args);
     this.debug = (...args) => logger.debug.apply(logger, args);

@@ -43,7 +43,6 @@ export default class Base {
 
   // 在运行方法之前运行
   async handlePreRun(inputs: IInputs) {
-
     // fc组件镜像 trim 左右空格
     const image = _.get(inputs, 'props.function.customContainerConfig.image');
     if (!_.isEmpty(image)) {
