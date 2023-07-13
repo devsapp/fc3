@@ -18,9 +18,9 @@ export default (props: IProps) => {
     });
     const valid = ajv.validate(schema, props);
 
-    logger.debug(`validate status: ${valid}`)
+    logger.debug(`validate status: ${valid}`);
     if (!valid) {
-      logger.debug(`validate error: ${JSON.stringify(ajv.errors, null, 2)}`)
+      logger.debug(`validate error: ${JSON.stringify(ajv.errors, null, 2)}`);
       logger.warn(`Valid function props error:`);
       for (const error of ajv.errors) {
         logger.write(`  ${error.instancePath}: ${error.message}`);
@@ -30,4 +30,4 @@ export default (props: IProps) => {
   } catch (ex) {
     logger.error(`Validate Error: ${ex}`);
   }
-}
+};
