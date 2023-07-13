@@ -19,10 +19,7 @@ export default class Deploy {
 
     verify(inputs.props);
 
-    const {
-      function: type,
-      trigger,
-    } = this.opts;
+    const { function: type, trigger } = this.opts;
 
     const deployAll = !type && !trigger;
     logger.debug(`Deploy all resources: ${deployAll}`);
