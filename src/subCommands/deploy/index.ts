@@ -1,5 +1,5 @@
-import { IInputs } from "@serverless-devs/component-interface";
-import { parseArgv } from "@serverless-devs/utils";
+import { IInputs } from '@serverless-devs/component-interface';
+import { parseArgv } from '@serverless-devs/utils';
 import _ from 'lodash';
 
 const SUPPORT_COMMAND = ['function', 'trigger'];
@@ -13,7 +13,7 @@ export default class Deploy {
       boolean: ['y', 'skip-push'],
       string: ['type', 'trigger-name'],
     });
-    
+
     const subCommand = _.get(this.opts, '_.[0]');
     if (subCommand && !SUPPORT_COMMAND.includes(subCommand)) {
       throw new Error(`Not supported command: ${subCommand}`);
@@ -21,7 +21,5 @@ export default class Deploy {
     this.subCommand = subCommand;
   }
 
-  async run() {
-
-  }
+  async run() {}
 }

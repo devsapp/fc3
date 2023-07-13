@@ -4,7 +4,6 @@ import FCClient from '@alicloud/fc20230330';
 import FC2 from '@alicloud/fc2';
 import { getCustomEndpoint, timeout } from '../default/client';
 
-
 export const fc2Client = (region: string, credentials: ICredentials) => {
   const { endpoint } = getCustomEndpoint();
 
@@ -17,7 +16,7 @@ export const fc2Client = (region: string, credentials: ICredentials) => {
     secure: true,
     timeout,
   });
-}
+};
 
 const fc20230330Client = (region: string, credentials: ICredentials): FCClient => {
   const {
@@ -27,10 +26,8 @@ const fc20230330Client = (region: string, credentials: ICredentials): FCClient =
     SecurityToken: securityToken,
   } = credentials;
 
-  const {
-    host: endpoint = `${accountID}.${region}.fc.aliyuncs.com`,
-    protocol = 'https',
-  } = getCustomEndpoint();
+  const { host: endpoint = `${accountID}.${region}.fc.aliyuncs.com`, protocol = 'https' } =
+    getCustomEndpoint();
 
   const config = new Config({
     accessKeyId,
@@ -43,6 +40,6 @@ const fc20230330Client = (region: string, credentials: ICredentials): FCClient =
   });
 
   return new FCClient(config);
-}
+};
 
 export default fc20230330Client;
