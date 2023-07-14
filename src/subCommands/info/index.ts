@@ -1,8 +1,7 @@
-
 import { ICredentials } from '@serverless-devs/component-interface';
 import _ from 'lodash';
 import Fc20230330, { GetFunctionRequest, GetFunctionResponse } from '@alicloud/fc20230330';
-import { RegionList, IInputs } from "../../interface";
+import { RegionList, IInputs } from '../../interface';
 import { getFcClient } from '../../utils';
 import logger from '../../logger';
 
@@ -37,7 +36,7 @@ export default class Info {
       logger.debug(`Get function ${this.functionName} error: ${ex}`);
       return {
         error: ex,
-      }
+      };
     }
   }
 
@@ -48,9 +47,9 @@ export default class Info {
           code: config.error.code,
           message: config.error.message,
         },
-      }
+      };
     }
-    
+
     return config;
   }
 

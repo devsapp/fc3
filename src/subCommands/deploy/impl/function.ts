@@ -13,11 +13,8 @@ export default class Service {
     const info = new Info(this.inputs);
     const result = await info.getFunction();
     if (!result.error) {
-
     }
   }
 
-  async checkRemote() {
-
-  }
+  async checkRemote() {}
 }
