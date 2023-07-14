@@ -6,7 +6,7 @@ import _ from 'lodash';
 
 import { mockDockerConfigFile } from './docker/acr-login';
 import { defaultFcDockerVersion } from '../../../constant';
-import logger from '../../../common/logger';
+import logger from '../../../logger';
 
 export class Builder {
   inputProps: IInputs;

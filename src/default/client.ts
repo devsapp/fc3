@@ -1,4 +1,4 @@
-import logger from '../common/logger';
+import logger from '../logger';
 
 /**
  * 处理自定义 endpoint

@@ -1,4 +1,4 @@
-import logger from '../../common/logger';
+import logger from '../../logger';
 import fse from 'fs-extra';
 import path from 'path';
 import inquirer from 'inquirer';

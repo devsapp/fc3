@@ -2,26 +2,38 @@ import { parseArgv } from '@serverless-devs/utils';
 import { IInputs, Runtime } from './interface';
 import _ from 'lodash';
 
-import Base from './common/base';
-import logger from './common/logger';
+import Base from './base';
+import logger from './logger';
 
 import BuilderFactory, { BuildType } from './subCommands/build';
 import Local from './subCommands/local';
 import Deploy from './subCommands/deploy';
+import Info from './subCommands/info';
 
 export default class Fc extends Base {
   // 部署函数
   public async deploy(inputs: IInputs) {
     logger.debug(`input: ${JSON.stringify(inputs.props)}`);
-    await super.handlePreRun(inputs);
+    await super.handlePreRun(inputs, true);
 
     const deploy = new Deploy(inputs);
-    return await deploy.run();
+    await deploy.run();
+  
+    return { aa: '' };
+  }
+
+  public async info(inputs: IInputs) {
+    await super.handlePreRun(inputs, true);
+
+    const info = new Info(inputs);
+    const result = await info.run();
+    logger.debug(`Get info: ${JSON.stringify(info)}`);
+
+    return result;
   }
 
   public async build(inputs: IInputs) {
-    logger.debug(`input: ${JSON.stringify(inputs.props)}`);
-    await super.handlePreRun(inputs);
+    await super.handlePreRun(inputs, false);
 
     const runtime = _.get(inputs, 'props.function.runtime');
     if (runtime === Runtime['custom-container']) {
@@ -35,8 +47,7 @@ export default class Fc extends Base {
   }
 
   public async local(inputs: IInputs) {
-    logger.debug(`input: ${JSON.stringify(inputs.props)}`);
-    await super.handlePreRun(inputs);
+    await super.handlePreRun(inputs, false);
 
     const { _: command } = parseArgv(inputs.args);
     const subCommand = _.get(command, '[0]');

@@ -1,6 +1,6 @@
 import path from 'path';
 import { Builder } from './baseBuilder';
-import logger from '../../../common/logger';
+import logger from '../../../logger';
 import { runCommand } from './docker/runCommand';
 import { getDockerTmpUser } from './docker/acr-login';
 

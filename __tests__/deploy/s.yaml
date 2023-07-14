@@ -9,6 +9,6 @@ resources:
     props: # 组件的属性值
       region: cn-hangzhou
       function:
-        runtime: nodejs143
+        runtime: nodejs14
         functionName: fc3-wss
         codeUri: ./code

@@ -9,7 +9,7 @@ import { CustomLocalStart } from './impl/start/customLocalStart';
 import { CustomContainerLocalStart } from './impl/start/customContainerLocalStart';
 
 import { IInputs } from '../../interface';
-import logger from '../../common/logger';
+import logger from '../../logger';
 
 export default class ComponentBuild {
   /**

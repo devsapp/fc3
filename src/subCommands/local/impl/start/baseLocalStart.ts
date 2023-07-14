@@ -1,5 +1,5 @@
 import { BaseLocal } from '../baseLocal';
-import logger from '../../../../common/logger';
+import logger from '../../../../logger';
 import _ from 'lodash';
 import { runShellCommand } from '../runCommand';
 import * as portFinder from 'portfinder';

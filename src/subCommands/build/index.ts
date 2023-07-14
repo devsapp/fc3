@@ -6,7 +6,7 @@ import { ImageKanikoBuilder } from './impl/imageKanikoBuilder';
 import { DefaultBuilder } from './impl/defaultBuilder';
 import { Builder } from './impl/baseBuilder';
 
-import logger from '../../common/logger';
+import logger from '../../logger';
 
 export enum BuildType {
   ImageDocker = 'IAMGE_BULD_DOCKER',
