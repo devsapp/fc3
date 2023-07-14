@@ -1,6 +1,6 @@
 import { BaseLocalStart } from './baseLocalStart';
 import _ from 'lodash';
-// import logger from '../common/logger';
+// import logger from '../logger';
 
 export class CustomLocalStart extends BaseLocalStart {
   getDebugArgs(): string {

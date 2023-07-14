@@ -1,6 +1,7 @@
 import _ from 'lodash';
-import { IInputs } from '@serverless-devs/component-interface';
+import { IInputs } from './interface';
 import Logger from './logger';
+import logger from './logger';
 
 export default class Base {
   commands: any;
@@ -28,11 +29,16 @@ export default class Base {
   }
 
   // 在运行方法之前运行
-  async handlePreRun(inputs: IInputs) {
+  async handlePreRun(inputs: IInputs, needCredential: boolean) {
+    logger.debug(`input: ${JSON.stringify(inputs)}`);
     // fc组件镜像 trim 左右空格
     const image = _.get(inputs, 'props.function.customContainerConfig.image');
     if (!_.isEmpty(image)) {
       _.set(inputs, 'props.function.customContainerConfig.image', _.trim(image));
+    }
+
+    if (needCredential) {
+      inputs.credential = await inputs.getCredential();
     }
   }
 }

@@ -3,7 +3,7 @@ import { parseArgv } from '@serverless-devs/utils';
 import _ from 'lodash';
 
 import Service from './impl/function';
-import logger from '../../common/logger';
+import logger from '../../logger';
 import { verify } from '../../utils';
 
 export default class Deploy {
@@ -12,29 +12,27 @@ export default class Deploy {
   readonly service?: Service;
   readonly trigger?: any;
 
-  constructor(private inputs: IInputs) {
+  constructor(inputs: IInputs) {
     this.opts = parseArgv(inputs.args, {
       boolean: ['y', 'skip-push'],
     });
 
+    // TODO: 更完善的验证
     verify(inputs.props);
 
     const { function: type, trigger } = this.opts;
-
+    // 初始化部署实例
     const deployAll = !type && !trigger;
     logger.debug(`Deploy all resources: ${deployAll}`);
-
     if (deployAll || type) {
-      this.service = new Service(type, inputs.props.function);
+      this.service = new Service(inputs, type);
     }
     if (deployAll || trigger) {
       this.trigger = '';
     }
-
-    logger.info(this.opts);
   }
 
   async run() {
-    logger.debug(this.inputs);
+    await this.service?.preRun();
   }
 }

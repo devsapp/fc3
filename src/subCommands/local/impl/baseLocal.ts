@@ -8,7 +8,7 @@ import * as rimraf from 'rimraf';
 import { parseArgv } from '@serverless-devs/utils';
 import { ICredentials } from '@serverless-devs/component-interface';
 import { getTimeZone, vpcImage2InternetImage } from './utils';
-import logger from '../../../common/logger';
+import logger from '../../../logger';
 import { ICodeUri } from '../../../interface';
 import { defaultFcDockerVersion, IDE_VSCODE } from '../../../constant';
 import { IInputs } from '../../../interface';

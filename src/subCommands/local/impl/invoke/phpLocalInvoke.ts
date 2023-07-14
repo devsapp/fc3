@@ -2,7 +2,7 @@ import { BaseLocalInvoke } from './baseLocalInvoke';
 import _ from 'lodash';
 import * as ip from 'ip';
 import { IDE_VSCODE } from '../../../../constant';
-import logger from '../../../../common/logger';
+import logger from '../../../../logger';
 
 export class PhpLocalInvoke extends BaseLocalInvoke {
   beforeInvoke(): boolean {

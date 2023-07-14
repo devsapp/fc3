@@ -4,7 +4,7 @@ import * as path from 'path';
 
 import { Builder } from './baseBuilder';
 import { runCommand } from './docker/runCommand';
-import logger from '../../../common/logger';
+import logger from '../../../logger';
 
 export class DefaultBuilder extends Builder {
   public async runBuild() {

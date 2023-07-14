@@ -3,7 +3,7 @@ import _ from 'lodash';
 import http from 'http';
 import fs from 'fs';
 import { promisify } from 'util';
-import logger from '../../../common/logger';
+import logger from '../../../logger';
 
 export function isAcreeRegistry(imageUrl: string): boolean {
   // 容器镜像企业服务
