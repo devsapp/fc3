@@ -18,7 +18,7 @@ export default class Fc extends Base {
 
     const deploy = new Deploy(inputs);
     await deploy.run();
-  
+
     return { aa: '' };
   }
 
