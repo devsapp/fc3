@@ -2,7 +2,7 @@ import path from 'path';
 import { Builder } from './baseBuilder';
 import logger from '../../../logger';
 import { runCommand } from '../../../utils';
-import * as acr from '../../../resources/acr';
+import { getDockerTmpUser } from '../../../resources/acr';
 
 export class ImageDockerBuilder extends Builder {
   async runBuild() {
@@ -16,7 +16,7 @@ export class ImageDockerBuilder extends Builder {
     await runCommand(dockerCmdStr, undefined, true);
 
     const credential = await this.getCredentials();
-    let dockerTmpConfig = await acr.getDockerTmpUser(
+    let dockerTmpConfig = await getDockerTmpUser(
       this.getRegion(),
       credential,
       this.getAcrEEInstanceID(),
