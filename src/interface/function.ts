@@ -112,7 +112,7 @@ export interface IFunction {
   functionName: string;
   runtime: IRuntime;
   handler?: string;
-  codeUri?: ICodeUri;
+  code?: ICodeUri;
   description?: string;
   diskSize?: 512 | 10240;
   internetAccess?: boolean;

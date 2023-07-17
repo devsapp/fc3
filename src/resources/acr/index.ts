@@ -25,8 +25,8 @@ export default class Acr {
     return imageArr.join('/');
   }
 
-  constructor(private region: string, private credential: ICredentials) { }
-  
+  constructor(private region: string, private credential: ICredentials) {}
+
   async pushAcr(imageUrl: string, instanceID?: string): Promise<void> {
     const image = Acr.vpcImage2InternetImage(imageUrl);
     try {
@@ -37,7 +37,7 @@ export default class Acr {
       );
       let dockerCmdStr = `docker login ${image} --username=${dockerTmpUser} --password ${dockerTmpToken}`;
       await runCommand(dockerCmdStr);
-  
+
       dockerCmdStr = `docker push ${image}`;
       await runCommand(dockerCmdStr, undefined, true);
     } catch (err) {}
