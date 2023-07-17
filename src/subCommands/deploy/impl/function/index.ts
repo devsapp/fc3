@@ -6,7 +6,6 @@ import logger from '../../../../logger';
 import Role from '../../../../resources/role';
 import FC from '../../../../resources/fc';
 
-
 export default class Service extends Utils {
   /**
    * 准备动作
@@ -79,7 +78,8 @@ export default class Service extends Utils {
 
     // 线上配置如果存在，则需要将 auto 资源替换为线上资源配置
     if (this.remote) {
-      const { remoteNasConfig, remoteVpcConfig, remoteLogConfig, remoteRole } = this.getRemoveResourceConfig();
+      const { remoteNasConfig, remoteVpcConfig, remoteLogConfig, remoteRole } =
+        this.getRemoveResourceConfig();
       const { nasAuto, vpcAuto, slsAuto, roleAuto } = this.computeLocalAuto();
 
       if (nasAuto && !_.isEmpty(remoteNasConfig?.mountPoints)) {

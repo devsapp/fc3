@@ -38,14 +38,14 @@ export default class Utils {
 
     this.baseDir = path.dirname(inputs.yaml.path || process.cwd());
     logger.debug(`baseDir is: ${this.baseDir}`);
-  
+
     this.local = _.cloneDeep(inputs.props.function);
-    this.fcSdk = new FC(inputs.props.region, inputs.credential)
+    this.fcSdk = new FC(inputs.props.region, inputs.credential);
   }
 
   /**
    * 计算当前local那些资源是 auto
-   * @returns 
+   * @returns
    */
   computeLocalAuto() {
     const nasAuto = isAuto(this.local.nasConfig);
@@ -68,7 +68,7 @@ export default class Utils {
 
   /**
    * 获取线上函数配置
-   * @returns 
+   * @returns
    */
   async getRemote() {
     const info = new Info(this.inputs);
@@ -109,7 +109,9 @@ export default class Utils {
     // 支持 ossBucketName / ossObjectName 配置
     if (typeof codeUri !== 'string') {
       if (!(codeUri?.ossBucketName && codeUri?.ossObjectName)) {
-        throw new Error('Code config must be a string or an object containing ossBucketName and ossObject Name');
+        throw new Error(
+          'Code config must be a string or an object containing ossBucketName and ossObject Name',
+        );
       }
       return;
     }
@@ -157,7 +159,7 @@ export default class Utils {
       const runtime = this.local.runtime;
       const command = _.get(this.local, 'customRuntimeConfig.command', []);
       const args = _.get(this.local, 'customRuntimeConfig.args', []);
-  
+
       const commandStr = `${_.join(command, ' ')} ${_.join(args, ' ')}`;
       if (FC.isCustomRuntime(runtime) && commandStr.includes('java -jar')) {
         return true;
