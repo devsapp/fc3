@@ -1,6 +1,6 @@
 import { spawn } from 'child_process';
-import { isDebug } from '../../../../constant';
-import logger from '../../../../logger';
+import { isDebug } from '../constant';
+import logger from '../logger';
 
 export async function runCommand(command: string, shellScript?: string, showStdout?: boolean) {
   logger.debug(`runCommand command = ${command}`);

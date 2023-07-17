@@ -18,8 +18,3 @@ export function vpcImage2InternetImage(imageUrl: string): string {
   }
   return imageArr.join('/');
 }
-
-export function getTimeZone(): string {
-  const timeZone = 'UTC+' + (0 - new Date().getTimezoneOffset() / 60);
-  return timeZone;
-}

@@ -1,6 +1,6 @@
 import path from 'path';
 import { Builder } from './baseBuilder';
-import { runCommand } from './docker/runCommand';
+import { runCommand } from '../../../utils';
 import logger from '../../../logger';
 
 export class ImageKanikoBuilder extends Builder {
