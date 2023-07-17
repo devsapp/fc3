@@ -17,4 +17,4 @@ export const isAuto = (config: unknown): boolean => {
 export const getTimeZone = (): string => {
   const timeZone = 'UTC+' + (0 - new Date().getTimezoneOffset() / 60);
   return timeZone;
-}
+};

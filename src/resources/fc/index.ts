@@ -7,36 +7,34 @@ import { Runtime } from '../../interface';
 import logger from '../../logger';
 import path from 'path';
 
-
 export default class FC {
-  static isCustomContainerRuntime = (runtime: string): boolean => runtime === Runtime['custom-container'];
-  static isCustomRuntime = (runtime: string): boolean => runtime === Runtime['custom'] || runtime === Runtime['custom.debian10'];
-  
+  static isCustomContainerRuntime = (runtime: string): boolean =>
+    runtime === Runtime['custom-container'];
+  static isCustomRuntime = (runtime: string): boolean =>
+    runtime === Runtime['custom'] || runtime === Runtime['custom.debian10'];
+
   readonly fc20230330Client: FC20230330;
 
   constructor(private region: string, private credentials: ICredentials) {
     this.fc20230330Client = fc20230330Client(region, credentials);
   }
 
-  async init(config: any): Promise<void> {
-
-  }
+  async init(config: any): Promise<void> {}
 
   /**
    * 上传代码包到临时 oss
-   * @param functionName 
-   * @param zipFile 
-   * @returns 
+   * @param functionName
+   * @param zipFile
+   * @returns
    */
-  async uploadCodeToTmpOss(zipFile: string): Promise<{ ossBucketName: string; ossObjectName: string }>{
+  async uploadCodeToTmpOss(
+    zipFile: string,
+  ): Promise<{ ossBucketName: string; ossObjectName: string }> {
     const client = fc2Client(this.region, this.credentials);
 
-    const { data: {
-      ossRegion,
-      credentials,
-      ossBucket,
-      objectName,
-    } } = await client.getTempBucketToken();
+    const {
+      data: { ossRegion, credentials, ossBucket, objectName },
+    } = await client.getTempBucketToken();
     const ossClient = new OSS({
       region: ossRegion,
       accessKeyId: credentials.AccessKeyId,

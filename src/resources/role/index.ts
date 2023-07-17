@@ -1,6 +1,5 @@
-import logger from "../../logger";
+import logger from '../../logger';
 import _ from 'lodash';
-
 
 export default class Role {
   static completionArn(role: string, accountID: string): string {
@@ -13,7 +12,7 @@ export default class Role {
       logger.debug(`Use role: ${role}`);
       return role;
     }
-  
+
     const arn = `acs:ram::${accountID}:role/${role}`;
     logger.debug(`Assemble role: ${arn}`);
     return arn;
