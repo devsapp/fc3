@@ -1,7 +1,8 @@
 import path from 'path';
 import { Builder } from './baseBuilder';
 import logger from '../../../logger';
-import { runCommand, acr } from '../../../utils';
+import { runCommand } from '../../../utils';
+import * as acr from '../../../resources/acr';
 
 export class ImageDockerBuilder extends Builder {
   async runBuild() {

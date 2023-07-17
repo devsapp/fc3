@@ -3,7 +3,8 @@ import { ICredentials } from '@serverless-devs/component-interface';
 import path from 'path';
 import _ from 'lodash';
 
-import { acr, getTimeZone } from '../../../utils';
+import * as acr from '../../../resources/acr';
+import { getTimeZone } from '../../../utils';
 import { defaultFcDockerVersion } from '../../../constant';
 import logger from '../../../logger';
 
