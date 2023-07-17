@@ -3,7 +3,6 @@ import { Runtime } from '../interface';
 
 export { default as getFcClient } from './fc-client';
 export { default as verify } from './verify';
-export * as acr from './acr';
 export { runCommand } from './run-command';
 
 export const sleep = async (timer: number): Promise<void> =>
@@ -13,9 +12,9 @@ export const isAuto = (config: unknown): boolean => {
   if (!_.isString(config)) {
     return false;
   }
-  
+
   return _.toUpper(config) === 'AUTO';
-}
+};
 
 export function getTimeZone(): string {
   const timeZone = 'UTC+' + (0 - new Date().getTimezoneOffset() / 60);
