@@ -3,7 +3,7 @@ import { ICredentials } from '@serverless-devs/component-interface';
 import path from 'path';
 import _ from 'lodash';
 
-import * as acr from '../../../resources/acr';
+import Acr, { mockDockerConfigFile } from '../../../resources/acr';
 import { getTimeZone } from '../../../utils';
 import { defaultFcDockerVersion } from '../../../constant';
 import logger from '../../../logger';
@@ -69,7 +69,7 @@ export class Builder {
 
   getRuntimeBuildImage(): string {
     if (this.isCustomContainerRuntime()) {
-      let image = acr.vpcImage2InternetImage(this.getProps().customContainerConfig.image);
+      let image = Acr.vpcImage2InternetImage(this.getProps().customContainerConfig.image);
       return image;
     } else {
       // TODO, use fc.conf
@@ -113,7 +113,7 @@ export class Builder {
 
   private checkAcreeInstanceID(imageName: string, instanceID: string) {
     // 如果是企业镜像，并且非正常 build 验证，企业镜像配置
-    if (acr.isAcreeRegistry(imageName) && !instanceID) {
+    if (Acr.isAcreeRegistry(imageName) && !instanceID) {
       throw new Error(
         'When an enterprise version instance is selected for the container image, you need to add an instanceID to the enterprise version of the container image service. Refer to: https://docs.serverless-devs.com/fc/yaml/function#customcontainerconfig',
       );
@@ -126,7 +126,7 @@ export class Builder {
     let imageName = this.getRuntimeBuildImage();
     this.checkAcreeInstanceID(imageName, acrInstanceID);
     const credential = await this.getCredentials();
-    await acr.mockDockerConfigFile(this.getRegion(), imageName, credential, acrInstanceID);
+    await mockDockerConfigFile(this.getRegion(), imageName, credential, acrInstanceID);
     logger.info('docker login successed with cr_tmp user!');
   }
 }
