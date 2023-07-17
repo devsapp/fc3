@@ -1,7 +1,5 @@
 import _ from 'lodash';
-import { Runtime } from '../interface';
 
-export { default as getFcClient } from './fc-client';
 export { default as verify } from './verify';
 export { runCommand } from './run-command';
 
@@ -16,9 +14,7 @@ export const isAuto = (config: unknown): boolean => {
   return _.toUpper(config) === 'AUTO';
 };
 
-export function getTimeZone(): string {
+export const getTimeZone = (): string => {
   const timeZone = 'UTC+' + (0 - new Date().getTimezoneOffset() / 60);
   return timeZone;
 }
-
-export const isContainer = (runtime: string): boolean => runtime === Runtime['custom-container'];

@@ -2,7 +2,7 @@ import { ICredentials } from '@serverless-devs/component-interface';
 import _ from 'lodash';
 import Fc20230330, { GetFunctionRequest, GetFunctionResponse } from '@alicloud/fc20230330';
 import { RegionList, IInputs } from '../../interface';
-import { getFcClient } from '../../utils';
+import FC from '../../resources/fc';
 import logger from '../../logger';
 
 export default class Info {
@@ -14,7 +14,7 @@ export default class Info {
     this.region = _.get(inputs, 'props.region');
     this.functionName = _.get(inputs, 'props.function.functionName');
     this.checkProps();
-    this.client = getFcClient(this.region, this.inputs.credential as ICredentials);
+    this.client = new FC(this.region, this.inputs.credential as ICredentials).fc20230330Client;
   }
 
   async run() {

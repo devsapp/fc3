@@ -9,6 +9,7 @@ import BuilderFactory, { BuildType } from './subCommands/build';
 import Local from './subCommands/local';
 import Deploy from './subCommands/deploy';
 import Info from './subCommands/info';
+import Plan from './subCommands/plan';
 
 export default class Fc extends Base {
   // 部署函数
@@ -27,9 +28,19 @@ export default class Fc extends Base {
 
     const info = new Info(inputs);
     const result = await info.run();
-    logger.debug(`Get info: ${JSON.stringify(info)}`);
+    logger.debug(`Get info: ${JSON.stringify(result)}`);
 
     return result;
+  }
+
+  public async plan(inputs: IInputs) {
+    await super.handlePreRun(inputs, true);
+
+    const plan = new Plan(inputs);
+    const result = await plan.run();
+    logger.debug(`plan result: ${JSON.stringify(result)}`);
+
+    return result.show;
   }
 
   public async build(inputs: IInputs) {
