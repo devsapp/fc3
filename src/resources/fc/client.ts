@@ -3,8 +3,9 @@ import { Config } from '@alicloud/openapi-client';
 import FCClient from '@alicloud/fc20230330';
 import FC2 from '@alicloud/fc2';
 import { getCustomEndpoint, FC_CLIENT_DEFAULT_TIMEOUT } from '../../default/client';
+import { IRegion } from '../../interface';
 
-export const fc2Client = (region: string, credentials: ICredentials) => {
+export const fc2Client = (region: IRegion, credentials: ICredentials) => {
   const { endpoint } = getCustomEndpoint();
 
   return new FC2(credentials.AccountID, {
@@ -18,7 +19,7 @@ export const fc2Client = (region: string, credentials: ICredentials) => {
   });
 };
 
-export const fc20230330Client = (region: string, credentials: ICredentials): FCClient => {
+export const fc20230330Client = (region: IRegion, credentials: ICredentials): FCClient => {
   const {
     AccountID: accountID,
     AccessKeyID: accessKeyId,

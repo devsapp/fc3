@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import fs from 'fs';
 import path from 'path';
+import { yellow } from 'chalk';
 import zip from '@serverless-devs/zip';
 import { getRootHome } from '@serverless-devs/utils';
 
@@ -10,7 +11,10 @@ import { isAuto } from '../../../../utils';
 import FC from '../../../../resources/fc';
 import Acr from '../../../../resources/acr';
 import { FC_API_NOT_FOUND_ERROR_CODE } from '../../../../constant';
-import { FC_DEFAULT_CONFIG } from '../../../../default/client';
+import { FC_DEFAULT_CONFIG } from '../../../../default/config';
+import Sls from '../../../../resources/sls';
+import VPC_NAS from '../../../../resources/vpc-nas';
+import Ram from '../../../../resources/ram';
 
 type IType = 'code' | 'config' | boolean;
 interface IOpts {
@@ -42,29 +46,6 @@ export default class Utils {
     const local = _.cloneDeep(inputs.props.function);
     this.local = _.defaults(local, FC_DEFAULT_CONFIG);
     this.fcSdk = new FC(inputs.props.region, inputs.credential);
-  }
-
-  /**
-   * 计算当前local那些资源是 auto
-   * @returns
-   */
-  computeLocalAuto() {
-    const nasAuto = isAuto(this.local.nasConfig);
-    const vpcAuto = isAuto(this.local.vpcConfig) || (!this.local.vpcConfig && nasAuto);
-    const slsAuto = isAuto(this.local.logConfig);
-    const roleAuto = _.isNil(this.local.role) && (nasAuto || vpcAuto || slsAuto);
-    return { nasAuto, vpcAuto, slsAuto, roleAuto };
-  }
-
-  /**
-   * 获取线上资源配置
-   */
-  getRemoveResourceConfig() {
-    const remoteNasConfig = _.get(this.remote, 'nasConfig') as INasConfig;
-    const remoteVpcConfig = _.get(this.remote, 'vpcConfig') as IVpcConfig;
-    const remoteLogConfig = _.get(this.remote, 'logConfig') as ILogConfig;
-    const remoteRole = _.get(this.remote, 'role');
-    return { remoteNasConfig, remoteVpcConfig, remoteLogConfig, remoteRole };
   }
 
   /**
@@ -129,6 +110,7 @@ export default class Utils {
         outputFileName: `${this.inputs.props.region}_${this.local.functionName}_${Date.now()}`,
         outputFilePath: path.join(getRootHome(), '.s', 'fc', 'zip'),
         ignoreFiles: ['.fcignore'],
+        logger: logger.instance,
       };
       generateZipFilePath = (await zip(zipConfig)).outputFile;
       zipPath = generateZipFilePath;
@@ -144,6 +126,93 @@ export default class Utils {
         fs.rmSync(generateZipFilePath);
       } catch (ex) {
         logger.debug(`Unable to remove zip file: ${zipPath}`);
+      }
+    }
+  }
+
+  async initAuto() {
+    const region = this.inputs.props.region;
+    const credential = this.inputs.credential;
+    const functionName = this.local.functionName;
+
+    const { nasAuto, vpcAuto, slsAuto, roleAuto } = this.computeLocalAuto();
+    logger.debug(
+      `Deploy auto compute local auto, nasAuto: ${nasAuto}; vpcAuto: ${vpcAuto}; slsAuto: ${slsAuto}; roleAuto: ${roleAuto}`,
+    );
+
+    if (slsAuto) {
+      const sls = new Sls(region, credential);
+      const { project, logstore } = await sls.deploy(functionName);
+      logger.write(
+        yellow(`Created log resource succeeded, please replace logConfig: auto in yaml with:
+logConfig:
+  enableInstanceMetrics: true
+  enableRequestMetrics: true
+  logBeginRule: DefaultRegex
+  logstore: ${logstore}
+  project: ${project}
+`),
+      );
+      _.set(this.local, 'logConfig', {
+        enableInstanceMetrics: true,
+        enableRequestMetrics: true,
+        logBeginRule: 'DefaultRegex',
+        logstore,
+        project,
+      });
+    }
+
+    if (roleAuto) {
+      const client = new Ram(credential).client;
+      // TODO: 升级 ram 包，直接获取 arn
+      const arn = await client.initFcDefaultServiceRole();
+    }
+
+    if (nasAuto || vpcAuto) {
+      const client = new VPC_NAS(region, credential);
+      const localVpcAuto = _.isString(this.local.vpcConfig) ? undefined : this.local.vpcConfig;
+      // @ts-ignore: nas auto 会返回 mountTargetDomain 和 fileSystemId
+      const { vpcConfig, mountTargetDomain } = await client.deploy({
+        nasAuto,
+        vpcConfig: localVpcAuto,
+      });
+
+      if (vpcAuto) {
+        logger.write(
+          yellow(`Created vpc resource succeeded, please manually write vpcConfig to the yaml file:
+vpcConfig:
+  vpcId: ${vpcConfig.vpcId}
+  securityGroupId: ${vpcConfig.securityGroupId}
+  vSwitchIds:
+    - ${vpcConfig.vSwitchIds.join('   - \n')}
+`),
+        );
+        _.set(this.local, 'vpcConfig', vpcConfig);
+      }
+
+      if (nasAuto) {
+        logger.write(
+          yellow(`Created nas resource succeeded, please replace nasConfig: auto in yaml with:
+nasConfig:
+  groupId: 0
+  userId: 0
+  mountPoints:
+    - serverAddr: ${mountTargetDomain}:/${functionName}
+      mountDir: /mnt/${functionName}
+      enableTLS: false
+`),
+        );
+        _.set(this.local, 'nasConfig', {
+          groupId: 0,
+          userId: 0,
+          mountPoints: [
+            {
+              serverAddr: `${mountTargetDomain}:/${functionName}`,
+              mountDir: `/mnt/${functionName}`,
+              enableTLS: false,
+            },
+          ],
+        });
       }
     }
   }
@@ -168,5 +237,28 @@ export default class Utils {
     }
 
     return !(codeUri.endsWith('.zip') || codeUri.endsWith('.war'));
+  }
+
+  /**
+   * 计算当前local那些资源是 auto
+   * @returns
+   */
+  computeLocalAuto() {
+    const nasAuto = isAuto(this.local.nasConfig);
+    const vpcAuto = isAuto(this.local.vpcConfig) || (!this.local.vpcConfig && nasAuto);
+    const slsAuto = isAuto(this.local.logConfig);
+    const roleAuto = _.isNil(this.local.role) && (nasAuto || vpcAuto || slsAuto);
+    return { nasAuto, vpcAuto, slsAuto, roleAuto };
+  }
+
+  /**
+   * 获取线上资源配置
+   */
+  getRemoveResourceConfig() {
+    const remoteNasConfig = _.get(this.remote, 'nasConfig') as INasConfig;
+    const remoteVpcConfig = _.get(this.remote, 'vpcConfig') as IVpcConfig;
+    const remoteLogConfig = _.get(this.remote, 'logConfig') as ILogConfig;
+    const remoteRole = _.get(this.remote, 'role');
+    return { remoteNasConfig, remoteVpcConfig, remoteLogConfig, remoteRole };
   }
 }

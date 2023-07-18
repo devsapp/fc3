@@ -1,4 +1,6 @@
 class Logger {
+  instance: any;
+
   log: (...args: unknown[]) => void;
   info: (...args: unknown[]) => void;
   debug: (...args: unknown[]) => void;
@@ -6,7 +8,7 @@ class Logger {
   write: (...args: unknown[]) => void;
   error: (...args: unknown[]) => void;
   output: (...args: unknown[]) => void;
-  progress: (...args: unknown[]) => void;
+  spin: (...args: unknown[]) => void;
 
   _set = (logger) => {
     this.log = (...args) => logger.log.apply(logger, args);
@@ -16,7 +18,8 @@ class Logger {
     this.write = (...args) => logger.write.apply(logger, args);
     this.error = (...args) => logger.error.apply(logger, args);
     this.output = (...args) => logger.output.apply(logger, args);
-    this.progress = (...args) => logger.progress.apply(logger, args);
+    this.spin = (...args) => logger.spin.apply(logger, args);
+    this.instance = logger;
   };
 }
 

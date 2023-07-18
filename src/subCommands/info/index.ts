@@ -1,11 +1,11 @@
 import { ICredentials } from '@serverless-devs/component-interface';
 import _ from 'lodash';
-import { RegionList, IInputs } from '../../interface';
+import { RegionList, IInputs, IRegion } from '../../interface';
 import FC from '../../resources/fc';
 import logger from '../../logger';
 
 export default class Info {
-  readonly region: string;
+  readonly region: IRegion;
   readonly functionName: string;
   readonly fcSdk: FC;
 

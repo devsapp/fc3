@@ -1,3 +1,6 @@
+import { ICredentials } from '@serverless-devs/component-interface';
+import Ram from '@serverless-cd/srm-aliyun-ram20150501';
+import { Config } from '@alicloud/openapi-client';
 import logger from '../../logger';
 import _ from 'lodash';
 
@@ -16,5 +19,17 @@ export default class Role {
     const arn = `acs:ram::${accountID}:role/${role}`;
     logger.debug(`Assemble role: ${arn}`);
     return arn;
+  }
+
+  readonly client: Ram;
+
+  constructor(credentials: ICredentials) {
+    const config = new Config({
+      accessKeyId: credentials.AccessKeyID,
+      accessKeySecret: credentials.AccessKeySecret,
+      securityToken: credentials.SecurityToken,
+      endpoint: 'ram.aliyuncs.com',
+    });
+    this.client = new Ram(config);
   }
 }
