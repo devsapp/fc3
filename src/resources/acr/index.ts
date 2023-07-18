@@ -2,6 +2,7 @@ import { ICredentials } from '@serverless-devs/component-interface';
 import _ from 'lodash';
 import { getDockerTmpUser } from './login';
 import { runCommand } from '../../utils';
+import { IRegion } from '../../interface';
 
 export { getDockerTmpUser, mockDockerConfigFile } from './login';
 
@@ -25,7 +26,7 @@ export default class Acr {
     return imageArr.join('/');
   }
 
-  constructor(private region: string, private credential: ICredentials) {}
+  constructor(private region: IRegion, private credential: ICredentials) {}
 
   async pushAcr(imageUrl: string, instanceID?: string): Promise<void> {
     const image = Acr.vpcImage2InternetImage(imageUrl);

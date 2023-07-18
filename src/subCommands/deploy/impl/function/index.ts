@@ -4,7 +4,7 @@ import inquirer from 'inquirer';
 
 import Utils from './utils';
 import logger from '../../../../logger';
-import Role from '../../../../resources/role';
+import Role from '../../../../resources/ram';
 import FC from '../../../../resources/fc';
 
 export default class Service extends Utils {
@@ -102,6 +102,9 @@ export default class Service extends Utils {
       const { remoteNasConfig, remoteVpcConfig, remoteLogConfig, remoteRole } =
         this.getRemoveResourceConfig();
       const { nasAuto, vpcAuto, slsAuto, roleAuto } = this.computeLocalAuto();
+      logger.debug(
+        `Init local compute local auto, nasAuto: ${nasAuto}; vpcAuto: ${vpcAuto}; slsAuto: ${slsAuto}; roleAuto: ${roleAuto}`,
+      );
 
       if (nasAuto && !_.isEmpty(remoteNasConfig?.mountPoints)) {
         _.set(this.local, 'nasConfig', remoteNasConfig);

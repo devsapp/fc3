@@ -12,7 +12,7 @@ import FC20230330, {
 import OSS from 'ali-oss';
 import axios from 'axios';
 import { fc20230330Client, fc2Client } from './client';
-import { IFunction, Runtime } from '../../interface';
+import { IFunction, IRegion, Runtime } from '../../interface';
 import logger from '../../logger';
 import path from 'path';
 import { FC_API_NOT_FOUND_ERROR_CODE } from '../../constant';
@@ -26,10 +26,15 @@ export default class FC {
 
   readonly fc20230330Client: FC20230330;
 
-  constructor(private region: string, private credentials: ICredentials) {
+  constructor(private region: IRegion, private credentials: ICredentials) {
     this.fc20230330Client = fc20230330Client(region, credentials);
   }
 
+  /**
+   * 获取函数
+   * @param functionName
+   * @param type 'original' 接口返回值 | 'simple' 返回简单处理之后的值
+   */
   async getFunction(
     functionName: string,
     type: 'original' | 'simple' = 'original',
@@ -69,6 +74,9 @@ export default class FC {
     return await this.fc20230330Client.updateFunction(config.functionName, request);
   }
 
+  /**
+   * 创建或者修改函数
+   */
   async deployFunction(config: IFunction): Promise<void> {
     let needUpdate = false;
     try {

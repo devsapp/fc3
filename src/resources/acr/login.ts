@@ -6,6 +6,7 @@ import random from 'string-random';
 import Pop from '@alicloud/pop-core';
 import logger from '../../logger';
 import { ICredentials } from '@serverless-devs/component-interface';
+import { IRegion } from '../../interface';
 
 const { ROAClient } = require('@alicloud/pop-core');
 
@@ -14,7 +15,7 @@ interface IDockerTmpConfig {
   dockerTmpToken: string;
 }
 
-function getAcrClient(region: string, credentials: ICredentials) {
+function getAcrClient(region: IRegion, credentials: ICredentials) {
   const acrClient = new ROAClient({
     accessKeyId: credentials?.AccessKeyID,
     accessKeySecret: credentials?.AccessKeySecret,
@@ -39,7 +40,7 @@ async function getPopClient(
   });
 }
 
-async function getAuthorizationToken(region: string, credentials: ICredentials): Promise<any> {
+async function getAuthorizationToken(region: IRegion, credentials: ICredentials): Promise<any> {
   const httpMethod = 'GET';
   const uriPath = '/tokens';
   const queries: any = {};
@@ -65,7 +66,7 @@ async function getAuthorizationToken(region: string, credentials: ICredentials):
 }
 
 async function createUserInfo(
-  region: string,
+  region: IRegion,
   credentials: ICredentials,
   pwd: string,
 ): Promise<any> {
@@ -86,7 +87,7 @@ async function createUserInfo(
 }
 
 async function getAuthorizationTokenOfRegisrty(
-  region: string,
+  region: IRegion,
   credentials: ICredentials,
 ): Promise<IDockerTmpConfig> {
   let response;
@@ -117,7 +118,7 @@ async function getAuthorizationTokenOfRegisrty(
 }
 
 async function getAuthorizationTokenForAcrEE(
-  region: string,
+  region: IRegion,
   credentials: ICredentials,
   instanceID: string,
 ): Promise<IDockerTmpConfig> {
@@ -183,7 +184,7 @@ async function setDockerConfigInformation(
 }
 
 export async function mockDockerConfigFile(
-  region: string,
+  region: IRegion,
   imageName: string,
   credentials: ICredentials,
   instanceID: string,
@@ -198,7 +199,7 @@ export async function mockDockerConfigFile(
 }
 
 export async function getDockerTmpUser(
-  region: string,
+  region: IRegion,
   credentials: ICredentials,
   instanceID: string,
 ): Promise<IDockerTmpConfig> {

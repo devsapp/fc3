@@ -16,11 +16,9 @@ export default class Fc extends Base {
   public async deploy(inputs: IInputs) {
     logger.debug(`input: ${JSON.stringify(inputs.props)}`);
     await super.handlePreRun(inputs, true);
-
     const deploy = new Deploy(inputs);
     await deploy.run();
-
-    return { aa: '' };
+    return 'deploy end';
   }
 
   public async info(inputs: IInputs) {
