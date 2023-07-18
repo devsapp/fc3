@@ -31,7 +31,7 @@ export class Builder {
   }
 
   getAcrEEInstanceID(): string {
-    return _.get(this.getProps().customContainerConfig.acrInstanceID);
+    return _.get(this.getProps(), 'customContainerConfig.acrInstanceID');
   }
 
   isCustomContainerRuntime(): boolean {

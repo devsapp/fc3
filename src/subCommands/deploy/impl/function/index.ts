@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import { simpleDiff } from '@serverless-devs/diff';
+import inquirer from 'inquirer';
 
 import Utils from './utils';
 import logger from '../../../../logger';
@@ -36,31 +37,51 @@ export default class Service extends Utils {
       }
     }
 
-    await this.fcSdk.init(this.local);
+    await this.fcSdk.deployFunction(this.local);
   }
 
   /**
    * diff 处理
    */
-  private plan(): void {
+  private async plan(): Promise<void> {
     // 远端不存在，或者 get 异常跳过 plan 直接部署
-    if (!this.remote) {
+    if (!this.remote || this.type === 'code') {
       this.needDeploy = true;
       return;
     }
 
+    const code = this.local.code;
+    _.unset(this.local, 'code');
     const { diffResult, show } = simpleDiff(this.remote, this.local);
-    logger.write(show);
+    _.set(this.local, 'code', code);
+
+    logger.debug(`diff result: ${JSON.stringify(diffResult)}`);
+    logger.debug(`diff show:\n${show}`);
     // 没有差异，直接部署
     if (_.isEmpty(diffResult)) {
       this.needDeploy = true;
       return;
     }
+    logger.write(
+      `Function ${this.local.functionName} was changed, please confirm before deployment:\n`,
+    );
+    logger.write(show);
     // 用户指定了 --yes 或者 --no-yes，不再交互
     if (_.isBoolean(this.needDeploy)) {
       return;
     }
-    // TODO: 交互; 需要考虑 this.type 类型
+    logger.write(
+      `\n* You can also specify to use local configuration through --yes/-y during deployment`,
+    );
+    const message = `Deploy it with local config or skip deploy?`;
+    const answers = await inquirer.prompt([
+      {
+        type: 'confirm',
+        name: 'ok',
+        message,
+      },
+    ]);
+    this.needDeploy = answers.ok;
   }
 
   /**
@@ -71,7 +92,7 @@ export default class Service extends Utils {
   private async initLocal() {
     logger.debug(`Pre init local config: ${JSON.stringify(this.local)}`);
     // 兼容只写 rule 的情况
-    if (_.isString(this.local.role)) {
+    if (_.isString(this.local.role) && !this.local.role) {
       const accountID = super.inputs.credential.AccountID;
       _.set(this.local, 'role', Role.completionArn(this.local.role, accountID));
     }
@@ -94,10 +115,10 @@ export default class Service extends Utils {
         _.set(this.local, 'nasConfig', remoteLogConfig);
       }
 
-      if (roleAuto && _.isString(remoteRole)) {
-        _.set(this.local, 'role', remoteRole);
+      if (roleAuto) {
+        _.set(this.local, 'role', _.isString(remoteRole) ? remoteRole : 'auto');
       } else {
-        _.set(this.local, 'role', 'auto');
+        _.set(this.local, 'role', '');
       }
     }
 
