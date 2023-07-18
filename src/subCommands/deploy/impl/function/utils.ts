@@ -7,10 +7,10 @@ import { getRootHome } from '@serverless-devs/utils';
 import { IFunction, IInputs, ILogConfig, INasConfig, IVpcConfig } from '../../../../interface';
 import logger from '../../../../logger';
 import { isAuto } from '../../../../utils';
-import Info from '../../../info';
-import { FC_API_NOT_FOUND_ERROR_CODE } from '../../../../constant';
 import FC from '../../../../resources/fc';
 import Acr from '../../../../resources/acr';
+import { FC_API_NOT_FOUND_ERROR_CODE } from '../../../../constant';
+import { FC_DEFAULT_CONFIG } from '../../../../default/client';
 
 type IType = 'code' | 'config' | boolean;
 interface IOpts {
@@ -39,7 +39,8 @@ export default class Utils {
     this.baseDir = path.dirname(inputs.yaml.path || process.cwd());
     logger.debug(`baseDir is: ${this.baseDir}`);
 
-    this.local = _.cloneDeep(inputs.props.function);
+    const local = _.cloneDeep(inputs.props.function);
+    this.local = _.defaults(local, FC_DEFAULT_CONFIG);
     this.fcSdk = new FC(inputs.props.region, inputs.credential);
   }
 
@@ -71,8 +72,7 @@ export default class Utils {
    * @returns
    */
   async getRemote() {
-    const info = new Info(this.inputs);
-    const remote = await info.getFunction();
+    const remote = await this.fcSdk.getFunction(this.local.functionName, 'simple');
     if (remote?.error) {
       if (remote?.error.code !== FC_API_NOT_FOUND_ERROR_CODE.FunctionNotFound) {
         logger.error(remote.error.message);

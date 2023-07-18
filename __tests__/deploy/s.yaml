@@ -12,3 +12,6 @@ resources:
         functionName: fc3-wss
         runtime: nodejs14
         code: ./code
+        handler: index.handler
+        memorySize: 128
+        timeout: 60

@@ -1,6 +1,5 @@
 import { ICredentials } from '@serverless-devs/component-interface';
 import _ from 'lodash';
-import Fc20230330, { GetFunctionRequest, GetFunctionResponse } from '@alicloud/fc20230330';
 import { RegionList, IInputs } from '../../interface';
 import FC from '../../resources/fc';
 import logger from '../../logger';
@@ -8,13 +7,13 @@ import logger from '../../logger';
 export default class Info {
   readonly region: string;
   readonly functionName: string;
-  readonly client: Fc20230330;
+  readonly fcSdk: FC;
 
   constructor(private inputs: IInputs) {
     this.region = _.get(inputs, 'props.region');
     this.functionName = _.get(inputs, 'props.function.functionName');
     this.checkProps();
-    this.client = new FC(this.region, this.inputs.credential as ICredentials).fc20230330Client;
+    this.fcSdk = new FC(this.region, this.inputs.credential as ICredentials);
   }
 
   async run() {
@@ -25,13 +24,11 @@ export default class Info {
     };
   }
 
-  async getFunction(): Promise<GetFunctionResponse | { error: any }> {
-    const getFunctionRequest = new GetFunctionRequest({});
+  async getFunction(): Promise<{ error: any } | any> {
     try {
-      const result = await this.client.getFunction(this.functionName, getFunctionRequest);
-      logger.debug(`Get function ${this.functionName} response:`);
-      logger.debug(result);
-      return result;
+      const result = await this.fcSdk.getFunction(this.functionName);
+      const body = result.toMap().body;
+      return body;
     } catch (ex) {
       logger.debug(`Get function ${this.functionName} error: ${ex}`);
       return {

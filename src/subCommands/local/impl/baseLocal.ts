@@ -93,7 +93,7 @@ export class BaseLocal {
   }
 
   getAcrEEInstanceID(): string {
-    return _.get(this.getFunctionProps().customContainerConfig.acrInstanceID);
+    return _.get(this.getFunctionProps(), 'customContainerConfig.acrInstanceID');
   }
 
   isHttpFunction(): boolean {
