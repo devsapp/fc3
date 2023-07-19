@@ -124,7 +124,11 @@ export default class Service extends Utils {
       }
 
       if (roleAuto) {
-        _.set(this.local, 'role', _.isString(remoteRole) && remoteRole !== '' ? remoteRole : 'auto');
+        _.set(
+          this.local,
+          'role',
+          _.isString(remoteRole) && remoteRole !== '' ? remoteRole : 'auto',
+        );
       } else {
         _.set(this.local, 'role', '');
       }

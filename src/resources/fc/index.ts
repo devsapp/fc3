@@ -37,7 +37,7 @@ export default class FC {
     const acrInstanceID = _.get(customContainerConfig, 'acrInstanceID');
     const image = _.get(customContainerConfig, 'image', '');
     return acrInstanceID && image.endsWith('_accelerated');
-  }
+  };
 
   readonly fc20230330Client: FC20230330;
 
@@ -97,7 +97,7 @@ export default class FC {
         'createdTime',
         'codeSize',
         'codeChecksum',
-      ])
+      ]);
       logger.debug(`Result body: ${JSON.stringify(r)}`);
       return r;
     }
@@ -146,9 +146,10 @@ export default class FC {
 
     // 计算是否超时
     const currentTime = new Date().getTime();
-    const calculateRetryTime = (minute: number) => currentTime - new Date().getTime() > minute * 60 * 1000;
+    const calculateRetryTime = (minute: number) =>
+      currentTime - new Date().getTime() > minute * 60 * 1000;
 
-    while(true) {
+    while (true) {
       try {
         if (!needUpdate) {
           logger.debug(`Need create function ${config.functionName}`);
@@ -163,7 +164,7 @@ export default class FC {
             needUpdate = true;
           }
         }
-    
+
         logger.debug(`Need update function ${config.functionName}`);
         await this.updateFunction(config);
         return;
@@ -177,7 +178,7 @@ export default class FC {
           ○ 首次创建日志：报错日志不存在，需要重试 3min
           ○ 默认重试 3 次
         */
-        const { project, logstore } = (config.logConfig || {}) as ILogConfig
+        const { project, logstore } = (config.logConfig || {}) as ILogConfig;
         const retrySls = slsAuto && isSlsNotExistException(project, logstore, ex);
         const retryContainerAccelerated = isContainerAccelerated;
 
@@ -191,7 +192,13 @@ export default class FC {
         }
         retry += 1;
 
-        logger.spin('retrying', 'function', needUpdate ? 'update' : 'create', `${this.region}/${config.functionName}`, retry);
+        logger.spin(
+          'retrying',
+          'function',
+          needUpdate ? 'update' : 'create',
+          `${this.region}/${config.functionName}`,
+          retry,
+        );
 
         await sleep(retryTime);
       }

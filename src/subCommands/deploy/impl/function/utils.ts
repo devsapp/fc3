@@ -170,8 +170,10 @@ logConfig:
     if (roleAuto) {
       const client = new Ram(credential).client;
       const arn = await client.initFcDefaultServiceRole();
-      logger.write(yellow(`Using role: ${arn}
-`));
+      logger.write(
+        yellow(`Using role: ${arn}
+`),
+      );
       this.createResource.role = { arn };
 
       _.set(this.local, 'role', arn);
@@ -258,7 +260,8 @@ nasConfig:
     const nasAuto = isAuto(this.local.nasConfig);
     const vpcAuto = isAuto(this.local.vpcConfig) || (!this.local.vpcConfig && nasAuto);
     const slsAuto = isAuto(this.local.logConfig);
-    const roleAuto = isAuto(this.local.role) || (_.isNil(this.local.role) && (nasAuto || vpcAuto || slsAuto));
+    const roleAuto =
+      isAuto(this.local.role) || (_.isNil(this.local.role) && (nasAuto || vpcAuto || slsAuto));
     return { nasAuto, vpcAuto, slsAuto, roleAuto };
   }
 
