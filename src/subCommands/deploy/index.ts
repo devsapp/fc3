@@ -17,7 +17,7 @@ export default class Deploy {
       alias: {
         yes: 'y',
       },
-      boolean: ['y', 'skip-push'],
+      boolean: ['skip-push'],
     });
 
     // TODO: 更完善的验证

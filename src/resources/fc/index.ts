@@ -11,18 +11,33 @@ import FC20230330, {
 } from '@alicloud/fc20230330';
 import OSS from 'ali-oss';
 import axios from 'axios';
-import { fc20230330Client, fc2Client } from './client';
-import { IFunction, IRegion, Runtime } from '../../interface';
-import logger from '../../logger';
 import path from 'path';
-import { FC_API_NOT_FOUND_ERROR_CODE } from '../../constant';
 import _ from 'lodash';
+
+import { fc20230330Client, fc2Client } from './client';
+import { ICustomContainerConfig, IFunction, ILogConfig, IRegion, Runtime } from '../../interface';
+import logger from '../../logger';
+import { FC_API_NOT_FOUND_ERROR_CODE } from '../../constant';
+import { sleep } from '../../utils';
+import { isSlsNotExistException } from './error';
+import { FC_DEPLOY_RETRY_COUNT } from '../../default/client';
 
 export default class FC {
   static isCustomContainerRuntime = (runtime: string): boolean =>
     runtime === Runtime['custom-container'];
   static isCustomRuntime = (runtime: string): boolean =>
     runtime === Runtime['custom'] || runtime === Runtime['custom.debian10'];
+  /**
+   * 是否启用了镜像加速
+   */
+  static isContainerAccelerated = (customContainerConfig: ICustomContainerConfig): boolean => {
+    if (_.isEmpty(customContainerConfig)) {
+      return false;
+    }
+    const acrInstanceID = _.get(customContainerConfig, 'acrInstanceID');
+    const image = _.get(customContainerConfig, 'image', '');
+    return acrInstanceID && image.endsWith('_accelerated');
+  }
 
   readonly fc20230330Client: FC20230330;
 
@@ -37,7 +52,7 @@ export default class FC {
    */
   async getFunction(
     functionName: string,
-    type: 'original' | 'simple' = 'original',
+    type: 'original' | 'simple' | 'simple-unsupported' = 'original',
   ): Promise<GetFunctionResponse | Record<string, any>> {
     const getFunctionRequest = new GetFunctionRequest({});
     const result = await this.fc20230330Client.getFunction(functionName, getFunctionRequest);
@@ -49,13 +64,46 @@ export default class FC {
     }
 
     const body = result.toMap().body;
-    return _.omit(body, [
-      'lastModifiedTime',
-      'functionId',
-      'createdTime',
-      'codeSize',
-      'codeChecksum',
-    ]);
+    logger.debug(`Get function ${functionName} body: ${JSON.stringify(body)}`);
+
+    if (_.isEmpty(body.nasConfig?.mountPoints)) {
+      _.unset(body, 'nasConfig');
+    }
+
+    if (!body.vpcConfig?.vpcId) {
+      _.unset(body, 'vpcConfig');
+    }
+
+    if (!body.logConfig?.project) {
+      _.unset(body, 'logConfig');
+    }
+
+    if (_.isEmpty(body.ossMountConfig?.mountPoints)) {
+      _.unset(body, 'ossMountConfig');
+    }
+
+    if (_.isEmpty(body.tracingConfig)) {
+      _.unset(body, 'tracingConfig');
+    }
+
+    if (_.isEmpty(body.environmentVariables)) {
+      _.unset(body, 'environmentVariables');
+    }
+
+    if (type === 'simple-unsupported') {
+      const r = _.omit(body, [
+        'lastModifiedTime',
+        'functionId',
+        'createdTime',
+        'codeSize',
+        'codeChecksum',
+      ])
+      logger.debug(`Result body: ${JSON.stringify(r)}`);
+      return r;
+    }
+
+    logger.debug(`Result body: ${JSON.stringify(body)}`);
+    return body;
   }
 
   async createFunction(config: IFunction): Promise<CreateFunctionResponse> {
@@ -77,7 +125,7 @@ export default class FC {
   /**
    * 创建或者修改函数
    */
-  async deployFunction(config: IFunction): Promise<void> {
+  async deployFunction(config: IFunction, { slsAuto }): Promise<void> {
     logger.debug(`Deploy function use config: ${JSON.stringify(config)}`);
     let needUpdate = false;
     try {
@@ -91,23 +139,63 @@ export default class FC {
       }
     }
 
-    if (!needUpdate) {
-      logger.debug(`Need create function ${config.functionName}`);
+    const isContainerAccelerated = FC.isContainerAccelerated(config.customContainerConfig);
+
+    let retry = 0;
+    let retryTime = 3;
+
+    // 计算是否超时
+    const currentTime = new Date().getTime();
+    const calculateRetryTime = (minute: number) => currentTime - new Date().getTime() > minute * 60 * 1000;
+
+    while(true) {
       try {
-        await this.createFunction(config);
+        if (!needUpdate) {
+          logger.debug(`Need create function ${config.functionName}`);
+          try {
+            await this.createFunction(config);
+            return;
+          } catch (ex) {
+            if (ex.code !== FC_API_NOT_FOUND_ERROR_CODE.FunctionAlreadyExists) {
+              throw ex;
+            }
+            logger.debug('Create functions already exists, retry update function');
+            needUpdate = true;
+          }
+        }
+    
+        logger.debug(`Need update function ${config.functionName}`);
+        await this.updateFunction(config);
         return;
       } catch (ex) {
-        logger.debug('create function error: ', ex);
-        if (ex.code !== FC_API_NOT_FOUND_ERROR_CODE.FunctionAlreadyExists) {
-          // TODO: 处理其他的错误码
+        logger.debug(`Deploy function error: ${ex}`);
+
+        /**
+         * 重试机制
+          ○ 如果是权限问题不重重试直接异常: TODO
+          ○ 部署镜像并且使用 _accelerated 结尾：报错镜像不存在，需要重试 3min: TODO
+          ○ 首次创建日志：报错日志不存在，需要重试 3min
+          ○ 默认重试 3 次
+        */
+        const { project, logstore } = (config.logConfig || {}) as ILogConfig
+        const retrySls = slsAuto && isSlsNotExistException(project, logstore, ex);
+        const retryContainerAccelerated = isContainerAccelerated;
+
+        if (retrySls || retryContainerAccelerated) {
+          if (calculateRetryTime(3)) {
+            throw ex;
+          }
+          retryTime = 5;
+        } else if (retry > FC_DEPLOY_RETRY_COUNT) {
           throw ex;
         }
-        logger.debug('Create functions already exists, retry update function');
+        retry += 1;
+
+        logger.spin('retrying', 'function', needUpdate ? 'update' : 'create', `${this.region}/${config.functionName}`, retry);
+
+        await sleep(retryTime);
       }
     }
-
-    logger.debug(`Need update function ${config.functionName}`);
-    await this.updateFunction(config);
   }
 
   /**

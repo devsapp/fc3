@@ -5,6 +5,7 @@ import { IRegion, IVpcConfig } from '../../interface';
 import { VPC_AND_NAS_NAME } from '../../default/resources';
 import _ from 'lodash';
 import { IGetInitNasConfigAsFcResponse } from '@serverless-cd/srm-aliyun-pop-core/dist/nas-2017-06-26';
+import logger from '../../logger';
 
 export default class Sls {
   private client: PopClient;
@@ -16,7 +17,7 @@ export default class Sls {
       securityToken: credentials.SecurityToken,
       endpoint: `http://nas.${region}.aliyuncs.com`,
       apiVersion: '2017-06-26',
-    });
+    }, logger);
   }
 
   async deploy({

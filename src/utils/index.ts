@@ -3,8 +3,8 @@ import _ from 'lodash';
 export { default as verify } from './verify';
 export { runCommand } from './run-command';
 
-export const sleep = async (timer: number): Promise<void> =>
-  await new Promise((resolve) => setTimeout(resolve, timer));
+export const sleep = async (second: number): Promise<void> =>
+  await new Promise((resolve) => setTimeout(resolve, second * 1000));
 
 export const isAuto = (config: unknown): boolean => {
   if (!_.isString(config)) {

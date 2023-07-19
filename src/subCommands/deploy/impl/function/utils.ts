@@ -11,7 +11,7 @@ import { isAuto } from '../../../../utils';
 import FC from '../../../../resources/fc';
 import Acr from '../../../../resources/acr';
 import { FC_API_NOT_FOUND_ERROR_CODE } from '../../../../constant';
-import { FC_DEFAULT_CONFIG } from '../../../../default/config';
+import { FUNCTION_DEFAULT_CONFIG } from '../../../../default/config';
 import Sls from '../../../../resources/sls';
 import VPC_NAS from '../../../../resources/vpc-nas';
 import Ram from '../../../../resources/ram';
@@ -31,6 +31,7 @@ export default class Utils {
   needDeploy?: boolean;
   remote?: any;
   local: IFunction;
+  createResource: Record<string, any> = {};
   readonly fcSdk: FC;
 
   constructor(readonly inputs: IInputs, opts: IOpts) {
@@ -44,7 +45,7 @@ export default class Utils {
     logger.debug(`baseDir is: ${this.baseDir}`);
 
     const local = _.cloneDeep(inputs.props.function);
-    this.local = _.defaults(local, FC_DEFAULT_CONFIG);
+    this.local = _.defaults(local, FUNCTION_DEFAULT_CONFIG);
     this.fcSdk = new FC(inputs.props.region, inputs.credential);
   }
 
@@ -53,7 +54,7 @@ export default class Utils {
    * @returns
    */
   async getRemote() {
-    const remote = await this.fcSdk.getFunction(this.local.functionName, 'simple');
+    const remote = await this.fcSdk.getFunction(this.local.functionName, 'simple-unsupported');
     if (remote?.error) {
       if (remote?.error.code !== FC_API_NOT_FOUND_ERROR_CODE.FunctionNotFound) {
         logger.error(remote.error.message);
@@ -156,6 +157,7 @@ logConfig:
   project: ${project}
 `),
       );
+      this.createResource.sls = { project, logstore };
       _.set(this.local, 'logConfig', {
         enableInstanceMetrics: true,
         enableRequestMetrics: true,
@@ -168,7 +170,9 @@ logConfig:
     if (roleAuto) {
       const client = new Ram(credential).client;
       const arn = await client.initFcDefaultServiceRole();
-      logger.write(yellow(`Using role: ${arn}`));
+      logger.write(yellow(`Using role: ${arn}
+`));
+      this.createResource.role = { arn };
 
       _.set(this.local, 'role', arn);
     }
@@ -177,7 +181,7 @@ logConfig:
       const client = new VPC_NAS(region, credential);
       const localVpcAuto = _.isString(this.local.vpcConfig) ? undefined : this.local.vpcConfig;
       // @ts-ignore: nas auto 会返回 mountTargetDomain 和 fileSystemId
-      const { vpcConfig, mountTargetDomain } = await client.deploy({
+      const { vpcConfig, mountTargetDomain, fileSystemId } = await client.deploy({
         nasAuto,
         vpcConfig: localVpcAuto,
       });
@@ -192,6 +196,7 @@ vpcConfig:
     - ${vpcConfig.vSwitchIds.join('   - \n')}
 `),
         );
+        this.createResource.vpc = vpcConfig;
         _.set(this.local, 'vpcConfig', vpcConfig);
       }
 
@@ -207,6 +212,7 @@ nasConfig:
       enableTLS: false
 `),
         );
+        this.createResource.nas = { mountTargetDomain, fileSystemId };
         _.set(this.local, 'nasConfig', {
           groupId: 0,
           userId: 0,
@@ -252,7 +258,7 @@ nasConfig:
     const nasAuto = isAuto(this.local.nasConfig);
     const vpcAuto = isAuto(this.local.vpcConfig) || (!this.local.vpcConfig && nasAuto);
     const slsAuto = isAuto(this.local.logConfig);
-    const roleAuto = _.isNil(this.local.role) && (nasAuto || vpcAuto || slsAuto);
+    const roleAuto = isAuto(this.local.role) || (_.isNil(this.local.role) && (nasAuto || vpcAuto || slsAuto));
     return { nasAuto, vpcAuto, slsAuto, roleAuto };
   }
 

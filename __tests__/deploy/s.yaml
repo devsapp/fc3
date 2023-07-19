@@ -14,4 +14,6 @@ resources:
         code: ./code
         handler: index.handler
         memorySize: 128
-        timeout: 60
+        timeout: 30
+        nasConfig: auto
+        # logConfig: auto

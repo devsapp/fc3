@@ -30,6 +30,6 @@ export default class Role {
       securityToken: credentials.SecurityToken,
       endpoint: 'ram.aliyuncs.com',
     });
-    this.client = new Ram(config);
+    this.client = new Ram(credentials.AccountID, config);
   }
 }
