@@ -6,6 +6,7 @@ import Utils from './utils';
 import logger from '../../../../logger';
 import Role from '../../../../resources/ram';
 import FC from '../../../../resources/fc';
+import { FC_RESOURCES_EMPTY_CONFIG } from '../../../../default/config';
 
 export default class Service extends Utils {
   /**
@@ -26,6 +27,7 @@ export default class Service extends Utils {
     // 如果不是仅仅部署代码包，就需要处理一些资源配置
     if (this.type !== 'code') {
       await this.deployAuto();
+      logger.debug(`Deploy auto result: ${JSON.stringify(this.local)}`);
     }
 
     // 如果不是仅仅部署配置，就需要处理代码
@@ -37,7 +39,10 @@ export default class Service extends Utils {
       }
     }
 
-    await this.fcSdk.deployFunction(this.local);
+    const config = _.defaults(this.local, FC_RESOURCES_EMPTY_CONFIG);
+    await this.fcSdk.deployFunction(config, {
+      slsAuto: !_.isEmpty(this.createResource.sls),
+    });
   }
 
   /**
@@ -115,11 +120,11 @@ export default class Service extends Utils {
       }
 
       if (slsAuto && !_.isEmpty(remoteLogConfig?.project)) {
-        _.set(this.local, 'nasConfig', remoteLogConfig);
+        _.set(this.local, 'logConfig', remoteLogConfig);
       }
 
       if (roleAuto) {
-        _.set(this.local, 'role', _.isString(remoteRole) ? remoteRole : 'auto');
+        _.set(this.local, 'role', _.isString(remoteRole) && remoteRole !== '' ? remoteRole : 'auto');
       } else {
         _.set(this.local, 'role', '');
       }

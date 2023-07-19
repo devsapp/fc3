@@ -20,60 +20,22 @@ export default class Info {
     const functionConfig = await this.getFunction();
     return {
       region: this.region,
-      function: this.getConfig(functionConfig),
+      function: functionConfig,
     };
   }
 
   async getFunction(): Promise<{ error: any } | any> {
     try {
-      const result = await this.fcSdk.getFunction(this.functionName);
-      const body = result.toMap().body;
-      logger.debug(`Get function ${this.functionName} body: ${JSON.stringify(body)}`);
-
-      if (_.isEmpty(body.nasConfig?.mountPoints)) {
-        _.unset(body, 'nasConfig');
-      }
-
-      if (!body.vpcConfig?.vpcId) {
-        _.unset(body, 'vpcConfig');
-      }
-
-      if (!body.logConfig?.project) {
-        _.unset(body, 'logConfig');
-      }
-
-      if (_.isEmpty(body.ossMountConfig?.mountPoints)) {
-        _.unset(body, 'ossMountConfig');
-      }
-
-      if (_.isEmpty(body.tracingConfig)) {
-        _.unset(body, 'tracingConfig');
-      }
-
-      if (_.isEmpty(body.environmentVariables)) {
-        _.unset(body, 'environmentVariables');
-      }
-
-      return body;
+      return await this.fcSdk.getFunction(this.functionName, 'simple');
     } catch (ex) {
       logger.debug(`Get function ${this.functionName} error: ${ex}`);
       return {
-        error: ex,
-      };
-    }
-  }
-
-  private getConfig(config: any) {
-    if (config?.error) {
-      return {
         error: {
-          code: config.error.code,
-          message: config.error.message,
+          code: ex.code,
+          message: ex.message,
         },
       };
     }
-
-    return config;
   }
 
   private checkProps() {

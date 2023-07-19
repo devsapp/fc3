@@ -37,3 +37,5 @@ export const getCustomEndpoint = (): { host?: string; endpoint?: string; protoco
 
 export const FC_CLIENT_DEFAULT_TIMEOUT: number =
   parseInt(process.env.FC_CLIENT_DEFAULT_TIMEOUT || '600') * 1000;
+
+export const FC_DEPLOY_RETRY_COUNT = 3;

@@ -1,4 +1,9 @@
-export const FC_DEFAULT_CONFIG = {
+export const FUNCTION_DEFAULT_CONFIG = {
+  internetAccess: true,
+  description: '',
+};
+
+export const FC_RESOURCES_EMPTY_CONFIG = {
   vpcConfig: {
     securityGroupId: '',
     vSwitchIds: [],
@@ -20,7 +25,5 @@ export const FC_DEFAULT_CONFIG = {
     logstore: '',
     project: '',
   },
-  internetAccess: true,
   environmentVariables: {},
-  description: '',
-};
+}
