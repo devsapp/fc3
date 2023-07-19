@@ -35,7 +35,7 @@
     "@alicloud/fc20230330": "^2.0.0",
     "@alicloud/pop-core": "^1.7.13",
     "@serverless-cd/srm-aliyun-pop-core": "^0.0.6",
-    "@serverless-cd/srm-aliyun-ram20150501": "^0.0.1",
+    "@serverless-cd/srm-aliyun-ram20150501": "^0.0.2-beta.1",
     "@serverless-cd/srm-aliyun-sls20201230": "^0.0.1",
     "@serverless-devs/diff": "^0.0.1",
     "@serverless-devs/utils": "^0.0.7",

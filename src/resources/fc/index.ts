@@ -78,6 +78,7 @@ export default class FC {
    * 创建或者修改函数
    */
   async deployFunction(config: IFunction): Promise<void> {
+    logger.debug(`Deploy function use config: ${JSON.stringify(config)}`);
     let needUpdate = false;
     try {
       await this.getFunction(config.functionName);
