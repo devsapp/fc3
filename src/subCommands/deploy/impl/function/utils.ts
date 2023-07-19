@@ -130,7 +130,10 @@ export default class Utils {
     }
   }
 
-  async initAuto() {
+  /**
+   * 生成 auto 资源
+   */
+  async deployAuto() {
     const region = this.inputs.props.region;
     const credential = this.inputs.credential;
     const functionName = this.local.functionName;
@@ -164,8 +167,10 @@ logConfig:
 
     if (roleAuto) {
       const client = new Ram(credential).client;
-      // TODO: 升级 ram 包，直接获取 arn
       const arn = await client.initFcDefaultServiceRole();
+      logger.write(yellow(`Using role: ${arn}`));
+
+      _.set(this.local, 'role', arn);
     }
 
     if (nasAuto || vpcAuto) {

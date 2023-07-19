@@ -25,7 +25,7 @@ export default class Service extends Utils {
 
     // 如果不是仅仅部署代码包，就需要处理一些资源配置
     if (this.type !== 'code') {
-      // this.local = await resources.initFunctionAuto(this.local);
+      await this.deployAuto();
     }
 
     // 如果不是仅仅部署配置，就需要处理代码
