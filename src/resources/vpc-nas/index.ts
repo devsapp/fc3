@@ -11,13 +11,16 @@ export default class Sls {
   private client: PopClient;
 
   constructor(private region: IRegion, credentials: ICredentials) {
-    this.client = new PopClient({
-      accessKeyId: credentials.AccessKeyID,
-      accessKeySecret: credentials.AccessKeySecret,
-      securityToken: credentials.SecurityToken,
-      endpoint: `http://nas.${region}.aliyuncs.com`,
-      apiVersion: '2017-06-26',
-    }, logger);
+    this.client = new PopClient(
+      {
+        accessKeyId: credentials.AccessKeyID,
+        accessKeySecret: credentials.AccessKeySecret,
+        securityToken: credentials.SecurityToken,
+        endpoint: `http://nas.${region}.aliyuncs.com`,
+        apiVersion: '2017-06-26',
+      },
+      logger,
+    );
   }
 
   async deploy({

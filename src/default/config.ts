@@ -26,4 +26,4 @@ export const FC_RESOURCES_EMPTY_CONFIG = {
     project: '',
   },
   environmentVariables: {},
-}
+};
