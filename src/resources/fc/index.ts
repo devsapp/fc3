@@ -19,7 +19,7 @@ import { ICustomContainerConfig, IFunction, ILogConfig, IRegion, Runtime } from 
 import logger from '../../logger';
 import { FC_API_NOT_FOUND_ERROR_CODE } from '../../constant';
 import { sleep } from '../../utils';
-import { isSlsNotExistException } from './error';
+import { isAccessDenied, isSlsNotExistException } from './error';
 import { FC_DEPLOY_RETRY_COUNT } from '../../default/client';
 
 export default class FC {
@@ -157,6 +157,7 @@ export default class FC {
             await this.createFunction(config);
             return;
           } catch (ex) {
+            logger.debug(`Create function error: ${ex.message}`);
             if (ex.code !== FC_API_NOT_FOUND_ERROR_CODE.FunctionAlreadyExists) {
               throw ex;
             }
@@ -182,7 +183,7 @@ export default class FC {
         const retrySls = slsAuto && isSlsNotExistException(project, logstore, ex);
         const retryContainerAccelerated = isContainerAccelerated; // TODO: 部署镜像并且使用 _accelerated 结尾：报错镜像不存在
         // TODO: 如果是权限问题不重重试直接异常
-        if (false) {
+        if (isAccessDenied(ex)) {
           throw ex;
         } else if (retrySls || retryContainerAccelerated) {
           if (calculateRetryTime(3)) {

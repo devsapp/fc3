@@ -10,7 +10,6 @@ import logger from '../../../../logger';
 import { isAuto } from '../../../../utils';
 import FC from '../../../../resources/fc';
 import Acr from '../../../../resources/acr';
-import { FC_API_NOT_FOUND_ERROR_CODE } from '../../../../constant';
 import { FUNCTION_DEFAULT_CONFIG } from '../../../../default/config';
 import Sls from '../../../../resources/sls';
 import VPC_NAS from '../../../../resources/vpc-nas';
@@ -66,16 +65,22 @@ export default class Utils {
    * 上传镜像
    */
   async pushImage() {
+    if (this.skipPush) {
+      logger.debug(`skip push is ${this.skipPush}`);
+      return;
+    }
     const { image, acrInstanceID } = this.local.customContainerConfig || {};
     if (_.isNil(image)) {
       throw new Error('CustomContainerRuntime must have a valid image URL');
     }
+    logger.spin('creating', 'Acr', image);
     const acr = new Acr(this.inputs.props.region, this.inputs.credential);
     try {
       await acr.pushAcr(image, acrInstanceID);
     } catch (err) {
       logger.warn(`push image ${image} error: ${err}`);
     }
+    logger.spin('created', 'Acr', image);
   }
 
   /**
@@ -259,7 +264,7 @@ nasConfig:
     const vpcAuto = isAuto(this.local.vpcConfig) || (!this.local.vpcConfig && nasAuto);
     const slsAuto = isAuto(this.local.logConfig);
     const roleAuto =
-      isAuto(this.local.role) || (_.isNil(this.local.role) && (nasAuto || vpcAuto || slsAuto));
+      isAuto(this.local.role) || (_.isNil(this.local.role) && (nasAuto || vpcAuto || slsAuto || FC.isCustomContainerRuntime(this.local?.runtime)));
     return { nasAuto, vpcAuto, slsAuto, roleAuto };
   }
 

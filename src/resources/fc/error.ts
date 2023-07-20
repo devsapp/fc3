@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import { FC_API_NOT_FOUND_ERROR_CODE } from '../../constant';
 
 export const isSlsNotExistException = (project: string, logstore: string, ex) => {
   if (
@@ -21,3 +22,5 @@ export const isSlsNotExistException = (project: string, logstore: string, ex) =>
 
   return false;
 };
+
+export const isAccessDenied = (ex) => ex.code === FC_API_NOT_FOUND_ERROR_CODE.AccessDenied;

@@ -9,10 +9,11 @@ resources:
     props: # 组件的属性值
       region: cn-hangzhou
       function:
-        codeUri:
-          ossBucketName: string
-          ossObjectName: string
-          zipFile: string
+        codeUri: 'codeUri'
+        # codeUri:
+        #   ossBucketName: string
+        #   ossObjectName: string
+        #   zipFile: string
         cpu: 0.05
         customContainerConfig:
           accelerationType: string

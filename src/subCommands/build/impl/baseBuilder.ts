@@ -1,4 +1,4 @@
-import { ICodeUri, IInputs } from '../../../interface';
+import { ICodeUri, IInputs, IRegion } from '../../../interface';
 import { ICredentials } from '@serverless-devs/component-interface';
 import path from 'path';
 import _ from 'lodash';
@@ -22,7 +22,7 @@ export class Builder {
     return this.getProps().runtime;
   }
 
-  getRegion(): string {
+  getRegion(): IRegion {
     return this.getProps().region;
   }
 

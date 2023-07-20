@@ -93,6 +93,7 @@ export default class Service extends Utils {
    * 将本地配置:
    *  1. 如果 rule 仅写了名字，需要处理成 arn
    *  2. 如果线上资源存在，auto 需要直接复用线上资源
+   *  3. 镜像资源需要做一些处理
    */
   private async initLocal() {
     logger.debug(`Pre init local config: ${JSON.stringify(this.local)}`);
@@ -132,6 +133,13 @@ export default class Service extends Utils {
       } else {
         _.set(this.local, 'role', '');
       }
+    }
+
+    if (FC.isCustomContainerRuntime(this.local.runtime)) {
+      // 传入 code：InvalidArgument: code: 400, Either ossBucketName/ossObjectName or zipFile must be set
+      _.unset(this.local, 'code');
+      // 不传入 handler：InvalidArgument: code: 400, Handler is required but not provided 
+      _.set(this.local, 'handler', this.remote?.handler || 'handler');
     }
 
     logger.debug(`Post init local config: ${JSON.stringify(this.local)}`);

@@ -1,0 +1,20 @@
+edition: 3.0.0 #  命令行YAML规范版本，遵循语义化版本（Semantic Versioning）规范
+name: framework #  项目名称
+access: quanxi
+
+# TODO: 需要完善
+resources:
+  fcDemo: # 业务名称/模块名称
+    component: ${path('../../../')} # 组件名称
+    props: # 组件的属性值
+      region: cn-hangzhou
+      function:
+        functionName: fc3-event-nodejs-14
+        runtime: nodejs14
+        code: ./code
+        handler: index.handler
+        memorySize: 128
+        timeout: 30
+        vpcConfig: auto
+        nasConfig: auto
+        logCOnfig: auto
