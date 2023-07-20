@@ -37,7 +37,7 @@
     "@serverless-cd/srm-aliyun-pop-core": "^0.0.7-beta.2",
     "@serverless-cd/srm-aliyun-ram20150501": "^0.0.2-beta.1",
     "@serverless-cd/srm-aliyun-sls20201230": "^0.0.1",
-    "@serverless-devs/diff": "^0.0.2",
+    "@serverless-devs/diff": "^0.0.3-beta.1",
     "@serverless-devs/utils": "^0.0.7",
     "@serverless-devs/zip": "^0.0.3-beta.2",
     "ajv": "^8.12.0",

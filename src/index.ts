@@ -38,7 +38,7 @@ export default class Fc extends Base {
     const result = await plan.run();
     logger.debug(`plan result: ${JSON.stringify(result)}`);
 
-    return result.show;
+    return result;
   }
 
   public async build(inputs: IInputs) {

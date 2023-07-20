@@ -1,5 +1,10 @@
 import _ from 'lodash';
-import { FC_API_NOT_FOUND_ERROR_CODE } from '../../constant';
+
+export enum FC_API_NOT_FOUND_ERROR_CODE {
+  FunctionNotFound = 'FunctionNotFound', // 函数不存在
+  FunctionAlreadyExists = 'FunctionAlreadyExists', // 函数已存在
+  AccessDenied = 'AccessDenied', // 没有权限
+}
 
 export const isSlsNotExistException = (project: string, logstore: string, ex) => {
   if (
