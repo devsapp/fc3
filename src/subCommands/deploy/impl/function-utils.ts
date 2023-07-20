@@ -5,15 +5,15 @@ import { yellow } from 'chalk';
 import zip from '@serverless-devs/zip';
 import { getRootHome } from '@serverless-devs/utils';
 
-import { IFunction, IInputs, ILogConfig, INasConfig, IVpcConfig } from '../../../../interface';
-import logger from '../../../../logger';
-import { isAuto } from '../../../../utils';
-import FC from '../../../../resources/fc';
-import Acr from '../../../../resources/acr';
-import { FUNCTION_DEFAULT_CONFIG } from '../../../../default/config';
-import Sls from '../../../../resources/sls';
-import VPC_NAS from '../../../../resources/vpc-nas';
-import Ram from '../../../../resources/ram';
+import { IFunction, IInputs, ILogConfig, INasConfig, IVpcConfig } from '../../../interface';
+import logger from '../../../logger';
+import { isAuto } from '../../../utils';
+import FC from '../../../resources/fc';
+import Acr from '../../../resources/acr';
+import { FUNCTION_DEFAULT_CONFIG } from '../../../default/config';
+import Sls from '../../../resources/sls';
+import VPC_NAS from '../../../resources/vpc-nas';
+import Ram from '../../../resources/ram';
 
 type IType = 'code' | 'config' | boolean;
 interface IOpts {
@@ -142,7 +142,7 @@ export default class Utils {
     const credential = this.inputs.credential;
     const functionName = this.local.functionName;
 
-    const { nasAuto, vpcAuto, slsAuto, roleAuto } = this.computeLocalAuto();
+    const { nasAuto, vpcAuto, slsAuto, roleAuto } = FC.computeLocalAuto(this.local);
     logger.debug(
       `Deploy auto compute local auto, nasAuto: ${nasAuto}; vpcAuto: ${vpcAuto}; slsAuto: ${slsAuto}; roleAuto: ${roleAuto}`,
     );
@@ -253,29 +253,5 @@ nasConfig:
     }
 
     return !(codeUri.endsWith('.zip') || codeUri.endsWith('.war'));
-  }
-
-  /**
-   * 计算当前local那些资源是 auto
-   * @returns
-   */
-  computeLocalAuto() {
-    const nasAuto = isAuto(this.local.nasConfig);
-    const vpcAuto = isAuto(this.local.vpcConfig) || (!this.local.vpcConfig && nasAuto);
-    const slsAuto = isAuto(this.local.logConfig);
-    const roleAuto =
-      isAuto(this.local.role) || (_.isNil(this.local.role) && (nasAuto || vpcAuto || slsAuto || FC.isCustomContainerRuntime(this.local?.runtime)));
-    return { nasAuto, vpcAuto, slsAuto, roleAuto };
-  }
-
-  /**
-   * 获取线上资源配置
-   */
-  getRemoveResourceConfig() {
-    const remoteNasConfig = _.get(this.remote, 'nasConfig') as INasConfig;
-    const remoteVpcConfig = _.get(this.remote, 'vpcConfig') as IVpcConfig;
-    const remoteLogConfig = _.get(this.remote, 'logConfig') as ILogConfig;
-    const remoteRole = _.get(this.remote, 'role');
-    return { remoteNasConfig, remoteVpcConfig, remoteLogConfig, remoteRole };
   }
 }

@@ -13,6 +13,6 @@ resources:
         handler: index.handler
         code: ./code
         memorySize: 128
-        timeout: 30
+        timeout: 80
         customContainerConfig:
           image: registry-vpc.cn-hangzhou.aliyuncs.com/fc-demo2/test233:v2

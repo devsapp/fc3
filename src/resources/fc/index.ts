@@ -15,111 +15,30 @@ import path from 'path';
 import _ from 'lodash';
 
 import { fc20230330Client, fc2Client } from './client';
-import { ICustomContainerConfig, IFunction, ILogConfig, IRegion, Runtime } from '../../interface';
+import { IFunction, ILogConfig, IRegion } from '../../interface';
 import logger from '../../logger';
-import { FC_API_NOT_FOUND_ERROR_CODE } from '../../constant';
 import { sleep } from '../../utils';
-import { isAccessDenied, isSlsNotExistException } from './error';
+import { FC_API_NOT_FOUND_ERROR_CODE, isAccessDenied, isSlsNotExistException } from './error';
 import { FC_DEPLOY_RETRY_COUNT } from '../../default/client';
+import {
+  isCustomContainerRuntime,
+  isCustomRuntime,
+  isContainerAccelerated,
+  computeLocalAuto,
+} from './utils';
+import replaceFunctionConfig from './replace-function-config';
 
 export default class FC {
-  static isCustomContainerRuntime = (runtime: string): boolean =>
-    runtime === Runtime['custom-container'];
-  static isCustomRuntime = (runtime: string): boolean =>
-    runtime === Runtime['custom'] || runtime === Runtime['custom.debian10'];
-  /**
-   * 是否启用了镜像加速
-   */
-  static isContainerAccelerated = (customContainerConfig: ICustomContainerConfig): boolean => {
-    if (_.isEmpty(customContainerConfig)) {
-      return false;
-    }
-    const acrInstanceID = _.get(customContainerConfig, 'acrInstanceID');
-    const image = _.get(customContainerConfig, 'image', '');
-    return acrInstanceID && image.endsWith('_accelerated');
-  };
+  static computeLocalAuto = computeLocalAuto;
+  static isCustomContainerRuntime = isCustomContainerRuntime;
+  static isCustomRuntime = isCustomRuntime;
+  static isContainerAccelerated = isContainerAccelerated;
+  static replaceFunctionConfig = replaceFunctionConfig;
 
   readonly fc20230330Client: FC20230330;
 
   constructor(private region: IRegion, private credentials: ICredentials) {
     this.fc20230330Client = fc20230330Client(region, credentials);
-  }
-
-  /**
-   * 获取函数
-   * @param functionName
-   * @param type 'original' 接口返回值 | 'simple' 返回简单处理之后的值
-   */
-  async getFunction(
-    functionName: string,
-    type: 'original' | 'simple' | 'simple-unsupported' = 'original',
-  ): Promise<GetFunctionResponse | Record<string, any>> {
-    const getFunctionRequest = new GetFunctionRequest({});
-    const result = await this.fc20230330Client.getFunction(functionName, getFunctionRequest);
-    logger.debug(`Get function ${functionName} response:`);
-    logger.debug(result);
-
-    if (type === 'original') {
-      return result;
-    }
-
-    const body = result.toMap().body;
-    logger.debug(`Get function ${functionName} body: ${JSON.stringify(body)}`);
-
-    if (_.isEmpty(body.nasConfig?.mountPoints)) {
-      _.unset(body, 'nasConfig');
-    }
-
-    if (!body.vpcConfig?.vpcId) {
-      _.unset(body, 'vpcConfig');
-    }
-
-    if (!body.logConfig?.project) {
-      _.unset(body, 'logConfig');
-    }
-
-    if (_.isEmpty(body.ossMountConfig?.mountPoints)) {
-      _.unset(body, 'ossMountConfig');
-    }
-
-    if (_.isEmpty(body.tracingConfig)) {
-      _.unset(body, 'tracingConfig');
-    }
-
-    if (_.isEmpty(body.environmentVariables)) {
-      _.unset(body, 'environmentVariables');
-    }
-
-    if (type === 'simple-unsupported') {
-      const r = _.omit(body, [
-        'lastModifiedTime',
-        'functionId',
-        'createdTime',
-        'codeSize',
-        'codeChecksum',
-      ]);
-      logger.debug(`Result body: ${JSON.stringify(r)}`);
-      return r;
-    }
-
-    logger.debug(`Result body: ${JSON.stringify(body)}`);
-    return body;
-  }
-
-  async createFunction(config: IFunction): Promise<CreateFunctionResponse> {
-    const request = new CreateFunctionRequest({
-      body: new CreateFunctionInput(config),
-    });
-
-    return await this.fc20230330Client.createFunction(request);
-  }
-
-  async updateFunction(config: IFunction): Promise<UpdateFunctionResponse> {
-    const request = new UpdateFunctionRequest({
-      body: new UpdateFunctionInput(config),
-    });
-
-    return await this.fc20230330Client.updateFunction(config.functionName, request);
   }
 
   /**
@@ -245,6 +164,81 @@ export default class FC {
     logger.debug(`tempCodeBucketToken response: ${JSON.stringify(config)}`);
     return config;
   }
-}
 
-export * from './client';
+  /**
+   * 获取函数
+   * @param functionName
+   * @param type 'original' 接口返回值 | 'simple' 返回简单处理之后的值
+   */
+  async getFunction(
+    functionName: string,
+    type: 'original' | 'simple' | 'simple-unsupported' = 'original',
+  ): Promise<GetFunctionResponse | Record<string, any>> {
+    const getFunctionRequest = new GetFunctionRequest({});
+    const result = await this.fc20230330Client.getFunction(functionName, getFunctionRequest);
+    logger.debug(`Get function ${functionName} response:`);
+    logger.debug(result);
+
+    if (type === 'original') {
+      return result;
+    }
+
+    const body = result.toMap().body;
+    logger.debug(`Get function ${functionName} body: ${JSON.stringify(body)}`);
+
+    if (_.isEmpty(body.nasConfig?.mountPoints)) {
+      _.unset(body, 'nasConfig');
+    }
+
+    if (!body.vpcConfig?.vpcId) {
+      _.unset(body, 'vpcConfig');
+    }
+
+    if (!body.logConfig?.project) {
+      _.unset(body, 'logConfig');
+    }
+
+    if (_.isEmpty(body.ossMountConfig?.mountPoints)) {
+      _.unset(body, 'ossMountConfig');
+    }
+
+    if (_.isEmpty(body.tracingConfig)) {
+      _.unset(body, 'tracingConfig');
+    }
+
+    if (_.isEmpty(body.environmentVariables)) {
+      _.unset(body, 'environmentVariables');
+    }
+
+    if (type === 'simple-unsupported') {
+      const r = _.omit(body, [
+        'lastModifiedTime',
+        'functionId',
+        'createdTime',
+        'codeSize',
+        'codeChecksum',
+      ]);
+      logger.debug(`Result body: ${JSON.stringify(r)}`);
+      return r;
+    }
+
+    logger.debug(`Result body: ${JSON.stringify(body)}`);
+    return body;
+  }
+
+  async createFunction(config: IFunction): Promise<CreateFunctionResponse> {
+    const request = new CreateFunctionRequest({
+      body: new CreateFunctionInput(config),
+    });
+
+    return await this.fc20230330Client.createFunction(request);
+  }
+
+  async updateFunction(config: IFunction): Promise<UpdateFunctionResponse> {
+    const request = new UpdateFunctionRequest({
+      body: new UpdateFunctionInput(config),
+    });
+
+    return await this.fc20230330Client.updateFunction(config.functionName, request);
+  }
+}

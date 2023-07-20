@@ -1,11 +1,9 @@
 import _ from 'lodash';
 import { IInputs, IRegion } from '../../interface';
-// import Fc20230330 from '@alicloud/fc20230330';
-// import { simpleDiff } from '@serverless-devs/diff';
-// import Info from '../info';
-// import logger from '../../logger';
-// import { FC_API_NOT_FOUND_ERROR_CODE } from '../../constant';
+import { diffConvertYaml } from '@serverless-devs/diff';
 import FC from '../../resources/fc';
+import { FC_API_NOT_FOUND_ERROR_CODE } from '../../resources/fc/error';
+import logger from '../../logger';
 
 export default class Plan {
   readonly region: IRegion;
@@ -19,16 +17,26 @@ export default class Plan {
   }
 
   async run() {
-    // const info = new Info(this.inputs);
-    // const config = await info.run();
-    // if (config.function?.error) {
-    //   if (config.function.error.code !== FC_API_NOT_FOUND_ERROR_CODE.FunctionNotFound) {
-    //     logger.error(config.function.error.message);
-    //   }
-    //   config.function = {};
-    // }
-    // // TODO: trigger
-    // return simpleDiff(config, this.inputs.props, { complete: true });
-    return { show: '' };
+    const functionConfig = await this.planFunction();
+
+    logger.write(`
+region: ${this.region}
+function:
+${functionConfig.show}
+`);
+  }
+
+  private async planFunction() {
+    let remote;
+    try {
+      remote = await this.fcSdk.getFunction(this.functionName, 'simple-unsupported');
+    } catch (ex) {
+      logger.debug(`Get remote function config error: ${ex.message}`);
+      if (ex.code === FC_API_NOT_FOUND_ERROR_CODE.FunctionNotFound) {
+        remote = {};
+      }
+    }
+    const config = FC.replaceFunctionConfig(this.inputs.props.function, remote);
+    return diffConvertYaml(config.remote, config.local, { deep: 1, complete: true });
   }
 }
