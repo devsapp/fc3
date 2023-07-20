@@ -24,24 +24,19 @@ interface IOpts {
 
 export default class Utils {
   readonly type: IType;
-  readonly baseDir: string;
   readonly skipPush: boolean = false;
 
-  needDeploy?: boolean;
+  needDeploy: boolean | undefined;
   remote?: any;
   local: IFunction;
   createResource: Record<string, any> = {};
   readonly fcSdk: FC;
 
   constructor(readonly inputs: IInputs, opts: IOpts) {
-    this.type = opts?.type;
-    this.needDeploy = opts?.yes;
-    this.skipPush = opts?.skipPush;
-
+    this.type = opts.type;
+    this.needDeploy = opts.yes;
+    this.skipPush = opts.skipPush;
     logger.debug(`deploy function type: ${this.type}`);
-
-    this.baseDir = path.dirname(inputs.yaml.path || process.cwd());
-    logger.debug(`baseDir is: ${this.baseDir}`);
 
     const local = _.cloneDeep(inputs.props.function);
     this.local = _.defaults(local, FUNCTION_DEFAULT_CONFIG);
@@ -101,7 +96,9 @@ export default class Utils {
       return;
     }
 
-    let zipPath: string = path.isAbsolute(codeUri) ? codeUri : path.join(this.baseDir, codeUri);
+    let zipPath: string = path.isAbsolute(codeUri)
+      ? codeUri
+      : path.join(this.inputs.baseDir, codeUri);
     logger.debug(`Code path absolute path: ${zipPath}`);
 
     const needZip = this.assertNeedZip(codeUri);
