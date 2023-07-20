@@ -17,14 +17,12 @@ import FC from '../../../resources/fc';
 import VPC_NAS from '../../../resources/vpc-nas';
 import Base from './base';
 
-
 type IType = 'code' | 'config' | boolean;
 interface IOpts {
   type?: IType;
   yes?: boolean;
   skipPush?: boolean;
 }
-
 
 export default class Service extends Base {
   readonly type: IType;
@@ -45,7 +43,7 @@ export default class Service extends Base {
     const local = _.cloneDeep(inputs.props.function);
     this.local = _.defaults(local, FUNCTION_DEFAULT_CONFIG);
   }
-  
+
   // 准备动作
   async before() {
     try {

@@ -1,6 +1,5 @@
-import { IInputs } from "../../../interface";
-import FC from "../../../resources/fc";
-
+import { IInputs } from '../../../interface';
+import FC from '../../../resources/fc';
 
 export default abstract class Base {
   readonly fcSdk: FC;

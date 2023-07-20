@@ -1,7 +1,7 @@
-import _ from "lodash";
-import { IInputs, ITrigger } from "../../../interface";
-import logger from "../../../logger";
-import Base from "./base";
+import _ from 'lodash';
+import { IInputs, ITrigger } from '../../../interface';
+import logger from '../../../logger';
+import Base from './base';
 
 interface IOpts {
   yes: boolean | undefined;
@@ -15,7 +15,7 @@ export default class Trigger extends Base {
     super(inputs, opts.yes);
 
     const local = _.cloneDeep(_.get(inputs, 'props.triggers', []));
-    const triggerNames = local.map(item => item.triggerName);
+    const triggerNames = local.map((item) => item.triggerName);
 
     // 如果指定了 trigger 为字符串，则认为指定了 trigger name
     if (_.isString(opts.trigger) && opts.trigger !== '') {
@@ -25,7 +25,7 @@ export default class Trigger extends Base {
       if (_.isEmpty(difference)) {
         logger.error(`Trigger names ${difference} are not allowed in trigger config`);
       }
-      
+
       // 仅保留yaml中配置的参数
       const intersection = _.intersection(triggerNames, onlyDeployTrigger);
       logger.debug(`need deploy trigger names: ${intersection}`);
@@ -41,7 +41,5 @@ export default class Trigger extends Base {
     // await this.getRemote();
   }
 
-  async run() {
-    
-  }
+  async run() {}
 }
