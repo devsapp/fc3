@@ -16,13 +16,13 @@ export async function runCommand(command: string, shellScript?: string, showStdo
 
     dProcess.stdout.on('data', (data) => {
       if (isDebug || showStdout) {
-        console.log(data.toString());
+        process.stdout.write(data.toString());
       }
     });
 
     dProcess.stderr.on('data', (data) => {
       const warnErrrMsg = data.toString();
-      console.error(warnErrrMsg);
+      process.stderr.write(warnErrrMsg);
     });
 
     dProcess.on('close', (code) => {

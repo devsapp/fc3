@@ -31,6 +31,11 @@ export default class Acr {
   async pushAcr(imageUrl: string, instanceID?: string): Promise<void> {
     const image = Acr.vpcImage2InternetImage(imageUrl);
     try {
+      if (image !== imageUrl) {
+        const commandStr = `docker tag ${imageUrl} ${image}`;
+        await runCommand(commandStr);
+      }
+  
       const { dockerTmpUser, dockerTmpToken } = await getDockerTmpUser(
         this.region,
         this.credential,

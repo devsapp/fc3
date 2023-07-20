@@ -2,19 +2,17 @@ edition: 3.0.0 #  命令行YAML规范版本，遵循语义化版本（Semantic V
 name: framework #  项目名称
 access: quanxi
 
-# TODO: 需要完善
 resources:
   fcDemo: # 业务名称/模块名称
-    component: ${path('../../')} # 组件名称
-    props: # 组件的属性值
+    component: ${path('../../../')} # 组件名称
+    props:
       region: cn-hangzhou
       function:
-        functionName: fc3-wss
-        runtime: nodejs14
-        code: ./code
+        functionName: fc3-event-custom-container
+        runtime: custom-container
         handler: index.handler
+        code: ./code
         memorySize: 128
         timeout: 30
-        vpcConfig: auto
-        nasConfig: auto
-        # logConfig: auto
+        customContainerConfig:
+          image: registry-vpc.cn-hangzhou.aliyuncs.com/fc-demo2/test233:v2
