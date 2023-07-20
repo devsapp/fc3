@@ -5,6 +5,7 @@ import logger from './logger';
 import Role from './resources/ram';
 import { isAuto } from './utils';
 import { FUNCTION_DEFAULT_CONFIG } from './default/config';
+import path from 'path';
 
 export default class Base {
   commands: any;
@@ -46,6 +47,9 @@ export default class Base {
     if (needCredential || needHandleRole) {
       inputs.credential = await inputs.getCredential();
     }
+
+    inputs.baseDir = path.dirname(inputs.yaml.path || process.cwd());
+    logger.debug(`baseDir is: ${inputs.baseDir}`);
 
     // 兼容只写 rule 的情况
     if (needHandleRole) {
