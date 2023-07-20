@@ -54,14 +54,12 @@ export default class Utils {
    * @returns
    */
   async getRemote() {
-    const remote = await this.fcSdk.getFunction(this.local.functionName, 'simple-unsupported');
-    if (remote?.error) {
-      if (remote?.error.code !== FC_API_NOT_FOUND_ERROR_CODE.FunctionNotFound) {
-        logger.error(remote.error.message);
-      }
-      return;
+    try {
+      const remote = await this.fcSdk.getFunction(this.local.functionName, 'simple-unsupported');
+      this.remote = remote;
+    } catch (ex) {
+      logger.debug(`Get remote function config error: ${ex.message}`);
     }
-    this.remote = remote;
   }
 
   /**
