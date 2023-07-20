@@ -16,5 +16,5 @@ resources:
         memorySize: 128
         timeout: 30
         vpcConfig: auto
-        # nasConfig: auto
+        nasConfig: auto
         # logConfig: auto
