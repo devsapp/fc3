@@ -14,19 +14,20 @@ import axios from 'axios';
 import path from 'path';
 import _ from 'lodash';
 
-import { fc20230330Client, fc2Client } from './client';
-import { IFunction, ILogConfig, IRegion } from '../../interface';
 import logger from '../../logger';
 import { sleep } from '../../utils';
-import { FC_API_NOT_FOUND_ERROR_CODE, isAccessDenied, isSlsNotExistException } from './error';
 import { FC_DEPLOY_RETRY_COUNT } from '../../default/client';
+
+import { fc20230330Client, fc2Client } from './impl/client';
+import { IFunction, ILogConfig, IRegion } from '../../interface';
+import { FC_API_NOT_FOUND_ERROR_CODE, isAccessDenied, isSlsNotExistException } from './error-code';
 import {
   isCustomContainerRuntime,
   isCustomRuntime,
   isContainerAccelerated,
   computeLocalAuto,
-} from './utils';
-import replaceFunctionConfig from './replace-function-config';
+} from './impl/utils';
+import replaceFunctionConfig from './impl/replace-function-config';
 
 export default class FC {
   static computeLocalAuto = computeLocalAuto;
@@ -226,7 +227,11 @@ export default class FC {
     return body;
   }
 
-  async createFunction(config: IFunction): Promise<CreateFunctionResponse> {
+  // async getTrigger(functionName: string, triggerName: string, ): Promise<any>{
+  //   const result = await this.fc20230330Client.getTrigger();
+  // }
+
+  private async createFunction(config: IFunction): Promise<CreateFunctionResponse> {
     const request = new CreateFunctionRequest({
       body: new CreateFunctionInput(config),
     });
@@ -234,7 +239,7 @@ export default class FC {
     return await this.fc20230330Client.createFunction(request);
   }
 
-  async updateFunction(config: IFunction): Promise<UpdateFunctionResponse> {
+  private async updateFunction(config: IFunction): Promise<UpdateFunctionResponse> {
     const request = new UpdateFunctionRequest({
       body: new UpdateFunctionInput(config),
     });

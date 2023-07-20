@@ -2,7 +2,7 @@ import _ from 'lodash';
 import { IInputs, IRegion } from '../../interface';
 import { diffConvertYaml } from '@serverless-devs/diff';
 import FC from '../../resources/fc';
-import { FC_API_NOT_FOUND_ERROR_CODE } from '../../resources/fc/error';
+import { FC_API_NOT_FOUND_ERROR_CODE } from '../../resources/fc/error-code';
 import logger from '../../logger';
 
 export default class Plan {

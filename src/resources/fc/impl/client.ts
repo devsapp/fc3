@@ -2,8 +2,8 @@ import { ICredentials } from '@serverless-devs/component-interface';
 import { Config } from '@alicloud/openapi-client';
 import FCClient from '@alicloud/fc20230330';
 import FC2 from '@alicloud/fc2';
-import { getCustomEndpoint, FC_CLIENT_DEFAULT_TIMEOUT } from '../../default/client';
-import { IRegion } from '../../interface';
+import { getCustomEndpoint, FC_CLIENT_DEFAULT_TIMEOUT } from '../../../default/client';
+import { IRegion } from '../../../interface';
 
 export const fc2Client = (region: IRegion, credentials: ICredentials) => {
   const { endpoint } = getCustomEndpoint();

@@ -5,8 +5,8 @@ import {
   ILogConfig,
   Runtime,
   ICustomContainerConfig,
-} from '../../interface';
-import { isAuto } from '../../utils';
+} from '../../../interface';
+import { isAuto } from '../../../utils';
 
 export function isCustomContainerRuntime(runtime: string): boolean {
   return runtime === Runtime['custom-container'];
