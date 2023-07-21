@@ -15,7 +15,7 @@ import FCClient, {
   UpdateTriggerRequest,
   UpdateTriggerResponse,
 } from '@alicloud/fc20230330';
-import { RuntimeOptions } from '@alicloud/tea-util'
+import { RuntimeOptions } from '@alicloud/tea-util';
 import { Readable } from 'stream';
 
 import { Config } from '@alicloud/openapi-client';
@@ -102,15 +102,23 @@ export default class FC_Client {
     return await this.fc20230330Client.updateTrigger(functionName, triggerName, request);
   }
 
-  async invokeFunction(functionName: string, { payload, qualifier }: { payload?: string, qualifier?: string } = {}) {
-    const runtime = new RuntimeOptions({ }); 
+  async invokeFunction(
+    functionName: string,
+    { payload, qualifier }: { payload?: string; qualifier?: string } = {},
+  ) {
+    const runtime = new RuntimeOptions({});
     const headers = new InvokeFunctionHeaders({ xFcLogType: 'Tail' }); // 'None' : 'Tail'
     const request = new InvokeFunctionRequest({
       qualifier,
       body: payload ? Readable.from(Buffer.from(payload, 'utf8')) : undefined,
     });
 
-    const result = await this.fc20230330Client.invokeFunctionWithOptions(functionName, request, headers, runtime);
+    const result = await this.fc20230330Client.invokeFunctionWithOptions(
+      functionName,
+      request,
+      headers,
+      runtime,
+    );
     const body = await new Promise((resolve, reject) => {
       const chunks = [];
       result.body.on('data', (chunk) => chunks.push(Buffer.from(chunk)));
@@ -120,7 +128,10 @@ export default class FC_Client {
     const res = result.toMap();
     res.body = body;
     if (res.headers?.['x-fc-log-result']) {
-      res.headers['x-fc-log-result'] = Buffer.from(res.headers?.['x-fc-log-result'], 'base64').toString();
+      res.headers['x-fc-log-result'] = Buffer.from(
+        res.headers?.['x-fc-log-result'],
+        'base64',
+      ).toString();
     }
 
     return res;
