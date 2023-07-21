@@ -40,11 +40,11 @@ export default class Deploy {
 
   async run() {
     // 调用前置
-    // await this.service?.before();
+    await this.service?.before();
     await this.trigger?.before();
 
     // 调用运行
-    // await this.service?.run();
+    await this.service?.run();
     await this.trigger?.run();
   }
 }
