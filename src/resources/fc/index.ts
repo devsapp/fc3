@@ -1,26 +1,16 @@
-import { ICredentials } from '@serverless-devs/component-interface';
-import FC20230330, {
-  CreateFunctionInput,
-  CreateFunctionRequest,
-  CreateFunctionResponse,
-  GetFunctionRequest,
-  GetFunctionResponse,
-  UpdateFunctionInput,
-  UpdateFunctionRequest,
-  UpdateFunctionResponse,
-} from '@alicloud/fc20230330';
 import OSS from 'ali-oss';
 import axios from 'axios';
 import path from 'path';
 import _ from 'lodash';
+import { GetFunctionRequest, GetFunctionResponse } from '@alicloud/fc20230330';
 
 import logger from '../../logger';
 import { sleep } from '../../utils';
 import { FC_DEPLOY_RETRY_COUNT } from '../../default/client';
 
-import { fc20230330Client, fc2Client } from './impl/client';
-import { IFunction, ILogConfig, IRegion } from '../../interface';
-import { FC_API_NOT_FOUND_ERROR_CODE, isAccessDenied, isSlsNotExistException } from './error-code';
+import FC_Client, { fc2Client } from './impl/client';
+import { IFunction, ILogConfig, ITrigger } from '../../interface';
+import { FC_API_ERROR_CODE, isAccessDenied, isSlsNotExistException } from './error-code';
 import {
   isCustomContainerRuntime,
   isCustomRuntime,
@@ -29,18 +19,18 @@ import {
 } from './impl/utils';
 import replaceFunctionConfig from './impl/replace-function-config';
 
-export default class FC {
+export enum GetApiType {
+  original = 'original', // 直接返回接口返回值
+  simple = 'simple', // 返回数据时删除空配置
+  simpleUnsupported = 'simple-unsupported', // 返回数据时删除：空配置、系统字段
+}
+
+export default class FC extends FC_Client {
   static computeLocalAuto = computeLocalAuto;
   static isCustomContainerRuntime = isCustomContainerRuntime;
   static isCustomRuntime = isCustomRuntime;
   static isContainerAccelerated = isContainerAccelerated;
   static replaceFunctionConfig = replaceFunctionConfig;
-
-  readonly fc20230330Client: FC20230330;
-
-  constructor(private region: IRegion, private credentials: ICredentials) {
-    this.fc20230330Client = fc20230330Client(region, credentials);
-  }
 
   /**
    * 创建或者修改函数
@@ -52,9 +42,9 @@ export default class FC {
       await this.getFunction(config.functionName);
       needUpdate = true;
     } catch (err) {
-      if (err.code !== FC_API_NOT_FOUND_ERROR_CODE.FunctionNotFound) {
-        logger.warn(
-          `Checking function ${config.functionName} error: ${err.message}, retrying create function.`,
+      if (err.code !== FC_API_ERROR_CODE.FunctionNotFound) {
+        logger.debug(
+          `Checking function ${config.functionName} error: ${err.message}, retrying create`,
         );
       }
     }
@@ -78,10 +68,10 @@ export default class FC {
             return;
           } catch (ex) {
             logger.debug(`Create function error: ${ex.message}`);
-            if (ex.code !== FC_API_NOT_FOUND_ERROR_CODE.FunctionAlreadyExists) {
+            if (ex.code !== FC_API_ERROR_CODE.FunctionAlreadyExists) {
               throw ex;
             }
-            logger.debug('Create functions already exists, retry update function');
+            logger.debug('Create functions already exists, retry update');
             needUpdate = true;
           }
         }
@@ -129,10 +119,71 @@ export default class FC {
   }
 
   /**
+   * 创建或者修改触发器
+   */
+  async deployTrigger(functionName: string, config: ITrigger): Promise<void> {
+    logger.debug(`Deploy trigger use config(${functionName}): ${JSON.stringify(config)}`);
+
+    let needUpdate = false;
+    const triggerName = config.triggerName;
+    const id = `${functionName}/${triggerName}`;
+    try {
+      await this.getTrigger(functionName, triggerName);
+      needUpdate = true;
+    } catch (err) {
+      if (err.code !== FC_API_ERROR_CODE.FunctionNotFound) {
+        logger.debug(`Checking trigger ${id} error: ${err.message}, retrying create.`);
+      }
+    }
+
+    let retry = 0;
+
+    while (true) {
+      try {
+        if (!needUpdate) {
+          logger.debug(`Need create trigger ${id}`);
+          try {
+            await this.createTrigger(functionName, config);
+            return;
+          } catch (ex) {
+            logger.debug(`Create trigger error: ${ex.message}`);
+            if (ex.code !== FC_API_ERROR_CODE.FunctionAlreadyExists) {
+              throw ex;
+            }
+            logger.debug('Create trigger already exists, retry update');
+            needUpdate = true;
+          }
+        }
+
+        logger.debug(`Need update trigger ${id}`);
+        await this.updateTrigger(functionName, triggerName, config);
+        return;
+      } catch (ex) {
+        logger.debug(`Deploy trigger error: ${ex}`);
+
+        // TODO: 如果是权限问题不重重试直接异常
+        if (isAccessDenied(ex)) {
+          throw ex;
+        } else if (retry > FC_DEPLOY_RETRY_COUNT) {
+          throw ex;
+        }
+        retry += 1;
+
+        logger.spin(
+          'retrying',
+          'trigger',
+          needUpdate ? 'update' : 'create',
+          `${this.region}/${id}`,
+          retry,
+        );
+
+        await sleep(3);
+      }
+    }
+  }
+
+  /**
    * 上传代码包到临时 oss
-   * @param functionName
-   * @param zipFile
-   * @returns
    */
   async uploadCodeToTmpOss(
     zipFile: string,
@@ -168,19 +219,17 @@ export default class FC {
 
   /**
    * 获取函数
-   * @param functionName
-   * @param type 'original' 接口返回值 | 'simple' 返回简单处理之后的值
    */
   async getFunction(
     functionName: string,
-    type: 'original' | 'simple' | 'simple-unsupported' = 'original',
+    type: `${GetApiType}` = GetApiType.original,
   ): Promise<GetFunctionResponse | Record<string, any>> {
     const getFunctionRequest = new GetFunctionRequest({});
     const result = await this.fc20230330Client.getFunction(functionName, getFunctionRequest);
     logger.debug(`Get function ${functionName} response:`);
     logger.debug(result);
 
-    if (type === 'original') {
+    if (type === GetApiType.original) {
       return result;
     }
 
@@ -211,7 +260,7 @@ export default class FC {
       _.unset(body, 'environmentVariables');
     }
 
-    if (type === 'simple-unsupported') {
+    if (type === GetApiType.simpleUnsupported) {
       const r = _.omit(body, [
         'lastModifiedTime',
         'functionId',
@@ -227,23 +276,15 @@ export default class FC {
     return body;
   }
 
-  // async getTrigger(functionName: string, triggerName: string, ): Promise<any>{
-  //   const result = await this.fc20230330Client.getTrigger();
-  // }
-
-  private async createFunction(config: IFunction): Promise<CreateFunctionResponse> {
-    const request = new CreateFunctionRequest({
-      body: new CreateFunctionInput(config),
-    });
-
-    return await this.fc20230330Client.createFunction(request);
-  }
-
-  private async updateFunction(config: IFunction): Promise<UpdateFunctionResponse> {
-    const request = new UpdateFunctionRequest({
-      body: new UpdateFunctionInput(config),
-    });
-
-    return await this.fc20230330Client.updateFunction(config.functionName, request);
+  /**
+   * 获取触发器配置
+   */
+  async getTrigger(
+    functionName: string,
+    triggerName: string,
+    type: `${GetApiType}` = GetApiType.original,
+  ): Promise<any> {
+    const result = await this.fc20230330Client.getTrigger(functionName, triggerName);
+    logger.debug(`Get ${functionName}/${triggerName} config result: ${JSON.stringify(result)}`);
   }
 }

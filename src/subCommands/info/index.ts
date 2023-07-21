@@ -1,7 +1,7 @@
 import { ICredentials } from '@serverless-devs/component-interface';
 import _ from 'lodash';
 import { RegionList, IInputs, IRegion } from '../../interface';
-import FC from '../../resources/fc';
+import FC, { GetApiType } from '../../resources/fc';
 import logger from '../../logger';
 
 export default class Info {
@@ -26,7 +26,7 @@ export default class Info {
 
   async getFunction(): Promise<{ error: any } | any> {
     try {
-      return await this.fcSdk.getFunction(this.functionName, 'simple');
+      return await this.fcSdk.getFunction(this.functionName, GetApiType.simple);
     } catch (ex) {
       logger.debug(`Get function ${this.functionName} error: ${ex}`);
       return {
