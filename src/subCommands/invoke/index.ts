@@ -3,11 +3,10 @@ import fs from 'fs';
 import _ from 'lodash';
 import path from 'path';
 
-import { IInputs } from "../../interface";
-import logger from "../../logger";
-import FC from "../../resources/fc";
+import { IInputs } from '../../interface';
+import logger from '../../logger';
+import FC from '../../resources/fc';
 import { parseArgv } from '@serverless-devs/utils';
-
 
 export default class Invoke {
   private functionName: string;
@@ -61,7 +60,7 @@ ${bold('Invoke instanceId:')} ${green(instanceId)}
 ${bold('Code Checksum:')} ${green(codeChecksum)}
 ${bold('Qualifier:')} ${green(qualifier)}
 `;
-  
+
     if (headers['x-fc-error-type']) {
       showLog += `${bold('Error Type:')} ${red(errorType)}
 
