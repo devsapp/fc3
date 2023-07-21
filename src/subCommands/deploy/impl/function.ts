@@ -13,7 +13,7 @@ import { FUNCTION_DEFAULT_CONFIG, FC_RESOURCES_EMPTY_CONFIG } from '../../../def
 import Acr from '../../../resources/acr';
 import Sls from '../../../resources/sls';
 import Ram from '../../../resources/ram';
-import FC from '../../../resources/fc';
+import FC, { GetApiType } from '../../../resources/fc';
 import VPC_NAS from '../../../resources/vpc-nas';
 import Base from './base';
 
@@ -28,7 +28,6 @@ export default class Service extends Base {
   readonly type: IType;
   readonly skipPush: boolean = false;
 
-  needDeploy: boolean | undefined;
   remote?: any;
   local: IFunction;
   createResource: Record<string, any> = {};
@@ -47,7 +46,10 @@ export default class Service extends Base {
   // 准备动作
   async before() {
     try {
-      const remote = await this.fcSdk.getFunction(this.local.functionName, 'simple-unsupported');
+      const remote = await this.fcSdk.getFunction(
+        this.local.functionName,
+        GetApiType.simpleUnsupported,
+      );
       this.remote = remote;
     } catch (ex) {
       logger.debug(`Get remote function config error: ${ex.message}`);
@@ -134,7 +136,7 @@ export default class Service extends Base {
   /**
    * 上传镜像
    */
-  async pushImage() {
+  private async pushImage() {
     if (this.skipPush) {
       logger.debug(`skip push is ${this.skipPush}`);
       return;
@@ -145,18 +147,14 @@ export default class Service extends Base {
     }
     logger.spin('creating', 'Acr', image);
     const acr = new Acr(this.inputs.props.region, this.inputs.credential);
-    try {
-      await acr.pushAcr(image, acrInstanceID);
-    } catch (err) {
-      logger.warn(`push image ${image} error: ${err}`);
-    }
+    await acr.pushAcr(image, acrInstanceID);
     logger.spin('created', 'Acr', image);
   }
 
   /**
    * 压缩和上传代码包
    */
-  async uploadCode() {
+  private async uploadCode() {
     const codeUri = this.local.code;
     if (_.isNil(codeUri)) {
       throw new Error('Code config is empty');
@@ -209,7 +207,7 @@ export default class Service extends Base {
   /**
    * 生成 auto 资源
    */
-  async deployAuto() {
+  private async deployAuto() {
     const region = this.inputs.props.region;
     const credential = this.inputs.credential;
     const functionName = this.local.functionName;
@@ -308,7 +306,7 @@ nasConfig:
   /**
    * 判断是否需要压缩代码
    */
-  assertNeedZip(codeUri: string): boolean {
+  private assertNeedZip(codeUri: string): boolean {
     // 如果 .jar 结尾
     //    custom runtime 并且启动命令包含 java -jar 就需要压缩
     //    官方的 runtime，那么不需要压缩

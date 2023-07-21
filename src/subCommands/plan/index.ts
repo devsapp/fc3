@@ -1,8 +1,8 @@
 import _ from 'lodash';
 import { IInputs, IRegion } from '../../interface';
 import { diffConvertYaml } from '@serverless-devs/diff';
-import FC from '../../resources/fc';
-import { FC_API_NOT_FOUND_ERROR_CODE } from '../../resources/fc/error-code';
+import FC, { GetApiType } from '../../resources/fc';
+import { FC_API_ERROR_CODE } from '../../resources/fc/error-code';
 import logger from '../../logger';
 
 export default class Plan {
@@ -29,10 +29,10 @@ ${functionConfig.show}
   private async planFunction() {
     let remote;
     try {
-      remote = await this.fcSdk.getFunction(this.functionName, 'simple-unsupported');
+      remote = await this.fcSdk.getFunction(this.functionName, GetApiType.simpleUnsupported);
     } catch (ex) {
       logger.debug(`Get remote function config error: ${ex.message}`);
-      if (ex.code === FC_API_NOT_FOUND_ERROR_CODE.FunctionNotFound) {
+      if (ex.code === FC_API_ERROR_CODE.FunctionNotFound) {
         remote = {};
       }
     }

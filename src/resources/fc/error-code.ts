@@ -1,6 +1,6 @@
 import _ from 'lodash';
 
-export enum FC_API_NOT_FOUND_ERROR_CODE {
+export enum FC_API_ERROR_CODE {
   FunctionNotFound = 'FunctionNotFound', // 函数不存在
   FunctionAlreadyExists = 'FunctionAlreadyExists', // 函数已存在
   AccessDenied = 'AccessDenied', // 没有权限
@@ -28,4 +28,4 @@ export const isSlsNotExistException = (project: string, logstore: string, ex) =>
   return false;
 };
 
-export const isAccessDenied = (ex) => ex.code === FC_API_NOT_FOUND_ERROR_CODE.AccessDenied;
+export const isAccessDenied = (ex) => ex.code === FC_API_ERROR_CODE.AccessDenied;
