@@ -10,6 +10,7 @@ import Local from './subCommands/local';
 import Deploy from './subCommands/deploy';
 import Info from './subCommands/info';
 import Plan from './subCommands/plan';
+import Invoke from './subCommands/invoke';
 
 export default class Fc extends Base {
   // 部署函数
@@ -39,6 +40,12 @@ export default class Fc extends Base {
     logger.debug(`plan result: ${JSON.stringify(result)}`);
 
     return result;
+  }
+
+  public async invoke(inputs: IInputs) {
+    await super.handlePreRun(inputs, true);
+    const invoke = new Invoke(inputs);
+    return await invoke.run();
   }
 
   public async build(inputs: IInputs) {
