@@ -11,6 +11,7 @@ import Deploy from './subCommands/deploy';
 import Info from './subCommands/info';
 import Plan from './subCommands/plan';
 import Invoke from './subCommands/invoke';
+import Remove from './subCommands/remove';
 
 export default class Fc extends Base {
   // 部署函数
@@ -46,6 +47,12 @@ export default class Fc extends Base {
     await super.handlePreRun(inputs, true);
     const invoke = new Invoke(inputs);
     return await invoke.run();
+  }
+
+  public async remove(inputs: IInputs) {
+    await super.handlePreRun(inputs, true);
+    const remove = new Remove(inputs);
+    return await remove.run();
   }
 
   public async build(inputs: IInputs) {
