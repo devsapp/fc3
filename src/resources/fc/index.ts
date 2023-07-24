@@ -223,8 +223,9 @@ export default class FC extends FC_Client {
   async getFunction(
     functionName: string,
     type: `${GetApiType}` = GetApiType.original,
+    qualifier?: string,
   ): Promise<GetFunctionResponse | Record<string, any>> {
-    const getFunctionRequest = new GetFunctionRequest({});
+    const getFunctionRequest = new GetFunctionRequest({ qualifier });
     const result = await this.fc20230330Client.getFunction(functionName, getFunctionRequest);
     logger.debug(`Get function ${functionName} response:`);
     logger.debug(result);
