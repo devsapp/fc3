@@ -11,6 +11,7 @@ export const getCustomEndpoint = (): { host?: string; endpoint?: string; protoco
   if (!CUSTOM_ENDPOINT) {
     return {};
   }
+  logger.info(`get custom endpoint: ${CUSTOM_ENDPOINT}`);
 
   if (CUSTOM_ENDPOINT.startsWith('http://')) {
     return {

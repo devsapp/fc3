@@ -6,6 +6,8 @@ import FCClient, {
   CreateTriggerInput,
   CreateTriggerRequest,
   CreateTriggerResponse,
+  GetFunctionCodeRequest,
+  GetFunctionCodeResponse,
   InvokeFunctionHeaders,
   InvokeFunctionRequest,
   ListFunctionsRequest,
@@ -137,6 +139,16 @@ export default class FC_Client {
     }
 
     return res;
+  }
+
+  async getFunctionCode(
+    functionName: string,
+    qualifier?: string,
+  ): Promise<{ checksum: string; url: string }> {
+    const request = new GetFunctionCodeRequest({ qualifier });
+    const result = await this.fc20230330Client.getFunctionCode(functionName, request);
+    const { body } = result.toMap();
+    return body;
   }
 
   async listTriggers(functionName: string) {

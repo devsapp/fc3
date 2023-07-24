@@ -16,3 +16,6 @@ resources:
         timeout: 80
         customContainerConfig:
           image: registry-vpc.cn-hangzhou.aliyuncs.com/fc-demo2/test233:v2
+          # command:
+          #   - node
+          #   - --version
