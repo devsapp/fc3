@@ -8,6 +8,8 @@ import FCClient, {
   CreateTriggerResponse,
   InvokeFunctionHeaders,
   InvokeFunctionRequest,
+  ListFunctionsRequest,
+  ListTriggersRequest,
   UpdateFunctionInput,
   UpdateFunctionRequest,
   UpdateFunctionResponse,
@@ -135,5 +137,43 @@ export default class FC_Client {
     }
 
     return res;
+  }
+
+  async listTriggers(functionName: string) {
+    const request = new ListTriggersRequest({ limit: 100 });
+    const runtime = new RuntimeOptions({});
+    const headers = {};
+    return await this.fc20230330Client.listTriggersWithOptions(
+      functionName,
+      request,
+      headers,
+      runtime,
+    );
+  }
+
+  /**
+   * list 接口实现模版
+   */
+  async listFunctions(prefix?: string): Promise<any[]> {
+    let nextToken: string;
+    const limit = 2;
+    const functions = [];
+
+    while (true) {
+      const request = new ListFunctionsRequest({ limit, prefix, nextToken });
+      const runtime = new RuntimeOptions({});
+      const headers = {};
+      const result = await this.fc20230330Client.listFunctionsWithOptions(
+        request,
+        headers,
+        runtime,
+      );
+      const { body } = result.toMap();
+      functions.push(...body.functions);
+      if (!body.nextToken) {
+        return functions;
+      }
+      nextToken = body.nextToken;
+    }
   }
 }
