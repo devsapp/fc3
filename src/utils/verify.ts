@@ -22,7 +22,7 @@ export default (props: IProps) => {
     if (!valid) {
       logger.debug(`validate error: ${JSON.stringify(ajv.errors, null, 2)}`);
       logger.write(yellow(`Valid function props error:`));
-      for (const error of ajv.errors as ErrorObject<string, Record<string, any>, unknown>[] ) {
+      for (const error of ajv.errors as ErrorObject<string, Record<string, any>, unknown>[]) {
         logger.write(yellow(`  ${error.instancePath}: ${error.message}`));
       }
       logger.write(' \n ');
