@@ -84,12 +84,9 @@ export default class FC_Client {
     return await this.fc20230330Client.updateFunction(config.functionName, request);
   }
 
-  async createTrigger(
-    functionName: string,
-    triggerConfig: ITrigger,
-  ): Promise<CreateTriggerResponse> {
+  async createTrigger(functionName: string, config: ITrigger): Promise<CreateTriggerResponse> {
     const request = new CreateTriggerRequest({
-      body: new CreateTriggerInput(triggerConfig),
+      body: new CreateTriggerInput(config),
     });
 
     return await this.fc20230330Client.createTrigger(functionName, request);

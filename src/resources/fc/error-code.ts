@@ -4,6 +4,7 @@ export enum FC_API_ERROR_CODE {
   FunctionNotFound = 'FunctionNotFound', // 函数不存在
   FunctionAlreadyExists = 'FunctionAlreadyExists', // 函数已存在
   AccessDenied = 'AccessDenied', // 没有权限
+  TriggerNotFound = 'TriggerNotFound', // 触发器不存在
 }
 
 export const isSlsNotExistException = (project: string, logstore: string, ex) => {
