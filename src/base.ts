@@ -63,7 +63,10 @@ export default class Base {
     }
 
     if (!_.isEmpty(inputs.props.function)) {
-      if (FC.isCustomContainerRuntime(inputs.props.function.runtime) || FC.isCustomRuntime(inputs.props.function.runtime)) {
+      if (
+        FC.isCustomContainerRuntime(inputs.props.function.runtime) ||
+        FC.isCustomRuntime(inputs.props.function.runtime)
+      ) {
         inputs.props.function = _.defaults(inputs.props.function, FUNCTION_CUSTOM_DEFAULT_CONFIG);
       } else {
         inputs.props.function = _.defaults(inputs.props.function, FUNCTION_DEFAULT_CONFIG);
