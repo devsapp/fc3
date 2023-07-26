@@ -16,6 +16,7 @@ import Ram from '../../../resources/ram';
 import FC, { GetApiType } from '../../../resources/fc';
 import VPC_NAS from '../../../resources/vpc-nas';
 import Base from './base';
+import { ICredentials } from '@serverless-devs/component-interface';
 
 type IType = 'code' | 'config' | boolean;
 interface IOpts {
@@ -25,8 +26,8 @@ interface IOpts {
 }
 
 export default class Service extends Base {
-  readonly type: IType;
-  readonly skipPush: boolean = false;
+  readonly type?: IType;
+  readonly skipPush?: boolean = false;
 
   remote?: any;
   local: IFunction;
@@ -146,7 +147,7 @@ export default class Service extends Base {
       throw new Error('CustomContainerRuntime must have a valid image URL');
     }
     logger.spin('creating', 'Acr', image);
-    const acr = new Acr(this.inputs.props.region, this.inputs.credential);
+    const acr = new Acr(this.inputs.props.region, this.inputs.credential as ICredentials);
     await acr.pushAcr(image, acrInstanceID);
     logger.spin('created', 'Acr', image);
   }
@@ -177,7 +178,7 @@ export default class Service extends Base {
     const needZip = this.assertNeedZip(codeUri);
     logger.debug(`Need zip file: ${needZip}`);
 
-    let generateZipFilePath: string;
+    let generateZipFilePath: string = '';
     if (needZip) {
       const zipConfig = {
         codeUri: zipPath,
@@ -218,7 +219,7 @@ export default class Service extends Base {
     );
 
     if (slsAuto) {
-      const sls = new Sls(region, credential);
+      const sls = new Sls(region, credential as ICredentials);
       const { project, logstore } = await sls.deploy(functionName);
       logger.write(
         yellow(`Created log resource succeeded, please replace logConfig: auto in yaml with:
@@ -241,7 +242,7 @@ logConfig:
     }
 
     if (roleAuto) {
-      const client = new Ram(credential).client;
+      const client = new Ram(credential as ICredentials).client;
       const arn = await client.initFcDefaultServiceRole();
       logger.write(
         yellow(`Using role: ${arn}
@@ -253,7 +254,7 @@ logConfig:
     }
 
     if (nasAuto || vpcAuto) {
-      const client = new VPC_NAS(region, credential);
+      const client = new VPC_NAS(region, credential as ICredentials);
       const localVpcAuto = _.isString(this.local.vpcConfig) ? undefined : this.local.vpcConfig;
       // @ts-ignore: nas auto 会返回 mountTargetDomain 和 fileSystemId
       const { vpcConfig, mountTargetDomain, fileSystemId } = await client.deploy({

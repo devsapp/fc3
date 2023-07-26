@@ -51,5 +51,5 @@ export function isContainerAccelerated(customContainerConfig: ICustomContainerCo
   }
   const acrInstanceID = _.get(customContainerConfig, 'acrInstanceID');
   const image = _.get(customContainerConfig, 'image', '');
-  return acrInstanceID && image.endsWith('_accelerated');
+  return !!(acrInstanceID && image.endsWith('_accelerated'));
 }

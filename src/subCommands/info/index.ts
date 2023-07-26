@@ -1,5 +1,5 @@
 import { ICredentials } from '@serverless-devs/component-interface';
-import _ from 'lodash';
+import _, { isEmpty } from 'lodash';
 import { RegionList, IInputs, IRegion } from '../../interface';
 import FC, { GetApiType } from '../../resources/fc';
 import logger from '../../logger';
@@ -7,20 +7,24 @@ import logger from '../../logger';
 export default class Info {
   readonly region: IRegion;
   readonly functionName: string;
+  readonly triggersName: string[];
   readonly fcSdk: FC;
 
   constructor(private inputs: IInputs) {
     this.region = _.get(inputs, 'props.region');
     this.functionName = _.get(inputs, 'props.function.functionName');
     this.checkProps();
+    this.triggersName = _.get(inputs, 'props.triggers', []).map((item) => item.triggerName);
     this.fcSdk = new FC(this.region, this.inputs.credential as ICredentials);
   }
 
   async run() {
     const functionConfig = await this.getFunction();
+    const triggers = await this.getTriggers();
     return {
       region: this.region,
       function: functionConfig,
+      triggers: isEmpty(triggers) ? undefined : triggers,
     };
   }
 
@@ -36,6 +40,29 @@ export default class Info {
         },
       };
     }
+  }
+
+  async getTriggers(): Promise<any[]> {
+    const result: any[] = [];
+    for (const triggerName of this.triggersName) {
+      try {
+        const config = await this.fcSdk.getTrigger(
+          this.functionName,
+          triggerName,
+          GetApiType.simple,
+        );
+        result.push(config);
+      } catch (ex) {
+        logger.debug(`Get trigger ${this.functionName}/${triggerName} error: ${ex}`);
+        result.push({
+          error: {
+            code: ex.code,
+            message: ex.message,
+          },
+        });
+      }
+    }
+    return result;
   }
 
   private checkProps() {

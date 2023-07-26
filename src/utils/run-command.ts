@@ -21,8 +21,8 @@ export async function runCommand(command: string, shellScript?: string, showStdo
     });
 
     dProcess.stderr.on('data', (data) => {
-      const warnErrrMsg = data.toString();
-      process.stderr.write(warnErrrMsg);
+      const warnErrorMsg = data.toString();
+      process.stderr.write(warnErrorMsg);
     });
 
     dProcess.on('close', (code) => {

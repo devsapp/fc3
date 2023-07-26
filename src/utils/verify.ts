@@ -1,4 +1,4 @@
-import Ajv from 'ajv';
+import Ajv, { ErrorObject } from 'ajv';
 
 import { IProps } from '../interface';
 import logger from '../logger';
@@ -22,7 +22,7 @@ export default (props: IProps) => {
     if (!valid) {
       logger.debug(`validate error: ${JSON.stringify(ajv.errors, null, 2)}`);
       logger.write(yellow(`Valid function props error:`));
-      for (const error of ajv.errors) {
+      for (const error of ajv.errors as ErrorObject<string, Record<string, any>, unknown>[] ) {
         logger.write(yellow(`  ${error.instancePath}: ${error.message}`));
       }
       logger.write(' \n ');

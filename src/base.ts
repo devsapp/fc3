@@ -7,6 +7,7 @@ import { isAuto } from './utils';
 import { FUNCTION_CUSTOM_DEFAULT_CONFIG, FUNCTION_DEFAULT_CONFIG } from './default/config';
 import path from 'path';
 import FC from './resources/fc';
+import { ICredentials } from '@serverless-devs/component-interface';
 
 export default class Base {
   commands: any;
@@ -58,7 +59,7 @@ export default class Base {
 
     // 兼容只写 rule 的情况
     if (needHandleRole) {
-      const arn = Role.completionArn(role, inputs.credential.AccountID);
+      const arn = Role.completionArn(role, (inputs.credential as ICredentials).AccountID);
       _.set(inputs, 'props.function.role', arn);
     }
 
