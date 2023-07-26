@@ -1,8 +1,13 @@
 export const FUNCTION_DEFAULT_CONFIG = {
   internetAccess: true,
   description: '',
-  // instanceConcurrency: 1, // TODO: custom
 };
+
+export const FUNCTION_CUSTOM_DEFAULT_CONFIG = {
+  internetAccess: true,
+  description: '',
+  instanceConcurrency: 1,
+}
 
 export const FC_RESOURCES_EMPTY_CONFIG = {
   vpcConfig: {
