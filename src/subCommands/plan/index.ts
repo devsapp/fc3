@@ -15,7 +15,9 @@ export default class Plan {
   constructor(private inputs: IInputs) {
     this.region = _.get(this.inputs, 'props.region');
     this.functionName = _.get(inputs, 'props.function.functionName');
-    this.triggers = _.get(inputs, 'props.triggers', []).map((item) => _.defaults(item, FC_TRIGGER_DEFAULT_CONFIG));;
+    this.triggers = _.get(inputs, 'props.triggers', []).map((item) =>
+      _.defaults(item, FC_TRIGGER_DEFAULT_CONFIG),
+    );
     this.fcSdk = new FC(inputs.props.region, inputs.credential);
   }
 

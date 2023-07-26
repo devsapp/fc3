@@ -50,7 +50,9 @@ export default class FC extends FC_Client {
       }
     }
 
-    const isContainerAccelerated = FC.isContainerAccelerated(config.customContainerConfig as ICustomContainerConfig);
+    const isContainerAccelerated = FC.isContainerAccelerated(
+      config.customContainerConfig as ICustomContainerConfig,
+    );
 
     let retry = 0;
     let retryTime = 3;
