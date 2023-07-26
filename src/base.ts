@@ -4,8 +4,9 @@ import Logger from './logger';
 import logger from './logger';
 import Role from './resources/ram';
 import { isAuto } from './utils';
-import { FUNCTION_DEFAULT_CONFIG } from './default/config';
+import { FUNCTION_CUSTOM_DEFAULT_CONFIG, FUNCTION_DEFAULT_CONFIG } from './default/config';
 import path from 'path';
+import FC from './resources/fc';
 
 export default class Base {
   commands: any;
@@ -62,7 +63,11 @@ export default class Base {
     }
 
     if (!_.isEmpty(inputs.props.function)) {
-      inputs.props.function = _.defaults(inputs.props.function, FUNCTION_DEFAULT_CONFIG);
+      if (FC.isCustomContainerRuntime(inputs.props.function.runtime) || FC.isCustomRuntime(inputs.props.function.runtime)) {
+        inputs.props.function = _.defaults(inputs.props.function, FUNCTION_CUSTOM_DEFAULT_CONFIG);
+      } else {
+        inputs.props.function = _.defaults(inputs.props.function, FUNCTION_DEFAULT_CONFIG);
+      }
     }
 
     logger.debug(`handle pre run config: ${JSON.stringify(inputs.props)}`);
