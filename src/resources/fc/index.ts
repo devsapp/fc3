@@ -3,6 +3,7 @@ import axios from 'axios';
 import path from 'path';
 import _ from 'lodash';
 import { GetFunctionRequest, GetFunctionResponse } from '@alicloud/fc20230330';
+import { RuntimeOptions } from '@alicloud/tea-util';
 
 import logger from '../../logger';
 import { sleep } from '../../utils';
@@ -92,7 +93,7 @@ export default class FC extends FC_Client {
         const { project, logstore } = (config.logConfig || {}) as ILogConfig;
         const retrySls = slsAuto && isSlsNotExistException(project, logstore, ex);
         const retryContainerAccelerated = isContainerAccelerated; // TODO: 部署镜像并且使用 _accelerated 结尾：报错镜像不存在
-        // TODO: 如果是权限问题不重重试直接异常
+        // TODO: 如果是权限问题不重试直接异常
         if (isAccessDenied(ex)) {
           throw ex;
         } else if (retrySls || retryContainerAccelerated) {
@@ -137,6 +138,8 @@ export default class FC extends FC_Client {
     }
 
     let retry = 0;
+    logger.debug(`Deploy ${functionName} trigger:\n${JSON.stringify(config, null, 2)}`);
+    config.triggerConfig = JSON.stringify(config.triggerConfig);
 
     while (true) {
       try {
@@ -161,7 +164,7 @@ export default class FC extends FC_Client {
       } catch (ex) {
         logger.debug(`Deploy trigger error: ${ex}`);
 
-        // TODO: 如果是权限问题不重重试直接异常
+        // TODO: 如果是权限问题不重试直接异常
         if (isAccessDenied(ex)) {
           throw ex;
         } else if (retry > FC_DEPLOY_RETRY_COUNT) {
@@ -268,6 +271,7 @@ export default class FC extends FC_Client {
         'createdTime',
         'codeSize',
         'codeChecksum',
+        'functionArn',
       ]);
       logger.debug(`Result body: ${JSON.stringify(r)}`);
       return r;
@@ -285,7 +289,27 @@ export default class FC extends FC_Client {
     triggerName: string,
     type: `${GetApiType}` = GetApiType.original,
   ): Promise<any> {
-    const result = await this.fc20230330Client.getTrigger(functionName, triggerName);
-    logger.debug(`Get ${functionName}/${triggerName} config result: ${JSON.stringify(result)}`);
+    const runtime = new RuntimeOptions({});
+    const headers: { [key: string]: string } = {};
+    const result = await this.fc20230330Client.getTriggerWithOptions(
+      functionName,
+      triggerName,
+      headers,
+      runtime,
+    );
+    if (type === GetApiType.original) {
+      return result;
+    }
+    const { body } = result.toMap();
+    body.triggerConfig = JSON.parse(body.triggerConfig);
+
+    if (type === GetApiType.simpleUnsupported) {
+      const r = _.omit(body, ['createdTime', 'httpTrigger', 'lastModifiedTime', 'triggerId']);
+      logger.debug(`Result body: ${JSON.stringify(r)}`);
+      return r;
+    }
+
+    logger.debug(`Result body: ${JSON.stringify(body)}`);
+    return body;
   }
 }

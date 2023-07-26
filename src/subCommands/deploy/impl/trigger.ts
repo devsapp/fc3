@@ -7,6 +7,7 @@ import logger from '../../../logger';
 import Base from './base';
 import { GetApiType } from '../../../resources/fc';
 import { FC_API_ERROR_CODE } from '../../../resources/fc/error-code';
+import { FC_TRIGGER_DEFAULT_CONFIG } from '../../../default/config';
 
 interface IOpts {
   yes: boolean | undefined;
@@ -42,6 +43,7 @@ export default class Trigger extends Base {
       this.local = local;
     }
 
+    this.local = this.local.map((item) => _.defaults(item, FC_TRIGGER_DEFAULT_CONFIG));
     logger.debug(`need deploy trigger: ${JSON.stringify(this.local)}`);
   }
 
