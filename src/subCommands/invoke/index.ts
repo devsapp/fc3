@@ -1,3 +1,4 @@
+import { ICredentials } from '@serverless-devs/component-interface';
 import { yellow, green, red, bold } from 'chalk';
 import fs from 'fs';
 import _ from 'lodash';
@@ -15,7 +16,7 @@ export default class Invoke {
 
   constructor(inputs: IInputs) {
     this.functionName = inputs.props.function?.functionName;
-    this.fcSdk = new FC(inputs.props.region, inputs.credential);
+    this.fcSdk = new FC(inputs.props.region, inputs.credential as ICredentials);
     const { payload, 'event-file': eventFile } = parseArgv(inputs.args, {
       string: ['payload', '--event-file'],
     });

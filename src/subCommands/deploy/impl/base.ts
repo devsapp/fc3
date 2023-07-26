@@ -1,3 +1,4 @@
+import { ICredentials } from '@serverless-devs/component-interface';
 import { IInputs } from '../../../interface';
 import FC from '../../../resources/fc';
 
@@ -7,7 +8,7 @@ export default abstract class Base {
 
   constructor(readonly inputs: IInputs, needDeploy: boolean | undefined) {
     this.needDeploy = needDeploy;
-    this.fcSdk = new FC(inputs.props.region, inputs.credential);
+    this.fcSdk = new FC(inputs.props.region, inputs.credential as ICredentials);
   }
 
   abstract before(): Promise<void>;

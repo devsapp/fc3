@@ -7,7 +7,6 @@ import FCClient, {
   CreateTriggerRequest,
   CreateTriggerResponse,
   GetFunctionCodeRequest,
-  GetFunctionCodeResponse,
   InvokeFunctionHeaders,
   InvokeFunctionRequest,
   ListFunctionsRequest,
@@ -121,7 +120,7 @@ export default class FC_Client {
       runtime,
     );
     const body = await new Promise((resolve, reject) => {
-      const chunks = [];
+      const chunks: any[] = [];
       result.body.on('data', (chunk) => chunks.push(Buffer.from(chunk)));
       result.body.on('error', (err) => reject(err));
       result.body.on('end', () => resolve(Buffer.concat(chunks).toString('utf8')));
@@ -164,9 +163,9 @@ export default class FC_Client {
    * list 接口实现模版
    */
   async listFunctions(prefix?: string): Promise<any[]> {
-    let nextToken: string;
+    let nextToken: string = '';
     const limit = 2;
-    const functions = [];
+    const functions: any[] = [];
 
     while (true) {
       const request = new ListFunctionsRequest({ limit, prefix, nextToken });

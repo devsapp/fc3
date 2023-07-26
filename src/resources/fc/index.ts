@@ -10,7 +10,7 @@ import { sleep } from '../../utils';
 import { FC_DEPLOY_RETRY_COUNT } from '../../default/client';
 
 import FC_Client, { fc2Client } from './impl/client';
-import { IFunction, ILogConfig, ITrigger } from '../../interface';
+import { ICustomContainerConfig, IFunction, ILogConfig, ITrigger } from '../../interface';
 import { FC_API_ERROR_CODE, isAccessDenied, isSlsNotExistException } from './error-code';
 import {
   isCustomContainerRuntime,
@@ -50,7 +50,7 @@ export default class FC extends FC_Client {
       }
     }
 
-    const isContainerAccelerated = FC.isContainerAccelerated(config.customContainerConfig);
+    const isContainerAccelerated = FC.isContainerAccelerated(config.customContainerConfig as ICustomContainerConfig);
 
     let retry = 0;
     let retryTime = 3;

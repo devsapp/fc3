@@ -17,7 +17,7 @@ resources:
         timeout: 30
         vpcConfig: auto
         nasConfig: auto
-        # logConfig: auto
+        logConfig: auto
       # triggers:
       #   - triggerName: timerTrigger # 触发器名称
       #     triggerType: timer # 触发器类型
