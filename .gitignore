@@ -42,3 +42,4 @@ typings/
 .DS_Store
 ___**
 .s
+replace-committers.sh*
