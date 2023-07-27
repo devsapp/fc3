@@ -87,6 +87,7 @@ export default class Service extends Base {
     const config = _.defaults(this.local, FC_RESOURCES_EMPTY_CONFIG);
     await this.fcSdk.deployFunction(config, {
       slsAuto: !_.isEmpty(this.createResource.sls),
+      type: this.type,
     });
   }
 

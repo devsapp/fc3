@@ -36,7 +36,7 @@ export default class FC extends FC_Client {
   /**
    * 创建或者修改函数
    */
-  async deployFunction(config: IFunction, { slsAuto }): Promise<void> {
+  async deployFunction(config: IFunction, { slsAuto, type }): Promise<void> {
     logger.debug(`Deploy function use config: ${JSON.stringify(config)}`);
     let needUpdate = false;
     try {
@@ -80,6 +80,17 @@ export default class FC extends FC_Client {
         }
 
         logger.debug(`Need update function ${config.functionName}`);
+        if (type === 'code') {
+          // @ts-ignore
+          config = {
+            functionName: config.functionName,
+            code: config.code,
+            customContainerConfig: config.customContainerConfig,
+          };
+        } else if (type === 'config') {
+          _.unset(config, 'code');
+          _.unset(config, 'customContainerConfig');
+        }
         await this.updateFunction(config);
         return;
       } catch (ex) {
@@ -197,7 +208,7 @@ export default class FC extends FC_Client {
 
     const {
       data: { ossRegion, credentials, ossBucket, objectName },
-    } = await client.getTempBucketToken();
+    } = await (client as any).getTempBucketToken();
     const ossClient = new OSS({
       region: ossRegion,
       accessKeyId: credentials.AccessKeyId,
@@ -215,7 +226,7 @@ export default class FC extends FC_Client {
       },
     });
     const ossObjectName = `${client.accountid}/${objectName}`;
-    await ossClient.put(ossObjectName, path.normalize(zipFile));
+    await (ossClient as any).put(ossObjectName, path.normalize(zipFile));
 
     const config = { ossBucketName: ossBucket, ossObjectName };
     logger.debug(`tempCodeBucketToken response: ${JSON.stringify(config)}`);
