@@ -12,8 +12,8 @@ resources:
         functionName: fc3-http-nodejs-14
         runtime: nodejs14
         code: ./code
-        handler: http.handler
-        memorySize: 128
+        handler: event.handler
+        memorySize: 512
         timeout: 30
         # vpcConfig: auto
         # nasConfig: auto
