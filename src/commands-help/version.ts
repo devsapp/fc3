@@ -12,18 +12,14 @@ export default {
     publish: {
       help: {
         description: 'version list command',
-        option: [
-          ['--description', 'version description'],
-        ]
-      }
+        option: [['--description', 'version description']],
+      },
     },
     remove: {
       help: {
         description: 'version list command',
-        option: [
-          ['--version-id', 'Specify versionId']
-        ]
+        option: [['--version-id', 'Specify versionId']],
       },
-    }
+    },
   },
-}
+};

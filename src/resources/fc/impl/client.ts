@@ -164,16 +164,21 @@ export default class FC_Client {
   }
 
   async removeFunctionVersion(functionName: string, versionId: string) {
-    const runtime = new RuntimeOptions({ });
-    const headers = { };
-    const result = await this.fc20230330Client.deleteFunctionVersionWithOptions(functionName, versionId, headers, runtime);
+    const runtime = new RuntimeOptions({});
+    const headers = {};
+    const result = await this.fc20230330Client.deleteFunctionVersionWithOptions(
+      functionName,
+      versionId,
+      headers,
+      runtime,
+    );
     const { body } = result.toMap();
     return body;
   }
 
   async publishFunctionVersion(functionName: string, description: string = '') {
     const request = new PublishFunctionVersionRequest({
-      body: new PublishVersionInput({ description })
+      body: new PublishVersionInput({ description }),
     });
     const runtime = new RuntimeOptions({});
     const headers = {};

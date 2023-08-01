@@ -6,4 +6,4 @@ export default {
       ['--event-file', 'Call function parameter file'],
     ],
   },
-}
+};
