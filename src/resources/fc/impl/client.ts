@@ -43,13 +43,14 @@ export const fc2Client = (region: IRegion, credentials: ICredentials) => {
 export default class FC_Client {
   readonly fc20230330Client: FCClient;
 
-  constructor(readonly region: IRegion, readonly credentials: ICredentials) {
+  constructor(readonly region: IRegion, readonly credentials: ICredentials, options?: any) {
     const {
       AccountID: accountID,
       AccessKeyID: accessKeyId,
       AccessKeySecret: accessKeySecret,
       SecurityToken: securityToken,
     } = credentials;
+    const { timeout } = options || {};
 
     const { host: endpoint = `${accountID}.${region}.fc.aliyuncs.com`, protocol = 'https' } =
       getCustomEndpoint();
@@ -60,8 +61,8 @@ export default class FC_Client {
       securityToken,
       protocol,
       endpoint,
-      readTimeout: FC_CLIENT_DEFAULT_TIMEOUT,
-      connectTimeout: FC_CLIENT_DEFAULT_TIMEOUT,
+      readTimeout: timeout || FC_CLIENT_DEFAULT_TIMEOUT,
+      connectTimeout: timeout || FC_CLIENT_DEFAULT_TIMEOUT,
     });
 
     this.fc20230330Client = new FCClient(config);
