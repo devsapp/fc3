@@ -13,6 +13,7 @@ import Plan from './subCommands/plan';
 import Invoke from './subCommands/invoke';
 import Remove from './subCommands/remove';
 import Sync from './subCommands/sync';
+import Version from './subCommands/version';
 
 export default class Fc extends Base {
   // 部署函数
@@ -60,6 +61,12 @@ export default class Fc extends Base {
     await super.handlePreRun(inputs, true);
     const remove = new Remove(inputs);
     return await remove.run();
+  }
+
+  public async version(inputs: IInputs) {
+    await super.handlePreRun(inputs, true);
+    const v = new Version(inputs);
+    return await v[v.subCommand]();
   }
 
   public async build(inputs: IInputs) {

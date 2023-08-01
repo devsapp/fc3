@@ -6,6 +6,7 @@ import Role from './resources/ram';
 import { isAuto } from './utils';
 import { FUNCTION_CUSTOM_DEFAULT_CONFIG, FUNCTION_DEFAULT_CONFIG } from './default/config';
 import path from 'path';
+import commandsHelp from './commands-help';
 import FC from './resources/fc';
 import { ICredentials } from '@serverless-devs/component-interface';
 
@@ -15,50 +16,7 @@ export default class Base {
   constructor({ logger }: any) {
     Logger._set(logger);
 
-    this.commands = {
-      deploy: {
-        help: {
-          description: 'deploy command',
-          // summary: '',
-          option: [
-            ['-y, --yes', 'Configuring deployment using yaml'],
-            ['--skip-push', 'Skip Mirror Push'],
-            [
-              "--function ['code'/'config']",
-              "Deploy function only; Use 'code' to deploy function code only, use 'config' to deploy function configuration only",
-            ],
-            [
-              '--trigger [triggerName]',
-              "Deploy trigger only; Specify a trigger name to deploy only the specified triggerName; Multiple names can be used ',' split",
-            ],
-          ],
-        },
-      },
-      remove: {
-        help: {
-          description: 'remove command',
-        },
-      },
-      info: {
-        help: {
-          description: 'info command',
-        },
-      },
-      sync: {
-        help: {
-          description: 'sync command',
-        },
-      },
-      invoke: {
-        help: {
-          description: 'sync command',
-          option: [
-            ['--payload', 'Call function parameter payload'],
-            ['--event-file', 'Call function parameter file'],
-          ],
-        },
-      },
-    };
+    this.commands = commandsHelp;
   }
 
   // 在运行方法之前运行
