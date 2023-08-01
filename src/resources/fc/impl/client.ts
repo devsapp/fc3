@@ -9,8 +9,11 @@ import FCClient, {
   GetFunctionCodeRequest,
   InvokeFunctionHeaders,
   InvokeFunctionRequest,
+  ListFunctionVersionsRequest,
   ListFunctionsRequest,
   ListTriggersRequest,
+  PublishFunctionVersionRequest,
+  PublishVersionInput,
   UpdateFunctionInput,
   UpdateFunctionRequest,
   UpdateFunctionResponse,
@@ -158,6 +161,44 @@ export default class FC_Client {
       headers,
       runtime,
     );
+  }
+
+  async removeFunctionVersion(functionName: string, versionId: string) {
+    const runtime = new RuntimeOptions({ });
+    const headers = { };
+    const result = await this.fc20230330Client.deleteFunctionVersionWithOptions(functionName, versionId, headers, runtime);
+    const { body } = result.toMap();
+    return body;
+  }
+
+  async publishFunctionVersion(functionName: string, description: string = '') {
+    const request = new PublishFunctionVersionRequest({
+      body: new PublishVersionInput({ description })
+    });
+    const runtime = new RuntimeOptions({});
+    const headers = {};
+    const result = await this.fc20230330Client.publishFunctionVersionWithOptions(
+      functionName,
+      request,
+      headers,
+      runtime,
+    );
+    const { body } = result.toMap();
+    return body;
+  }
+
+  async listFunctionVersion(functionName: string): Promise<any[]> {
+    const request = new ListFunctionVersionsRequest({ limit: 100 });
+    const runtime = new RuntimeOptions({});
+    const headers = {};
+    const result = await this.fc20230330Client.listFunctionVersionsWithOptions(
+      functionName,
+      request,
+      headers,
+      runtime,
+    );
+    const { body } = result.toMap();
+    return body.versions;
   }
 
   /**
