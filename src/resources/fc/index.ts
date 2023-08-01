@@ -207,10 +207,11 @@ export default class FC extends FC_Client {
     const client = fc2Client(this.region, this.credentials);
 
     const {
-      data: { ossRegion, credentials, ossBucket, objectName },
+      data: { credentials, ossBucket, objectName },
     } = await (client as any).getTempBucketToken();
     const ossClient = new OSS({
-      region: ossRegion,
+      // region: ossRegion,
+      endpoint: 'https://oss-accelerate.aliyuncs.com',
       accessKeyId: credentials.AccessKeyId,
       accessKeySecret: credentials.AccessKeySecret,
       stsToken: credentials.SecurityToken,
