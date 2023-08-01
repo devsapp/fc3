@@ -19,7 +19,7 @@ export default class Base {
       deploy: {
         help: {
           description: 'deploy command',
-          summary: '',
+          // summary: '',
           option: [
             ['-y, --yes', 'Configuring deployment using yaml'],
             ['--skip-push', 'Skip Mirror Push'],
@@ -34,7 +34,30 @@ export default class Base {
           ],
         },
       },
-      remove: {},
+      remove: {
+        help: {
+          description: 'remove command',
+        },
+      },
+      info: {
+        help: {
+          description: 'info command',
+        },
+      },
+      sync: {
+        help: {
+          description: 'sync command',
+        },
+      },
+      invoke: {
+        help: {
+          description: 'sync command',
+          option: [
+            ['--payload', 'Call function parameter payload'],
+            ['--event-file', 'Call function parameter file'],
+          ],
+        },
+      },
     };
   }
 
