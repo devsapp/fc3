@@ -6,6 +6,7 @@ enum Region {
   'cn-zhangjiakou' = 'cn-zhangjiakou',
   'cn-huhehaote' = 'cn-huhehaote',
   'cn-shenzhen' = 'cn-shenzhen',
+  'ap-northeast-2' = 'ap-northeast-2',
   'cn-chengdu' = 'cn-chengdu',
   'cn-hongkong' = 'cn-hongkong',
   'ap-southeast-1' = 'ap-southeast-1',
