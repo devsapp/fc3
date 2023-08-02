@@ -17,7 +17,9 @@ export default class Invoke {
   constructor(inputs: IInputs) {
     this.functionName = inputs.props.function?.functionName;
     const timeout = inputs.props.function?.timeout;
-    this.fcSdk = new FC(inputs.props.region, inputs.credential as ICredentials, { timeout });
+    this.fcSdk = new FC(inputs.props.region, inputs.credential as ICredentials, {
+      timeout: timeout ? timeout * 1000 : undefined,
+    });
     const { payload, 'event-file': eventFile } = parseArgv(inputs.args, {
       string: ['payload', '--event-file'],
     });
