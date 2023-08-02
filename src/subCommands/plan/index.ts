@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import { IInputs, IRegion, ITrigger } from '../../interface';
-import { diffConvertYaml } from '@serverless-devs/diff';
+import { diffConvertPlanYaml } from '@serverless-devs/diff';
 import FC, { GetApiType } from '../../resources/fc';
 import { FC_API_ERROR_CODE } from '../../resources/fc/error-code';
 import logger from '../../logger';
@@ -50,7 +50,7 @@ ${triggersConfig.show}`;
     }
     _.unset(this.inputs.props.function, 'code');
     const config = FC.replaceFunctionConfig(this.inputs.props.function, remote);
-    return diffConvertYaml(config.remote, config.local, { deep: 1, complete: true });
+    return diffConvertPlanYaml(config.remote, config.local, { deep: 1, complete: true });
   }
 
   private async planTriggers() {
@@ -76,6 +76,6 @@ ${triggersConfig.show}`;
       result.push(remote);
     }
 
-    return diffConvertYaml(result, this.triggers, { deep: 1, complete: true });
+    return diffConvertPlanYaml(result, this.triggers, { deep: 1, complete: true });
   }
 }
