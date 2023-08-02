@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import { IInputs } from '../../interface';
 import logger from '../../logger';
 import FC from '../../resources/fc';
@@ -27,6 +28,33 @@ export default class Remove {
       }
     }
 
+    logger.spin('removing', 'function', this.functionName);
+    await this.removeVersions();
     await this.fcSdk.fc20230330Client.deleteFunction(this.functionName);
+    logger.spin('removed', 'function', this.functionName);
+  }
+
+  async removeVersions() {
+    while (true) {
+      let versions: any[];
+      try {
+        versions = await this.fcSdk.listFunctionVersion(this.functionName);
+        if (_.isEmpty(versions)) {
+          return;
+        }
+      } catch (ex) {
+        logger.debug(`Remove versions error: ${ex}`);
+        return;
+      }
+      for (const { versionId } of versions) {
+        try {
+          logger.spin('removing', 'version', versionId);
+          await this.fcSdk.removeFunctionVersion(this.functionName, versionId);
+          logger.spin('removed', 'version', versionId);
+        } catch (ex) {
+          logger.error(`Remove version ${versionId} error: ${ex}`);
+        }
+      }
+    }
   }
 }
