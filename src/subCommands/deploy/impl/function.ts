@@ -222,7 +222,7 @@ export default class Service extends Base {
     if (slsAuto) {
       const sls = new Sls(region, credential as ICredentials);
       const { project, logstore } = await sls.deploy(functionName);
-      logger.write(
+      logger.info(
         yellow(`Created log resource succeeded, please replace logConfig: auto in yaml with:
 logConfig:
   enableInstanceMetrics: true
@@ -244,7 +244,7 @@ logConfig:
     if (roleAuto) {
       const client = new Ram(credential as ICredentials).client;
       const arn = await client.initFcDefaultServiceRole();
-      logger.write(yellow(`Using role: ${arn}\n`));
+      logger.info(yellow(`Using role: ${arn}\n`));
       this.createResource.role = { arn };
 
       _.set(this.local, 'role', arn);
@@ -260,7 +260,7 @@ logConfig:
       });
 
       if (vpcAuto) {
-        logger.write(
+        logger.info(
           yellow(`Created vpc resource succeeded, please manually write vpcConfig to the yaml file:
 vpcConfig:
   vpcId: ${vpcConfig.vpcId}
@@ -273,7 +273,7 @@ vpcConfig:
       }
 
       if (nasAuto) {
-        logger.write(
+        logger.info(
           yellow(`Created nas resource succeeded, please replace nasConfig: auto in yaml with:
 nasConfig:
   groupId: 0

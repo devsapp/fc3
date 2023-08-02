@@ -22,6 +22,7 @@ export default class Fc extends Base {
     await super.handlePreRun(inputs, true);
     const deploy = new Deploy(inputs);
     await deploy.run();
+    console.log(); // 防止最后输出不换行
     return 'deploy end';
   }
 
