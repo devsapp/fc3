@@ -244,9 +244,7 @@ logConfig:
     if (roleAuto) {
       const client = new Ram(credential as ICredentials).client;
       const arn = await client.initFcDefaultServiceRole();
-      logger.write(
-        yellow(`Using role: ${arn}\n`),
-      );
+      logger.write(yellow(`Using role: ${arn}\n`));
       this.createResource.role = { arn };
 
       _.set(this.local, 'role', arn);
