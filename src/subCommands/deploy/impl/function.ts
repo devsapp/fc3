@@ -229,8 +229,7 @@ logConfig:
   enableRequestMetrics: true
   logBeginRule: DefaultRegex
   logstore: ${logstore}
-  project: ${project}
-`),
+  project: ${project}\n`),
       );
       this.createResource.sls = { project, logstore };
       _.set(this.local, 'logConfig', {
@@ -246,8 +245,7 @@ logConfig:
       const client = new Ram(credential as ICredentials).client;
       const arn = await client.initFcDefaultServiceRole();
       logger.write(
-        yellow(`Using role: ${arn}
-`),
+        yellow(`Using role: ${arn}\n`),
       );
       this.createResource.role = { arn };
 
@@ -270,8 +268,7 @@ vpcConfig:
   vpcId: ${vpcConfig.vpcId}
   securityGroupId: ${vpcConfig.securityGroupId}
   vSwitchIds:
-    - ${vpcConfig.vSwitchIds.join('   - \n')}
-`),
+    - ${vpcConfig.vSwitchIds.join('   - \n')}\n`),
         );
         this.createResource.vpc = vpcConfig;
         _.set(this.local, 'vpcConfig', vpcConfig);
@@ -286,8 +283,7 @@ nasConfig:
   mountPoints:
     - serverAddr: ${mountTargetDomain}:/${functionName}
       mountDir: /mnt/${functionName}
-      enableTLS: false
-`),
+      enableTLS: false\n`),
         );
         this.createResource.nas = { mountTargetDomain, fileSystemId };
         _.set(this.local, 'nasConfig', {
