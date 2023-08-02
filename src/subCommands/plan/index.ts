@@ -31,7 +31,7 @@ function:
 ${functionConfig.show}
 `;
 
-    if (!_.isEmpty(triggersConfig)) {
+    if (!_.isEmpty(this.triggers)) {
       showDiff += `triggers:
 ${triggersConfig.show}`;
     }
@@ -48,6 +48,7 @@ ${triggersConfig.show}`;
         remote = {};
       }
     }
+    _.unset(this.inputs.props.function, 'code');
     const config = FC.replaceFunctionConfig(this.inputs.props.function, remote);
     return diffConvertYaml(config.remote, config.local, { deep: 1, complete: true });
   }

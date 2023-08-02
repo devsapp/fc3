@@ -31,7 +31,7 @@ export default class Deploy {
     const deployAll = !type && !trigger;
     logger.debug(`Deploy all resources: ${deployAll}`);
     if (deployAll || type) {
-      this.service = new Service(inputs, { type, yes, skipPush });
+      this.service = new Service(inputs, { type, yes, skipPush }); // function
     }
     if (deployAll || trigger) {
       this.trigger = new Trigger(inputs, { yes, trigger });
