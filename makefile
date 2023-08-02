@@ -3,6 +3,8 @@ statistics:
 
 ut-test:
 	npm install --registry https://registry.npm.taobao.org
+	node -v
+	npm -v
 	npm run build
 	npm install @serverless-devs/s@beta -g 
 	s -v
