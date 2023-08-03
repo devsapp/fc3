@@ -1,8 +1,8 @@
+import _ from 'lodash';
+import * as portFinder from 'portfinder';
 import { BaseLocal } from '../baseLocal';
 import logger from '../../../../logger';
-import _ from 'lodash';
-import { runShellCommand } from '../runCommand';
-import * as portFinder from 'portfinder';
+import { runCommand } from '../../../../utils';
 
 export class BaseLocalStart extends BaseLocal {
   beforeStart(): boolean {
@@ -26,7 +26,7 @@ export class BaseLocalStart extends BaseLocal {
 
   async runStart() {
     const cmdStr = await this.getLocalStartCmdStr();
-    await runShellCommand(cmdStr, true);
+    await runCommand(cmdStr, runCommand.showStdout.append);
   }
 
   async getLocalStartCmdStr(): Promise<string> {
@@ -35,7 +35,7 @@ export class BaseLocalStart extends BaseLocal {
       `You can use curl or Postman to make an HTTP request to 127.0.0.1:${port} to test the function`,
     );
     const mntStr = await this.getMountString();
-    let dockerCmdStr = `docker run --rm -p ${port}:${this.getCaPort()} --memory=${this.getMemorySize()}m ${mntStr} ${this.getEnvString()} ${this.getRuntimeRunImage()} --http --server`;
+    let dockerCmdStr = `docker run --rm -p ${port}:${this.getCaPort()} --memory=${this.getMemorySize()}m ${mntStr} ${this.getEnvString()} ${await this.getRuntimeRunImage()} --http --server`;
     if (!_.isEmpty(this.getDebugArgs())) {
       if (this.debugIDEIsVsCode()) {
         await this.writeVscodeDebugConfig();

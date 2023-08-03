@@ -56,7 +56,7 @@ export class CustomContainerLocalInvoke extends BaseLocalInvoke {
       }" -d '${this.getEventString()}'`,
     );
 
-    let dockerCmdStr = `docker run --rm -p ${port}:${this.getCaPort()} --memory=${this.getMemorySize()}m ${this.getEnvString()} ${this.getRuntimeRunImage()}`;
+    let dockerCmdStr = `docker run --rm -p ${port}:${this.getCaPort()} --memory=${this.getMemorySize()}m ${this.getEnvString()} ${await this.getRuntimeRunImage()}`;
     if (!_.isEmpty(this.getBootStrap())) {
       dockerCmdStr += ` ${this.getBootStrap()}`;
     }
@@ -69,10 +69,11 @@ export class CustomContainerLocalInvoke extends BaseLocalInvoke {
   }
 
   async runInvoke() {
+    const image = await this.getRuntimeRunImage();
     process.on('SIGINT', () => {
       console.log('SIGINT, stop container');
       exec(
-        `docker ps -a | grep ${this.getRuntimeRunImage()} | awk '{print $1}' | xargs docker kill`,
+        `docker ps -a | grep ${image} | awk '{print $1}' | xargs docker kill`,
         (error, stdout, stderr) => {
           if (error) {
             console.error(`error: ${error}`);

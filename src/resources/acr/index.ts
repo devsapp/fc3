@@ -33,7 +33,7 @@ export default class Acr {
     try {
       if (image !== imageUrl) {
         const commandStr = `docker tag ${imageUrl} ${image}`;
-        await runCommand(commandStr);
+        await runCommand(commandStr, runCommand.showStdout.inherit);
       }
 
       const { dockerTmpUser, dockerTmpToken } = await getDockerTmpUser(
@@ -42,10 +42,10 @@ export default class Acr {
         instanceID,
       );
       let dockerCmdStr = `docker login ${image} --username=${dockerTmpUser} --password ${dockerTmpToken}`;
-      await runCommand(dockerCmdStr);
+      await runCommand(dockerCmdStr, runCommand.showStdout.inherit);
 
       dockerCmdStr = `docker push ${image}`;
-      await runCommand(dockerCmdStr, undefined, true);
+      await runCommand(dockerCmdStr, runCommand.showStdout.inherit);
     } catch (err) {}
   }
 }

@@ -1,7 +1,7 @@
 import _ from 'lodash';
 
 export { default as verify } from './verify';
-export { runCommand } from './run-command';
+export { default as runCommand } from './run-command';
 
 export const sleep = async (second: number): Promise<void> =>
   await new Promise((resolve) => setTimeout(resolve, second * 1000));

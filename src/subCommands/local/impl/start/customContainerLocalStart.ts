@@ -35,7 +35,7 @@ export class CustomContainerLocalStart extends BaseLocalStart {
       'yellow',
     );
     const mntStr = await this.getMountString();
-    let dockerCmdStr = `docker run --rm -p ${port}:${this.getCaPort()} --memory=${this.getMemorySize()}m ${mntStr} ${this.getEnvString()} ${this.getRuntimeRunImage()}`;
+    let dockerCmdStr = `docker run --rm -p ${port}:${this.getCaPort()} --memory=${this.getMemorySize()}m ${mntStr} ${this.getEnvString()} ${await this.getRuntimeRunImage()}`;
     if (!_.isEmpty(this.getBootStrap())) {
       dockerCmdStr += ` ${this.getBootStrap()}`;
     }
@@ -48,10 +48,11 @@ export class CustomContainerLocalStart extends BaseLocalStart {
   }
 
   async runStart() {
+    const image = this.getRuntimeRunImage();
     process.on('SIGINT', () => {
       console.log('SIGINT, stop container');
       exec(
-        `docker ps -a | grep ${this.getRuntimeRunImage()} | awk '{print $1}' | xargs docker kill`,
+        `docker ps -a | grep ${image} | awk '{print $1}' | xargs docker kill`,
         (error, stdout, stderr) => {
           if (error) {
             console.error(`error: ${error}`);

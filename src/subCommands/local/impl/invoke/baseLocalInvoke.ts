@@ -2,7 +2,7 @@ import { BaseLocal } from '../baseLocal';
 import { formatJsonString } from '../utils';
 import logger from '../../../../logger';
 import _ from 'lodash';
-import { runShellCommand } from '../runCommand';
+import { runCommand } from '../../../../utils';
 
 export class BaseLocalInvoke extends BaseLocal {
   beforeInvoke(): boolean {
@@ -26,7 +26,7 @@ export class BaseLocalInvoke extends BaseLocal {
 
   async runInvoke() {
     const cmdStr = await this.getLocalInvokeCmdStr();
-    await runShellCommand(cmdStr, true);
+    await runCommand(cmdStr, runCommand.showStdout.append);
   }
 
   getEventString(): string {
@@ -40,7 +40,7 @@ export class BaseLocalInvoke extends BaseLocal {
 
   async getLocalInvokeCmdStr(): Promise<string> {
     const mntStr = await this.getMountString();
-    let dockerCmdStr = `docker run --rm --memory=${this.getMemorySize()}m ${mntStr} ${await this.getEnvString()} ${this.getRuntimeRunImage()} --event '${this.getEventString()}'`;
+    let dockerCmdStr = `docker run --rm --memory=${this.getMemorySize()}m ${mntStr} ${await this.getEnvString()} ${await this.getRuntimeRunImage()} --event '${this.getEventString()}'`;
     if (!_.isEmpty(this.getDebugArgs())) {
       if (this.debugIDEIsVsCode()) {
         await this.writeVscodeDebugConfig();

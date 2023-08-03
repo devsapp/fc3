@@ -12,8 +12,9 @@ export class ImageKanikoBuilder extends Builder {
     const dockerFile = path.join(this.getCodeUri(), 'Dockerfile');
     const context = this.getCodeUri();
 
-    let cmdStr = `executor --force=true --cache=false --use-new-run=true --dockerfile ${dockerFile} --context ${context} --destination ${this.getRuntimeBuildImage()}`;
+    const image = await this.getRuntimeBuildImage();
+    let cmdStr = `executor --force=true --cache=false --use-new-run=true --dockerfile ${dockerFile} --context ${context} --destination ${image}`;
 
-    await runCommand(cmdStr, undefined, true);
+    await runCommand(cmdStr, runCommand.showStdout.inherit);
   }
 }
