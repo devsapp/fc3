@@ -22,9 +22,7 @@ export class ImageDockerBuilder extends Builder {
       credential,
       this.getAcrEEInstanceID(),
     );
-    dockerCmdStr = `docker login ${image} --username=${
-      dockerTmpConfig.dockerTmpUser
-    } --password ${dockerTmpConfig.dockerTmpToken}`;
+    dockerCmdStr = `docker login ${image} --username=${dockerTmpConfig.dockerTmpUser} --password ${dockerTmpConfig.dockerTmpToken}`;
     await runCommand(dockerCmdStr, runCommand.showStdout.inherit);
 
     dockerCmdStr = `docker push ${image}`;

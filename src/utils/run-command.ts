@@ -32,7 +32,7 @@ async function runCommand(command: string, showStdout: COMMAND_STDIO, shellScrip
           logger.append(data.toString());
         }
       });
-  
+
       dProcess.stderr.on('data', (data) => {
         const warnErrorMsg = data.toString();
         if (showStdout === COMMAND_STDIO.append) {
