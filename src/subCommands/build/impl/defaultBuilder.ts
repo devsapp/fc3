@@ -22,7 +22,7 @@ export class DefaultBuilder extends Builder {
 
   public getBuildTasks(): string[] {
     let tasks: string[] = [];
-    // task work dir is /code  ===  s.yaml codeuri
+    // task work dir is /code  ===  s.yaml code
     if (this.existManifest('apt-get.list')) {
       tasks.push('apt-get-install "$(cat apt-get.list)"');
     }
