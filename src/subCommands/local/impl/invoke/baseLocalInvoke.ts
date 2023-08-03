@@ -40,7 +40,7 @@ export class BaseLocalInvoke extends BaseLocal {
 
   async getLocalInvokeCmdStr(): Promise<string> {
     const mntStr = await this.getMountString();
-    let dockerCmdStr = `docker run --rm --memory=${this.getMemorySize()}m ${mntStr} ${this.getEnvString()} ${this.getRuntimeRunImage()} --event '${this.getEventString()}'`;
+    let dockerCmdStr = `docker run --rm --memory=${this.getMemorySize()}m ${mntStr} ${await this.getEnvString()} ${this.getRuntimeRunImage()} --event '${this.getEventString()}'`;
     if (!_.isEmpty(this.getDebugArgs())) {
       if (this.debugIDEIsVsCode()) {
         await this.writeVscodeDebugConfig();

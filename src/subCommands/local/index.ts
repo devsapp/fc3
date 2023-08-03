@@ -28,40 +28,41 @@ export default class ComponentBuild {
       case 'nodejs10':
       case 'nodejs12':
       case 'nodejs14':
+      case 'nodejs16':
         let nodeLocalInvoker = new NodejsLocalInvoke(inputs);
-        nodeLocalInvoker.invoke();
+        await nodeLocalInvoker.invoke();
         break;
       case 'python2.7':
       case 'python3':
       case 'python3.9':
       case 'python3.10':
         let pythonLocalInvoker = new PythonLocalInvoke(inputs);
-        pythonLocalInvoker.invoke();
+        await pythonLocalInvoker.invoke();
         break;
       case 'java8':
       case 'java11':
         let javaLocalInvoker = new JavaLocalInvoke(inputs);
-        javaLocalInvoker.invoke();
+        await javaLocalInvoker.invoke();
         break;
       case 'php7.2':
         let phpLocalInvoker = new PhpLocalInvoke(inputs);
-        phpLocalInvoker.invoke();
+        await phpLocalInvoker.invoke();
         break;
       case 'dotnetcore2.1':
         let dotnetLocalInvoker = new DotnetLocalInvoke(inputs);
-        dotnetLocalInvoker.invoke();
+        await dotnetLocalInvoker.invoke();
         break;
       case 'custom':
       case 'custom.debian10':
         let customLocalInvoker = new CustomLocalInvoke(inputs);
-        customLocalInvoker.invoke();
+        await customLocalInvoker.invoke();
         break;
       case 'custom-container':
         let customContainerLocalInvoker = new CustomContainerLocalInvoke(inputs);
-        customContainerLocalInvoker.invoke();
+        await customContainerLocalInvoker.invoke();
         break;
       default:
-        logger.warn(`${inputs.props.function.runtime} is not supported`);
+        logger.error(`${inputs.props.function.runtime} is not supported`);
     }
     return {};
   }
@@ -77,14 +78,14 @@ export default class ComponentBuild {
       case 'custom':
       case 'custom.debian10':
         let customLocalInvoker = new CustomLocalStart(inputs);
-        customLocalInvoker.start();
+        await customLocalInvoker.start();
         break;
       case 'custom-container':
         let customContainerLocalInvoker = new CustomContainerLocalStart(inputs);
-        customContainerLocalInvoker.start();
+        await customContainerLocalInvoker.start();
         break;
       default:
-        logger.warn(`${inputs.props.function.runtime} is not supported`);
+        logger.error(`${inputs.props.function.runtime} is not supported`);
     }
   }
 }

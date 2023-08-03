@@ -108,13 +108,13 @@ export class BaseLocal {
     if (this.unzippedCodeDir) {
       return this.unzippedCodeDir;
     }
-    const codeUri = this.getFunctionProps().codeUri as ICodeUri;
+    const codeUri = this.getFunctionProps().code as ICodeUri;
     let src: string = typeof codeUri === 'string' ? codeUri : codeUri.src;
 
     if (_.endsWith(src, '.zip') || _.endsWith(src, '.jar') || _.endsWith(src, '.war')) {
       const tmpCodeDir: string = path.join(tmpDir, uuidV4());
       await fs.ensureDir(tmpCodeDir);
-      logger.log(`codeUri is a zip format, will unzipping to ${tmpCodeDir}`);
+      logger.log(`code is a zip format, will unzipping to ${tmpCodeDir}`);
       await extract(src, { dir: tmpCodeDir });
       this.unzippedCodeDir = tmpCodeDir;
       return tmpCodeDir;
@@ -126,7 +126,7 @@ export class BaseLocal {
   }
 
   checkCodeUri(): boolean {
-    const codeUri = this.getFunctionProps().codeUri;
+    const codeUri = this.getFunctionProps().code;
     if (!codeUri) {
       return false;
     }
@@ -256,7 +256,7 @@ export class BaseLocal {
     const codeUriValid = this.checkCodeUri();
     logger.debug(`checkCodeUri = ${codeUriValid}`);
     if (!codeUriValid && !this.isCustomContainerRuntime()) {
-      logger.error('codeUri is invalid when runtime is not custom-container');
+      logger.error('code is invalid when runtime is not custom-container');
       return false;
     }
     if (
