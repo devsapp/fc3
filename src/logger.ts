@@ -9,6 +9,7 @@ class Logger {
   error: (...args: unknown[]) => void;
   output: (...args: unknown[]) => void;
   spin: (...args: unknown[]) => void;
+  append: (...args: unknown[]) => void;
 
   _set = (logger) => {
     this.log = (...args) => logger.log.apply(logger, args);
@@ -19,6 +20,7 @@ class Logger {
     this.error = (...args) => logger.error.apply(logger, args);
     this.output = (...args) => logger.output.apply(logger, args);
     this.spin = (...args) => logger.spin.apply(logger, args);
+    this.append = (...args) => logger.append.apply(logger, args);
     this.instance = logger;
   };
 }

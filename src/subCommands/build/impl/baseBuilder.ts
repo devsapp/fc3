@@ -42,7 +42,7 @@ export class Builder {
     if (!this.checkCodeUri()) {
       return '';
     }
-    const codeUri = _.get(this.inputProps, 'props.function.codeUri') as ICodeUri;
+    const codeUri = _.get(this.inputProps, 'props.function.code') as ICodeUri;
     const src: string = typeof codeUri === 'string' ? codeUri : codeUri.src;
     const baseDir = process.cwd();
     const resolvedCodeUri = path.isAbsolute(src) ? src : path.join(baseDir, src);
@@ -50,7 +50,7 @@ export class Builder {
   }
 
   checkCodeUri(): boolean {
-    const codeUri = _.get(this.inputProps, 'props.function.codeUri') as ICodeUri;
+    const codeUri = _.get(this.inputProps, 'props.function.code') as ICodeUri;
     if (!codeUri) {
       return false;
     }

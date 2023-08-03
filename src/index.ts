@@ -97,7 +97,7 @@ export default class Fc extends Base {
     if (subCommand === 'start') {
       return await local.start(inputs);
     } else if (subCommand === 'invoke') {
-      return await local.start(inputs);
+      return await local.invoke(inputs);
     }
     throw new Error("Please use 's local start -h' or 's local invoke -h'");
   }
