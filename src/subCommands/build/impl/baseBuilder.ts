@@ -8,7 +8,7 @@ import { getTimeZone } from '../../../utils';
 import { defaultFcDockerVersion } from '../../../constant';
 import logger from '../../../logger';
 
-export class Builder {
+export abstract class Builder {
   inputProps: IInputs;
   constructor(inputs: IInputs) {
     this.inputProps = inputs;
@@ -19,7 +19,7 @@ export class Builder {
   }
 
   getRuntime(): string {
-    return this.getProps().runtime;
+    return this.getProps().function.runtime;
   }
 
   getRegion(): IRegion {
@@ -31,11 +31,11 @@ export class Builder {
   }
 
   getAcrEEInstanceID(): string {
-    return _.get(this.getProps(), 'customContainerConfig.acrInstanceID');
+    return _.get(this.getProps(), 'function.customContainerConfig.acrInstanceID');
   }
 
   isCustomContainerRuntime(): boolean {
-    return this.getProps().runtime === 'custom-container';
+    return this.getRuntime() === 'custom-container';
   }
 
   getCodeUri(): string {
@@ -52,6 +52,7 @@ export class Builder {
   checkCodeUri(): boolean {
     const codeUri = _.get(this.inputProps, 'props.function.code') as ICodeUri;
     if (!codeUri) {
+      logger.warn('Code config is not available');
       return false;
     }
     const src: string = typeof codeUri === 'string' ? codeUri : codeUri.src;
@@ -100,6 +101,8 @@ export class Builder {
     logger.debug('afterBuild ...');
   }
 
+  abstract runBuild(): Promise<any>;
+
   public async build() {
     const check = this.beforeBuild();
     if (!check) {
@@ -108,8 +111,6 @@ export class Builder {
     await this.runBuild();
     this.afterBuild();
   }
-
-  public async runBuild() {}
 
   private checkAcreeInstanceID(imageName: string, instanceID: string) {
     // 如果是企业镜像，并且非正常 build 验证，企业镜像配置

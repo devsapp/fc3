@@ -4,18 +4,21 @@ import logger from '../../../logger';
 
 export async function runShellCommand(command: string, showStdout?: boolean) {
   logger.debug(`runShellCommand command = ${command}`);
-  return new Promise<void>((resolve, reject) => {
-    const dProcess = spawn(command, { shell: true });
+  // TODO: 拉取镜像存在问题，导致日志可能爆多
+  return await new Promise<void>((resolve, reject) => {
+    const dProcess = spawn(command, {
+      shell: true,
+    });
 
     dProcess.stdout.on('data', (data) => {
       if (isDebug || showStdout) {
-        console.log(data.toString());
+        logger.append(data.toString());
       }
     });
 
     dProcess.stderr.on('data', (data) => {
       const warnErrrMsg = data.toString();
-      console.error(warnErrrMsg);
+      logger.append(warnErrrMsg);
     });
 
     dProcess.on('close', (code) => {
