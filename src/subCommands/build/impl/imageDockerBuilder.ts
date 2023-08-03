@@ -12,8 +12,9 @@ export class ImageDockerBuilder extends Builder {
     const dockerFile = path.join(this.getCodeUri(), 'Dockerfile');
     const context = this.getCodeUri();
 
-    let dockerCmdStr = `docker build -t ${this.getRuntimeBuildImage()} -f ${dockerFile} ${context}`;
-    await runCommand(dockerCmdStr, undefined, true);
+    const image = await this.getRuntimeBuildImage();
+    let dockerCmdStr = `docker build -t ${image} -f ${dockerFile} ${context}`;
+    await runCommand(dockerCmdStr, runCommand.showStdout.inherit);
 
     const credential = await this.getCredentials();
     let dockerTmpConfig = await getDockerTmpUser(
@@ -21,12 +22,12 @@ export class ImageDockerBuilder extends Builder {
       credential,
       this.getAcrEEInstanceID(),
     );
-    dockerCmdStr = `docker login ${this.getRuntimeBuildImage()} --username=${
+    dockerCmdStr = `docker login ${image} --username=${
       dockerTmpConfig.dockerTmpUser
     } --password ${dockerTmpConfig.dockerTmpToken}`;
-    await runCommand(dockerCmdStr);
+    await runCommand(dockerCmdStr, runCommand.showStdout.inherit);
 
-    dockerCmdStr = `docker push ${this.getRuntimeBuildImage()}`;
-    await runCommand(dockerCmdStr, undefined, true);
+    dockerCmdStr = `docker push ${image}`;
+    await runCommand(dockerCmdStr, runCommand.showStdout.inherit);
   }
 }

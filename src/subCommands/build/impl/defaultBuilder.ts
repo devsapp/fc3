@@ -16,8 +16,8 @@ export class DefaultBuilder extends Builder {
       return;
     }
     let shellScript = tasks.join('\n');
-    const dockerCmdStr = `docker run --rm -v ${this.getCodeUri()}:/code ${this.getRuntimeBuildImage()} bash -c`;
-    await runCommand(dockerCmdStr, shellScript, false);
+    const dockerCmdStr = `docker run --rm -v ${this.getCodeUri()}:/code ${await this.getRuntimeBuildImage()} bash -c`;
+    await runCommand(dockerCmdStr, runCommand.showStdout.append, shellScript);
   }
 
   public getBuildTasks(): string[] {

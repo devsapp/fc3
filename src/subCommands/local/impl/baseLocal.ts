@@ -7,11 +7,18 @@ import * as fs from 'fs-extra';
 import * as rimraf from 'rimraf';
 import { parseArgv } from '@serverless-devs/utils';
 import { ICredentials } from '@serverless-devs/component-interface';
-import { getTimeZone, vpcImage2InternetImage } from './utils';
+import { vpcImage2InternetImage } from './utils';
 import logger from '../../../logger';
 import { ICodeUri } from '../../../interface';
-import { defaultFcDockerVersion, IDE_VSCODE } from '../../../constant';
+import { IDE_VSCODE } from '../../../constant';
 import { IInputs } from '../../../interface';
+import {
+  fcDockerNameSpace,
+  fcDockerUseImage,
+  fcDockerVersion,
+  fcDockerVersionRegistry,
+} from '../../../default/image';
+import { runCommand } from '../../../utils';
 
 export class BaseLocal {
   protected inputProps: IInputs;
@@ -35,7 +42,7 @@ export class BaseLocal {
       alias: { event: 'e' },
     });
     const argsData: any = parsedArgs?.data || {};
-    logger.debug(`argsData ====> ${JSON.stringify(argsData)})`);
+    logger.debug(`argsData ====> ${JSON.stringify(argsData)}`);
     this._argsData = argsData;
     return this._argsData;
   }
@@ -138,22 +145,22 @@ export class BaseLocal {
     return true;
   }
 
-  getRuntimeRunImage(): string {
+  async getRuntimeRunImage(): Promise<string> {
+    let image: string;
+
     if (this.isCustomContainerRuntime()) {
-      let image = vpcImage2InternetImage(this.getFunctionProps().customContainerConfig.image);
-      return image;
+      image = vpcImage2InternetImage(this.getFunctionProps().customContainerConfig.image);
+      logger.debug(`use fc docker CustomContainer image: ${image}`);
+    } else if (fcDockerUseImage) {
+      image = fcDockerUseImage;
+      logger.debug(`use fc docker custom image: ${image}`);
     } else {
-      // TODO, use fc.conf
-      const fcDockerV = defaultFcDockerVersion;
-      let image = `aliyunfc/runtime-${this.getRuntime()}:${fcDockerV}`;
-      if (getTimeZone() === 'UTC+8') {
-        image = `registry.cn-beijing.aliyuncs.com/aliyunfc/runtime-${this.getRuntime()}:${fcDockerV}`;
-      } else {
-        image = `aliyunfc/runtime-${this.getRuntime()}:${fcDockerV}`;
-      }
+      image = `${fcDockerVersionRegistry}/${fcDockerNameSpace}/runtime-${this.getRuntime()}:${fcDockerVersion}`;
       logger.debug(`use fc docker image: ${image}`);
-      return image;
+      await runCommand(`docker pull ${image}`, runCommand.showStdout.inherit);
     }
+
+    return image;
   }
 
   async getMountString(): Promise<string> {

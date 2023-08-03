@@ -1,12 +1,17 @@
-import { ICodeUri, IInputs, IRegion } from '../../../interface';
 import { ICredentials } from '@serverless-devs/component-interface';
 import path from 'path';
 import _ from 'lodash';
 
+import { ICodeUri, IInputs, IRegion } from '../../../interface';
 import Acr, { mockDockerConfigFile } from '../../../resources/acr';
-import { getTimeZone } from '../../../utils';
-import { defaultFcDockerVersion } from '../../../constant';
 import logger from '../../../logger';
+import {
+  fcDockerVersion,
+  fcDockerNameSpace,
+  fcDockerVersionRegistry,
+  fcDockerUseImage,
+} from '../../../default/image';
+import { runCommand } from '../../../utils';
 
 export abstract class Builder {
   inputProps: IInputs;
@@ -68,22 +73,21 @@ export abstract class Builder {
     return true;
   }
 
-  getRuntimeBuildImage(): string {
+  async getRuntimeBuildImage(): Promise<string> {
+    let image: string;
     if (this.isCustomContainerRuntime()) {
-      let image = Acr.vpcImage2InternetImage(this.getProps().customContainerConfig.image);
-      return image;
+      image = Acr.vpcImage2InternetImage(this.getProps().customContainerConfig.image);
+      logger.debug(`use fc docker CustomContainer image: ${image}`);
+    } else if (fcDockerUseImage) {
+      image = fcDockerUseImage;
+      logger.debug(`use fc docker custom image: ${image}`);
     } else {
-      // TODO, use fc.conf
-      const fcDockerV = defaultFcDockerVersion;
-      let image = `aliyunfc/runtime-${this.getRuntime()}:build-${fcDockerV}`;
-      if (getTimeZone() === 'UTC+8') {
-        image = `registry.cn-beijing.aliyuncs.com/aliyunfc/runtime-${this.getRuntime()}:build-${fcDockerV}`;
-      } else {
-        image = `aliyunfc/runtime-${this.getRuntime()}:build-${fcDockerV}`;
-      }
+      image = `${fcDockerVersionRegistry}/${fcDockerNameSpace}/runtime-${this.getRuntime()}:build-${fcDockerVersion}`;
       logger.debug(`use fc docker image: ${image}`);
-      return image;
+      await runCommand(`docker pull ${image}`, runCommand.showStdout.inherit);
     }
+
+    return image;
   }
 
   beforeBuild(): boolean {
@@ -124,7 +128,7 @@ export abstract class Builder {
   async mockDockerLogin() {
     const acrInstanceID = this.getAcrEEInstanceID();
     logger.info(`acrInstanceID: ${acrInstanceID}`);
-    let imageName = this.getRuntimeBuildImage();
+    let imageName = await this.getRuntimeBuildImage();
     this.checkAcreeInstanceID(imageName, acrInstanceID);
     const credential = await this.getCredentials();
     await mockDockerConfigFile(this.getRegion(), imageName, credential, acrInstanceID);
