@@ -6,12 +6,13 @@ access: quanxi
 resources:
   fcDemo: # 业务名称/模块名称
     # component: ${path('../../../')} # 组件名称
-    component: fc3@dev.0.1
+    # component: fc3@dev.0.1
+    component: ${env('fc_component_version', path('../../../'))}
     props: # 组件的属性值
       region: cn-hangzhou
       function:
-        functionName: fc3-event-nodejs-14
-        runtime: nodejs14
+        functionName: fc3-event-${env('fc_component_runtime', 'nodejs14')}
+        runtime: ${env('fc_component_runtime', 'nodejs14')}
         code: ./code
         handler: event.handler
         memorySize: 128
