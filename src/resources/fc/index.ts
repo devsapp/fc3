@@ -209,9 +209,16 @@ export default class FC extends FC_Client {
     const {
       data: { credentials, ossBucket, objectName },
     } = await (client as any).getTempBucketToken();
+
+    let ossEndpoint = 'https://oss-accelerate.aliyuncs.com';
+    if (process.env.FC_REGION === this.region) {
+      ossEndpoint = `oss-${this.region}-internal.aliyuncs.com`;
+    }
+    logger.debug(`Uploading code to ${ossEndpoint}`);
+
     const ossClient = new OSS({
       // region: ossRegion,
-      endpoint: 'https://oss-accelerate.aliyuncs.com',
+      endpoint: ossEndpoint,
       accessKeyId: credentials.AccessKeyId,
       accessKeySecret: credentials.AccessKeySecret,
       stsToken: credentials.SecurityToken,
