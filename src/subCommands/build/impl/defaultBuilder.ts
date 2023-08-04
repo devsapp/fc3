@@ -15,7 +15,7 @@ export class DefaultBuilder extends Builder {
       logger.info('No need build for this project.');
       return;
     }
-    let shellScript = tasks.join('\n');
+    let shellScript = `"${tasks.join('\n')}"`;
     const dockerCmdStr = `docker run --rm -v ${this.getCodeUri()}:/code ${await this.getRuntimeBuildImage()} bash -c`;
     await runCommand(dockerCmdStr, runCommand.showStdout.append, shellScript);
   }
