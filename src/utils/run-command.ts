@@ -13,8 +13,9 @@ async function runCommand(command: string, showStdout: COMMAND_STDIO, shellScrip
   logger.debug(`runCommand cmd = ${cmd}`);
   if (shellScript) {
     args.push(shellScript);
+    // args.push(...shellScript.split(' '));
   }
-  logger.debug(`runCommand args = ${args}`);
+  logger.debug(`runCommand args = ${JSON.stringify(args)}`);
 
   console.log(''); // 独立出来一个空行，是日志看起来有一点结构行
 
