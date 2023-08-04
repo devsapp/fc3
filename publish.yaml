@@ -6,6 +6,8 @@ Provider:
 Version: dev.0.1
 Description: 简短的描述/介绍
 HomePage: https://github.com/Serverless-Devs/core
+Organization: wss
+Effective: Public
 Tags: #标签详情
   - 部署函数
   - 部署组件
