@@ -1,3 +1,28 @@
 #!/bin/bash
 
+# export FC_DOCKER_VERSION=1.10.8
+export fc_component_version=fc3@dev.0.1
 
+# nodejs12
+export fc_component_runtime=nodejs12
+echo "test nodejs12 runtime ..."
+s3 build
+s3 local invoke -e '{"hello":"fc nodejs12"}'
+s3 deploy -y 
+s3 invoke -e '{"hello":"fc nodejs12"}'
+
+# nodejs14
+export fc_component_runtime=nodejs14
+echo "test nodejs14 runtime ..."
+s3 build
+s3 local invoke -e '{"hello":"fc nodejs14"}'
+s3 deploy -y 
+s3 invoke -e '{"hello":"fc nodejs14"}'
+
+# nodejs16
+export fc_component_runtime=nodejs16
+echo "test nodejs16 runtime ..."
+# s3 build
+# s3 local invoke -e '{"hello":"fc nodejs16"}'
+s3 deploy -y 
+s3 invoke -e '{"hello":"fc nodejs16"}'
