@@ -45,7 +45,7 @@ export class CustomContainerLocalInvoke extends BaseLocalInvoke {
     );
     const credentials = await this.getCredentials();
     logger.write(
-      `curl -X POST 127.0.0.1:${port}/invoke -H "Content-Type: application/octet-stream" -H "x-fc-request-id: ${uuidV4()}" -H "x-fc-function-name: ${this.getFunctionName()}" -H "x-fc-function-memory: ${this.getMemorySize()}" -H "x-fc-function-timeout: ${this.getTimeout()}" -H "x-fc-initialization-timeout: ${this.getInitializerTimeout()}" -H "x-fc-function- nitializer: ${this.getInitializer()}" -H "x-fc-function-handler: ${this.getHandler()}" -H "x-fc-account-id: ${
+      `curl -X POST 127.0.0.1:${port}/invoke -H "Content-Type: application/octet-stream" -H "x-fc-request-id: ${uuidV4()}" -H "x-fc-function-name: ${this.getFunctionName()}" -H "x-fc-function-memory: ${this.getMemorySize()}" -H "x-fc-function-timeout: ${this.getTimeout()}" -H "x-fc-initialization-timeout: ${this.getInitializerTimeout()}" -H "x-fc-function-initializer: ${this.getInitializer()}" -H "x-fc-function-handler: ${this.getHandler()}" -H "x-fc-account-id: ${
         credentials.AccountID
       }" -H "x-fc-region: ${this.getRegion()}" -H "x-fc-access-key-id: ${
         credentials.AccessKeyID || ''
@@ -56,7 +56,7 @@ export class CustomContainerLocalInvoke extends BaseLocalInvoke {
       }" -d '${this.getEventString()}'`,
     );
 
-    let dockerCmdStr = `docker run --rm -p ${port}:${this.getCaPort()} --memory=${this.getMemorySize()}m ${this.getEnvString()} ${await this.getRuntimeRunImage()}`;
+    let dockerCmdStr = `docker run --platform linux/amd64 --rm -p ${port}:${this.getCaPort()} --memory=${this.getMemorySize()}m ${this.getEnvString()} ${await this.getRuntimeRunImage()}`;
     if (!_.isEmpty(this.getBootStrap())) {
       dockerCmdStr += ` ${this.getBootStrap()}`;
     }
