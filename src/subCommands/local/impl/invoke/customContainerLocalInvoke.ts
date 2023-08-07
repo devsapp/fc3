@@ -65,9 +65,7 @@ export class CustomContainerLocalInvoke extends BaseLocalInvoke {
       credentials.AccessKeyID || ''
     } " -H "x-fc-access-key-secret: ${
       credentials.AccessKeySecret || ''
-    }" -H "x-fc-security-token: ${
-      credentials.SecurityToken || ''
-    }" -d '${this.getEventString()}'`;
+    }" -H "x-fc-security-token: ${credentials.SecurityToken || ''}" -d '${this.getEventString()}'`;
     logger.info('Use other terminals to initiate requests:');
     logger.write(`${chalk.blue(curl)}\n`);
     return dockerCmdStr;
