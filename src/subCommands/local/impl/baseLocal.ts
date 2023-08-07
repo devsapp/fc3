@@ -25,8 +25,12 @@ export class BaseLocal {
   protected defaultDebugArgs: string;
   protected _argsData: object;
   protected unzippedCodeDir?: string;
+  private baseDir: string;
+
+
   constructor(props: IInputs) {
     this.inputProps = props;
+    this.baseDir = props.baseDir || process.cwd();
   }
 
   getProps(): any {
@@ -126,8 +130,7 @@ export class BaseLocal {
       this.unzippedCodeDir = tmpCodeDir;
       return tmpCodeDir;
     } else {
-      const baseDir = process.cwd();
-      const resolvedCodeUri = path.isAbsolute(src) ? src : path.join(baseDir, src);
+      const resolvedCodeUri = path.isAbsolute(src) ? src : path.join(this.baseDir, src);
       return resolvedCodeUri;
     }
   }
@@ -217,8 +220,7 @@ export class BaseLocal {
   }
 
   async writeVscodeDebugConfig(): Promise<void> {
-    const baseDir = process.cwd();
-    const dotVsCodeDir = path.join(baseDir, '.vscode');
+    const dotVsCodeDir = path.join(this.baseDir, '.vscode');
     if (!fs.existsSync(dotVsCodeDir)) {
       fs.mkdirSync(dotVsCodeDir);
     }
