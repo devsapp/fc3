@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import logger from '../../../logger';
-import { computeLocalAuto, getRemoveResourceConfig, isCustomContainerRuntime } from './utils';
+import { computeLocalAuto, getRemoveResourceConfig, isCustomContainerRuntime, isCustomRuntime } from './utils';
 
 // 注意 remote 为空时不能 set
 
@@ -43,10 +43,14 @@ export default function (_local: any, _remote: any) {
     }
     // 传入 code：InvalidArgument: code: 400, Either ossBucketName/ossObjectName or zipFile must be set
     _.unset(local, 'code');
-    // 不传入 handler：InvalidArgument: code: 400, Handler is required but not provided
-    _.set(local, 'handler', remote?.handler || 'handler');
     // plan 时会多出提示一个状态信息
     _.unset(remote, 'customContainerConfig.accelerationInfo');
+  }
+
+  if (isCustomContainerRuntime(local.runtime) || isCustomRuntime(local.runtime)) {
+    // 不传入 handler：InvalidArgument: code: 400, Handler is required but not provided
+    _.set(local, 'handler', local.handler || remote?.handler || 'handler');
+    _.set(local, 'handler', local.handler || remote?.handler || 'handler');
   }
 
   logger.debug(`Post init local config: ${JSON.stringify(local)}`);

@@ -27,7 +27,6 @@ export class BaseLocal {
   protected unzippedCodeDir?: string;
   private baseDir: string;
 
-
   constructor(props: IInputs) {
     this.inputProps = props;
     this.baseDir = props.baseDir || process.cwd();

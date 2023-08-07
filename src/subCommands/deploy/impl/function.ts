@@ -40,8 +40,7 @@ export default class Service extends Base {
     this.skipPush = opts.skipPush;
     logger.debug(`deploy function type: ${this.type}`);
 
-    const local = _.cloneDeep(inputs.props.function);
-    this.local = _.defaults(local, FUNCTION_DEFAULT_CONFIG);
+    this.local = _.cloneDeep(inputs.props.function);
   }
 
   // 准备动作
@@ -60,13 +59,6 @@ export default class Service extends Base {
     this.local = local;
     this.remote = remote;
     await this.plan();
-
-    // deploy 之前处理
-    const runtime = this.local.runtime;
-    const isCustom = FC.isCustomRuntime(runtime) || FC.isCustomContainerRuntime(runtime);
-    if (isCustom && _.isNil(this.local.handler)) {
-      this.local.handler = 'handler';
-    }
   }
 
   async run() {
