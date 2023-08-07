@@ -4,11 +4,11 @@ access: 'quanxi'
 
 template:
   props:
-    region: cn-hangzhou
+    region: cn-huhehaote
     triggers:
-      - name: httpTrigger
-        type: http
-        config:
+      - triggerName: httpTrigger
+        triggerType: http
+        triggerConfig:
           authType: anonymous
           methods:
             - GET
@@ -34,7 +34,7 @@ resources:
           path: ./code
     props:
       function:
-        name: fc3-custom-springboot-jar
+        functionName: fc3-custom-springboot-jar
         description: 'Serverless Devs Web Framework Function'
         code: ./code/target/webframework.jar
         runtime: custom
@@ -56,7 +56,7 @@ resources:
           path: ./code
     props:
       function:
-        name: fc3-custom-springboot
+        functionName: fc3-custom-springboot
         description: 'Serverless Devs Web Framework Function'
         code: ./code/target/webframework.jar
         runtime: custom
