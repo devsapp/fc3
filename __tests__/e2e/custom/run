@@ -9,7 +9,7 @@ rm -rf ./go/code/go.sum
 s3 deploy -y -t ./go/s.yaml
 s3 invoke -e '{"hello":"fc custom go"}' -t ./go/s.yaml
 s3 local invoke -e '{"hello":"fc custom go"}' -t ./go/s.yaml
-s3 remove -y
+s3 remove -y -t ./go/s.yaml
 
 echo "test custom python runtime ..."
 s3 build -t ./python/s.yaml
