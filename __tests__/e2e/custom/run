@@ -1,0 +1,25 @@
+#!/bin/bash
+
+# export FC_DOCKER_VERSION=1.10.8
+# export fc_component_version=fc3@dev.0.1
+
+echo "test custom go runtime ..."
+rm -rf ./go/code/target
+rm -rf ./go/code/go.sum
+s3 deploy -y -t ./go/s.yaml
+s3 invoke -e '{"hello":"fc custom go"}' -t ./go/s.yaml
+s3 local invoke -e '{"hello":"fc custom go"}' -t ./go/s.yaml
+s3 remove -y
+
+echo "test custom python runtime ..."
+s3 build -t ./python/s.yaml
+s3 local invoke -e '{"hello":"fc custom python"}' -t ./python/s.yaml
+s3 deploy -y -t ./python/s.yaml
+s3 invoke -e '{"hello":"fc custom python"}' -t ./python/s.yaml
+s3 remove -y -t ./python/s.yaml
+
+echo "test custom java(springboot) runtime ..."
+s3 deploy -y -t ./springboot/s.yaml
+s3 invoke --event-file ./springboot/event/http.json -t ./springboot/s.yaml
+s3 local invoke --event-file ./springboot/event/http.json -t ./springboot/s.yaml
+s3 remove -y -t ./springboot/s.yaml

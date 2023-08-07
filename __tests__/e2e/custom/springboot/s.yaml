@@ -1,0 +1,70 @@
+edition: 3.0.0
+name: web-framework-app
+access: 'quanxi'
+
+template:
+  props:
+    region: cn-hangzhou
+    triggers:
+      - name: httpTrigger
+        type: http
+        config:
+          authType: anonymous
+          methods:
+            - GET
+            - POST
+            - PUT
+            - DELETE
+            - HEAD
+            - OPTIONS
+    customDomains:
+      - domainName: auto
+        protocol: HTTP
+        routeConfigs:
+          - path: /*
+
+resources:
+  framework:
+    component: ${env('fc_component_version', path('../../../../'))}
+    extend: 
+      name: props
+    actions:
+      pre-deploy:
+        - run: mvn package -DskipTests
+          path: ./code
+    props:
+      function:
+        name: fc3-custom-springboot-jar
+        description: 'Serverless Devs Web Framework Function'
+        code: ./code/target/webframework.jar
+        runtime: custom
+        memorySize: 1024
+        timeout: 30
+        customRuntimeConfig:
+          command:
+            - java
+          args:
+            - 'org.springframework.boot.loader.JarLauncher'
+
+  jar:
+    component: ${env('fc_component_version', path('../../../../'))}
+    extend: 
+      name: props
+    actions:
+      pre-deploy:
+        - run: mvn package -DskipTests
+          path: ./code
+    props:
+      function:
+        name: fc3-custom-springboot
+        description: 'Serverless Devs Web Framework Function'
+        code: ./code/target/webframework.jar
+        runtime: custom
+        memorySize: 1024
+        timeout: 30
+        customRuntimeConfig:
+          command:
+            - java
+            - -jar
+          args:
+            - webframework.jar
