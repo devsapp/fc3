@@ -1,0 +1,10 @@
+{
+  "path": "",
+  "method": "GET",
+  "headers": {
+    "key": "value"
+  },
+  "queries": {
+    "key": "value"
+  }
+}
