@@ -24,4 +24,4 @@ resources:
           command:
             - node
           args:
-            - server.js
+            - /home/code/server.js
