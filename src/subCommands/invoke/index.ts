@@ -21,7 +21,11 @@ export default class Invoke {
       timeout: timeout ? timeout * 1000 : undefined,
     });
     const { payload, 'event-file': eventFile } = parseArgv(inputs.args, {
-      string: ['payload', '--event-file'],
+      alias: {
+        event: 'e',
+        'event-file': 'f',
+      },
+      string: ['event', '--event-file'],
     });
 
     if (_.isString(payload)) {
