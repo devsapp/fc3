@@ -35,7 +35,7 @@ export class CustomContainerLocalStart extends BaseLocalStart {
       'yellow',
     );
     const mntStr = await this.getMountString();
-    let dockerCmdStr = `docker run --rm -p ${port}:${this.getCaPort()} --memory=${this.getMemorySize()}m ${mntStr} ${this.getEnvString()} ${await this.getRuntimeRunImage()}`;
+    let dockerCmdStr = `docker run --platform linux/amd64 --rm -p ${port}:${this.getCaPort()} --memory=${this.getMemorySize()}m ${mntStr} ${this.getEnvString()} ${await this.getRuntimeRunImage()}`;
     if (!_.isEmpty(this.getBootStrap())) {
       dockerCmdStr += ` ${this.getBootStrap()}`;
     }
