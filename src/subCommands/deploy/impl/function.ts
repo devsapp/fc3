@@ -60,6 +60,13 @@ export default class Service extends Base {
     this.local = local;
     this.remote = remote;
     await this.plan();
+
+    // deploy 之前处理
+    const runtime = this.local.runtime;
+    const isCustom = FC.isCustomRuntime(runtime) || FC.isCustomContainerRuntime(runtime);
+    if (isCustom && _.isNil(this.local.handler)) {
+      this.local.handler = 'handler';
+    }
   }
 
   async run() {
