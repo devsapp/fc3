@@ -1,6 +1,11 @@
 import _ from 'lodash';
 import logger from '../../../logger';
-import { computeLocalAuto, getRemoveResourceConfig, isCustomContainerRuntime, isCustomRuntime } from './utils';
+import {
+  computeLocalAuto,
+  getRemoveResourceConfig,
+  isCustomContainerRuntime,
+  isCustomRuntime,
+} from './utils';
 
 // 注意 remote 为空时不能 set
 

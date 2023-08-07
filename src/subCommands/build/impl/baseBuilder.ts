@@ -15,8 +15,11 @@ import { runCommand } from '../../../utils';
 
 export abstract class Builder {
   inputProps: IInputs;
+  private baseDir: string;
+
   constructor(inputs: IInputs) {
     this.inputProps = inputs;
+    this.baseDir = inputs.baseDir || process.cwd();
   }
 
   getProps(): any {
@@ -49,8 +52,7 @@ export abstract class Builder {
     }
     const codeUri = _.get(this.inputProps, 'props.function.code') as ICodeUri;
     const src: string = typeof codeUri === 'string' ? codeUri : codeUri.src;
-    const baseDir = process.cwd();
-    const resolvedCodeUri = path.isAbsolute(src) ? src : path.join(baseDir, src);
+    const resolvedCodeUri = path.isAbsolute(src) ? src : path.join(this.baseDir, src);
     return resolvedCodeUri;
   }
 
