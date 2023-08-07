@@ -9,7 +9,7 @@ resources:
     # component: fc3@dev.0.1
     component: ${env('fc_component_version', path('../../../'))}
     props: # 组件的属性值
-      region: cn-hangzhou
+      region: cn-huhehaote
       function:
         functionName: fc3-event-${env('fc_component_runtime', 'nodejs14')}
         runtime: ${env('fc_component_runtime', 'nodejs14')}

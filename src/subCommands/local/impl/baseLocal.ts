@@ -63,7 +63,7 @@ export class BaseLocal {
   }
 
   getFunctionName(): string {
-    return this.getFunctionProps().name;
+    return this.getFunctionProps().functionName;
   }
 
   getCaPort(): number {
