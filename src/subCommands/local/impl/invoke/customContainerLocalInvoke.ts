@@ -34,7 +34,10 @@ export class CustomContainerLocalInvoke extends BaseLocalInvoke {
     if (_.has(customContainerConfig, 'args')) {
       bootStrap += ' ' + customContainerConfig.args.join(' ');
     }
-    return bootStrap;
+    if (_.isEmpty(bootStrap)) {
+      return bootStrap;
+    }
+    return `\\"${bootStrap}\\"`;
   }
 
   async getLocalInvokeCmdStr(): Promise<string> {
@@ -56,7 +59,9 @@ export class CustomContainerLocalInvoke extends BaseLocalInvoke {
       }" -d '${this.getEventString()}'`,
     );
 
-    let dockerCmdStr = `docker run --platform linux/amd64 --rm -p ${port}:${this.getCaPort()} --memory=${this.getMemorySize()}m ${this.getEnvString()} ${await this.getRuntimeRunImage()}`;
+    const image = await this.getRuntimeRunImage();
+    const envStr = await this.getEnvString();
+    let dockerCmdStr = `docker run --rm -p ${port}:${this.getCaPort()} --memory=${this.getMemorySize()}m ${envStr} ${image}`;
     if (!_.isEmpty(this.getBootStrap())) {
       dockerCmdStr += ` ${this.getBootStrap()}`;
     }
@@ -85,6 +90,6 @@ export class CustomContainerLocalInvoke extends BaseLocalInvoke {
         },
       );
     });
-    super.runInvoke();
+    await super.runInvoke();
   }
 }

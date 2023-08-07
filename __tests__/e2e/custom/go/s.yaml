@@ -12,7 +12,7 @@ resources:
         - run: GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o target/main main.go
           path: ./code
     props:
-      region: cn-hangzhou
+      region: cn-huhehaote
       function:
         functionName: fc3-event-custom-go
         description: 'hello world by serverless devs'

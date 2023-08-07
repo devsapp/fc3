@@ -2,11 +2,14 @@ edition: 3.0.0 #  命令行YAML规范版本，遵循语义化版本（Semantic V
 name: framework #  项目名称
 access: quanxi
 
+vars:
+  region: cn-huhehaote
+
 resources:
   fcDemo: # 业务名称/模块名称
     component: ${env('fc_component_version', path('../../../'))}
     props:
-      region: cn-hangzhou
+      region: ${vars.region}
       function:
         functionName: fc3-event-custom-container
         runtime: custom-container
@@ -17,7 +20,7 @@ resources:
         code: ./code
         instanceConcurrency: 4
         customContainerConfig:
-          image: 'registry.cn-beijing.aliyuncs.com/fc-demo/node-express:v1002'
+          image: 'registry.${vars.region}.aliyuncs.com/fc-demo/node-express:v1002'
           command:
             - node
           args:

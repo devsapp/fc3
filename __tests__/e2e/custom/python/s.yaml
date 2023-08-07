@@ -6,7 +6,7 @@ resources:
   helloworld:
     component: ${env('fc_component_version', path('../../../../'))}
     props:
-      region: cn-hangzhou
+      region: cn-huhehaote
       function:
         functionName: fc3-event-custom-python310
         handler: index.handler
