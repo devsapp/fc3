@@ -15,8 +15,9 @@ resources:
         runtime: custom
         code: ./code
         instanceConcurrency: 2
-        # environmentVariables:
-          # PATH: /usr/local/bin/apache-maven/bin:/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/ruby/bin
+        environmentVariables:
+          PYTHONPATH: /code/3rd-packages
+          PATH: /code/3rd-packages/bin:/usr/local/bin/apache-maven/bin:/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/ruby/bin
         customRuntimeConfig:
           command:
             - gunicorn
