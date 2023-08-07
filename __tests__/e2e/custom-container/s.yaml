@@ -1,0 +1,24 @@
+edition: 3.0.0 #  命令行YAML规范版本，遵循语义化版本（Semantic Versioning）规范
+name: framework #  项目名称
+access: quanxi
+
+resources:
+  fcDemo: # 业务名称/模块名称
+    component: ${env('fc_component_version', path('../../../'))}
+    props:
+      region: cn-hangzhou
+      function:
+        functionName: fc3-event-custom-container
+        runtime: custom-container
+        handler: index.handler
+        timeout: 30
+        memorySize: 1024
+        caPort: 9001
+        code: ./code
+        instanceConcurrency: 4
+        customContainerConfig:
+          image: 'registry.cn-beijing.aliyuncs.com/fc-demo/node-express:v1002'
+          command:
+            - node
+          args:
+            - server.js
