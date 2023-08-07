@@ -9,7 +9,11 @@ enum COMMAND_STDIO {
 
 async function runCommand(command: string, showStdout: COMMAND_STDIO, shellScript?: string) {
   logger.debug(`runCommand command = ${command}`);
-  const [cmd, ...args] = command.split(' ');
+  let [cmd, ...args] = command.split(' ');
+  if (cmd.includes('=') && args.length > 0) {
+    const c = args.shift();
+    cmd = `${cmd} ${c}`;
+  }
   logger.debug(`runCommand cmd = ${cmd}`);
   if (shellScript) {
     args.push(shellScript);
