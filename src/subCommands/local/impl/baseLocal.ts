@@ -41,8 +41,8 @@ export class BaseLocal {
       return this._argsData;
     }
     const argsData: { [key: string]: any } = parseArgv(this.inputProps.args, {
-      string: ['event'],
-      alias: { event: 'e' },
+      string: ['event', 'event-file'],
+      alias: { event: 'e', 'event-file': 'f' },
     });
     logger.debug(`argsData ====> ${JSON.stringify(argsData)}`);
     this._argsData = argsData;
