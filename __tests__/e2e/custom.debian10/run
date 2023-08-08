@@ -1,0 +1,21 @@
+#!/bin/bash
+
+# export FC_DOCKER_VERSION=1.10.8
+# export fc_component_version=fc3@dev.0.1
+
+echo "test custom.debian10 go runtime ..."
+rm -rf ./go/code/target
+rm -rf ./go/code/go.sum
+s3 deploy -y -t ./go/s.yaml
+s3 invoke -e '{"hello":"fc custom.debian10 go"}' -t ./go/s.yaml
+s3 local invoke -e '{"hello":"fc custom.debian10 go"}' -t ./go/s.yaml
+s3 remove -y -t ./go/s.yaml
+
+echo "test custom.debian10 python runtime ..."
+rm -rf ./python/code/3rd-packages
+rm -rf ./python/code/__pycache__
+s3 build -t ./python/s.yaml
+s3 local invoke -e '{"hello":"fc custom.debian10 python"}' -t ./python/s.yaml
+s3 deploy -y -t ./python/s.yaml
+s3 invoke -e '{"hello":"fc custom.debian10 python"}' -t ./python/s.yaml
+s3 remove -y -t ./python/s.yaml

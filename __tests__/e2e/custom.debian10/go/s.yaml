@@ -1,0 +1,25 @@
+edition: 3.0.0
+name: framework
+access: quanxi
+
+resources:
+  fcDemo:
+    component: ${env('fc_component_version', path('../../../../'))}
+    actions: 
+      pre-deploy:
+        - run: go mod tidy
+          path: ./code
+        - run: GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o target/main main.go
+          path: ./code
+    props:
+      region: cn-huhehaote
+      function:
+        functionName: fc3-event-debian10-go
+        description: 'hello world by serverless devs'
+        timeout: 30
+        memorySize: 512
+        runtime: custom.debian10
+        code: ./code/target
+        customRuntimeConfig:
+          command:
+            - '/code/main'
