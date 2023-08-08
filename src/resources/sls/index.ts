@@ -7,7 +7,7 @@ import logger from '../../logger';
 
 export default class Sls {
   static generateProjectName = (region: IRegion, accountID: string): string =>
-    PROJECT || `${accountID}-${region}-logproject`;
+    PROJECT || `${accountID}-${region}-project`;
   static generateLogstoreName = (): string => {
     // 3.0 仅创建一个 logstore
     return LOG_STORE;
