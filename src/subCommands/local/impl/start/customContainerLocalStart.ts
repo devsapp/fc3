@@ -2,7 +2,7 @@ import { BaseLocalStart } from './baseLocalStart';
 import _ from 'lodash';
 import logger from '../../../../logger';
 import * as portFinder from 'portfinder';
-import { exec } from 'child_process';
+import { execSync } from 'child_process';
 
 export class CustomContainerLocalStart extends BaseLocalStart {
   getDebugArgs(): string {
@@ -52,19 +52,10 @@ export class CustomContainerLocalStart extends BaseLocalStart {
   async runStart() {
     const image = this.getRuntimeRunImage();
     process.on('SIGINT', () => {
-      console.log('SIGINT, stop container');
-      exec(
-        `docker ps -a | grep ${image} | awk '{print $1}' | xargs docker kill`,
-        (error, stdout, stderr) => {
-          if (error) {
-            console.error(`error: ${error}`);
-            return;
-          }
-          console.log(`stdout: ${stdout}`);
-          console.error(`stderr: ${stderr}`);
-          process.exit();
-        },
-      );
+      console.log('\nSIGINT, stop container');
+      const out = execSync(`docker ps -a | grep ${image} | awk '{print $1}' | xargs docker kill`);
+      logger.debug(`stdout: ${out}`);
+      process.exit();
     });
     super.runStart();
   }
