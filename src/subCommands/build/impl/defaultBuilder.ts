@@ -97,6 +97,6 @@ export class DefaultBuilder extends Builder {
   readFileLine(fileName: string): string {
     const filePath = path.join(this.getCodeUri(), fileName);
     const str = fs.readFileSync(filePath, 'utf8').split('\n').map(_.trim);
-    return str.filter(item => item && !item.startsWith('# ')).join(' ');
+    return str.filter((item) => item && !item.startsWith('# ')).join(' ');
   }
 }

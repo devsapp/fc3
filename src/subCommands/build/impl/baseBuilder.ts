@@ -114,13 +114,13 @@ export abstract class Builder {
 
     if (!this.getEnv().LD_LIBRARY_PATH && this.existManifest('apt-get.list')) {
       const libPaths = [
-        "/code/apt-archives/usr/local/lib",
-        "/code/apt-archives/usr/lib",
-        "/code/apt-archives/usr/lib/x86_64-linux-gnu",
-        "/code/apt-archives/usr/lib64",
-        "/code/apt-archives/lib",
-        "/code/apt-archives/lib/x86_64-linux-gnu",
-        "/code"
+        '/code/apt-archives/usr/local/lib',
+        '/code/apt-archives/usr/lib',
+        '/code/apt-archives/usr/lib/x86_64-linux-gnu',
+        '/code/apt-archives/usr/lib64',
+        '/code/apt-archives/lib',
+        '/code/apt-archives/lib/x86_64-linux-gnu',
+        '/code',
       ];
       tipEnvs.push(`LD_LIBRARY_PATH: ${libPaths.join(':')}`);
     }
