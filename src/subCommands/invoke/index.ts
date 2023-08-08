@@ -20,7 +20,7 @@ export default class Invoke {
     this.fcSdk = new FC(inputs.props.region, inputs.credential as ICredentials, {
       timeout: timeout ? timeout * 1000 : undefined,
     });
-    const { payload, 'event-file': eventFile } = parseArgv(inputs.args, {
+    const { event: payload, 'event-file': eventFile } = parseArgv(inputs.args, {
       alias: {
         event: 'e',
         'event-file': 'f',
