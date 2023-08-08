@@ -36,7 +36,7 @@ export class BaseLocalStart extends BaseLocal {
     );
     const mntStr = await this.getMountString();
     const envStr = await this.getEnvString();
-    let dockerCmdStr = `docker run --rm -p ${port}:${this.getCaPort()} --memory=${this.getMemorySize()}m ${mntStr} ${envStr} ${await this.getRuntimeRunImage()} --http --server`;
+    let dockerCmdStr = `docker run --platform linux/amd64 --rm -p ${port}:${this.getCaPort()} --memory=${this.getMemorySize()}m ${mntStr} ${envStr} ${await this.getRuntimeRunImage()} --http --server`;
     if (!_.isEmpty(this.getDebugArgs())) {
       if (this.debugIDEIsVsCode()) {
         await this.writeVscodeDebugConfig();

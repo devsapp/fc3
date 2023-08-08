@@ -48,7 +48,7 @@ export class BaseLocalInvoke extends BaseLocal {
     const mntStr = await this.getMountString();
     const image = await this.getRuntimeRunImage();
     const envStr = await this.getEnvString();
-    let dockerCmdStr = `docker run --rm --memory=${this.getMemorySize()}m ${mntStr} ${envStr} ${image} --event '${this.getEventString()}'`;
+    let dockerCmdStr = `docker run --platform linux/amd64 --rm --memory=${this.getMemorySize()}m ${mntStr} ${envStr} ${image} --event '${this.getEventString()}'`;
     if (!_.isEmpty(this.getDebugArgs())) {
       if (this.debugIDEIsVsCode()) {
         await this.writeVscodeDebugConfig();
