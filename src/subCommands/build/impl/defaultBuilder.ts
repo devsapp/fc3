@@ -5,6 +5,7 @@ import * as path from 'path';
 import { Builder } from './baseBuilder';
 import { runCommand } from '../../../utils';
 import logger from '../../../logger';
+import { buildPythonLocalPath } from '../../../default/image';
 
 export class DefaultBuilder extends Builder {
   public async runBuild() {
@@ -35,7 +36,7 @@ export class DefaultBuilder extends Builder {
       case 'python3.9':
       case 'python3.10':
         if (this.existManifest('requirements.txt')) {
-          tasks.push('pip install -t 3rd-packages -r requirements.txt --upgrade');
+          tasks.push(`pip install -t ${buildPythonLocalPath} -r requirements.txt --upgrade`);
         }
         break;
       case 'nodejs6':
@@ -55,7 +56,7 @@ export class DefaultBuilder extends Builder {
       case 'custom':
       case 'custom.debian10':
         if (this.existManifest('requirements.txt')) {
-          tasks.push('pip install -t 3rd-packages -r requirements.txt --upgrade');
+          tasks.push(`pip install -t ${buildPythonLocalPath} -r requirements.txt --upgrade`);
         }
         if (this.existManifest('package.json')) {
           tasks.push('npm install');
