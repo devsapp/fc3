@@ -1,0 +1,19 @@
+edition: 3.0.0 #  命令行YAML规范版本，遵循语义化版本（Semantic Versioning）规范
+name: framework #  项目名称
+access: quanxi
+
+resources:
+  fcDemo:
+    component: ${env('fc_component_version', path('../../../'))}
+    props: # 组件的属性值
+      region: cn-huhehaote
+      function:
+        functionName: fc3-event-${env('fc_component_function_name', 'python310')}
+        runtime: ${env('fc_component_runtime', 'python3.10')}
+        code: ./code
+        handler: index.handler
+        memorySize: 128
+        timeout: 30
+        environmentVariables:
+          PYTHONPATH: /code/3rd-packages
+          PATH: /code/3rd-packages/bin:/usr/local/bin/apache-maven/bin:/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/ruby/bin
