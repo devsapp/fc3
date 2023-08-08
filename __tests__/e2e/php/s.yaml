@@ -1,0 +1,17 @@
+edition: 3.0.0
+name: framework
+access: quanxi
+
+resources:
+  fcDemo:
+    component: ${env('fc_component_version', path('../../../'))}
+    props:
+      region: cn-huhehaote
+      function:
+        functionName: fc3-event-php
+        description: 'hello world by serverless devs'
+        runtime: php7.2
+        code: ./code
+        timeout: 30
+        handler: index.handler
+        memorySize: 128
