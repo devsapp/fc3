@@ -11,6 +11,7 @@ import {
   fcDockerNameSpace,
   fcDockerVersionRegistry,
   fcDockerUseImage,
+  buildPythonLocalPath,
 } from '../../../default/image';
 import { runCommand } from '../../../utils';
 import FC from '../../../resources/fc';
@@ -165,17 +166,17 @@ export abstract class Builder {
     const tipMessage: string[] = [];
     const { PYTHONPATH, PATH = '$PATH' } = this.getEnv();
 
-    const packagesBin = path.join(codeUri, '3rd-packages', 'bin');
+    const packagesBin = path.join(codeUri, buildPythonLocalPath, 'bin');
     const hasBin = fs.existsSync(packagesBin) && fs.lstatSync(packagesBin).isDirectory();
-    const pathNotFoundBin = !PATH.includes('/code/3rd-packages/bin');
+    const pathNotFoundBin = !PATH.includes(`/code/${buildPythonLocalPath}/bin`);
     logger.debug(`hasBin ${hasBin}; !PATH.includes = ${pathNotFoundBin}`);
     if (hasBin && pathNotFoundBin) {
-      tipMessage.push(`PATH: /code/3rd-packages/bin:${PATH}`);
+      tipMessage.push(`PATH: /code/${buildPythonLocalPath}/bin:${PATH}`);
     }
 
     logger.info(`PYTHONPATH ${PYTHONPATH}`);
-    if (PYTHONPATH !== '/code/3rd-packages') {
-      tipMessage.push('PYTHONPATH: /code/3rd-packages');
+    if (PYTHONPATH !== `/code/${buildPythonLocalPath}`) {
+      tipMessage.push(`PYTHONPATH: /code/${buildPythonLocalPath}`);
     }
 
     if (!_.isEmpty(tipMessage)) {
