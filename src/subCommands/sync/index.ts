@@ -1,4 +1,5 @@
 import fs from 'fs';
+import fs_extra from 'fs-extra';
 import _ from 'lodash';
 import yaml from 'js-yaml';
 import downloads from '@serverless-devs/downloads';
@@ -52,10 +53,14 @@ export default class Sync {
 
   write = async (functionConfig) => {
     const baseDir = this.target || this.inputs.baseDir;
+
+    const folderPath = path.join(baseDir, 'sync-code');
     logger.debug(`sync base dir: ${baseDir}`);
+    await fs_extra.removeSync(folderPath);
+    logger.debug(`clear sync target path: ${folderPath}`);
     const codePath = path.join(baseDir, 'sync-code', `${this.region}_${this.functionName}`);
     logger.debug(`sync code path: ${codePath}`);
-    const ymlPath = path.join(baseDir, `${this.region}_${this.functionName}.yaml`);
+    const ymlPath = path.join(baseDir, 'sync-code', `${this.region}_${this.functionName}.yaml`);
     logger.debug(`sync yaml path: ${ymlPath}`);
     if (!FC.isCustomContainerRuntime(functionConfig.runtime)) {
       const { url } = await this.fcSdk.getFunctionCode(this.functionName, this.qualifier);
