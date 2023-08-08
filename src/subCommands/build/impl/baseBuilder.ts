@@ -109,7 +109,32 @@ export abstract class Builder {
 
   afterBuild() {
     logger.debug('afterBuild ...');
-    this.afterTipPython();
+    const tipEnvs: string[] = [];
+    this.afterTipPython(tipEnvs);
+
+    if (!this.getEnv().LD_LIBRARY_PATH && this.existManifest('apt-get.list')) {
+      const libPaths = [
+        "/code/apt-archives/usr/local/lib",
+        "/code/apt-archives/usr/lib",
+        "/code/apt-archives/usr/lib/x86_64-linux-gnu",
+        "/code/apt-archives/usr/lib64",
+        "/code/apt-archives/lib",
+        "/code/apt-archives/lib/x86_64-linux-gnu",
+        "/code"
+      ];
+      tipEnvs.push(`LD_LIBRARY_PATH: ${libPaths.join(':')}`);
+    }
+
+    if (!_.isEmpty(tipEnvs)) {
+      logger.info(
+        'You need to add a new configuration env configuration dependency in yaml to take effect. The configuration is as follows:',
+      );
+      logger.write(
+        chalk.yellow(`environmentVariables:
+  ${tipEnvs.join('\n  ')}
+`),
+      );
+    }
   }
 
   abstract runBuild(): Promise<any>;
@@ -142,8 +167,17 @@ export abstract class Builder {
     logger.info('docker login successed with cr_tmp user!');
   }
 
+  existManifest(fileName: string): boolean {
+    const filePath = path.join(this.getCodeUri(), fileName);
+    if (fs.existsSync(filePath)) {
+      logger.debug(`${filePath} exist`);
+      return true;
+    }
+    return false;
+  }
+
   // 针对 python 友好提示
-  private afterTipPython() {
+  private afterTipPython(tipEnvs: string[]): string[] {
     // 验证是不是 python
     let isPython = this.getRuntime().startsWith('python');
     const codeUri = this.getCodeUri();
@@ -160,10 +194,9 @@ export abstract class Builder {
 
     logger.debug(`isPython ${isPython}`);
     if (!isPython) {
-      return;
+      return tipEnvs;
     }
 
-    const tipMessage: string[] = [];
     const { PYTHONPATH, PATH = '$PATH' } = this.getEnv();
 
     const packagesBin = path.join(codeUri, buildPythonLocalPath, 'bin');
@@ -171,23 +204,14 @@ export abstract class Builder {
     const pathNotFoundBin = !PATH.includes(`/code/${buildPythonLocalPath}/bin`);
     logger.debug(`hasBin ${hasBin}; !PATH.includes = ${pathNotFoundBin}`);
     if (hasBin && pathNotFoundBin) {
-      tipMessage.push(`PATH: /code/${buildPythonLocalPath}/bin:${PATH}`);
+      tipEnvs.push(`PATH: /code/${buildPythonLocalPath}/bin:${PATH}`);
     }
 
     logger.info(`PYTHONPATH ${PYTHONPATH}`);
     if (PYTHONPATH !== `/code/${buildPythonLocalPath}`) {
-      tipMessage.push(`PYTHONPATH: /code/${buildPythonLocalPath}`);
+      tipEnvs.push(`PYTHONPATH: /code/${buildPythonLocalPath}`);
     }
 
-    if (!_.isEmpty(tipMessage)) {
-      logger.info(
-        'You need to add a new configuration env configuration dependency in yaml to take effect. The configuration is as follows:',
-      );
-      logger.write(
-        chalk.yellow(`environmentVariables:
-  ${tipMessage.join('\n  ')}
-`),
-      );
-    }
+    return tipEnvs;
   }
 }
