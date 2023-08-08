@@ -40,11 +40,10 @@ export class BaseLocal {
     if (!_.isEmpty(this._argsData)) {
       return this._argsData;
     }
-    const parsedArgs: { [key: string]: any } = parseArgv(this.inputProps.args, {
+    const argsData: { [key: string]: any } = parseArgv(this.inputProps.args, {
       string: ['event'],
       alias: { event: 'e' },
     });
-    const argsData: any = parsedArgs?.data || {};
     logger.debug(`argsData ====> ${JSON.stringify(argsData)}`);
     this._argsData = argsData;
     return this._argsData;

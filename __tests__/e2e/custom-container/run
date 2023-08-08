@@ -7,4 +7,4 @@ echo "test custom-container runtime ..."
 s3 build
 s3 deploy -y 
 s3 invoke -e '{"hello":"fc custom-container"}'
-s3 remove
+s3 remove -y
