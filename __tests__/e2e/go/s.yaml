@@ -1,0 +1,23 @@
+edition: 3.0.0
+name: framework
+access: quanxi
+
+resources:
+  fcDemo:
+    component: ${env('fc_component_version', path('../../../'))}
+    actions: 
+      pre-deploy:
+        - run: GO111MODULE=on go get github.com/aliyun/fc-runtime-go-sdk
+          path: ./code
+        - run: GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o target/main main.go
+          path: ./code
+    props:
+      region: cn-huhehaote
+      function:
+        functionName: fc3-event-go
+        description: 'hello world by serverless devs'
+        timeout: 30
+        runtime: go1
+        code: ./code/target
+        handler: main
+        memorySize: 128
