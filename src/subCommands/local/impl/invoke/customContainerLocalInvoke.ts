@@ -48,7 +48,7 @@ export class CustomContainerLocalInvoke extends BaseLocalInvoke {
 
     const image = await this.getRuntimeRunImage();
     // const envStr = await this.getEnvString();
-    let dockerCmdStr = `docker run --rm -p ${port}:${this.getCaPort()} --memory=${this.getMemorySize()}m ${image}`;
+    let dockerCmdStr = `docker run --platform linux/amd64 --rm -p ${port}:${this.getCaPort()} --memory=${this.getMemorySize()}m ${image}`;
     if (!_.isEmpty(this.getBootStrap())) {
       dockerCmdStr += ` ${this.getBootStrap()}`;
     }
