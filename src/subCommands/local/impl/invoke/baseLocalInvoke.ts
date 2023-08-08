@@ -3,6 +3,7 @@ import { formatJsonString } from '../utils';
 import logger from '../../../../logger';
 import _ from 'lodash';
 import { runCommand } from '../../../../utils';
+import fs from 'fs';
 
 export class BaseLocalInvoke extends BaseLocal {
   beforeInvoke(): boolean {
@@ -30,11 +31,16 @@ export class BaseLocalInvoke extends BaseLocal {
   }
 
   getEventString(): string {
-    let eventStr = this.getArgsData()['event'];
+    const eventStr = this.getArgsData()['event'];
     if (!_.isEmpty(_.trim(eventStr))) {
       return formatJsonString(eventStr);
     }
-    // TODO:  stdin or file
+
+    const eventFile = this.getArgsData()['f'];
+    if (eventFile && fs.existsSync(eventFile) && fs.statSync(eventFile).isFile()) {
+      const str = fs.readFileSync(eventFile, 'utf-8');
+      return formatJsonString(str);
+    }
     return '';
   }
 
