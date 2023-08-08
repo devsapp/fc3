@@ -11,6 +11,10 @@ import { CustomContainerLocalStart } from './impl/start/customContainerLocalStar
 import { IInputs } from '../../interface';
 import logger from '../../logger';
 
+/**
+ * TODO: run 镜像需要将 -H
+ * -H "Content-Type: application/octet-stream" -H "x-fc-request-id: 1640dd8c-9d08-4b7b-9e5b-ce9913789421" -H "x-fc-function-name: fc3-event-custom-container" -H "x-fc-function-memory: 1024" -H "x-fc-function-timeout: 30" -H "x-fc-initialization-timeout: undefined" -H "x-fc-function-initializer: undefined" -H "x-fc-function-handler: index.handler" -H "x-fc-account-id: 143**********149" -H "x-fc-region: cn-huhehaote" -H "x-fc-access-key-id: LTA******************ibC " -H "x-fc-access-key-secret: AtY************************V8q" -H "x-fc-security-token: "
+ */
 export default class ComponentBuild {
   /**
    * @param inputs
@@ -18,10 +22,7 @@ export default class ComponentBuild {
    */
   public async invoke(inputs: IInputs) {
     logger.debug(`invoke input: ${JSON.stringify(inputs.props)}`);
-    if (inputs.props.triggers?.[0].triggerType === 'http') {
-      logger.warn('http function should use local start');
-      return {};
-    }
+
     switch (inputs.props.function.runtime) {
       // case 'nodejs6':
       // case 'nodejs8':
@@ -69,10 +70,6 @@ export default class ComponentBuild {
 
   public async start(inputs: IInputs) {
     logger.debug(`start input: ${JSON.stringify(inputs.props)}`);
-    if (!(inputs.props.triggers?.[0].triggerType === 'http')) {
-      logger.warn('http function should use local invoke');
-      return {};
-    }
 
     switch (inputs.props.function.runtime) {
       case 'custom':
