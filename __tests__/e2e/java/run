@@ -1,0 +1,22 @@
+#!/bin/bash
+
+# export FC_DOCKER_VERSION=1.10.8
+# export fc_component_version=fc3@dev.0.1
+
+# java8
+export fc_component_runtime=java8
+echo "test java8 runtime ..."
+rm -rf ./target
+s3 deploy -y 
+s3 local invoke -e '{"hello":"fc java8"}'
+s3 invoke -e '{"hello":"fc java8"}'
+s3 remove -y
+
+# java11
+export fc_component_runtime=java11
+echo "test java11 runtime ..."
+rm -rf ./target
+s3 deploy -y 
+s3 local invoke -e '{"hello":"fc java11"}'
+s3 invoke -e '{"hello":"fc java11"}'
+s3 remove -y
