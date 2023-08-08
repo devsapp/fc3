@@ -1,8 +1,9 @@
 import { ICredentials } from '@serverless-devs/component-interface';
 import path from 'path';
+import fs from 'fs';
 import _ from 'lodash';
 
-import { ICodeUri, IInputs, IRegion } from '../../../interface';
+import { ICodeUri, IInputs, IProps, IRegion } from '../../../interface';
 import Acr, { mockDockerConfigFile } from '../../../resources/acr';
 import logger from '../../../logger';
 import {
@@ -12,6 +13,8 @@ import {
   fcDockerUseImage,
 } from '../../../default/image';
 import { runCommand } from '../../../utils';
+import FC from '../../../resources/fc';
+import chalk from 'chalk';
 
 export abstract class Builder {
   inputProps: IInputs;
@@ -22,7 +25,7 @@ export abstract class Builder {
     this.baseDir = inputs.baseDir || process.cwd();
   }
 
-  getProps(): any {
+  getProps(): IProps {
     return this.inputProps.props;
   }
 
@@ -42,8 +45,8 @@ export abstract class Builder {
     return _.get(this.getProps(), 'function.customContainerConfig.acrInstanceID');
   }
 
-  isCustomContainerRuntime(): boolean {
-    return this.getRuntime() === 'custom-container';
+  getEnv(): Record<string, string> {
+    return this.getProps().function.environmentVariables || {};
   }
 
   getCodeUri(): string {
@@ -77,7 +80,7 @@ export abstract class Builder {
 
   async getRuntimeBuildImage(): Promise<string> {
     let image: string;
-    if (this.isCustomContainerRuntime()) {
+    if (FC.isCustomContainerRuntime(this.getRuntime())) {
       image = Acr.vpcImage2InternetImage(this.getProps().function.customContainerConfig?.image);
       logger.debug(`use fc docker CustomContainer image: ${image}`);
     } else if (fcDockerUseImage) {
@@ -105,6 +108,7 @@ export abstract class Builder {
 
   afterBuild() {
     logger.debug('afterBuild ...');
+    this.afterTipPython();
   }
 
   abstract runBuild(): Promise<any>;
@@ -135,5 +139,54 @@ export abstract class Builder {
     const credential = await this.getCredentials();
     await mockDockerConfigFile(this.getRegion(), imageName, credential, acrInstanceID);
     logger.info('docker login successed with cr_tmp user!');
+  }
+
+  // 针对 python 友好提示
+  private afterTipPython() {
+    // 验证是不是 python
+    let isPython = this.getRuntime().startsWith('python');
+    const codeUri = this.getCodeUri();
+    const isCustom = FC.isCustomRuntime(this.getRuntime());
+    logger.debug(`isPython ${isPython}; is custom ${isCustom}`);
+    if (isCustom) {
+      const requirementsPath = path.join(codeUri, 'requirements.txt');
+      const hasRequirements = fs.existsSync(requirementsPath);
+      logger.debug(`custom runtime has requirements file: ${hasRequirements}`);
+      if (hasRequirements) {
+        isPython = true;
+      }
+    }
+
+    logger.debug(`isPython ${isPython}`);
+    if (!isPython) {
+      return;
+    }
+
+    const tipMessage: string[] = [];
+    const { PYTHONPATH, PATH = '$PATH' } = this.getEnv();
+
+    const packagesBin = path.join(codeUri, '3rd-packages', 'bin');
+    const hasBin = fs.existsSync(packagesBin) && fs.lstatSync(packagesBin).isDirectory();
+    const pathNotFoundBin = !PATH.includes('/code/3rd-packages/bin');
+    logger.debug(`hasBin ${hasBin}; !PATH.includes = ${pathNotFoundBin}`);
+    if (hasBin && pathNotFoundBin) {
+      tipMessage.push(`PATH: /code/3rd-packages/bin:${PATH}`);
+    }
+
+    logger.info(`PYTHONPATH ${PYTHONPATH}`);
+    if (PYTHONPATH !== '/code/3rd-packages') {
+      tipMessage.push('PYTHONPATH: /code/3rd-packages');
+    }
+
+    if (!_.isEmpty(tipMessage)) {
+      logger.info(
+        'You need to add a new configuration env configuration dependency in yaml to take effect. The configuration is as follows:',
+      );
+      logger.write(
+        chalk.yellow(`environmentVariables:
+  ${tipMessage.join('\n  ')}
+`),
+      );
+    }
   }
 }
