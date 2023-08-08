@@ -1,23 +1,24 @@
 import { ICredentials } from '@serverless-devs/component-interface';
 import Sls20201230, { InitSlsRequest } from '@serverless-cd/srm-aliyun-sls20201230';
 import { Config } from '@alicloud/openapi-client';
-import crypto from 'crypto';
 import { IRegion } from '../../interface';
 import { PROJECT, LOG_STORE } from '../../default/resources';
 import logger from '../../logger';
 
 export default class Sls {
   static generateProjectName = (region: IRegion, accountID: string): string =>
-    `${accountID}-${region}-logproject`;
-  static generateLogstoreName = (name: string): string => {
-    // -20 是因为要抛去生成名称的前缀（fc-service-）和后缀（-logstore）
-    if (name.length > 60 - 20) {
-      const prefix = name.slice(0, 6).toLocaleLowerCase();
-      const md5Uid = crypto.createHmac('md5', name).update(name).digest('hex');
-      return `${prefix}-${md5Uid.slice(0, 7)}`;
-    }
+    PROJECT || `${accountID}-${region}-logproject`;
+  static generateLogstoreName = (): string => {
+    // 3.0 仅创建一个 logstore
+    return LOG_STORE;
+    // // -20 是因为要抛去生成名称的前缀（fc-service-）和后缀（-logstore）
+    // if (name.length > 60 - 20) {
+    //   const prefix = name.slice(0, 6).toLocaleLowerCase();
+    //   const md5Uid = crypto.createHmac('md5', name).update(name).digest('hex');
+    //   return `${prefix}-${md5Uid.slice(0, 7)}`;
+    // }
 
-    return `fc-v3-${name}-logstore`.toLocaleLowerCase();
+    // return `fc-v3-${name}-logstore`.toLocaleLowerCase();
   };
 
   readonly client: Sls20201230;
@@ -34,9 +35,9 @@ export default class Sls {
     this.accountID = credentials.AccountID;
   }
 
-  async deploy(generateName: string): Promise<{ project: string; logstore: string }> {
-    const project = PROJECT || Sls.generateProjectName(this.region, this.accountID);
-    const logstore = LOG_STORE || Sls.generateLogstoreName(generateName);
+  async deploy(): Promise<{ project: string; logstore: string }> {
+    const project = Sls.generateProjectName(this.region, this.accountID);
+    const logstore = Sls.generateLogstoreName();
 
     const request = new InitSlsRequest({
       project,

@@ -220,7 +220,7 @@ export default class Service extends Base {
 
     if (slsAuto) {
       const sls = new Sls(region, credential as ICredentials);
-      const { project, logstore } = await sls.deploy(functionName);
+      const { project, logstore } = await sls.deploy();
       logger.info(
         yellow(`Created log resource succeeded, please replace logConfig: auto in yaml with:
 logConfig:
