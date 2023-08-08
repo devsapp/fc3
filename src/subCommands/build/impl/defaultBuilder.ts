@@ -25,7 +25,11 @@ export class DefaultBuilder extends Builder {
     let tasks: string[] = [];
     // task work dir is /code  ===  s.yaml code
     if (this.existManifest('apt-get.list')) {
-      tasks.push('apt-get-install "$(cat apt-get.list)"');
+      const module = this.readFileLine('apt-get.list');
+      logger.debug(`Read apt-get.list file: ${module}`);
+      if (module) {
+        tasks.push(`apt-get-install ${module}`);
+      }
     }
 
     let runtime = this.getRuntime();
@@ -90,12 +94,9 @@ export class DefaultBuilder extends Builder {
     return tasks;
   }
 
-  existManifest(fileName: string): boolean {
+  readFileLine(fileName: string): string {
     const filePath = path.join(this.getCodeUri(), fileName);
-    if (fs.existsSync(filePath)) {
-      logger.debug(`${filePath} exist`);
-      return true;
-    }
-    return false;
+    const str = fs.readFileSync(filePath, 'utf8').split('\n').map(_.trim);
+    return str.filter(item => item && !item.startsWith('# ')).join(' ');
   }
 }
