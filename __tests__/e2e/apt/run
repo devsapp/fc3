@@ -1,0 +1,13 @@
+#!/bin/bash
+
+# export FC_DOCKER_VERSION=1.10.8
+# export fc_component_version=fc3@dev.0.1
+
+echo "test apt-get ..."
+rm -rf ./code/apt-archives
+rm -rf ./code/node_modules
+s3 build
+s3 local invoke -e '{"hello":"apt-get"}'
+s3 deploy -y 
+s3 invoke -e '{"hello":"apt-get"}'
+s3 remove -y

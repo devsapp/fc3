@@ -1,0 +1,19 @@
+edition: 3.0.0
+name: framework
+access: quanxi
+
+resources:
+  fcDemo:
+    component: ${env('fc_component_version', path('../../../'))}
+    props: # 组件的属性值
+      region: cn-huhehaote
+      function:
+        functionName: fc3-event-apt-get
+        runtime: nodejs14
+        code: ./code
+        handler: index.handler
+        memorySize: 128
+        timeout: 30
+        environmentVariables:
+          PATH: /code/apt-archives/usr/bin:/var/fc/runtime/nodejs14/node_modules/.bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+          LD_LIBRARY_PATH: /code/apt-archives/usr/local/lib:/code/apt-archives/usr/lib:/code/apt-archives/usr/lib/x86_64-linux-gnu:/code/apt-archives/usr/lib64:/code/apt-archives/lib:/code/apt-archives/lib/x86_64-linux-gnu:/code
