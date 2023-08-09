@@ -193,7 +193,7 @@ export abstract class Builder {
       return;
     }
 
-    return `PYTHONPATH: /code/${buildPythonLocalPath}`
+    return `PYTHONPATH: /code/${buildPythonLocalPath}`;
   }
 
   private afterTipPath(): string | undefined {
