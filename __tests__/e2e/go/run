@@ -4,9 +4,9 @@
 # export fc_component_version=fc3@dev.0.1
 
 echo "test custom go runtime ..."
-rm -rf ./code/target
 rm -rf ./code/go.sum
 s3 deploy -y
 s3 invoke -e '{"hello":"fc go1"}'
 # s3 local invoke -e '{"hello":"fc go1"}' # 不支持 local
 s3 remove -y
+rm -rf ./code/target

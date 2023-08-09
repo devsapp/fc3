@@ -3,6 +3,7 @@ import subprocess
 import fc2
 from bs4 import BeautifulSoup
 import logging
+import flask
 
 html_doc = """
 <html><head><title>The Dormouse's story</title></head>
@@ -29,6 +30,7 @@ def isPython3():
 def handler(event, context):
     logger = logging.getLogger()
     logger.info(event)
+    logger.info(flask.__version__)
     soup = BeautifulSoup(html_doc, 'html.parser')
     print(soup.prettify())
     out_bytes = subprocess.check_output(["jq", "--version"])

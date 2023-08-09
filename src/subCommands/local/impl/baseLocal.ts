@@ -279,6 +279,10 @@ export class BaseLocal {
       logger.error('Args config and debug-port must exist simultaneously');
       return false;
     }
+    if (this.isFastRuntime() && _.isFinite(this.getDebugPort())) {
+      logger.error(`breakpoint debugging is not support in ${this.getRuntime()} runtime`);
+      return false;
+    }
     return true;
   }
 

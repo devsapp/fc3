@@ -13,20 +13,44 @@ s3 deploy -y
 s3 invoke -e '{"hello":"fc nodejs12"}'
 s3 remove -y
 
-# nodejs14
-export fc_component_runtime=nodejs14
-echo "test nodejs14 runtime ..."
+
+# nodejs12
+export fc_component_runtime=nodejs12
+rm -rf ./code/node_modules
+echo "test nodejs12 runtime ..."
 s3 build
-s3 local invoke -e '{"hello":"fc nodejs14"}'
+s3 local invoke -e '{"hello":"fc nodejs12"}'
 s3 deploy -y 
-s3 invoke -e '{"hello":"fc nodejs14"}'
+s3 invoke -e '{"hello":"fc nodejs12"}'
 s3 remove -y
 
 # nodejs16
 export fc_component_runtime=nodejs16
 echo "test nodejs16 runtime ..."
-# s3 build
-# s3 local invoke -e '{"hello":"fc nodejs16"}'
+rm -rf ./code/node_modules
+s3 build
+s3 local invoke -e '{"hello":"fc nodejs16"}'
 s3 deploy -y 
 s3 invoke -e '{"hello":"fc nodejs16"}'
+s3 remove -y
+
+
+# nodejs10
+export fc_component_runtime=nodejs10
+rm -rf ./code/node_modules
+echo "test nodejs10 runtime ..."
+s3 build
+s3 local invoke -e '{"hello":"fc nodejs10"}'
+s3 deploy -y 
+s3 invoke -e '{"hello":"fc nodejs10"}'
+s3 remove -y
+
+# nodejs8
+export fc_component_runtime=nodejs8
+rm -rf ./code/node_modules
+echo "test nodejs8 runtime ..."
+s3 build
+s3 local invoke -e '{"hello":"fc nodejs8"}'
+s3 deploy -y 
+s3 invoke -e '{"hello":"fc nodejs8"}'
 s3 remove -y

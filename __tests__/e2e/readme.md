@@ -11,3 +11,4 @@ $ ./test.sh
 > 每种 runtime 下均存在 run 文件，可以直接运行 run 文件测试当类 runtime
 
 测试的是`component: fc `, 如果完全没有问题， 至少保证了在各种 Runtime 的 `s build`, `s local invoke`, `s deploy`, `s invoke` 的 happy case 是没有问题的。
+

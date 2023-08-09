@@ -48,6 +48,7 @@ export class DefaultBuilder extends Builder {
       case 'nodejs10':
       case 'nodejs12':
       case 'nodejs14':
+      case 'nodejs16':
         if (this.existManifest('package.json')) {
           tasks.push('npm install');
         }

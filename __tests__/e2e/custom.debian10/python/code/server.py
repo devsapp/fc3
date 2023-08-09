@@ -48,7 +48,7 @@ def event_invoke():
 
 @app.route('/', methods=['GET'])
 def home():
-    return "hello world"
+    return "hello world\n"
 
 
 if __name__ == "__main__":

@@ -7,7 +7,7 @@ resources:
     component: ${env('fc_component_version', path('../../../'))}
     actions: 
       pre-deploy:
-        - run: GO111MODULE=on go get github.com/aliyun/fc-runtime-go-sdk
+        - run: GO111MODULE=on go mod tidy
           path: ./code
         - run: GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o target/main main.go
           path: ./code

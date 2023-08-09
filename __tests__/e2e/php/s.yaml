@@ -1,5 +1,5 @@
 edition: 3.0.0
-name: framework
+name: test-php-app
 access: quanxi
 
 resources:
