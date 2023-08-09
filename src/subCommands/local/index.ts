@@ -11,10 +11,6 @@ import { CustomContainerLocalStart } from './impl/start/customContainerLocalStar
 import { IInputs } from '../../interface';
 import logger from '../../logger';
 
-/**
- * TODO: run 镜像需要将 -H
- * -H "Content-Type: application/octet-stream" -H "x-fc-request-id: 1640dd8c-9d08-4b7b-9e5b-ce9913789421" -H "x-fc-function-name: fc3-event-custom-container" -H "x-fc-function-memory: 1024" -H "x-fc-function-timeout: 30" -H "x-fc-initialization-timeout: undefined" -H "x-fc-function-initializer: undefined" -H "x-fc-function-handler: index.handler" -H "x-fc-account-id: 143**********149" -H "x-fc-region: cn-huhehaote" -H "x-fc-access-key-id: LTA******************ibC " -H "x-fc-access-key-secret: AtY************************V8q" -H "x-fc-security-token: "
- */
 export default class ComponentBuild {
   /**
    * @param inputs
