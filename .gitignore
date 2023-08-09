@@ -43,3 +43,5 @@ typings/
 ___**
 .s
 replace-committers.sh*
+__tests__/e2e/python/.vscode
+__tests__/e2e/python/code/apt-archives
