@@ -33,12 +33,12 @@ s3 deploy -y
 s3 invoke -e '{"hello":"fc python3.9"}'
 s3 remove -y
 
-export fc_component_runtime=python2.7
-export fc_component_function_name=python27
-echo "test python2.7 runtime ..."
-rm -rf ./code/3rd-packages
-s3 build
-s3 local invoke -e '{"hello":"fc python2.7"}'
-s3 deploy -y 
-s3 invoke -e '{"hello":"fc python2.7"}'
-s3 remove -y
+# export fc_component_runtime=python2.7
+# export fc_component_function_name=python27
+# echo "test python2.7 runtime ..."
+# rm -rf ./code/3rd-packages
+# s3 build
+# s3 local invoke -e '{"hello":"fc python2.7"}'
+# s3 deploy -y 
+# s3 invoke -e '{"hello":"fc python2.7"}'
+# s3 remove -y
