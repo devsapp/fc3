@@ -1,0 +1,18 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "fc/fc3-event-python310",
+            "type": "python",
+            "request": "attach",
+            "host": "localhost",
+            "port": 3000,
+            "pathMappings": [
+                {
+                    "localRoot": "/Users/songluo/work/fc/__tests__/e2e/python/code",
+                    "remoteRoot": "/code"
+                }
+            ]
+        }
+    ]
+}
