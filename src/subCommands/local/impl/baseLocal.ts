@@ -246,6 +246,8 @@ export class BaseLocal {
     return Promise.resolve('');
   }
 
+  isFastRuntime = (): boolean => ['python3.10', 'go1'].includes(this.getRuntime());
+
   getDebugArgs(): string {
     return '';
   }
