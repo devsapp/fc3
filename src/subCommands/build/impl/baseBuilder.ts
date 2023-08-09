@@ -88,7 +88,11 @@ export abstract class Builder {
       image = fcDockerUseImage;
       logger.debug(`use fc docker custom image: ${image}`);
     } else {
-      image = `${fcDockerVersionRegistry}/${fcDockerNameSpace}/runtime-${this.getRuntime()}:build-${fcDockerVersion}`;
+      let runtime = this.getRuntime();
+      if (runtime === 'python3') {
+        runtime = 'python3.6';
+      }
+      image = `${fcDockerVersionRegistry}/${fcDockerNameSpace}/runtime-${runtime}:build-${fcDockerVersion}`;
       logger.debug(`use fc docker image: ${image}`);
       await runCommand(`docker pull ${image}`, runCommand.showStdout.inherit);
     }

@@ -156,7 +156,11 @@ export class BaseLocal {
       image = fcDockerUseImage;
       logger.debug(`use fc docker custom image: ${image}`);
     } else {
-      image = `${fcDockerVersionRegistry}/${fcDockerNameSpace}/runtime-${this.getRuntime()}:${fcDockerVersion}`;
+      let runtime = this.getRuntime();
+      if (runtime === 'python3') {
+        runtime = 'python3.6';
+      }
+      image = `${fcDockerVersionRegistry}/${fcDockerNameSpace}/runtime-${runtime}:${fcDockerVersion}`;
       logger.debug(`use fc docker image: ${image}`);
       await runCommand(`docker pull ${image}`, runCommand.showStdout.inherit);
     }

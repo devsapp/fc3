@@ -31,7 +31,7 @@ def handler(event, context):
     logger.info(event)
     soup = BeautifulSoup(html_doc, 'html.parser')
     print(soup.prettify())
-    out_bytes = subprocess.check_output(["which", "git"])
+    out_bytes = subprocess.check_output(["jq", "--version"])
     print(out_bytes)
     # if isPython3():
     #     assert out_bytes == b'/code/.s/root/usr/bin/git\n'
