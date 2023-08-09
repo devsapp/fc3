@@ -21,6 +21,8 @@ export abstract class Builder {
   inputProps: IInputs;
   private baseDir: string;
 
+  abstract runBuild(): Promise<any>;
+
   constructor(inputs: IInputs) {
     this.inputProps = inputs;
     this.baseDir = inputs.baseDir || process.cwd();
@@ -114,19 +116,20 @@ export abstract class Builder {
   afterBuild() {
     logger.debug('afterBuild ...');
     const tipEnvs: string[] = [];
-    this.afterTipPython(tipEnvs);
 
-    if (!this.getEnv().LD_LIBRARY_PATH && this.existManifest('apt-get.list')) {
-      const libPaths = [
-        '/code/apt-archives/usr/local/lib',
-        '/code/apt-archives/usr/lib',
-        '/code/apt-archives/usr/lib/x86_64-linux-gnu',
-        '/code/apt-archives/usr/lib64',
-        '/code/apt-archives/lib',
-        '/code/apt-archives/lib/x86_64-linux-gnu',
-        '/code',
-      ];
-      tipEnvs.push(`LD_LIBRARY_PATH: ${libPaths.join(':')}`);
+    const libPath = this.afterTipLibPath();
+    if (libPath) {
+      tipEnvs.push(libPath);
+    }
+
+    const pythonPath = this.afterTipPython();
+    if (pythonPath) {
+      tipEnvs.push(pythonPath);
+    }
+
+    const p = this.afterTipPath();
+    if (p) {
+      tipEnvs.push(p);
     }
 
     if (!_.isEmpty(tipEnvs)) {
@@ -140,8 +143,6 @@ export abstract class Builder {
       );
     }
   }
-
-  abstract runBuild(): Promise<any>;
 
   public async build() {
     const check = this.beforeBuild();
@@ -181,7 +182,65 @@ export abstract class Builder {
   }
 
   // 针对 python 友好提示
-  private afterTipPython(tipEnvs: string[]): string[] {
+  private afterTipPython(): string | undefined {
+    if (!this.isPythonLanguage()) {
+      return;
+    }
+    const { PYTHONPATH } = this.getEnv();
+
+    logger.info(`PYTHONPATH ${PYTHONPATH}`);
+    if (PYTHONPATH === `/code/${buildPythonLocalPath}`) {
+      return;
+    }
+
+    return `PYTHONPATH: /code/${buildPythonLocalPath}`
+  }
+
+  private afterTipPath(): string | undefined {
+    let needTipPath = false;
+    let PATH = this.getEnv().PATH || '$PATH';
+    const isPython = this.isPythonLanguage();
+    const codeUri = this.getCodeUri();
+
+    if (isPython) {
+      const packagesBin = path.join(codeUri, buildPythonLocalPath, 'bin');
+      const hasBin = fs.existsSync(packagesBin) && fs.lstatSync(packagesBin).isDirectory();
+      const pathNotFoundBin = !PATH.includes(`/code/${buildPythonLocalPath}/bin`);
+      logger.debug(`hasBin ${hasBin}; !PATH.includes = ${pathNotFoundBin}`);
+      if (hasBin && pathNotFoundBin) {
+        PATH = `/code/${buildPythonLocalPath}/bin:${PATH}`;
+        needTipPath = true;
+      }
+    }
+
+    if (this.existManifest('apt-get.list') && !PATH.includes('/code/apt-archives/usr/bin')) {
+      PATH = `/code/apt-archives/usr/bin:${PATH}`;
+      needTipPath = true;
+    }
+
+    return needTipPath ? `PATH: ${PATH}` : undefined;
+  }
+
+  private afterTipLibPath(): string | undefined {
+    const { LD_LIBRARY_PATH } = this.getEnv();
+    if (this.existManifest('apt-get.list')) {
+      if (!LD_LIBRARY_PATH) {
+        const libPaths = [
+          '/code/apt-archives/usr/local/lib',
+          '/code/apt-archives/usr/lib',
+          '/code/apt-archives/usr/lib/x86_64-linux-gnu',
+          '/code/apt-archives/usr/lib64',
+          '/code/apt-archives/lib',
+          '/code/apt-archives/lib/x86_64-linux-gnu',
+          '/code',
+        ];
+        return `LD_LIBRARY_PATH: ${libPaths.join(':')}`;
+      }
+    }
+    return '';
+  }
+
+  private isPythonLanguage() {
     // 验证是不是 python
     let isPython = this.getRuntime().startsWith('python');
     const codeUri = this.getCodeUri();
@@ -197,25 +256,6 @@ export abstract class Builder {
     }
 
     logger.debug(`isPython ${isPython}`);
-    if (!isPython) {
-      return tipEnvs;
-    }
-
-    const { PYTHONPATH, PATH = '$PATH' } = this.getEnv();
-
-    const packagesBin = path.join(codeUri, buildPythonLocalPath, 'bin');
-    const hasBin = fs.existsSync(packagesBin) && fs.lstatSync(packagesBin).isDirectory();
-    const pathNotFoundBin = !PATH.includes(`/code/${buildPythonLocalPath}/bin`);
-    logger.debug(`hasBin ${hasBin}; !PATH.includes = ${pathNotFoundBin}`);
-    if (hasBin && pathNotFoundBin) {
-      tipEnvs.push(`PATH: /code/${buildPythonLocalPath}/bin:${PATH}`);
-    }
-
-    logger.info(`PYTHONPATH ${PYTHONPATH}`);
-    if (PYTHONPATH !== `/code/${buildPythonLocalPath}`) {
-      tipEnvs.push(`PYTHONPATH: /code/${buildPythonLocalPath}`);
-    }
-
-    return tipEnvs;
+    return isPython;
   }
 }

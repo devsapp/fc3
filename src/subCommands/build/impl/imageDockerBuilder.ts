@@ -14,17 +14,5 @@ export class ImageDockerBuilder extends Builder {
     const image = await this.getRuntimeBuildImage();
     let dockerCmdStr = `DOCKER_BUILDKIT=0 docker build --platform linux/amd64 -t ${image} -f ${dockerFile} ${context}`;
     await runCommand(dockerCmdStr, runCommand.showStdout.inherit);
-
-    // const credential = await this.getCredentials();
-    // let dockerTmpConfig = await getDockerTmpUser(
-    //   this.getRegion(),
-    //   credential,
-    //   this.getAcrEEInstanceID(),
-    // );
-    // dockerCmdStr = `docker login ${image} --username=${dockerTmpConfig.dockerTmpUser} --password ${dockerTmpConfig.dockerTmpToken}`;
-    // await runCommand(dockerCmdStr, runCommand.showStdout.inherit);
-
-    // dockerCmdStr = `docker push ${image}`;
-    // await runCommand(dockerCmdStr, runCommand.showStdout.inherit);
   }
 }
