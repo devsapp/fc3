@@ -15,7 +15,9 @@ export default class Info {
     this.functionName = _.get(inputs, 'props.function.functionName');
     this.checkProps();
     this.triggersName = _.get(inputs, 'props.triggers', []).map((item) => item.triggerName);
-    this.fcSdk = new FC(this.region, this.inputs.credential as ICredentials);
+    this.fcSdk = new FC(this.region, this.inputs.credential as ICredentials, {
+      endpoint: inputs.props.endpoint,
+    });
   }
 
   async run() {

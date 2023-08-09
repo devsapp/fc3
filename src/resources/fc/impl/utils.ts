@@ -7,6 +7,7 @@ import {
   ICustomContainerConfig,
 } from '../../../interface';
 import { isAuto } from '../../../utils';
+import logger from '../../../logger';
 
 export function isCustomContainerRuntime(runtime: string): boolean {
   return runtime === Runtime['custom-container'];
@@ -53,3 +54,39 @@ export function isContainerAccelerated(customContainerConfig: ICustomContainerCo
   const image = _.get(customContainerConfig, 'image', '');
   return !!(acrInstanceID && image.endsWith('_accelerated'));
 }
+
+/**
+ * 处理自定义 endpoint
+ * @returns
+ */
+export const getCustomEndpoint = (endpoint?: string): { host?: string; endpoint?: string; protocol?: string } => {
+  const CUSTOM_ENDPOINT = endpoint || process.env.FC_CLIENT_CUSTOM_ENDPOINT;
+  logger.debug(`get custom endpoint: ${CUSTOM_ENDPOINT}`);
+
+  if (!CUSTOM_ENDPOINT) {
+    return {};
+  }
+  logger.info(`get custom endpoint: ${CUSTOM_ENDPOINT}`);
+
+  if (CUSTOM_ENDPOINT.startsWith('http://')) {
+    return {
+      protocol: 'http',
+      host: CUSTOM_ENDPOINT.replace('http://', ''),
+      endpoint: CUSTOM_ENDPOINT,
+    };
+  }
+
+  if (CUSTOM_ENDPOINT.startsWith('https://')) {
+    return {
+      protocol: 'https',
+      host: CUSTOM_ENDPOINT.replace('https://', ''),
+      endpoint: CUSTOM_ENDPOINT,
+    };
+  }
+
+  return {
+    protocol: 'https',
+    host: endpoint,
+    endpoint: `https://${endpoint}`,
+  };
+};

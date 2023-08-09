@@ -7,7 +7,7 @@ import { RuntimeOptions } from '@alicloud/tea-util';
 
 import logger from '../../logger';
 import { sleep } from '../../utils';
-import { FC_DEPLOY_RETRY_COUNT } from '../../default/client';
+import { FC_DEPLOY_RETRY_COUNT } from '../../default/config';
 
 import FC_Client, { fc2Client } from './impl/client';
 import { ICustomContainerConfig, IFunction, ILogConfig, ITrigger } from '../../interface';
@@ -204,7 +204,7 @@ export default class FC extends FC_Client {
   async uploadCodeToTmpOss(
     zipFile: string,
   ): Promise<{ ossBucketName: string; ossObjectName: string }> {
-    const client = fc2Client(this.region, this.credentials);
+    const client = fc2Client(this.region, this.credentials, this.customEndpoint);
 
     const {
       data: { credentials, ossBucket, objectName },

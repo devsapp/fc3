@@ -8,7 +8,9 @@ export default abstract class Base {
 
   constructor(readonly inputs: IInputs, needDeploy: boolean | undefined) {
     this.needDeploy = needDeploy;
-    this.fcSdk = new FC(inputs.props.region, inputs.credential as ICredentials);
+    this.fcSdk = new FC(inputs.props.region, inputs.credential as ICredentials, {
+      endpoint: inputs.props.endpoint,
+    });
   }
 
   abstract before(): Promise<void>;
