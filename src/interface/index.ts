@@ -12,6 +12,7 @@ export interface IProps {
   region: IRegion;
   function: IFunction;
   triggers?: ITrigger[];
+  endpoint?: string;
 }
 
 export interface IInputs extends _IInputs {

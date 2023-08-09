@@ -18,7 +18,9 @@ export default class Plan {
     this.triggers = _.get(inputs, 'props.triggers', []).map((item) =>
       _.defaults(item, FC_TRIGGER_DEFAULT_CONFIG),
     );
-    this.fcSdk = new FC(inputs.props.region, inputs.credential);
+    this.fcSdk = new FC(inputs.props.region, inputs.credential, {
+      endpoint: inputs.props.endpoint,
+    });
   }
 
   async run() {

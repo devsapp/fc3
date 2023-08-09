@@ -39,7 +39,9 @@ export default class Version {
     this.functionName = functionName || _.get(inputs, 'props.function.functionName');
     logger.debug(`function name: ${this.functionName}`);
 
-    this.fcSdk = new FC(this.region, inputs.credential);
+    this.fcSdk = new FC(this.region, inputs.credential, {
+      endpoint: inputs.props.endpoint,
+    });
   }
 
   async list() {

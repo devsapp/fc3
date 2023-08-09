@@ -42,3 +42,8 @@ export const FC_TRIGGER_DEFAULT_CONFIG = {
   qualifier: 'LATEST',
   description: '',
 };
+
+export const FC_CLIENT_DEFAULT_TIMEOUT: number = undefined;
+// parseInt(process.env.FC_CLIENT_DEFAULT_TIMEOUT || '600') * 1000;
+
+export const FC_DEPLOY_RETRY_COUNT = 3;

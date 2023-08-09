@@ -1,4 +1,3 @@
-import { ICredentials } from '@serverless-devs/component-interface';
 import FCClient, {
   CreateFunctionInput,
   CreateFunctionRequest,
@@ -21,16 +20,23 @@ import FCClient, {
   UpdateTriggerRequest,
   UpdateTriggerResponse,
 } from '@alicloud/fc20230330';
+import { ICredentials } from '@serverless-devs/component-interface';
 import { RuntimeOptions } from '@alicloud/tea-util';
 import { Readable } from 'stream';
-
 import { Config } from '@alicloud/openapi-client';
 import FC2 from '@alicloud/fc2';
-import { getCustomEndpoint, FC_CLIENT_DEFAULT_TIMEOUT } from '../../../default/client';
-import { IRegion, IFunction, ITrigger } from '../../../interface';
 
-export const fc2Client = (region: IRegion, credentials: ICredentials) => {
-  const { endpoint } = getCustomEndpoint();
+import { FC_CLIENT_DEFAULT_TIMEOUT } from '../../../default/config';
+import { IRegion, IFunction, ITrigger } from '../../../interface';
+import { getCustomEndpoint } from './utils';
+
+interface IOptions {
+  timeout?: number;
+  endpoint?: string;
+}
+
+export const fc2Client = (region: IRegion, credentials: ICredentials, customEndpoint: string) => {
+  const { endpoint } = getCustomEndpoint(customEndpoint);
 
   return new FC2(credentials.AccountID, {
     accessKeyID: credentials.AccessKeyID,
@@ -45,18 +51,20 @@ export const fc2Client = (region: IRegion, credentials: ICredentials) => {
 
 export default class FC_Client {
   readonly fc20230330Client: FCClient;
+  customEndpoint: string;
 
-  constructor(readonly region: IRegion, readonly credentials: ICredentials, options?: any) {
+  constructor(readonly region: IRegion, readonly credentials: ICredentials, options: IOptions) {
     const {
       AccountID: accountID,
       AccessKeyID: accessKeyId,
       AccessKeySecret: accessKeySecret,
       SecurityToken: securityToken,
     } = credentials;
+    this.customEndpoint = options.endpoint;
     const { timeout } = options || {};
 
     const { host: endpoint = `${accountID}.${region}.fc.aliyuncs.com`, protocol = 'https' } =
-      getCustomEndpoint();
+      getCustomEndpoint(options.endpoint);
 
     const config = new Config({
       accessKeyId,
