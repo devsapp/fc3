@@ -8,7 +8,7 @@ export fc_component_function_name=python3
 echo "test python3 runtime ..."
 rm -rf ./code/3rd-packages
 s3 build
-# s3 local invoke -e '{"hello":"fc python3"}'
+s3 local invoke -e '{"hello":"fc python3"}'
 s3 deploy -y 
 s3 invoke -e '{"hello":"fc python3"}'
 s3 remove -y
@@ -18,7 +18,7 @@ export fc_component_function_name=python310
 rm -rf ./code/3rd-packages
 echo "test python3.10 runtime ..."
 s3 build
-# s3 local invoke -e '{"hello":"fc python3.10"}'
+s3 local invoke -e '{"hello":"fc python3.10"}'
 s3 deploy -y 
 s3 invoke -e '{"hello":"fc python3.10"}'
 s3 remove -y
@@ -28,7 +28,7 @@ export fc_component_function_name=python39
 echo "test python3.9 runtime ..."
 rm -rf ./code/3rd-packages
 s3 build
-# s3 local invoke -e '{"hello":"fc python3.9"}'
+s3 local invoke -e '{"hello":"fc python3.9"}'
 s3 deploy -y 
 s3 invoke -e '{"hello":"fc python3.9"}'
 s3 remove -y
@@ -38,7 +38,7 @@ export fc_component_function_name=python27
 echo "test python2.7 runtime ..."
 rm -rf ./code/3rd-packages
 s3 build
-# s3 local invoke -e '{"hello":"fc python2.7"}'
+s3 local invoke -e '{"hello":"fc python2.7"}'
 s3 deploy -y 
 s3 invoke -e '{"hello":"fc python2.7"}'
 s3 remove -y
