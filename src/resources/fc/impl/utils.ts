@@ -59,7 +59,9 @@ export function isContainerAccelerated(customContainerConfig: ICustomContainerCo
  * 处理自定义 endpoint
  * @returns
  */
-export const getCustomEndpoint = (endpoint?: string): { host?: string; endpoint?: string; protocol?: string } => {
+export const getCustomEndpoint = (
+  endpoint?: string,
+): { host?: string; endpoint?: string; protocol?: string } => {
   const CUSTOM_ENDPOINT = endpoint || process.env.FC_CLIENT_CUSTOM_ENDPOINT;
   logger.debug(`get custom endpoint: ${CUSTOM_ENDPOINT}`);
 

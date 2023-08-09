@@ -11,7 +11,7 @@ export default class Remove {
   constructor(inputs: IInputs) {
     this.functionName = inputs.props.function?.functionName;
     this.fcSdk = new FC(inputs.props.region, inputs.credential, {
-      endpoint: inputs.props.endpoint
+      endpoint: inputs.props.endpoint,
     });
   }
 
