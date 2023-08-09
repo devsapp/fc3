@@ -4,12 +4,12 @@
 # export fc_component_version=fc3@dev.0.1
 
 echo "test custom.debian10 go runtime ..."
-rm -rf ./go/code/target
 rm -rf ./go/code/go.sum
 s3 deploy -y -t ./go/s.yaml
 s3 invoke -e '{"hello":"fc custom.debian10 go"}' -t ./go/s.yaml
 s3 local invoke -e '{"hello":"fc custom.debian10 go"}' -t ./go/s.yaml
 s3 remove -y -t ./go/s.yaml
+rm -rf ./go/code/target
 
 echo "test custom.debian10 python runtime ..."
 rm -rf ./python/code/3rd-packages

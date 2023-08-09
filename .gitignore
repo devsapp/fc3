@@ -45,3 +45,8 @@ ___**
 replace-committers.sh*
 __tests__/e2e/python/.vscode
 __tests__/e2e/python/code/apt-archives
+.vscode
+__tests__/e2e/php/code/vendor
+__tests__/e2e/go/code/target
+__tests__/e2e/custom.debian10/go/code/target
+__tests__/e2e/custom/go/code/target

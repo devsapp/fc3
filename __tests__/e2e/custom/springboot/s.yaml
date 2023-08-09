@@ -24,7 +24,7 @@ template:
           - path: /*
 
 resources:
-  framework:
+  jar:
     component: ${env('fc_component_version', path('../../../../'))}
     extend: 
       name: props
@@ -46,7 +46,7 @@ resources:
           args:
             - 'org.springframework.boot.loader.JarLauncher'
 
-  jar:
+  jar_zip:
     component: ${env('fc_component_version', path('../../../../'))}
     extend: 
       name: props

@@ -13,5 +13,5 @@ func main() {
 func HandleRequest(event []byte) (string, error) {
 	fmt.Printf("event: %s\n", string(event))
 	fmt.Println("hello world! 你好，世界!")
-	return "hello world! 你好，世界!", nil
+	return "hello world! " + string(event), nil
 }

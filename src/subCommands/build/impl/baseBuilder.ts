@@ -198,7 +198,9 @@ export abstract class Builder {
 
   private afterTipPath(): string | undefined {
     let needTipPath = false;
-    let PATH = this.getEnv().PATH || '$PATH';
+    let defaultPath =
+      '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/code:/code/bin:/opt:/opt/bin';
+    let PATH = this.getEnv().PATH || defaultPath;
     const isPython = this.isPythonLanguage();
     const codeUri = this.getCodeUri();
 
