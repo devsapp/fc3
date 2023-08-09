@@ -188,7 +188,7 @@ export abstract class Builder {
     }
     const { PYTHONPATH } = this.getEnv();
 
-    logger.info(`PYTHONPATH ${PYTHONPATH}`);
+    logger.debug(`PYTHONPATH ${PYTHONPATH}`);
     if (PYTHONPATH === `/code/${buildPythonLocalPath}`) {
       return;
     }
