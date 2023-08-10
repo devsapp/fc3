@@ -29,6 +29,7 @@ export default class Acr {
   constructor(private region: IRegion, private credential: ICredentials) {}
 
   async pushAcr(imageUrl: string, instanceID?: string): Promise<void> {
+    // TODO: 验证一下 namespaces 是否在这个账号下，不在的话出一个警告
     const image = Acr.vpcImage2InternetImage(imageUrl);
     try {
       if (image !== imageUrl) {

@@ -43,9 +43,10 @@ export default function (_local: any, _remote: any) {
   }
 
   if (isCustomContainerRuntime(local.runtime)) {
-    if (!local.customContainerConfig?.accelerationType) {
-      _.set(local, 'customContainerConfig.accelerationType', 'Default');
-    }
+    // TODO: 先注释掉，接口不支持；等后面对齐再处理
+    // if (!local.customContainerConfig?.accelerationType) {
+    //   _.set(local, 'customContainerConfig.accelerationType', 'Default');
+    // }
     // 传入 code：InvalidArgument: code: 400, Either ossBucketName/ossObjectName or zipFile must be set
     _.unset(local, 'code');
     // plan 时会多出提示一个状态信息
