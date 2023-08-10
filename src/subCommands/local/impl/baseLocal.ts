@@ -74,7 +74,7 @@ export class BaseLocal {
     } else if (FC.isCustomRuntime(runtime)) {
       return (this.getFunctionProps().customRuntimeConfig?.port as number) || 9000;
     }
-  
+
     return 9000;
   }
 
