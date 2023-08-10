@@ -9,7 +9,7 @@ import { parseArgv } from '@serverless-devs/utils';
 import { ICredentials } from '@serverless-devs/component-interface';
 import { vpcImage2InternetImage } from './utils';
 import logger from '../../../logger';
-import { ICodeUri } from '../../../interface';
+import { ICodeUri, IFunction } from '../../../interface';
 import { IDE_VSCODE } from '../../../constant';
 import { IInputs } from '../../../interface';
 import {
@@ -19,6 +19,7 @@ import {
   fcDockerVersionRegistry,
 } from '../../../default/image';
 import { runCommand } from '../../../utils';
+import FC from '../../../resources/fc';
 
 export class BaseLocal {
   protected inputProps: IInputs;
@@ -49,7 +50,7 @@ export class BaseLocal {
     return this._argsData;
   }
 
-  getFunctionProps(): any {
+  getFunctionProps(): IFunction {
     return this.inputProps.props.function;
   }
 
@@ -66,7 +67,15 @@ export class BaseLocal {
   }
 
   getCaPort(): number {
-    return (this.getFunctionProps().caPort as number) || 9000;
+    const runtime = this.getRuntime();
+
+    if (FC.isCustomContainerRuntime(runtime)) {
+      return (this.getFunctionProps().customContainerConfig?.port as number) || 9000;
+    } else if (FC.isCustomRuntime(runtime)) {
+      return (this.getFunctionProps().customRuntimeConfig?.port as number) || 9000;
+    }
+  
+    return 9000;
   }
 
   getHandler(): string {
@@ -82,11 +91,11 @@ export class BaseLocal {
   }
 
   getInitializer(): string {
-    return this.getFunctionProps().initializer;
+    return this.getFunctionProps().instanceLifecycleConfig?.initializer?.handler;
   }
 
   getInitializerTimeout(): number {
-    return this.getFunctionProps().initializerTimeout as number;
+    return this.getFunctionProps().instanceLifecycleConfig?.initializer?.timeout as number;
   }
 
   getMemorySize(): number {

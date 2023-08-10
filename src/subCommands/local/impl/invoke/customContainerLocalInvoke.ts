@@ -29,11 +29,11 @@ export class CustomContainerLocalInvoke extends BaseLocalInvoke {
     }
     let bootStrap = '';
     const customContainerConfig = this.getFunctionProps().customContainerConfig;
-    if (_.has(customContainerConfig, 'command')) {
-      bootStrap += customContainerConfig.command.join(' ');
+    if (_.has(customContainerConfig, 'entrypoint')) {
+      bootStrap += customContainerConfig.entrypoint.join(' ');
     }
-    if (_.has(customContainerConfig, 'args')) {
-      bootStrap += ' ' + customContainerConfig.args.join(' ');
+    if (_.has(customContainerConfig, 'command')) {
+      bootStrap += ' ' + customContainerConfig.command.join(' ');
     }
     return bootStrap;
   }

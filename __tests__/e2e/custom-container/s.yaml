@@ -16,13 +16,13 @@ resources:
         handler: index.handler
         timeout: 30
         memorySize: 1024
-        caPort: 9001
         code: ./code
         instanceConcurrency: 4
         customContainerConfig:
           image: 'registry.${vars.region}.aliyuncs.com/fc-demo2/node-express:v1002'
-          command:
+          entrypoint:
             - node
-          args:
+          command:
             - /home/code/server.js
-          accelerationType: None
+          port: 9001
+          # accelerationType: 'None'
