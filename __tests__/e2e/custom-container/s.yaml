@@ -20,8 +20,9 @@ resources:
         code: ./code
         instanceConcurrency: 4
         customContainerConfig:
-          image: 'registry.${vars.region}.aliyuncs.com/fc-demo/node-express:v1002'
+          image: 'registry.${vars.region}.aliyuncs.com/fc-demo2/node-express:v1002'
           command:
             - node
           args:
             - /home/code/server.js
+          accelerationType: None

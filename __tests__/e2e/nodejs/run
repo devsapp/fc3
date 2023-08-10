@@ -1,4 +1,6 @@
-#!/bin/bash
+#!/bin/
+
+set -e
 
 # export FC_DOCKER_VERSION=1.10.8
 # export fc_component_version=fc3@dev.0.1
