@@ -3,7 +3,6 @@ import { IInputs } from './interface';
 import Logger from './logger';
 import logger from './logger';
 import Role from './resources/ram';
-import { isAuto } from './utils';
 import { FUNCTION_CUSTOM_DEFAULT_CONFIG, FUNCTION_DEFAULT_CONFIG } from './default/config';
 import path from 'path';
 import commandsHelp from './commands-help';
@@ -30,7 +29,7 @@ export default class Base {
 
     const role = _.get(inputs, 'props.function.role');
     const needHandleRole =
-      _.isString(role) && role !== '' && !isAuto(role) && !Role.isRoleArnFormat(role);
+      _.isString(role) && role !== '' && !Role.isRoleArnFormat(role);
     if (needCredential || needHandleRole) {
       inputs.credential = await inputs.getCredential();
     }

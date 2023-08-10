@@ -7,7 +7,7 @@ import {
   isCustomRuntime,
 } from './utils';
 
-// 注意 remote 为空时不能 set
+// 注意 remote 为空时不能 set remote
 
 export default function (_local: any, _remote: any) {
   const local = _.cloneDeep(_local);
@@ -35,10 +35,16 @@ export default function (_local: any, _remote: any) {
       _.set(local, 'logConfig', remoteLogConfig);
     }
 
-    if (roleAuto) {
-      _.set(local, 'role', _.isString(remoteRole) && remoteRole !== '' ? remoteRole : 'auto');
-    } else {
-      _.set(local, 'role', '');
+    // TODO: role是否传空 如果不是 auto 怎么不操作
+    // if (!local.role && roleAuto) {
+    //   _.set(local, 'role', _.isString(remoteRole) && remoteRole !== '' ? remoteRole : 'auto');
+    // }
+    if (!local.role) {
+      if (roleAuto) {
+        _.set(local, 'role', _.isString(remoteRole) && remoteRole !== '' ? remoteRole : 'auto');
+      } else {
+        _.set(local, 'role', '');
+      }
     }
   }
 
