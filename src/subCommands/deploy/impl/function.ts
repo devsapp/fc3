@@ -9,7 +9,7 @@ import { getRootHome } from '@serverless-devs/utils';
 
 import logger from '../../../logger';
 import { IFunction, IInputs } from '../../../interface';
-import { FUNCTION_DEFAULT_CONFIG, FC_RESOURCES_EMPTY_CONFIG } from '../../../default/config';
+import { FC_RESOURCES_EMPTY_CONFIG } from '../../../default/config';
 import Acr from '../../../resources/acr';
 import Sls from '../../../resources/sls';
 import Ram from '../../../resources/ram';
