@@ -36,10 +36,9 @@ export function computeLocalAuto(local) {
   const nasAuto = isAuto(local.nasConfig);
   const vpcAuto = isAuto(local.vpcConfig) || (!local.vpcConfig && nasAuto);
   const slsAuto = isAuto(local.logConfig);
-  const roleAuto =
-    isAuto(local.role) ||
-    (_.isNil(local.role) &&
-      (nasAuto || vpcAuto || slsAuto || isCustomContainerRuntime(local?.runtime)));
+  // auto 是在 preDeploy 和 plan 之间的阶段设置的，用于提示
+  //      如果用户设置了 auto 会在 handlePreRun 方法变成 arn
+  const roleAuto = isAuto(local.role) || (_.isNil(local.role) && !_.isEmpty(local?.ossMountConfig?.mountPoints));
   return { nasAuto, vpcAuto, slsAuto, roleAuto };
 }
 
