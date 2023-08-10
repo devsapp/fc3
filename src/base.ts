@@ -35,7 +35,7 @@ export default class Base {
       inputs.credential = await inputs.getCredential();
     }
 
-    inputs.baseDir = path.dirname(inputs.yaml.path || process.cwd());
+    inputs.baseDir = path.dirname(inputs.yaml?.path || process.cwd());
     logger.debug(`baseDir is: ${inputs.baseDir}`);
 
     // 兼容只写 rule 的情况
