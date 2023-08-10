@@ -251,7 +251,10 @@ logConfig:
       this.createResource.role = { arn };
 
       _.set(this.local, 'role', arn);
-    } else if (!this.local.role && (nasAuto || vpcAuto || slsAuto || FC.isCustomContainerRuntime(this.local?.runtime))) {
+    } else if (
+      !this.local.role &&
+      (nasAuto || vpcAuto || slsAuto || FC.isCustomContainerRuntime(this.local?.runtime))
+    ) {
       const client = new Ram(credential as ICredentials).client;
       await client.initSlrRole('FC');
     }

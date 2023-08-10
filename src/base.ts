@@ -28,8 +28,7 @@ export default class Base {
     }
 
     const role = _.get(inputs, 'props.function.role');
-    const needHandleRole =
-      _.isString(role) && role !== '' && !Role.isRoleArnFormat(role);
+    const needHandleRole = _.isString(role) && role !== '' && !Role.isRoleArnFormat(role);
     if (needCredential || needHandleRole) {
       inputs.credential = await inputs.getCredential();
     }
