@@ -23,3 +23,4 @@ resources:
         customRuntimeConfig:
           command:
             - '/code/main'
+          port: 9000

@@ -68,3 +68,4 @@ resources:
             - -jar
           args:
             - webframework.jar
+          port: 9000
