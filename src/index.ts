@@ -18,7 +18,6 @@ import Version from './subCommands/version';
 export default class Fc extends Base {
   // 部署函数
   public async deploy(inputs: IInputs) {
-    logger.debug(`input: ${JSON.stringify(inputs.props)}`);
     await super.handlePreRun(inputs, true);
     const deploy = new Deploy(inputs);
     await deploy.run();
