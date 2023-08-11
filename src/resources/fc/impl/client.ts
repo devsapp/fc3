@@ -5,6 +5,7 @@ import FCClient, {
   CreateTriggerInput,
   CreateTriggerRequest,
   CreateTriggerResponse,
+  GetConcurrencyConfigResponse,
   GetFunctionCodeRequest,
   InvokeFunctionHeaders,
   InvokeFunctionRequest,
@@ -13,6 +14,7 @@ import FCClient, {
   ListTriggersRequest,
   PublishFunctionVersionRequest,
   PublishVersionInput,
+  PutConcurrencyConfigRequest,
   UpdateFunctionInput,
   UpdateFunctionRequest,
   UpdateFunctionResponse,
@@ -212,6 +214,29 @@ export default class FC_Client {
     );
     const { body } = result.toMap();
     return body.versions;
+  }
+
+  async getFunctionConcurrency(functionName: string) {
+    const result = await this.fc20230330Client.getConcurrencyConfig(functionName);
+    const { body } = result.toMap();
+
+    return body;
+  }
+
+  async putFunctionConcurrency(functionName: string, reservedConcurrency: number) {
+    const request = new PutConcurrencyConfigRequest({ reservedConcurrency })
+
+    const result = await this.fc20230330Client.putConcurrencyConfig(functionName, request);
+    const { body } = result.toMap();
+
+    return body;
+  }
+
+  async deleteFunctionConcurrency(functionName: string) {
+    const result = await this.fc20230330Client.deleteConcurrencyConfig(functionName);
+    const { body } = result.toMap();
+
+    return body;
   }
 
   /**

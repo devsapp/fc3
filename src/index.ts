@@ -14,6 +14,7 @@ import Invoke from './subCommands/invoke';
 import Remove from './subCommands/remove';
 import Sync from './subCommands/sync';
 import Version from './subCommands/version';
+import Concurrency from './subCommands/concurrency';
 
 export default class Fc extends Base {
   // 部署函数
@@ -67,6 +68,12 @@ export default class Fc extends Base {
     await super.handlePreRun(inputs, true);
     const v = new Version(inputs);
     return await v[v.subCommand]();
+  }
+
+  public async concurrency(inputs: IInputs) {
+    await super.handlePreRun(inputs, true);
+    const concurrency = new Concurrency(inputs);
+    return await concurrency[concurrency.subCommand]();
   }
 
   public async build(inputs: IInputs) {

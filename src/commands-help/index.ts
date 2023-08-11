@@ -4,6 +4,7 @@ import info from './info';
 import sync from './sync';
 import invoke from './invoke';
 import version from './version';
+import concurrency from './concurrency';
 
 export default {
   deploy,
@@ -12,4 +13,5 @@ export default {
   sync,
   invoke,
   version,
+  concurrency,
 };
