@@ -1,10 +1,10 @@
-import { parseArgv } from "@serverless-devs/utils";
+import { parseArgv } from '@serverless-devs/utils';
 import commandsHelp from '../../commands-help/concurrency';
-import { IInputs, IRegion } from "../../interface";
-import logger from "../../logger";
-import _ from "lodash";
-import FC from "../../resources/fc";
-import { promptForConfirmOrDetails } from "../../utils";
+import { IInputs, IRegion } from '../../interface';
+import logger from '../../logger';
+import _ from 'lodash';
+import FC from '../../resources/fc';
+import { promptForConfirmOrDetails } from '../../utils';
 
 const commandsList = Object.keys(commandsHelp.subCommands);
 
@@ -45,7 +45,9 @@ export default class Concurrency {
     logger.debug(`reservedConcurrency: ${reservedConcurrency}`);
 
     if (_.isEmpty(this.region) || _.isEmpty(this.functionName)) {
-      throw new Error(`Region and function-name is required, region: ${this.region} and function-name: ${this.functionName}`);
+      throw new Error(
+        `Region and function-name is required, region: ${this.region} and function-name: ${this.functionName}`,
+      );
     }
 
     this.yes = yes;
@@ -62,7 +64,9 @@ export default class Concurrency {
 
   async put() {
     if (!_.isNumber(this.reservedConcurrency)) {
-      throw new Error(`ReservedConcurrency must be a number, got ${this.reservedConcurrency}. Please specify a number through --reserved-concurrency <number>`);
+      throw new Error(
+        `ReservedConcurrency must be a number, got ${this.reservedConcurrency}. Please specify a number through --reserved-concurrency <number>`,
+      );
     }
     return await this.fcSdk.putFunctionConcurrency(this.functionName, this.reservedConcurrency);
   }

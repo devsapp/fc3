@@ -224,7 +224,7 @@ export default class FC_Client {
   }
 
   async putFunctionConcurrency(functionName: string, reservedConcurrency: number) {
-    const request = new PutConcurrencyConfigRequest({ reservedConcurrency })
+    const request = new PutConcurrencyConfigRequest({ reservedConcurrency });
 
     const result = await this.fc20230330Client.putConcurrencyConfig(functionName, request);
     const { body } = result.toMap();
