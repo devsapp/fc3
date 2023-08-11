@@ -47,11 +47,11 @@ export default class Deploy {
     // 调用前置
     await this.service?.before();
     await this.trigger?.before();
-    await this.domain?.before();
+    //await this.domain?.before();
 
     // 调用运行
     await this.service?.run();
     await this.trigger?.run();
-    await this.domain?.run();
+    //await this.domain?.run();
   }
 }
