@@ -65,7 +65,9 @@ export default class Version {
       throw new Error(`Need specify remove the versionId`);
     }
     if (!this.yes) {
-      const y = await promptForConfirmOrDetails(`Are you sure you want to delete the ${this.functionName} function ${this.versionId} version?`);
+      const y = await promptForConfirmOrDetails(
+        `Are you sure you want to delete the ${this.functionName} function ${this.versionId} version?`,
+      );
       if (!y) {
         logger.debug(`Skip remove ${this.functionName} function ${this.versionId} version`);
         return;
