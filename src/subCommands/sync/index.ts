@@ -54,16 +54,15 @@ export default class Sync {
   }
 
   write = async (functionConfig) => {
-    const baseDir = this.target || this.inputs.baseDir;
     const syncFolderName = 'sync-clone';
 
-    const folderPath = path.join(baseDir, syncFolderName);
+    const baseDir = this.target ? this.target : path.join(this.inputs.baseDir, syncFolderName);
     logger.debug(`sync base dir: ${baseDir}`);
-    await fs_extra.removeSync(folderPath);
-    logger.debug(`clear sync target path: ${folderPath}`);
-    const codePath = path.join(baseDir, syncFolderName, `${this.region}_${this.functionName}`);
+    await fs_extra.removeSync(baseDir);
+    logger.debug(`clear sync target path: ${baseDir}`);
+    const codePath = path.join(baseDir, `${this.region}_${this.functionName}`);
     logger.debug(`sync code path: ${codePath}`);
-    const ymlPath = path.join(baseDir, syncFolderName, `${this.region}_${this.functionName}.yaml`);
+    const ymlPath = path.join(baseDir, `${this.region}_${this.functionName}.yaml`);
     logger.debug(`sync yaml path: ${ymlPath}`);
     if (!FC.isCustomContainerRuntime(functionConfig.runtime)) {
       const { url } = await this.fcSdk.getFunctionCode(this.functionName, this.qualifier);
