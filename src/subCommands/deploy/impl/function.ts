@@ -35,6 +35,10 @@ export default class Service extends Base {
 
   constructor(inputs: IInputs, opts: IOpts) {
     super(inputs, opts.yes);
+    const functionName = inputs.props.function?.functionName;
+    if (!functionName) {
+      throw new Error(`Function ${functionName} is not defined`);
+    }
 
     this.type = opts.type;
     this.skipPush = opts.skipPush;

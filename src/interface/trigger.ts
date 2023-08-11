@@ -1,23 +1,4 @@
-export enum TriggerType {
-  oss = 'oss',
-  log = 'log',
-  timer = 'timer',
-  eventbridge = 'eventbridge',
-  http = 'http',
-  mns_topic = 'mns_topic',
-  cdn_events = 'cdn_events',
-  tablestore = 'tablestore',
-}
-
-export enum Methods {
-  HEAD = 'HEAD',
-  DELETE = 'DELETE',
-  POST = 'POST',
-  GET = 'GET',
-  OPTIONS = 'OPTIONS',
-  PUT = 'PUT',
-  PATCH = 'PATCH',
-}
+import { TriggerType, Methods } from "./base";
 
 export type ITriggerType = `${TriggerType}`;
 
