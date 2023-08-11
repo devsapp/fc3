@@ -11,7 +11,7 @@ export type ICodeUri =
 export enum Protocol {
   HTTP = 'HTTP',
   HTTPS = 'HTTPS',
-  "HTTP,HTTPS" = 'HTTP,HTTPS',
+  'HTTP,HTTPS' = 'HTTP,HTTPS',
 }
 
 export enum Runtime {
@@ -56,4 +56,3 @@ export enum Methods {
   PUT = 'PUT',
   PATCH = 'PATCH',
 }
-

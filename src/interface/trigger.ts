@@ -1,4 +1,4 @@
-import { TriggerType, Methods } from "./base";
+import { TriggerType, Methods } from './base';
 
 export type ITriggerType = `${TriggerType}`;
 

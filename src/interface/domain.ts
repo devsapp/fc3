@@ -40,7 +40,7 @@ export interface IRewriteConfig {
 }
 
 export interface IRouteConfig {
-  routes: IRoutesItem[]
+  routes: IRoutesItem[];
 }
 
 export interface IDomain {
