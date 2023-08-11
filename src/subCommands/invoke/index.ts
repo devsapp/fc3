@@ -19,6 +19,7 @@ export default class Invoke {
     const timeout = inputs.props.function?.timeout;
     this.fcSdk = new FC(inputs.props.region, inputs.credential as ICredentials, {
       timeout: timeout ? timeout * 1000 : undefined,
+      endpoint: inputs.props.endpoint,
     });
     const { event: payload, 'event-file': eventFile } = parseArgv(inputs.args, {
       alias: {

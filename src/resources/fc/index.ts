@@ -214,6 +214,10 @@ export default class FC extends FC_Client {
     if (process.env.FC_REGION === this.region) {
       ossEndpoint = `oss-${this.region}-internal.aliyuncs.com`;
     }
+    if (this.customEndpoint) {
+      ossEndpoint = `oss-${this.region}.aliyuncs.com`;
+    }
+
     logger.debug(`Uploading code to ${ossEndpoint}`);
 
     const ossClient = new OSS({
