@@ -1,26 +1,4 @@
-import { IKV, ICodeUri } from './base';
-
-export enum Runtime {
-  'nodejs10' = 'nodejs10',
-  'nodejs12' = 'nodejs12',
-  'nodejs14' = 'nodejs14',
-  'nodejs16' = 'nodejs16',
-  'python3.10' = 'python3.10',
-  'python3.9' = 'python3.9',
-  'python3' = 'python3',
-  'python2.7' = 'python2.7',
-  'java11' = 'java11',
-  'java8' = 'java8',
-  'go1' = 'go1',
-  'php7.2' = 'php7.2',
-  'dotnetcore3.1' = 'dotnetcore3.1',
-  'dotnetcore2.1' = 'dotnetcore2.1',
-  'custom.debian10' = 'custom.debian10',
-  'custom' = 'custom',
-  'custom-container' = 'custom-container',
-}
-
-export const RuntimeList = Object.values(Runtime);
+import { IKV, ICodeUri, Runtime } from './base';
 
 export type IRuntime = `${Runtime}`;
 

@@ -1,17 +1,20 @@
 import { IInputs as _IInputs, ICredentials } from '@serverless-devs/component-interface';
 import { IFunction } from './function';
 import { ITrigger } from './trigger';
+import { IDomain } from './domain';
 import { IRegion } from './region';
 
-export * from './function';
 export * from './region';
+export * from './function';
 export * from './trigger';
+export * from './domain';
 export * from './base';
 
 export interface IProps {
   region: IRegion;
   function: IFunction;
   triggers?: ITrigger[];
+  customDomain?: IDomain[];
   endpoint?: string;
 }
 
