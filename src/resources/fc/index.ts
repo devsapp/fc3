@@ -37,7 +37,7 @@ export default class FC extends FC_Client {
    * 创建或者修改函数
    */
   async deployFunction(config: IFunction, { slsAuto, type }): Promise<void> {
-    logger.debug(`Deploy function use config: ${JSON.stringify(config)}`);
+    logger.debug(`Deploy function use config:\n${JSON.stringify(config, null, 2)}`);
     let needUpdate = false;
     try {
       await this.getFunction(config.functionName);
