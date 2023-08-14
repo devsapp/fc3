@@ -14,6 +14,7 @@ import Invoke from './subCommands/invoke';
 import Remove from './subCommands/remove';
 import Sync from './subCommands/sync';
 import Version from './subCommands/version';
+import Alias from './subCommands/alias';
 import Concurrency from './subCommands/concurrency';
 
 export default class Fc extends Base {
@@ -68,6 +69,12 @@ export default class Fc extends Base {
     await super.handlePreRun(inputs, true);
     const v = new Version(inputs);
     return await v[v.subCommand]();
+  }
+
+  public async alias(inputs: IInputs) {
+    await super.handlePreRun(inputs, true);
+    const alias = new Alias(inputs);
+    return await alias[alias.subCommand]();
   }
 
   public async concurrency(inputs: IInputs) {

@@ -2,7 +2,11 @@ import OSS from 'ali-oss';
 import axios from 'axios';
 import path from 'path';
 import _ from 'lodash';
-import { GetFunctionRequest, GetFunctionResponse } from '@alicloud/fc20230330';
+import {
+  GetFunctionRequest,
+  GetFunctionResponse,
+  ListFunctionVersionsRequest,
+} from '@alicloud/fc20230330';
 import { RuntimeOptions } from '@alicloud/tea-util';
 
 import logger from '../../logger';
@@ -19,6 +23,7 @@ import {
   computeLocalAuto,
 } from './impl/utils';
 import replaceFunctionConfig from './impl/replace-function-config';
+import { IAlias } from '../../interface/cli-config/alias';
 
 export enum GetApiType {
   original = 'original', // 直接返回接口返回值
@@ -336,5 +341,58 @@ export default class FC extends FC_Client {
 
     logger.debug(`Result body: ${JSON.stringify(body)}`);
     return body;
+  }
+
+  /**
+   * 获取最新的 version 版本
+   * @param functionName
+   * @returns
+   */
+  async getVersionLatest(functionName: string) {
+    const request = new ListFunctionVersionsRequest({ limit: 1 });
+    const runtime = new RuntimeOptions({});
+    const headers = {};
+    const result = await this.fc20230330Client.listFunctionVersionsWithOptions(
+      functionName,
+      request,
+      headers,
+      runtime,
+    );
+    const { body } = result.toMap();
+    return _.get(body, 'versions[0]', {});
+  }
+
+  /**
+   * 发布别名
+   */
+  async publishAlias(functionName: string, aliasName: string, config: IAlias) {
+    let needUpdate = false;
+    try {
+      await this.getAlias(functionName, aliasName);
+      needUpdate = true;
+    } catch (err) {
+      if (err.code !== FC_API_ERROR_CODE.AliasNotFound) {
+        logger.debug(
+          `Checking function ${functionName} alias ${aliasName} error: ${err.message}, retrying create`,
+        );
+      }
+    }
+
+    if (!needUpdate) {
+      logger.debug(`Need create alias ${functionName} alias ${aliasName}`);
+      try {
+        await this.createAlias(functionName, config);
+        return;
+      } catch (ex) {
+        logger.debug(`Create function error: ${ex.message}`);
+        if (ex.code !== FC_API_ERROR_CODE.AliasAlreadyExists) {
+          throw ex;
+        }
+        logger.debug('Create functions already exists, retry update');
+        needUpdate = true;
+      }
+    }
+
+    await this.updateAlias(functionName, aliasName, config);
   }
 }
