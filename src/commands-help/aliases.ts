@@ -46,6 +46,7 @@ export default {
           ['--region <region>', 'Appoint region'],
           ['--function-name <functionName>', 'Appoint function name'],
           ['--alias-name <aliasName>', 'Appoint alias name'],
+          ['-y, --yes', "Don't ask, delete directly"],
         ],
       },
     },
