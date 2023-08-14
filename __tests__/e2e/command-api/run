@@ -1,0 +1,20 @@
+#!/bin/
+
+set -e
+
+# export FC_DOCKER_VERSION=1.10.8
+# export fc_component_version=fc3@dev.0.1
+
+echo "test nodejs16 runtime ..."
+s3 deploy -y
+
+s3 version publish --description test
+s3 version list
+s3 version remove --version-id latest
+
+s3 concurrency put --reserved-concurrency 80
+s3 concurrency get
+s3 concurrency remove
+
+
+s3 remove -y

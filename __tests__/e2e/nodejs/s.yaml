@@ -5,8 +5,6 @@ access: quanxi
 # TODO: 需要完善
 resources:
   fcDemo: # 业务名称/模块名称
-    # component: ${path('../../../')} # 组件名称
-    # component: fc3@dev.0.1
     component: ${env('fc_component_version', path('../../../'))}
     props: # 组件的属性值
       region: cn-huhehaote

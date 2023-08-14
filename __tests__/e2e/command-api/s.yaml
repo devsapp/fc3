@@ -1,0 +1,16 @@
+edition: 3.0.0 #  命令行YAML规范版本，遵循语义化版本（Semantic Versioning）规范
+name: test-node-app #  项目名称
+access: quanxi
+
+resources:
+  fcDemo:
+    component: ${env('fc_component_version', path('../../../'))}
+    props: # 组件的属性值
+      region: cn-huhehaote
+      function:
+        functionName: fc3-command
+        runtime: nodejs14
+        code: ./code
+        handler: event.handler
+        memorySize: 128
+        timeout: 30
