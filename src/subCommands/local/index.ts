@@ -2,6 +2,7 @@ import { NodejsLocalInvoke } from './impl/invoke/nodejsLocalInvoke';
 import { PythonLocalInvoke } from './impl/invoke/pythonLocalInvoke';
 import { JavaLocalInvoke } from './impl/invoke/javaLocalInvoke';
 import { PhpLocalInvoke } from './impl/invoke/phpLocalInvoke';
+import { GoLocalInvoke } from './impl/invoke/goLocalInvoke';
 import { DotnetLocalInvoke } from './impl/invoke/dotnetLocalInvoke';
 import { CustomLocalInvoke } from './impl/invoke/customLocalInvoke';
 import { CustomContainerLocalInvoke } from './impl/invoke/customContainerLocalInvoke';
@@ -44,6 +45,10 @@ export default class ComponentBuild {
       case 'php7.2':
         let phpLocalInvoker = new PhpLocalInvoke(inputs);
         await phpLocalInvoker.invoke();
+        break;
+      case 'go1':
+        let goLocalInvoke = new GoLocalInvoke(inputs);
+        await goLocalInvoke.invoke();
         break;
       case 'dotnetcore2.1':
         let dotnetLocalInvoker = new DotnetLocalInvoke(inputs);

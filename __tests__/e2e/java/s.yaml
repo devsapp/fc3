@@ -14,7 +14,7 @@ resources:
       function:
         functionName: fc3-event-${env('fc_component_function_name', 'java11')}
         runtime: ${env('fc_component_runtime', 'java11')}
-        code: ./target/ServerlessToolProject-1.0-SNAPSHOT.jar
+        code: ./target/ServerlessToolProject-1.0-SNAPSHOT-jar-with-dependencies.jar
         handler: example.App::handleRequest
         memorySize: 512
         timeout: 60

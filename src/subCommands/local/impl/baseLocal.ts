@@ -20,6 +20,7 @@ import {
 } from '../../../default/image';
 import { runCommand } from '../../../utils';
 import FC from '../../../resources/fc';
+const { execSync } = require('child_process');
 
 export class BaseLocal {
   protected inputProps: IInputs;
@@ -28,9 +29,10 @@ export class BaseLocal {
   protected unzippedCodeDir?: string;
   private baseDir: string;
 
-  constructor(props: IInputs) {
-    this.inputProps = props;
-    this.baseDir = props.baseDir || process.cwd();
+  constructor(inputs: IInputs) {
+    this.inputProps = inputs;
+    this.baseDir = path.dirname(inputs.yaml?.path || process.cwd());
+    logger.info(`Local baseDir is: ${this.baseDir}`);
   }
 
   getProps(): any {
@@ -128,18 +130,55 @@ export class BaseLocal {
     }
     const codeUri = this.getFunctionProps().code as ICodeUri;
     let src: string = typeof codeUri === 'string' ? codeUri : codeUri.src;
-
-    if (_.endsWith(src, '.zip') || _.endsWith(src, '.jar') || _.endsWith(src, '.war')) {
+    const runtime = this.getFunctionProps().runtime;
+    if (_.endsWith(src, '.zip') || (_.endsWith(src, '.jar') && runtime.startsWith('java'))) {
       const tmpCodeDir: string = path.join(tmpDir, uuidV4());
       await fs.ensureDir(tmpCodeDir);
-      logger.log(`code is a zip format, will unzipping to ${tmpCodeDir}`);
+      logger.log(`code is a zip or jar format, will unzipping to ${tmpCodeDir}`);
       await extract(src, { dir: tmpCodeDir });
+      this.unzippedCodeDir = tmpCodeDir;
+      return tmpCodeDir;
+    } else if (_.endsWith(src, '.jar') && FC.isCustomRuntime(runtime)) {
+      let props = this.getFunctionProps();
+      const command = _.get(props, 'customRuntimeConfig.command', []);
+      const args = _.get(props, 'customRuntimeConfig.args', []);
+      const commandStr = `${_.join(command, ' ')} ${_.join(args, ' ')}`;
+      if (commandStr.includes('java -jar')) {
+        const resolvedCodeUri = path.isAbsolute(src) ? src : path.join(this.baseDir, src);
+        return path.dirname(resolvedCodeUri);
+      } else {
+        const resolvedCodeUri = path.isAbsolute(src) ? src : path.join(this.baseDir, src);
+        const tmpCodeDir = await this.tryUnzip(resolvedCodeUri);
+        this.unzippedCodeDir = tmpCodeDir;
+        return tmpCodeDir;
+      }
+    } else if (_.endsWith(src, '.war')) {
+      const tmpCodeDir = await this.tryUnzip(src);
       this.unzippedCodeDir = tmpCodeDir;
       return tmpCodeDir;
     } else {
       const resolvedCodeUri = path.isAbsolute(src) ? src : path.join(this.baseDir, src);
       return resolvedCodeUri;
     }
+  }
+
+  // jar and war try use unzip command, reminder user install unzip
+  private async tryUnzip(src: string): Promise<string> {
+    const tmpCodeDir: string = path.join(tmpDir, uuidV4());
+    await fs.ensureDir(tmpCodeDir);
+    logger.log(`code is a jar or war format, will unzipping to ${tmpCodeDir}`);
+    try {
+      const result = execSync(`unzip -q ${src} -d ${tmpCodeDir}`, { encoding: 'utf-8' });
+      logger.info(result);
+    } catch (err) {
+      // https://linux.die.net/man/1/unzip
+      // 1:  one or more warning errors were encountered, but processing completed successfully anyway
+      if (err.status !== 1) {
+        logger.error(err);
+        logger.error('install unzip in your machine and retry');
+      }
+    }
+    return tmpCodeDir;
   }
 
   checkCodeUri(): boolean {
@@ -180,6 +219,7 @@ export class BaseLocal {
   async getMountString(): Promise<string> {
     // TODO: layer and  tmp dir
     const codeUri = await this.getCodeUri();
+    logger.debug(`mount codeUri = ${codeUri}`);
     let mntStr = `-v ${codeUri}:/code`;
     return mntStr;
   }
