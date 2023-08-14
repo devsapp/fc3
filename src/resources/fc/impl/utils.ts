@@ -37,8 +37,9 @@ export function computeLocalAuto(local) {
   const vpcAuto = isAuto(local.vpcConfig) || (!local.vpcConfig && nasAuto);
   const slsAuto = isAuto(local.logConfig);
   const roleAuto =
-    _.isNil(local.role) &&
-    (nasAuto || vpcAuto || slsAuto || isCustomContainerRuntime(local?.runtime));
+    isAuto(local.role) ||
+    (_.isNil(local.role) &&
+      (nasAuto || vpcAuto || slsAuto || isCustomContainerRuntime(local?.runtime)));
   return { nasAuto, vpcAuto, slsAuto, roleAuto };
 }
 
