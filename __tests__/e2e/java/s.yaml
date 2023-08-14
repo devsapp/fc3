@@ -1,5 +1,5 @@
 edition: 3.0.0 #  命令行YAML规范版本，遵循语义化版本（Semantic Versioning）规范
-name: framework #  项目名称
+name: test-java-app #  项目名称
 access: quanxi
 
 # TODO: 需要完善
@@ -12,7 +12,7 @@ resources:
     props: # 组件的属性值
       region: cn-huhehaote
       function:
-        functionName: fc3-event-${env('fc_component_runtime', 'java11')}
+        functionName: fc3-event-${env('fc_component_function_name', 'java11')}
         runtime: ${env('fc_component_runtime', 'java11')}
         code: ./target/ServerlessToolProject-1.0-SNAPSHOT.jar
         handler: example.App::handleRequest

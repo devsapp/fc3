@@ -8,7 +8,7 @@ resources:
     props: # 组件的属性值
       region: cn-huhehaote
       function:
-        functionName: fc3-event-apt-get
+        functionName: fc3-event-apt-get-${env('fc_component_function_name', 'nodejs14')}
         runtime: nodejs14
         code: ./code
         handler: index.handler

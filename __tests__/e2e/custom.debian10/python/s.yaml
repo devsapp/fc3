@@ -1,5 +1,5 @@
 edition: 3.0.0
-name: helloworldApp
+name: test-custom-debian10-python
 access: "quanxi"
 
 resources:
@@ -8,13 +8,15 @@ resources:
     props:
       region: cn-huhehaote
       function:
-        functionName: fc3-event-debian10-python310
+        functionName: fc3-event-debian10-${env('fc_component_function_name', 'python310')}
         handler: index.handler
         timeout: 60
         memorySize: 1536
+        cpu: 1
+        diskSize: 512
         runtime: custom.debian10
         code: ./code
-        instanceConcurrency: 2
+        instanceConcurrency: 10
         environmentVariables:
           PYTHONPATH: /code/3rd-packages
           PATH: /code/3rd-packages/bin:/usr/local/bin/apache-maven/bin:/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/ruby/bin

@@ -6,17 +6,18 @@ set -e
 # export fc_component_version=fc3@dev.0.1
 
 export fc_component_runtime=python3
-export fc_component_function_name=python3
+export fc_component_function_name=python3-$(uname)-$(uname -m)
 echo "test python3 runtime ..."
 rm -rf ./code/3rd-packages
 s3 build
 s3 local invoke -e '{"hello":"fc python3"}'
 s3 deploy -y 
+s3 info
 s3 invoke -e '{"hello":"fc python3"}'
 s3 remove -y
 
 export fc_component_runtime=python3.10
-export fc_component_function_name=python310
+export fc_component_function_name=python310-$(uname)-$(uname -m)
 rm -rf ./code/3rd-packages
 echo "test python3.10 runtime ..."
 s3 build
@@ -26,7 +27,7 @@ s3 invoke -e '{"hello":"fc python3.10"}'
 s3 remove -y
 
 export fc_component_runtime=python3.9
-export fc_component_function_name=python39
+export fc_component_function_name=python39-$(uname)-$(uname -m)
 echo "test python3.9 runtime ..."
 rm -rf ./code/3rd-packages
 s3 build
@@ -36,7 +37,7 @@ s3 invoke -e '{"hello":"fc python3.9"}'
 s3 remove -y
 
 # export fc_component_runtime=python2.7
-# export fc_component_function_name=python27
+# export fc_component_function_name=python27-$(uname)-$(uname -m)
 # echo "test python2.7 runtime ..."
 # rm -rf ./code/3rd-packages
 # s3 build

@@ -8,8 +8,10 @@ set -e
 echo "test apt-get ..."
 rm -rf ./code/apt-archives
 rm -rf ./code/node_modules
+export fc_component_function_name=nodejs14-$(uname)-$(uname -m)
 s3 build
 s3 local invoke -e '{"hello":"apt-get"}'
 s3 deploy -y 
 s3 invoke -e '{"hello":"apt-get"}'
+s3 info
 s3 remove -y

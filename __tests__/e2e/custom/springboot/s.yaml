@@ -1,5 +1,5 @@
 edition: 3.0.0
-name: web-framework-app
+name: test-custom-springboot
 access: 'quanxi'
 
 template:
@@ -34,11 +34,13 @@ resources:
           path: ./code
     props:
       function:
-        functionName: fc3-custom-springboot-jar
+        functionName: fc3-custom-${env('fc_component_function_name', 'springboot')}-jar
         description: 'Serverless Devs Web Framework Function'
         code: ./code/target/webframework.jar
         runtime: custom
         memorySize: 1024
+        cpu: 1
+        diskSize: 512
         timeout: 30
         customRuntimeConfig:
           command:
@@ -56,11 +58,13 @@ resources:
           path: ./code
     props:
       function:
-        functionName: fc3-custom-springboot
+        functionName: fc3-custom-${env('fc_component_function_name', 'springboot')}
         description: 'Serverless Devs Web Framework Function'
         code: ./code/target/webframework.jar
         runtime: custom
         memorySize: 1024
+        cpu: 1
+        diskSize: 512
         timeout: 30
         customRuntimeConfig:
           command:
