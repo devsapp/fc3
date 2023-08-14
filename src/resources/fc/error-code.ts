@@ -5,6 +5,8 @@ export enum FC_API_ERROR_CODE {
   FunctionAlreadyExists = 'FunctionAlreadyExists', // 函数已存在
   AccessDenied = 'AccessDenied', // 没有权限
   TriggerNotFound = 'TriggerNotFound', // 触发器不存在
+  AliasNotFound = 'AliasNotFound', // 别名不存在
+  AliasAlreadyExists = 'AliasAlreadyExists', // 别名已存在
 }
 
 export const isSlsNotExistException = (project: string, logstore: string, ex) => {

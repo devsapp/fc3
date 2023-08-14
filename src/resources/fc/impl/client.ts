@@ -1,14 +1,16 @@
 import FCClient, {
+  CreateAliasInput,
+  CreateAliasRequest,
   CreateFunctionInput,
   CreateFunctionRequest,
   CreateFunctionResponse,
   CreateTriggerInput,
   CreateTriggerRequest,
   CreateTriggerResponse,
-  GetConcurrencyConfigResponse,
   GetFunctionCodeRequest,
   InvokeFunctionHeaders,
   InvokeFunctionRequest,
+  ListAliasesRequest,
   ListFunctionVersionsRequest,
   ListFunctionsRequest,
   ListTriggersRequest,
@@ -16,6 +18,8 @@ import FCClient, {
   PublishVersionInput,
   PutConcurrencyConfigRequest,
   PutConcurrencyInput,
+  UpdateAliasInput,
+  UpdateAliasRequest,
   UpdateFunctionInput,
   UpdateFunctionRequest,
   UpdateFunctionResponse,
@@ -33,6 +37,8 @@ import { FC_CLIENT_DEFAULT_TIMEOUT } from '../../../default/config';
 import { IRegion, IFunction, ITrigger } from '../../../interface';
 import { getCustomEndpoint } from './utils';
 import _ from 'lodash';
+import logger from '../../../logger';
+import { IAlias } from '../../../interface/cli-config/alias';
 
 interface IOptions {
   timeout?: number;
@@ -204,20 +210,6 @@ export default class FC_Client {
     return body;
   }
 
-  async getVersionLatest(functionName: string) {
-    const request = new ListFunctionVersionsRequest({ limit: 1 });
-    const runtime = new RuntimeOptions({});
-    const headers = {};
-    const result = await this.fc20230330Client.listFunctionVersionsWithOptions(
-      functionName,
-      request,
-      headers,
-      runtime,
-    );
-    const { body } = result.toMap();
-    return _.get(body, 'versions[0]', {});
-  }
-
   async listFunctionVersion(functionName: string): Promise<any[]> {
     const request = new ListFunctionVersionsRequest({ limit: 100 });
     const runtime = new RuntimeOptions({});
@@ -229,7 +221,49 @@ export default class FC_Client {
       runtime,
     );
     const { body } = result.toMap();
+    logger.debug(`list ${functionName} version body: ${JSON.stringify(body)}`);
     return body.versions;
+  }
+
+  async getAlias(functionName: string, aliasName: string) {
+    const result = await this.fc20230330Client.getAlias(functionName, aliasName);
+    const { body } = result.toMap();
+    logger.debug(`get ${functionName} alias ${aliasName} body: ${JSON.stringify(body)}`);
+    return body;
+  }
+
+  async listAlias(functionName: string): Promise<any[]> {
+    const request = new ListAliasesRequest({ limit: 100 });
+    const runtime = new RuntimeOptions({});
+    const headers = {};
+    const result = await this.fc20230330Client.listAliasesWithOptions(
+      functionName,
+      request,
+      headers,
+      runtime,
+    );
+    const { body } = result.toMap();
+    logger.debug(`list ${functionName} aliases body: ${JSON.stringify(body)}`);
+    return body.aliases;
+  }
+
+  async createAlias(functionName: string, config: IAlias) {
+    const request = new CreateAliasRequest({
+      body: new CreateAliasInput(config),
+    });
+    return await this.fc20230330Client.createAlias(functionName, request);
+  }
+
+  async removeAlias(functionName: string, aliasName: string) {
+    return await this.fc20230330Client.deleteAlias(functionName, aliasName);
+  }
+
+  async updateAlias(functionName: string, aliasName: string, config: IAlias) {
+    const request = new UpdateAliasRequest({
+      body: new UpdateAliasInput(config),
+    });
+
+    return await this.fc20230330Client.updateAlias(functionName, aliasName, request);
   }
 
   async getFunctionConcurrency(functionName: string) {

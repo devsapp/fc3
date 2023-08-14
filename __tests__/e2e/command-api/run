@@ -10,11 +10,17 @@ s3 deploy -y
 
 s3 version publish --description test
 s3 version list
-s3 version remove --version-id latest
+s3 version remove --version-id latest  -y
 
 s3 concurrency put --reserved-concurrency 80
 s3 concurrency get
-s3 concurrency remove
+s3 concurrency remove -y
 
+s3 version publish --description test
+s3 alias list
+s3 alias publish --alias-name test --version-id latest
+s3 alias get --alias-name test
+s3 alias list
+s3 alias remove --alias-name test  -y
 
 s3 remove -y
