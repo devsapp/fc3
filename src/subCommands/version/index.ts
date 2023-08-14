@@ -64,6 +64,13 @@ export default class Version {
     if (!this.versionId) {
       throw new Error(`Need specify remove the versionId`);
     }
+    if (this.versionId.toLowerCase() === 'latest') {
+      const { versionId } = await this.fcSdk.getVersionLatest(this.functionName);
+      if (!versionId) {
+        throw new Error(`Not found versionId in the ${this.functionName}`);
+      }
+      this.versionId = versionId;
+    }
     if (!this.yes) {
       const y = await promptForConfirmOrDetails(
         `Are you sure you want to delete the ${this.functionName} function ${this.versionId} version?`,

@@ -32,6 +32,7 @@ import FC2 from '@alicloud/fc2';
 import { FC_CLIENT_DEFAULT_TIMEOUT } from '../../../default/config';
 import { IRegion, IFunction, ITrigger } from '../../../interface';
 import { getCustomEndpoint } from './utils';
+import _ from 'lodash';
 
 interface IOptions {
   timeout?: number;
@@ -201,6 +202,20 @@ export default class FC_Client {
     );
     const { body } = result.toMap();
     return body;
+  }
+
+  async getVersionLatest(functionName: string) {
+    const request = new ListFunctionVersionsRequest({ limit: 1 });
+    const runtime = new RuntimeOptions({});
+    const headers = {};
+    const result = await this.fc20230330Client.listFunctionVersionsWithOptions(
+      functionName,
+      request,
+      headers,
+      runtime,
+    );
+    const { body } = result.toMap();
+    return _.get(body, 'versions[0]', {});
   }
 
   async listFunctionVersion(functionName: string): Promise<any[]> {
