@@ -1,5 +1,5 @@
 edition: 3.0.0
-name: framework
+name: test-go-app
 access: quanxi
 
 resources:
@@ -14,7 +14,7 @@ resources:
     props:
       region: cn-huhehaote
       function:
-        functionName: fc3-event-go
+        functionName: fc3-event-${env('fc_component_function_name', 'go1')}
         description: 'hello world by serverless devs'
         timeout: 30
         runtime: go1

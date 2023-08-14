@@ -8,7 +8,7 @@ resources:
     props:
       region: cn-huhehaote
       function:
-        functionName: fc3-event-php
+        functionName: fc3-event-${env('fc_component_function_name', 'php7.2')}
         description: 'hello world by serverless devs'
         runtime: php7.2
         code: ./code

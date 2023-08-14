@@ -11,7 +11,7 @@ resources:
     props:
       region: ${vars.region}
       function:
-        functionName: fc3-event-custom-container
+        functionName: fc3-event-${env('fc_component_function_name', 'custom_container')}
         runtime: custom-container
         handler: index.handler
         timeout: 30

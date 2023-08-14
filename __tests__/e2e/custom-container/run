@@ -6,7 +6,9 @@ set -e
 # export fc_component_version=fc3@dev.0.1
 
 echo "test custom-container runtime ..."
+export fc_component_function_name=custom_container-$(uname)-$(uname -m)
 s3 build
 s3 deploy -y 
 s3 invoke -e '{"hello":"fc custom-container"}'
+s3 info
 s3 remove -y

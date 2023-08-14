@@ -1,5 +1,5 @@
 edition: 3.0.0
-name: framework
+name: test-custom-go
 access: quanxi
 
 resources:
@@ -14,10 +14,12 @@ resources:
     props:
       region: cn-huhehaote
       function:
-        functionName: fc3-event-custom-go
+        functionName: fc3-event-custom-${env('fc_component_function_name', 'go1')}
         description: 'hello world by serverless devs'
         timeout: 30
         memorySize: 512
+        cpu: 0.5
+        diskSize: 512
         runtime: custom
         code: ./code/target
         customRuntimeConfig:

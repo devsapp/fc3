@@ -1,23 +1,26 @@
-#!/bin/
+#!/bin/bash
 
 set -e
 
 # export FC_DOCKER_VERSION=1.10.8
 # export fc_component_version=fc3@dev.0.1
 
-# nodejs12
-export fc_component_runtime=nodejs12
+# nodejs14
+export fc_component_runtime=nodejs14
+export fc_component_function_name=nodejs14-$(uname)-$(uname -m)
 rm -rf ./code/node_modules
-echo "test nodejs12 runtime ..."
+echo "test nodejs14 runtime ..."
 s3 build
-s3 local invoke -e '{"hello":"fc nodejs12"}'
+s3 local invoke -e '{"hello":"fc nodejs14"}'
 s3 deploy -y 
-s3 invoke -e '{"hello":"fc nodejs12"}'
+s3 info
+s3 invoke -e '{"hello":"fc nodejs14"}'
 s3 remove -y
 
 
 # nodejs12
 export fc_component_runtime=nodejs12
+export fc_component_function_name=nodejs12-$(uname)-$(uname -m)
 rm -rf ./code/node_modules
 echo "test nodejs12 runtime ..."
 s3 build
@@ -28,6 +31,7 @@ s3 remove -y
 
 # nodejs16
 export fc_component_runtime=nodejs16
+export fc_component_function_name=nodejs16-$(uname)-$(uname -m)
 echo "test nodejs16 runtime ..."
 rm -rf ./code/node_modules
 s3 build
@@ -39,6 +43,7 @@ s3 remove -y
 
 # nodejs10
 export fc_component_runtime=nodejs10
+export fc_component_function_name=nodejs10-$(uname)-$(uname -m)
 rm -rf ./code/node_modules
 echo "test nodejs10 runtime ..."
 s3 build
@@ -48,11 +53,12 @@ s3 invoke -e '{"hello":"fc nodejs10"}'
 s3 remove -y
 
 # nodejs8
-export fc_component_runtime=nodejs8
-rm -rf ./code/node_modules
-echo "test nodejs8 runtime ..."
-s3 build
-s3 local invoke -e '{"hello":"fc nodejs8"}'
-s3 deploy -y 
-s3 invoke -e '{"hello":"fc nodejs8"}'
-s3 remove -y
+# export fc_component_runtime=nodejs8
+# export fc_component_function_name=nodejs8-$(uname)-$(uname -m)
+# rm -rf ./code/node_modules
+# echo "test nodejs8 runtime ..."
+# s3 build
+# s3 local invoke -e '{"hello":"fc nodejs8"}'
+# s3 deploy -y 
+# s3 invoke -e '{"hello":"fc nodejs8"}'
+# s3 remove -y

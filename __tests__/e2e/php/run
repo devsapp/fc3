@@ -7,8 +7,10 @@ set -e
 
 echo "test php runtime ..."
 rm -rf ./code/vendor
+export fc_component_function_name=php72-$(uname)-$(uname -m)
 s3 build
 s3 local invoke -e '{"hello":"fc php"}'
 s3 deploy -y 
+s3 info
 s3 invoke -e '{"hello":"fc php"}'
 s3 remove -y
