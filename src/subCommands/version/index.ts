@@ -47,6 +47,14 @@ export default class Version {
     this.functionName = functionName || _.get(inputs, 'props.function.functionName');
     logger.debug(`function name: ${this.functionName}`);
 
+    if (!this.region) {
+      throw new Error('Region not specified, please specify --region');
+    }
+    logger.debug(`region: ${this.region}`);
+    if (!this.functionName) {
+      throw new Error('Function name not specified, please specify --function-name');
+    }
+
     this.fcSdk = new FC(this.region, inputs.credential, {
       endpoint: inputs.props.endpoint,
     });

@@ -15,6 +15,15 @@ export default class Plan {
   constructor(private inputs: IInputs) {
     this.region = _.get(this.inputs, 'props.region');
     this.functionName = _.get(inputs, 'props.function.functionName');
+
+    if (!this.region) {
+      throw new Error('Region not specified, please specify --region');
+    }
+    logger.debug(`region: ${this.region}`);
+    if (!this.functionName) {
+      throw new Error('Function name not specified, please specify --function-name');
+    }
+
     this.triggers = _.get(inputs, 'props.triggers', []).map((item) =>
       _.defaults(item, FC_TRIGGER_DEFAULT_CONFIG),
     );
