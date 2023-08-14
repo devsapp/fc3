@@ -1,35 +1,36 @@
 export default {
   help: {
-    description: 'version command',
+    description: 'provision command',
   },
   subCommands: {
-    list: {
+    get: {
       help: {
-        description: 'version list command',
-        summary: 'version list summary',
+        description: 'provision list command',
         option: [
           ['--region <region>', 'Appoint region'],
           ['--function-name <functionName>', 'Appoint function name'],
         ],
       },
     },
-    publish: {
+    put: {
       help: {
-        description: 'version list command',
+        description: 'provision put command',
         option: [
           ['--region <region>', 'Appoint region'],
           ['--function-name <functionName>', 'Appoint function name'],
-          ['--description', 'version description'],
+          ['--target <max>', 'Appoint provision target'],
+          ['--ac, --always-allocate-cpu', 'Appoint provision target'],
+          ['--scheduled-actions <json>', 'Scheduled actions'],
+          ['--target-tracking-policies <json>', 'Target tracking policies'],
         ],
       },
     },
     remove: {
       help: {
-        description: 'version list command',
+        description: 'provision remove command',
         option: [
           ['--region <region>', 'Appoint region'],
           ['--function-name <functionName>', 'Appoint function name'],
-          ['--version-id', 'Specify versionId'],
           ['-y, --yes', "Don't ask, delete directly"],
         ],
       },
