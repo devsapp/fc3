@@ -115,7 +115,7 @@ export interface IFunction {
   gpuConfig?: IGpuConfig;
   tracingConfig?: ITracingConfig;
   instanceLifecycleConfig?: {
-    initializer: ILifecycleHook;
-    preStop: ILifecycleHook;
+    initializer?: ILifecycleHook;
+    preStop?: ILifecycleHook;
   };
 }

@@ -42,6 +42,43 @@ export default function (_local: any, _remote: any) {
     }
   }
 
+  // 适配钩子函数配置
+  if (!(_.isEmpty(local?.instanceLifecycleConfig) && _.isEmpty(remote?.instanceLifecycleConfig))) {
+    const { initializer, preStop } = local.instanceLifecycleConfig || {};
+    const initializerTimeout = _.get(remote, 'instanceLifecycleConfig.initializer.timeout', 3);
+    if (
+      remote?.instanceLifecycleConfig?.initializer?.handler ||
+      remote?.instanceLifecycleConfig?.initializer?.timeout
+    ) {
+      if (initializer?.handler) {
+        if (!initializer.timeout) {
+          _.set(local.instanceLifecycleConfig, 'initializer.timeout', initializerTimeout);
+        }
+      } else {
+        _.set(local.instanceLifecycleConfig, 'initializer.handler', '');
+        _.set(local.instanceLifecycleConfig, 'initializer.handler', 3);
+      }
+    } else if (initializer?.handler && !initializer.timeout) {
+      _.set(local.instanceLifecycleConfig, 'initializer.timeout', initializerTimeout);
+    }
+    const preStopTimeout = _.get(remote, 'instanceLifecycleConfig.preStop.timeout', 3);
+    if (
+      remote?.instanceLifecycleConfig?.preStop?.handler ||
+      remote?.instanceLifecycleConfig?.preStop?.timeout
+    ) {
+      if (preStop?.handler) {
+        if (!preStop.timeout) {
+          _.set(local.instanceLifecycleConfig, 'preStop.timeout', preStopTimeout);
+        }
+      } else {
+        _.set(local.instanceLifecycleConfig, 'preStop.handler', '');
+        _.set(local.instanceLifecycleConfig, 'preStop.timeout', 3);
+      }
+    } else if (preStop?.handler && !preStop.timeout) {
+      _.set(local.instanceLifecycleConfig, 'preStop.timeout', preStopTimeout);
+    }
+  }
+
   if (isCustomContainerRuntime(local.runtime)) {
     // TODO: 先注释掉，接口不支持；等后面对齐再处理
     // if (!local.customContainerConfig?.accelerationType) {
