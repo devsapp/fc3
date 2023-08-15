@@ -13,10 +13,8 @@ import FCClient, {
   InvokeFunctionHeaders,
   InvokeFunctionRequest,
   ListAliasesRequest,
-  ListFunctionVersionsRequest,
   ListFunctionsRequest,
   ListProvisionConfigsRequest,
-  ListTriggersRequest,
   PublishFunctionVersionRequest,
   PublishVersionInput,
   PutConcurrencyConfigRequest,
@@ -119,6 +117,13 @@ export default class FC_Client {
     return await this.fc20230330Client.createTrigger(functionName, request);
   }
 
+  async removeTrigger(functionName: string, triggerName: string) {
+    const headers = {};
+    const runtime = new RuntimeOptions({});
+    const result = await this.fc20230330Client.deleteTriggerWithOptions(functionName, triggerName, headers, runtime);
+    return result;
+  }
+
   async updateTrigger(
     functionName: string,
     triggerName: string,
@@ -175,18 +180,6 @@ export default class FC_Client {
     return body;
   }
 
-  async listTriggers(functionName: string) {
-    const request = new ListTriggersRequest({ limit: 100 });
-    const runtime = new RuntimeOptions({});
-    const headers = {};
-    return await this.fc20230330Client.listTriggersWithOptions(
-      functionName,
-      request,
-      headers,
-      runtime,
-    );
-  }
-
   async removeFunctionVersion(functionName: string, versionId: string) {
     const runtime = new RuntimeOptions({});
     const headers = {};
@@ -214,21 +207,6 @@ export default class FC_Client {
     );
     const { body } = result.toMap();
     return body;
-  }
-
-  async listFunctionVersion(functionName: string): Promise<any[]> {
-    const request = new ListFunctionVersionsRequest({ limit: 100 });
-    const runtime = new RuntimeOptions({});
-    const headers = {};
-    const result = await this.fc20230330Client.listFunctionVersionsWithOptions(
-      functionName,
-      request,
-      headers,
-      runtime,
-    );
-    const { body } = result.toMap();
-    logger.debug(`list ${functionName} version body: ${JSON.stringify(body)}`);
-    return body.versions;
   }
 
   async getAlias(functionName: string, aliasName: string) {
@@ -325,7 +303,7 @@ export default class FC_Client {
     return body;
   }
 
-  async deleteFunctionConcurrency(functionName: string) {
+  async removeFunctionConcurrency(functionName: string) {
     const result = await this.fc20230330Client.deleteConcurrencyConfig(functionName);
     const { body } = result.toMap();
 

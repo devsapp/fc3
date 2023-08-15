@@ -147,8 +147,8 @@ export default class Provision {
     await this.fcSdk.removeFunctionProvisionConfig(this.functionName, this.qualifier);
     while (true) {
       await sleep(1.5);
-      const { current } = await this.get();
-      if (current === 0) {
+      const { current } = (await this.get()) || {};
+      if (current === 0 || !current) {
         logger.spin('removed', 'function provision', `${this.functionName}/${this.qualifier}`);
         return;
       }

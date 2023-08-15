@@ -6,6 +6,7 @@ import {
   GetFunctionRequest,
   GetFunctionResponse,
   ListFunctionVersionsRequest,
+  ListTriggersRequest,
 } from '@alicloud/fc20230330';
 import { RuntimeOptions } from '@alicloud/tea-util';
 
@@ -394,5 +395,58 @@ export default class FC extends FC_Client {
     }
 
     await this.updateAlias(functionName, aliasName, config);
+  }
+
+  /**
+   * 获取版本列表
+   * @param functionName 
+   * @returns 
+   */
+  async listFunctionVersion(functionName: string): Promise<any[]> {
+    let nextToken: string;
+    const limit = 100;
+    const versions: any[] = [];
+
+    while (true) {
+      const request = new ListFunctionVersionsRequest({ limit, nextToken });
+      const runtime = new RuntimeOptions({});
+      const headers = {};
+      const result = await this.fc20230330Client.listFunctionVersionsWithOptions(
+        functionName,
+        request,
+        headers,
+        runtime,
+      );
+      const { body } = result.toMap();
+      versions.push(...body.versions);
+      if (!body.nextToken) {
+        return versions;
+      }
+      nextToken = body.nextToken;
+    }
+  }
+
+  async listTriggers(functionName: string) {
+    let nextToken: string;
+    const limit = 1;
+    const triggers: any[] = [];
+
+    while (true) {
+      const request = new ListTriggersRequest({ limit, nextToken });
+      const runtime = new RuntimeOptions({});
+      const headers = {};
+      const result = await this.fc20230330Client.listTriggersWithOptions(
+        functionName,
+        request,
+        headers,
+        runtime,
+      );
+      const { body } = result.toMap();
+      triggers.push(...body.triggers);
+      if (!body.nextToken) {
+        return triggers;
+      }
+      nextToken = body.nextToken;
+    }
   }
 }
