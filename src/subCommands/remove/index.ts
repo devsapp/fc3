@@ -23,11 +23,7 @@ export default class Remove {
     });
     logger.debug(`parse argv: ${JSON.stringify(opts)}`);
 
-    const {
-      function: needRemoveFunction,
-      trigger,
-      yes,
-    } = opts;
+    const { function: needRemoveFunction, trigger, yes } = opts;
 
     const removeAll = !needRemoveFunction && !trigger;
 
@@ -36,7 +32,7 @@ export default class Remove {
       throw new Error(`Invalid region: ${region}`);
     }
     this.functionName = inputs.props.function?.functionName;
-  
+
     if (removeAll || needRemoveFunction === true) {
       this.resources.function = this.functionName;
     }
@@ -44,10 +40,13 @@ export default class Remove {
     if (_.isString(trigger)) {
       this.resources.triggerNames = trigger.split(',');
     } else if (removeAll || trigger === true) {
-      this.resources.triggerNames = inputs.props.triggers?.map(item => item.triggerName);
+      this.resources.triggerNames = inputs.props.triggers?.map((item) => item.triggerName);
     }
 
-    if ((!_.isEmpty(this.resources.triggerNames) || this.resources.function) && !this.functionName) {
+    if (
+      (!_.isEmpty(this.resources.triggerNames) || this.resources.function) &&
+      !this.functionName
+    ) {
       throw new Error('Function name not specified');
     }
 
@@ -79,7 +78,9 @@ export default class Remove {
     await this.computingRemoveResource();
 
     if (!this.yes) {
-      const y = await promptForConfirmOrDetails('Are you sure you want to delete the resources listed above');
+      const y = await promptForConfirmOrDetails(
+        'Are you sure you want to delete the resources listed above',
+      );
       if (!y) {
         logger.debug('False is selected. Skip remove');
       }
@@ -105,10 +106,10 @@ export default class Remove {
         return;
       }
     }
-  
+
     try {
       const provision = await this.fcSdk.listFunctionProvisionConfig(this.functionName);
-      this.resources.provision = provision.map(item => {
+      this.resources.provision = provision.map((item) => {
         const qualifier = _.findLast(item.functionArn.split('/'));
         return {
           qualifier,
@@ -126,7 +127,9 @@ export default class Remove {
     try {
       const concurrency = await this.fcSdk.getFunctionConcurrency(this.functionName);
       this.resources.concurrency = concurrency.reservedConcurrency;
-      logger.write(`Remove function ${this.functionName} concurrency: ${this.resources.concurrency}`);
+      logger.write(
+        `Remove function ${this.functionName} concurrency: ${this.resources.concurrency}`,
+      );
       console.log();
     } catch (ex) {
       logger.debug(`Get function ${this.functionName} concurrency error: ${ex.message}`);
@@ -135,7 +138,7 @@ export default class Remove {
     try {
       const aliases = await this.fcSdk.listAlias(this.functionName);
       if (!_.isEmpty(aliases)) {
-        this.resources.aliases = aliases.map(item => item.aliasName);
+        this.resources.aliases = aliases.map((item) => item.aliasName);
         logger.write(`Remove function ${this.functionName} aliases:`);
         logger.output(this.resources.aliases, 2);
         console.log();
@@ -147,9 +150,13 @@ export default class Remove {
     try {
       const versions = await this.fcSdk.listFunctionVersion(this.functionName);
       if (!_.isEmpty(versions)) {
-        this.resources.versions = versions.map(item => item.versionId);
+        this.resources.versions = versions.map((item) => item.versionId);
         if (versions.length > 5) {
-          logger.write(`${chalk.yellow(versions.length)} versions of function ${this.functionName} need to be deleted`);
+          logger.write(
+            `${chalk.yellow(versions.length)} versions of function ${
+              this.functionName
+            } need to be deleted`,
+          );
         } else {
           logger.write(`Remove function ${this.functionName} versions:`);
           logger.output(this.resources.versions, 2);
@@ -172,7 +179,7 @@ export default class Remove {
     // 认为指定删除 triggerNames
     if (!this.resources.function && !_.isEmpty(this.resources.triggerNames)) {
       const triggerNames = this.resources.triggerNames;
-      triggers = _.filter(triggers, item => triggerNames.includes(item.triggerName));
+      triggers = _.filter(triggers, (item) => triggerNames.includes(item.triggerName));
     }
 
     if (_.isEmpty(triggers)) {
@@ -180,16 +187,16 @@ export default class Remove {
     } else {
       logger.write(`Remove function ${this.functionName} triggers:`);
       logger.output(
-        triggers.map(item => ({
+        triggers.map((item) => ({
           triggerName: item.triggerName,
           triggerType: item.triggerType,
           qualifier: item.qualifier,
         })),
-        2
+        2,
       );
       console.log();
 
-      this.resources.triggerNames = triggers.map(item =>item.triggerName);
+      this.resources.triggerNames = triggers.map((item) => item.triggerName);
     }
   }
 
