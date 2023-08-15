@@ -11,6 +11,7 @@ import Deploy from './subCommands/deploy';
 import Info from './subCommands/info';
 import Plan from './subCommands/plan';
 import Invoke from './subCommands/invoke';
+import Provision from './subCommands/provision';
 import Remove from './subCommands/remove';
 import Sync from './subCommands/sync';
 import Version from './subCommands/version';
@@ -81,6 +82,12 @@ export default class Fc extends Base {
     await super.handlePreRun(inputs, true);
     const concurrency = new Concurrency(inputs);
     return await concurrency[concurrency.subCommand]();
+  }
+
+  public async provision(inputs: IInputs) {
+    await super.handlePreRun(inputs, true);
+    const provision = new Provision(inputs);
+    return await provision[provision.subCommand]();
   }
 
   public async build(inputs: IInputs) {

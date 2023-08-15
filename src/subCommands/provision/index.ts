@@ -4,7 +4,8 @@ import { IInputs, IRegion } from '../../interface';
 import logger from '../../logger';
 import _ from 'lodash';
 import FC from '../../resources/fc';
-import { promptForConfirmOrDetails } from '../../utils';
+import { promptForConfirmOrDetails, sleep } from '../../utils';
+import { IProvision } from '../../interface/cli-config/provision';
 
 const commandsList = Object.keys(commandsHelp.subCommands);
 
@@ -14,28 +15,42 @@ export default class Provision {
   private functionName: string;
   private fcSdk: FC;
   private yes: boolean;
+  private alwaysAllocateCPU: boolean;
+  private scheduledActions: string;
+  private targetTrackingPolicies: string;
+  private target: number;
+  private qualifier: string;
 
   constructor(inputs: IInputs) {
-    const {
-      'function-name': functionName,
-      region,
-      yes,
-      _: subCommands,
-    } = parseArgv(inputs.args, {
+    const opts = parseArgv(inputs.args, {
       alias: {
         yes: 'y',
         'always-allocate-cpu': 'ac',
       },
-      boolean: ['y'],
+      boolean: ['y', 'always-allocate-cpu'],
       string: [
         'function-name',
         'region',
-        'target',
-        'always-allocate-cpu',
+        // 'target',
+        'qualifier',
         'scheduled-actions',
         'target-tracking-policies',
       ],
     });
+
+    logger.debug(`provision opts: ${JSON.stringify(opts)}`);
+
+    const {
+      'always-allocate-cpu': alwaysAllocateCPU, // 一直指定 cpu
+      'scheduled-actions': scheduledActions,
+      'target-tracking-policies': targetTrackingPolicies,
+      'function-name': functionName,
+      qualifier,
+      target,
+      region,
+      yes,
+      _: subCommands,
+    } = opts;
 
     logger.debug('subCommands: ', subCommands);
     const subCommand = _.get(subCommands, '[0]');
@@ -52,51 +67,95 @@ export default class Provision {
     if (!this.functionName) {
       throw new Error('Function name not specified, please specify --function-name');
     }
+    this.qualifier = qualifier;
 
-    // this.region = region || _.get(inputs, 'props.region');
-    // logger.debug(`region: ${this.region}`);
-    // this.functionName = functionName || _.get(inputs, 'props.function.functionName');
-    // logger.debug(`function name: ${this.functionName}`);
-    // this.reservedConcurrency = reservedConcurrency ? Number(reservedConcurrency) : undefined;
-    // logger.debug(`reservedConcurrency: ${reservedConcurrency}`);
+    this.yes = yes;
+    this.subCommand = subCommand;
+    this.alwaysAllocateCPU = alwaysAllocateCPU;
+    this.scheduledActions = scheduledActions;
+    this.targetTrackingPolicies = targetTrackingPolicies;
+    this.target = target ? Number(target) : undefined;;
 
-    // if (_.isEmpty(this.region) || _.isEmpty(this.functionName)) {
-    //   throw new Error(
-    //     `Region and function-name is required, region: ${this.region} and function-name: ${this.functionName}`,
-    //   );
-    // }
-
-    // this.yes = yes;
-    // this.subCommand = subCommand;
-
-    // this.fcSdk = new FC(this.region, inputs.credential, {
-    //   endpoint: inputs.props.endpoint,
-    // });
+    this.fcSdk = new FC(this.region, inputs.credential, {
+      endpoint: inputs.props.endpoint,
+    });
   }
 
-  // async get() {
-  //   return await this.fcSdk.getFunctionConcurrency(this.functionName);
-  // }
+  async list() {
+    return await this.fcSdk.listFunctionProvisionConfig(this.functionName);
+  }
 
-  // async put() {
-  //   if (!_.isNumber(this.reservedConcurrency)) {
-  //     throw new Error(
-  //       `ReservedConcurrency must be a number, got ${this.reservedConcurrency}. Please specify a number through --reserved-concurrency <number>`,
-  //     );
-  //   }
-  //   return await this.fcSdk.putFunctionConcurrency(this.functionName, this.reservedConcurrency);
-  // }
+  async get() {
+    if (!this.qualifier) {
+      throw new Error('Qualifier not specified, please specify --qualifier');
+    }
+    return await this.fcSdk.getFunctionProvisionConfig(this.functionName, this.qualifier);
+  }
 
-  // async remove() {
-  //   if (!this.yes) {
-  //     const y = await promptForConfirmOrDetails(
-  //       `Are you sure you want to delete the ${this.functionName} function concurrency?`,
-  //     );
-  //     if (!y) {
-  //       logger.debug(`Skip remove ${this.functionName} function concurrency`);
-  //       return;
-  //     }
-  //   }
-  //   return await this.fcSdk.deleteFunctionConcurrency(this.functionName);
-  // }
+  async put() {
+    if (!this.qualifier) {
+      throw new Error('Qualifier not specified, please specify --qualifier');
+    }
+
+    if (!_.isNumber(this.target)) {
+      throw new Error(
+        `Target must be a number, got ${this.target}. Please specify a number through --target <number>`,
+      );
+    }
+
+    const config: IProvision = {
+      target: this.target,
+      alwaysAllocateCPU: _.isBoolean(this.alwaysAllocateCPU) ? this.alwaysAllocateCPU : false,
+      scheduledActions: [],
+      targetTrackingPolicies: [],
+    };
+    if (this.scheduledActions) {
+      try {
+        config.scheduledActions = JSON.parse(this.scheduledActions);
+      } catch (_ex) {
+        throw new Error(
+          `The incoming --scheduled-actions is not a JSON.`,
+        );
+      }
+    }
+
+    if (this.targetTrackingPolicies) {
+      try {
+        config.targetTrackingPolicies = JSON.parse(this.targetTrackingPolicies);
+      } catch (_ex) {
+        throw new Error(
+          `The incoming --target-tracking-policies is not a JSON.`,
+        );
+      }
+    }
+
+    return await this.fcSdk.putFunctionProvisionConfig(this.functionName, this.qualifier, config);
+  }
+
+  async remove() {
+    if (!this.qualifier) {
+      throw new Error('Qualifier not specified, please specify --qualifier');
+    }
+
+    if (!this.yes) {
+      const y = await promptForConfirmOrDetails(
+        `Are you sure you want to delete the ${this.functionName} function provision?`,
+      );
+      if (!y) {
+        logger.debug(`Skip remove ${this.functionName} function provision`);
+        return;
+      }
+    }
+
+    logger.spin('removing', 'function provision', `${this.functionName}/${this.qualifier}`);
+    await this.fcSdk.removeFunctionProvisionConfig(this.functionName, this.qualifier)
+    while (true) {
+      await sleep(1.5);
+      const { current } = await this.get();
+      if (current === 0) {
+        logger.spin('removed', 'function provision', `${this.functionName}/${this.qualifier}`);
+        return;
+      }
+    }
+  }
 }

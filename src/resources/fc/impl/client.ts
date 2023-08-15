@@ -7,17 +7,22 @@ import FCClient, {
   CreateTriggerInput,
   CreateTriggerRequest,
   CreateTriggerResponse,
+  DeleteProvisionConfigRequest,
   GetFunctionCodeRequest,
+  GetProvisionConfigRequest,
   InvokeFunctionHeaders,
   InvokeFunctionRequest,
   ListAliasesRequest,
   ListFunctionVersionsRequest,
   ListFunctionsRequest,
+  ListProvisionConfigsRequest,
   ListTriggersRequest,
   PublishFunctionVersionRequest,
   PublishVersionInput,
   PutConcurrencyConfigRequest,
   PutConcurrencyInput,
+  PutProvisionConfigInput,
+  PutProvisionConfigRequest,
   UpdateAliasInput,
   UpdateAliasRequest,
   UpdateFunctionInput,
@@ -39,6 +44,7 @@ import { getCustomEndpoint } from './utils';
 import _ from 'lodash';
 import logger from '../../../logger';
 import { IAlias } from '../../../interface/cli-config/alias';
+import { IProvision } from '../../../interface/cli-config/provision';
 
 interface IOptions {
   timeout?: number;
@@ -266,10 +272,45 @@ export default class FC_Client {
     return await this.fc20230330Client.updateAlias(functionName, aliasName, request);
   }
 
+  async listFunctionProvisionConfig(functionName: string) {
+    const request = new ListProvisionConfigsRequest({ functionName, limit: 100 });
+    const result = await this.fc20230330Client.listProvisionConfigs(request);
+    const { body } = result.toMap();
+    logger.debug(`List ${functionName} provision body: ${JSON.stringify(body)}`);
+    return body.provisionConfigs;
+  }
+
+  async getFunctionProvisionConfig(functionName: string, qualifier: string) {
+    const request = new GetProvisionConfigRequest({ qualifier });
+    const result = await this.fc20230330Client.getProvisionConfig(functionName, request);
+    const { body } = result.toMap();
+    logger.debug(`Get ${functionName}(${qualifier}) provision body: ${JSON.stringify(body)}`);
+    return body;
+  }
+
+  async removeFunctionProvisionConfig(functionName: string, qualifier: string) {
+    const request = new DeleteProvisionConfigRequest({ qualifier });
+    const result = await this.fc20230330Client.deleteProvisionConfig(functionName, request);
+    const { body } = result.toMap();
+    logger.debug(`Delete ${functionName}(${qualifier}) provision body: ${JSON.stringify(body)}`);
+    return body;
+  }
+
+  async putFunctionProvisionConfig(functionName: string, qualifier: string, config: IProvision) {
+    logger.debug(`put ${functionName}(${qualifier}) provision config: ${JSON.stringify(config)}`);
+    const request = new PutProvisionConfigRequest({
+      qualifier,
+      body: new PutProvisionConfigInput(config)
+    });
+    const result = await this.fc20230330Client.putProvisionConfig(functionName, request);
+    const { body } = result.toMap();
+    return body;
+  }
+
   async getFunctionConcurrency(functionName: string) {
     const result = await this.fc20230330Client.getConcurrencyConfig(functionName);
     const { body } = result.toMap();
-
+    logger.debug(`list ${functionName} concurrency body: ${JSON.stringify(body)}`);
     return body;
   }
 

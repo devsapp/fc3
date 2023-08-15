@@ -38,17 +38,17 @@ export default class Concurrency {
     }
 
     this.region = region || _.get(inputs, 'props.region');
+    if (!this.region) {
+      throw new Error('Region not specified, please specify --region');
+    }
     logger.debug(`region: ${this.region}`);
     this.functionName = functionName || _.get(inputs, 'props.function.functionName');
-    logger.debug(`function name: ${this.functionName}`);
+    if (!this.functionName) {
+      throw new Error('Function name not specified, please specify --function-name');
+    }
+
     this.reservedConcurrency = reservedConcurrency ? Number(reservedConcurrency) : undefined;
     logger.debug(`reservedConcurrency: ${reservedConcurrency}`);
-
-    if (_.isEmpty(this.region) || _.isEmpty(this.functionName)) {
-      throw new Error(
-        `Region and function-name is required, region: ${this.region} and function-name: ${this.functionName}`,
-      );
-    }
 
     this.yes = yes;
     this.subCommand = subCommand;
