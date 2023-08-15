@@ -120,7 +120,12 @@ export default class FC_Client {
   async removeTrigger(functionName: string, triggerName: string) {
     const headers = {};
     const runtime = new RuntimeOptions({});
-    const result = await this.fc20230330Client.deleteTriggerWithOptions(functionName, triggerName, headers, runtime);
+    const result = await this.fc20230330Client.deleteTriggerWithOptions(
+      functionName,
+      triggerName,
+      headers,
+      runtime,
+    );
     return result;
   }
 

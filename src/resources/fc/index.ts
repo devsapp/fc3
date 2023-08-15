@@ -399,8 +399,8 @@ export default class FC extends FC_Client {
 
   /**
    * 获取版本列表
-   * @param functionName 
-   * @returns 
+   * @param functionName
+   * @returns
    */
   async listFunctionVersion(functionName: string): Promise<any[]> {
     let nextToken: string;
