@@ -74,7 +74,7 @@ export default class Provision {
     this.alwaysAllocateCPU = alwaysAllocateCPU;
     this.scheduledActions = scheduledActions;
     this.targetTrackingPolicies = targetTrackingPolicies;
-    this.target = target ? Number(target) : undefined;;
+    this.target = target ? Number(target) : undefined;
 
     this.fcSdk = new FC(this.region, inputs.credential, {
       endpoint: inputs.props.endpoint,
@@ -113,9 +113,7 @@ export default class Provision {
       try {
         config.scheduledActions = JSON.parse(this.scheduledActions);
       } catch (_ex) {
-        throw new Error(
-          `The incoming --scheduled-actions is not a JSON.`,
-        );
+        throw new Error(`The incoming --scheduled-actions is not a JSON.`);
       }
     }
 
@@ -123,9 +121,7 @@ export default class Provision {
       try {
         config.targetTrackingPolicies = JSON.parse(this.targetTrackingPolicies);
       } catch (_ex) {
-        throw new Error(
-          `The incoming --target-tracking-policies is not a JSON.`,
-        );
+        throw new Error(`The incoming --target-tracking-policies is not a JSON.`);
       }
     }
 
@@ -148,7 +144,7 @@ export default class Provision {
     }
 
     logger.spin('removing', 'function provision', `${this.functionName}/${this.qualifier}`);
-    await this.fcSdk.removeFunctionProvisionConfig(this.functionName, this.qualifier)
+    await this.fcSdk.removeFunctionProvisionConfig(this.functionName, this.qualifier);
     while (true) {
       await sleep(1.5);
       const { current } = await this.get();

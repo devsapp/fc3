@@ -300,7 +300,7 @@ export default class FC_Client {
     logger.debug(`put ${functionName}(${qualifier}) provision config: ${JSON.stringify(config)}`);
     const request = new PutProvisionConfigRequest({
       qualifier,
-      body: new PutProvisionConfigInput(config)
+      body: new PutProvisionConfigInput(config),
     });
     const result = await this.fc20230330Client.putProvisionConfig(functionName, request);
     const { body } = result.toMap();
