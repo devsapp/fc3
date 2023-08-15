@@ -81,6 +81,6 @@ export default class Concurrency {
         return;
       }
     }
-    return await this.fcSdk.deleteFunctionConcurrency(this.functionName);
+    return await this.fcSdk.removeFunctionConcurrency(this.functionName);
   }
 }
