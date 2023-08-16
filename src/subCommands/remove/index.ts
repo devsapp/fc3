@@ -83,13 +83,11 @@ export default class Remove {
       );
       if (!y) {
         logger.debug('False is selected. Skip remove');
+        return;
       }
-      return;
     }
-
-    // TODO: remove 之后的逻辑后面不被运行
-    this.removeTrigger();
-    this.removeFunction();
+    await this.removeTrigger();
+    await this.removeFunction();
   }
 
   private async getFunctionResource() {
@@ -153,8 +151,7 @@ export default class Remove {
         this.resources.versions = versions.map((item) => item.versionId);
         if (versions.length > 5) {
           logger.write(
-            `${chalk.yellow(versions.length)} versions of function ${
-              this.functionName
+            `${chalk.yellow(versions.length)} versions of function ${this.functionName
             } need to be deleted`,
           );
         } else {
