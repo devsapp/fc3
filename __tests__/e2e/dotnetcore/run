@@ -1,0 +1,16 @@
+#!/bin/bash
+
+set -e
+
+# export FC_DOCKER_VERSION=1.10.8
+# export fc_component_version=fc3@dev.0.1
+
+echo "test dotnetcore3.1 runtime ..."
+rm -rf ./HelloFcApp/target
+export fc_component_function_name=dotnetcore31-$(uname)-$(uname -m)
+# s3 build
+# s3 local invoke -e '{"hello":"fc dotnetcore3.1"}'
+s3 deploy -y 
+s3 info
+s3 invoke -e '{"hello":"fc dotnetcore3.1"}'
+s3 remove -y

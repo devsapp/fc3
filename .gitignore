@@ -50,3 +50,6 @@ __tests__/e2e/php/code/vendor
 __tests__/e2e/go/code/target
 __tests__/e2e/custom.debian10/go/code/target
 __tests__/e2e/custom/go/code/target
+__tests__/e2e/dotnetcore/HelloFcApp/bin/Release/netcoreapp3.1
+__tests__/e2e/dotnetcore/HelloFcApp/obj
+__tests__/e2e/dotnetcore/HelloFcApp/target
