@@ -151,7 +151,8 @@ export default class Remove {
         this.resources.versions = versions.map((item) => item.versionId);
         if (versions.length > 5) {
           logger.write(
-            `${chalk.yellow(versions.length)} versions of function ${this.functionName
+            `${chalk.yellow(versions.length)} versions of function ${
+              this.functionName
             } need to be deleted`,
           );
         } else {
