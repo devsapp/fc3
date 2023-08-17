@@ -8,12 +8,12 @@ resources:
     props: # 组件的属性值
       region: cn-huhehaote
       function:
-        functionName: fc3-command
+        functionName: fc3-command-${env('fc_component_function_name', 'fc3-command')}
         runtime: nodejs14
         code: ./code
         handler: event.handler
         memorySize: 128
-        timeout: 30
+        timeout: 3
       triggers:
         - triggerName: httpTrigger # 触发器名称
           triggerType: http # 触发器类型

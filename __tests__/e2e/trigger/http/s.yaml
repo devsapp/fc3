@@ -1,0 +1,40 @@
+edition: 3.0.0 #  命令行YAML规范版本，遵循语义化版本（Semantic Versioning）规范
+name: test-node-app #  项目名称
+access: quanxi
+
+resources:
+  fcDemo: # 业务名称/模块名称
+    component: ${env('fc_component_version', path('../../../../'))}
+    props: # 组件的属性值
+      region: cn-huhehaote
+      function:
+        functionName: ${env('fc_component_function_name', 'nodejs14-http')}
+        runtime: ${env('fc_component_runtime', 'nodejs14')}
+        code: ./code
+        handler: index.handler
+        memorySize: 128
+        timeout: 3
+        # vpcConfig: auto
+        # nasConfig: auto
+        # logConfig: auto
+      triggers:
+        - triggerName: httpTrigger2 # 触发器名称
+          triggerType: http # 触发器类型
+          description: 'http trigger --> test'
+          qualifier: test # 触发服务的版本
+          triggerConfig:
+            authType: function # 鉴权类型，可选值：anonymous、function
+            disableURLInternet: false # 是否禁用公网访问 URL
+            methods: # HTTP 触发器支持的访问方法，可选值：GET、POST、PUT、DELETE、HEAD
+              - GET
+              - POST
+        - triggerName: httpTrigger # 触发器名称
+          triggerType: http # 触发器类型
+          description: 'http trigger --> LATEST'
+          #qualifier: LATEST # 触发服务的版本
+          triggerConfig:
+            authType: anonymous # 鉴权类型，可选值：anonymous、function
+            disableURLInternet: false # 是否禁用公网访问 URL
+            methods: # HTTP 触发器支持的访问方法，可选值：GET、POST、PUT、DELETE、HEAD
+              - GET
+              - POST

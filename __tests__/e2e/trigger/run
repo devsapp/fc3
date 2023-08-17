@@ -1,0 +1,34 @@
+#!/bin/bash
+
+set -e
+set -v
+
+echo "********* test http trigger ************"
+cd ./http
+export fc_component_function_name=test-http-trigger-$(uname)-$(uname -m)-$RANDSTR
+echo "test nodejs14 runtime http trigger ..."
+s3 local invoke -f evt.json
+
+s3 deploy --function -y
+s3 deploy --trigger httpTrigger -y
+s3 version publish --description test
+s3 alias publish --alias-name test --version-id latest
+s3 alias get --alias-name test
+s3 alias list
+
+s3 deploy --trigger httpTrigger2
+
+s3 info
+s3 invoke -e 'hello latest'
+s3 invoke -e 'hello latest' --qualifier 'test'
+
+s3 remove -y
+
+echo "********* test other trigger ************"
+cd ../other
+export fc_component_function_name=test-timer-trigger-$(uname)-$(uname -m)-$RANDSTR
+echo "test nodejs14 runtime timer trigger ..."
+s3 deploy  -y
+s3 info
+s3 remove -y
+cd ..

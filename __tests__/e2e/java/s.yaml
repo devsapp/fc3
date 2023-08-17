@@ -17,6 +17,6 @@ resources:
         code: ./target/ServerlessToolProject-1.0-SNAPSHOT-jar-with-dependencies.jar
         handler: example.App::handleRequest
         memorySize: 512
-        timeout: 60
+        timeout: 5
         initializationTimeout: 60
         initializer: example.App::initialize

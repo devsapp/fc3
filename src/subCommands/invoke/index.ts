@@ -13,20 +13,29 @@ export default class Invoke {
   private functionName: string;
   private fcSdk: FC;
   private payload: string;
+  private qualifier: string;
+  private invokeType: string;
+  private statefulAsyncInvocationId: string;
 
   constructor(inputs: IInputs) {
     this.functionName = inputs.props.function?.functionName;
-    const timeout = inputs.props.function?.timeout;
+    const timeout = inputs.props.function?.timeout + 2; // 加大3s
     this.fcSdk = new FC(inputs.props.region, inputs.credential as ICredentials, {
       timeout: timeout ? timeout * 1000 : undefined,
       endpoint: inputs.props.endpoint,
     });
-    const { event: payload, 'event-file': eventFile } = parseArgv(inputs.args, {
+    const {
+      event: payload,
+      'event-file': eventFile,
+      'invocation-type': invocationType,
+      qualifier,
+      'stateful-async-invocation-id': statefulAsyncInvocationId,
+    } = parseArgv(inputs.args, {
       alias: {
         event: 'e',
         'event-file': 'f',
       },
-      string: ['event', '--event-file'],
+      string: ['event', 'event-file'],
     });
 
     if (_.isString(payload)) {
@@ -38,6 +47,17 @@ export default class Invoke {
       }
       this.payload = fs.readFileSync(p, 'utf-8');
     }
+    this.invokeType = 'Sync';
+    this.qualifier = 'LATEST';
+    if (invocationType !== undefined) {
+      this.invokeType = invocationType;
+    }
+    if (qualifier !== undefined) {
+      this.qualifier = qualifier;
+    }
+    if (statefulAsyncInvocationId !== undefined) {
+      this.statefulAsyncInvocationId = statefulAsyncInvocationId;
+    }
   }
 
   async run() {
@@ -45,6 +65,9 @@ export default class Invoke {
 
     const result = await this.fcSdk.invokeFunction(this.functionName, {
       payload: this.payload,
+      qualifier: this.qualifier,
+      invokeType: this.invokeType,
+      statefulAsyncInvocationId: this.statefulAsyncInvocationId,
     });
     logger.debug(`invoke function ${this.functionName} result ${JSON.stringify(result)}`);
 
@@ -56,7 +79,7 @@ export default class Invoke {
       'x-fc-code-checksum': codeChecksum,
       'x-fc-instance-id': instanceId,
       'x-fc-invocation-service-version': qualifier,
-      // 'x-fc-request-id': requestId,
+      'x-fc-request-id': requestId,
       'x-fc-error-type': errorType,
       'x-fc-log-result': log,
     } = headers || {};
@@ -68,6 +91,7 @@ export default class Invoke {
 ${bold('Invoke instanceId:')} ${green(instanceId)}
 ${bold('Code Checksum:')} ${green(codeChecksum)}
 ${bold('Qualifier:')} ${green(qualifier)}
+${bold('RequestId:')} ${green(requestId)}
 `;
 
     if (headers['x-fc-error-type']) {
