@@ -36,7 +36,7 @@ import { Readable } from 'stream';
 import { Config } from '@alicloud/openapi-client';
 import FC2 from '@alicloud/fc2';
 
-import { FC_CLIENT_DEFAULT_TIMEOUT } from '../../../default/config';
+import { FC_CLIENT_CONNECT_TIMEOUT, FC_CLIENT_READ_TIMEOUT } from '../../../default/config';
 import { IRegion, IFunction, ITrigger } from '../../../interface';
 import { getCustomEndpoint } from './utils';
 import _ from 'lodash';
@@ -59,7 +59,7 @@ export const fc2Client = (region: IRegion, credentials: ICredentials, customEndp
     region,
     endpoint,
     secure: true,
-    timeout: FC_CLIENT_DEFAULT_TIMEOUT,
+    timeout: FC_CLIENT_READ_TIMEOUT,
   });
 };
 
@@ -86,8 +86,8 @@ export default class FC_Client {
       securityToken,
       protocol,
       endpoint,
-      readTimeout: timeout || FC_CLIENT_DEFAULT_TIMEOUT,
-      connectTimeout: timeout || FC_CLIENT_DEFAULT_TIMEOUT,
+      readTimeout: timeout || FC_CLIENT_READ_TIMEOUT,
+      connectTimeout: timeout || FC_CLIENT_CONNECT_TIMEOUT,
     });
 
     this.fc20230330Client = new FCClient(config);
@@ -142,10 +142,31 @@ export default class FC_Client {
 
   async invokeFunction(
     functionName: string,
-    { payload, qualifier }: { payload?: string; qualifier?: string } = {},
+    {
+      payload,
+      qualifier,
+      invokeType,
+      statefulAsyncInvocationId,
+    }: {
+      payload?: string;
+      qualifier?: string;
+      invokeType?: string;
+      statefulAsyncInvocationId?: string;
+    } = {},
   ) {
     const runtime = new RuntimeOptions({});
-    const headers = new InvokeFunctionHeaders({ xFcLogType: 'Tail' }); // 'None' : 'Tail'
+    // xFcLogType in ['None' , 'Tail'], xFcInvocationType in ['Sync, 'Async']
+    let logType = 'Tail';
+    if (invokeType === 'Async') {
+      logType = 'None';
+    }
+    const headers = new InvokeFunctionHeaders({
+      xFcLogType: 'None',
+      xFcInvocationType: invokeType,
+    });
+    if (statefulAsyncInvocationId) {
+      // TODO
+    }
     const request = new InvokeFunctionRequest({
       qualifier,
       body: payload ? Readable.from(Buffer.from(payload, 'utf8')) : undefined,

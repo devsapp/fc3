@@ -39,7 +39,7 @@
     "@serverless-cd/srm-aliyun-sls20201230": "^0.0.1",
     "@serverless-devs/diff": "^0.0.3-beta.3",
     "@serverless-devs/downloads": "^0.0.2-beta.2",
-    "@serverless-devs/utils": "^0.0.7",
+    "@serverless-devs/utils": "^0.0.8-beta.15",
     "@serverless-devs/zip": "^0.0.3-beta.2",
     "ajv": "^8.12.0",
     "chalk": "^4.1.0",

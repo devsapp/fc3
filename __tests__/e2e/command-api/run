@@ -1,9 +1,9 @@
-#!/bin/
+#!/bin/bash
 
 set -e
+set -v 
 
-# export FC_DOCKER_VERSION=1.10.8
-# export fc_component_version=fc3@dev.0.1
+export fc_component_function_name=node16-$(uname)-$(uname -m)
 
 echo "test nodejs16 runtime ..."
 s3 deploy -y

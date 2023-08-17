@@ -21,29 +21,3 @@ resources:
             timeout: 10
         # nasConfig: auto
         # logConfig: auto
-      triggers:
-        - triggerName: httpTrigger2 # 触发器名称
-          triggerType: http # 触发器类型
-          description: 'xxxx'
-          qualifier: test # 触发服务的版本
-          triggerConfig:
-            authType: anonymous # 鉴权类型，可选值：anonymous、function
-            disableURLInternet: false # 是否禁用公网访问 URL
-            methods: # HTTP 触发器支持的访问方法，可选值：GET、POST、PUT、DELETE、HEAD
-              - GET
-        - triggerName: httpTrigger # 触发器名称
-          triggerType: http # 触发器类型
-          description: 'xxxx'
-          # qualifier: LATEST # 触发服务的版本
-          triggerConfig:
-            authType: anonymous # 鉴权类型，可选值：anonymous、function
-            disableURLInternet: false # 是否禁用公网访问 URL
-            methods: # HTTP 触发器支持的访问方法，可选值：GET、POST、PUT、DELETE、HEAD
-              - GET
-      # triggers:
-      #   - triggerName: timerTrigger # 触发器名称
-      #     triggerType: timer # 触发器类型
-      #     triggerConfig:
-      #       cronExpression: '0 0 8 * * *'
-      #       enable: false
-      #       payload: 'awesome-fc'

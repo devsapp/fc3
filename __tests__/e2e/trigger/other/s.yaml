@@ -1,0 +1,26 @@
+edition: 3.0.0 #  命令行YAML规范版本，遵循语义化版本（Semantic Versioning）规范
+name: test-node-app #  项目名称
+access: quanxi
+
+resources:
+  fcDemo: # 业务名称/模块名称
+    component: ${env('fc_component_version', path('../../../../'))}
+    props: # 组件的属性值
+      region: cn-huhehaote
+      function:
+        functionName: ${env('fc_component_function_name', 'nodejs14')}
+        runtime: ${env('fc_component_runtime', 'nodejs14')}
+        code: ./code
+        handler: index.handler
+        memorySize: 128
+        timeout: 3
+        # vpcConfig: auto
+        # nasConfig: auto
+        # logConfig: auto
+      triggers:
+        - triggerName: timerTrigger # 触发器名称
+          triggerType: timer # 触发器类型
+          triggerConfig:
+            cronExpression: '0 0 8 * * *'
+            enable: false
+            payload: 'awesome-fc'

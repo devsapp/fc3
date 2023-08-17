@@ -42,7 +42,10 @@ export const FC_TRIGGER_DEFAULT_CONFIG = {
   description: '',
 };
 
-export const FC_CLIENT_DEFAULT_TIMEOUT: number = undefined;
-// parseInt(process.env.FC_CLIENT_DEFAULT_TIMEOUT || '600') * 1000;
+export const FC_CLIENT_CONNECT_TIMEOUT: number =
+  parseInt(process.env.FC_CLIENT_CONNECT_TIMEOUT || '5') * 1000;
+
+export const FC_CLIENT_READ_TIMEOUT: number =
+  parseInt(process.env.FC_CLIENT_READ_TIMEOUT || '10') * 1000;
 
 export const FC_DEPLOY_RETRY_COUNT = 3;
