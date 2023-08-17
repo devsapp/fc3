@@ -5,7 +5,7 @@ import logger from '../../logger';
 import FC from '../../resources/fc';
 import { FC_API_ERROR_CODE } from '../../resources/fc/error-code';
 import { parseArgv } from '@serverless-devs/utils';
-import { promptForConfirmOrDetails } from '../../utils';
+import { promptForConfirmOrDetails, sleep } from '../../utils';
 
 export default class Remove {
   private functionName: string;
@@ -214,7 +214,7 @@ export default class Remove {
   }
 
   async removeFunction() {
-    // TODO: 删除资源
+    // 删除资源顺序
     // {
     //   provision: [ { qualifier: 'test', current: 2, target: 2 } ], // target / current
     //   concurrency: 80,
@@ -226,26 +226,54 @@ export default class Remove {
       return;
     }
 
+    if (!_.isEmpty(this.resources.provision)) {
+      for (const { qualifier } of this.resources.provision) {
+        logger.spin('removing', 'function provision', `${this.functionName}/${qualifier}`);
+        await this.fcSdk.removeFunctionProvisionConfig(this.functionName, qualifier);
+        logger.spin('removed', 'function provision', `${this.functionName}/${qualifier}`);
+      }
+    }
+
     if (this.resources.concurrency) {
       logger.spin('removing', 'function concurrency', this.functionName);
       await this.fcSdk.removeFunctionConcurrency(this.functionName);
       logger.spin('removed', 'function concurrency', this.functionName);
     }
 
-    // if (!_.isEmpty(this.resources.versions)) {
-    //   for (const { versionId } of versions) {
-    //     try {
-    //       logger.spin('removing', 'version', versionId);
-    //       await this.fcSdk.removeFunctionVersion(this.functionName, versionId);
-    //       logger.spin('removed', 'version', versionId);
-    //     } catch (ex) {
-    //       if (ex.) {
+    if (!_.isEmpty(this.resources.provision)) {
+      for (const { qualifier } of this.resources.provision) {
+        logger.spin('checking', 'remove function provision', `${this.functionName}/${qualifier}`);
+        while (true) {
+          await sleep(1.5);
+          const { current } =
+            (await this.fcSdk.getFunctionProvisionConfig(this.functionName, qualifier)) || {};
+          if (current === 0 || !current) {
+            logger.spin(
+              'checked',
+              'remove function provision',
+              `${this.functionName}/${qualifier}`,
+            );
+            break;
+          }
+        }
+      }
+    }
 
-    //       }
-    //       logger.error(`Remove version ${versionId} error: ${ex}`);
-    //     }
-    //   }
-    // }
+    if (!_.isEmpty(this.resources.aliases)) {
+      for (const alias of this.resources.aliases) {
+        logger.spin('removing', 'function alias', `${this.functionName}/${alias}`);
+        await this.fcSdk.removeAlias(this.functionName, alias);
+        logger.spin('removed', 'function alias', `${this.functionName}/${alias}`);
+      }
+    }
+
+    if (!_.isEmpty(this.resources.versions)) {
+      for (const version of this.resources.versions) {
+        logger.spin('removing', 'function version', `${this.functionName}/${version}`);
+        await this.fcSdk.removeFunctionVersion(this.functionName, version);
+        logger.spin('removed', 'function version', `${this.functionName}/${version}`);
+      }
+    }
 
     logger.spin('removing', 'function', this.functionName);
     await this.fcSdk.fc20230330Client.deleteFunction(this.functionName);
