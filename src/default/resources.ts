@@ -1,5 +1,3 @@
-// TODO: 替换生成资源的默认规则
-
 const defaultName = 'Alibaba-Fc-V3-Component-Generated';
 
 export const PROJECT = process.env.FC_GENERATE_PROJECT_NAME;

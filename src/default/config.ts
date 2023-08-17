@@ -12,7 +12,6 @@ export const FUNCTION_CUSTOM_DEFAULT_CONFIG = {
 };
 
 // 如果函数资源为空时使用默认配置，为了覆盖线上的配置
-// TODO: command 的默认配置是什么
 export const FC_RESOURCES_EMPTY_CONFIG = {
   vpcConfig: {
     securityGroupId: '',
