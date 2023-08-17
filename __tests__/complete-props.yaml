@@ -2,7 +2,6 @@ edition: 3.0.0 #  命令行YAML规范版本，遵循语义化版本（Semantic V
 name: framework #  项目名称
 access: quanxi
 
-# TODO: 需要完善
 resources:
   fcDemo: # 业务名称/模块名称
     component: ${path('../')} # 组件名称
