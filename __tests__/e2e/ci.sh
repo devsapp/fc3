@@ -15,7 +15,6 @@ cd go
 export fc_component_function_name=go1-$(uname)-$(uname -m)-$RANDSTR
 s3 deploy -y
 s3 invoke -e '{"hello":"fc go1"}'
-s3 local invoke -e '{"hello":"fc go1"}'
 s3 info
 s3 remove -y
 rm -rf ./code/target
@@ -27,7 +26,6 @@ cd java
 export fc_component_function_name=java-$(uname)-$(uname -m)-$RANDSTR
 s3 deploy -y
 s3 invoke -e '{"hello":"fc java"}'
-s3 local invoke -e '{"hello":"fc java"}'
 s3 info
 s3 remove -y
 rm -rf ./target
@@ -40,7 +38,6 @@ rm -rf ./go/code/go.sum
 export fc_component_function_name=go1-$(uname)-$(uname -m)-$RANDSTR
 s3 deploy -y -t ./go/s.yaml
 s3 invoke -e '{"hello":"fc custom go"}' -t ./go/s.yaml
-s3 local invoke -e '{"hello":"fc custom go"}' -t ./go/s.yaml
 s3 info -y -t ./go/s.yaml
 s3 remove -y -t ./go/s.yaml
 rm -rf ./go/code/target

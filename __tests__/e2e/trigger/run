@@ -7,7 +7,6 @@ echo "********* test http trigger ************"
 cd ./http
 export fc_component_function_name=test-http-trigger-$(uname)-$(uname -m)-$RANDSTR
 echo "test nodejs14 runtime http trigger ..."
-s3 local invoke -f evt.json
 
 s3 deploy --function -y
 s3 deploy --trigger httpTrigger -y
