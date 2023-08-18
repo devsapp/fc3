@@ -6,9 +6,9 @@ export interface IOssTriggerConfig {
   bucketName: string;
   events: string[];
   filter: {
-    Key: {
-      Prefix: string;
-      Suffix: string;
+    key: {
+      prefix: string;
+      suffix: string;
     };
   };
 }

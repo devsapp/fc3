@@ -3,9 +3,9 @@
 set -e
 set -v 
 
-export fc_component_function_name=node16-$(uname)-$(uname -m)
+export fc_component_function_name=node16-$(uname)-$(uname -m)-$RANDSTR
 
-echo "test nodejs16 runtime ..."
+echo "test command cli ..."
 s3 deploy -y
 
 s3 version publish --description test

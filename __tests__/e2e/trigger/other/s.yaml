@@ -2,13 +2,16 @@ edition: 3.0.0 #  命令行YAML规范版本，遵循语义化版本（Semantic V
 name: test-node-app #  项目名称
 access: quanxi
 
+vars:
+  region: cn-huhehaote
+
 resources:
   fcDemo: # 业务名称/模块名称
     component: ${env('fc_component_version', path('../../../../'))}
     props: # 组件的属性值
-      region: cn-huhehaote
+      region: ${vars.region}
       function:
-        functionName: ${env('fc_component_function_name', 'nodejs14')}
+        functionName: ${env('fc_component_function_name', 'nodejs14-ci')}
         runtime: ${env('fc_component_runtime', 'nodejs14')}
         code: ./code
         handler: index.handler
@@ -24,3 +27,83 @@ resources:
             cronExpression: '0 0 8 * * *'
             enable: false
             payload: 'awesome-fc'
+        - triggerName: ossTrigger1 
+          triggerType: oss 
+          invocationRole: acs:ram::${config("AccountID")}:role/aliyunosseventnotificationrole
+          sourceArn: acs:oss:${vars.region}:${config("AccountID")}:serverless-devs-fc3-ci-test
+          qualifier: LATEST # 触发服务的版本
+          triggerConfig:
+            events: # OSS 端触发函数执行的事件列表，参考文档：https://help.aliyun.com/document_detail/62922.html#section-mf3-l4l-1nf
+              - oss:ObjectCreated:*
+              - oss:ObjectRemoved:DeleteObject
+            filter: # 触发条件
+              key: # 键值
+                prefix: source1/ # 前缀
+                suffix: .png # 后缀
+
+        - triggerName: ossTrigger2
+          triggerType: oss 
+          sourceArn: acs:oss:${vars.region}:${config("AccountID")}:serverless-devs-fc3-ci-test
+          qualifier: LATEST # 触发服务的版本
+          triggerConfig:
+            events: # OSS 端触发函数执行的事件列表，参考文档：https://help.aliyun.com/document_detail/62922.html#section-mf3-l4l-1nf
+              - oss:ObjectCreated:*
+              - oss:ObjectRemoved:DeleteObject
+            filter: # 触发条件
+              key: # 键值
+                prefix: source2/ # 前缀
+                suffix: .jpg # 后缀
+
+        - triggerName: logTrigger 
+          triggerType: log 
+          invocationRole: aliyunlogetlrole
+          sourceArn: acs:log:${vars.region}:${config("AccountID")}:project/serverless-devs-fc3-ci-test
+          qualifier: LATEST 
+          triggerConfig: 
+            logConfig: 
+              project: serverless-devs-fc3-ci-test # 日志项目名称
+              logstore: job-log # 日志仓库名称，日志服务触发函数执行过程的日志会记录到该日志仓库中
+            jobConfig: # job配置
+              maxRetryTime: 1 # 表示日志服务触发函数执行时，如果遇到错误，所允许的最大尝试次数，取值范围：[0,100]
+              triggerInterval: 30 # 日志服务触发函数运行的时间间隔，取值范围：[3,600]，单位：秒
+            sourceConfig: # source配置
+              logstore: ci-log # 触发器会定时从该日志仓库中订阅数据到函数服务进行自定义加工
+            functionParameter: # 该参数将作为函数Event的Parameter传入函数。默认值为空（{}）
+              key: val
+            enable: true # 触发器开关
+
+        # - triggerName: kafkaTrigger 
+        #   triggerType: eventbridge
+        #   qualifier: LATEST 
+        #   triggerConfig:
+        #     triggerEnable: true
+        #     asyncInvocationType: false
+        #     eventRuleFilterPattern: '{}'
+        #     eventSinkConfig:
+        #       deliveryOption:
+        #         mode: event-streaming # event source 为 Kafka 时，只支持 event-streaming 模式
+        #     runOptions:
+        #       mode: event-streaming # event source 为 Kafka 时，只支持 event-streaming 模式
+        #       maximumTasks: 3
+        #       errorsTolerance: 'ALL'
+        #       retryStrategy:
+        #         PushRetryStrategy: 'BACKOFF_RETRY'
+        #         MaximumEventAgeInSeconds: 0
+        #         MaximumRetryAttempts: 0
+        #       # deadLetterQueue:
+        #       #   Arn: acs:mns:cn-qingdao:123:/queues/queueName
+        #       batchWindow:
+        #         CountBasedWindow: 2
+        #         TimeBasedWindow: 10
+        #     eventSourceConfig:
+        #       eventSourceType: Kafka
+        #       eventSourceParameters:
+        #         sourceKafkaParameters:
+        #           RegionId: ${vars.region}
+        #           InstanceId: alikafka_post-cn-pe337q5qz00c
+        #           Topic: testTopic
+        #           ConsumerGroup: test-group
+        #           OffsetReset: latest
+        #           # Network: PublicNetwork
+        #           # VpcId: vpc-hp3e30chfnems32zmo9xe
+        #           # VSwitchIds: vsw-hp384zc64m80tyua9k4jz

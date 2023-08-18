@@ -32,3 +32,13 @@ export async function promptForConfirmOrDetails(message: string): Promise<boolea
 
   return answers.prompt === 'yes';
 }
+
+export function removeNullValues(obj: object) {
+  for (let key in obj) {
+    if (obj[key] === null) {
+      delete obj[key];
+    } else if (typeof obj[key] === 'object') {
+      removeNullValues(obj[key]);
+    }
+  }
+}
