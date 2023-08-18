@@ -133,14 +133,13 @@ resources:
           sourceArn: xxx # 触发器事件源的 ARN
           qualifier: xxx # 触发服务的版本
           triggerConfig: # 触发器配置，包括OSS触发器, Log触发器, Log触发器, Timer触发器, Http触发器, MNS触发器, CDN触发器
-            bucketName: fassdemo # OSS 中目标 bucket 名称
             events: # OSS 端触发函数执行的事件列表，参考文档：https://help.aliyun.com/document_detail/62922.html#section-mf3-l4l-1nf
               - oss:ObjectCreated:*
               - oss:ObjectRemoved:DeleteObject
             filter: # 触发条件
               Key: # 键值
-                Prefix: source/ # 前缀
-                Suffix: .png # 后缀
+                prefix: source/ # 前缀
+                suffix: .png # 后缀
         - triggerName: logTrigger # 触发器名称
           triggerType: log # 触发器类型
           invocationRole: xxx # 使用一个 RAM 角色的 ARN 为函数指定执行角色，事件源会使用该角色触发函数执行，请确保该角色有调用函数的权限

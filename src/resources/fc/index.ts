@@ -25,6 +25,7 @@ import {
 } from './impl/utils';
 import replaceFunctionConfig from './impl/replace-function-config';
 import { IAlias } from '../../interface/cli-config/alias';
+import { removeNullValues } from '../../utils/index';
 
 export enum GetApiType {
   original = 'original', // 直接返回接口返回值
@@ -331,16 +332,17 @@ export default class FC extends FC_Client {
     if (type === GetApiType.original) {
       return result;
     }
-    const { body } = result.toMap();
+    let { body } = result.toMap();
     body.triggerConfig = JSON.parse(body.triggerConfig);
 
     if (type === GetApiType.simpleUnsupported) {
-      const r = _.omit(body, ['createdTime', 'httpTrigger', 'lastModifiedTime', 'triggerId']);
-      logger.debug(`Result body: ${JSON.stringify(r)}`);
+      let r = _.omit(body, ['createdTime', 'httpTrigger', 'lastModifiedTime', 'triggerId']);
+      // triggerConfig 可能会返回 key 为 null 的值， 比如 SLS 触发器
+      removeNullValues(r);
+      logger.debug(`getTrigger simpleUnsupported Result body: ${JSON.stringify(r)}`);
       return r;
     }
-
-    logger.debug(`Result body: ${JSON.stringify(body)}`);
+    logger.debug(`getTrigger simple Result body: ${JSON.stringify(body)}`);
     return body;
   }
 
