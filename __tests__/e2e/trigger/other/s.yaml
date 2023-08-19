@@ -72,34 +72,46 @@ resources:
               key: val
             enable: true # 触发器开关
 
-        # - triggerName: mnsTrigger
-        #   triggerType: mns_topic
-        #   sourceArn: acs:mns:${vars.region}:${config("AccountID")}:/topics/serverless-devs-fc3-ci-test
-        #   invocationRole: aliyunmnsnotificationrole
-        #   qualifier: LATEST
-        #   triggerConfig:
-        #     filterTag: ss
-        #     notifyContentFormat: STREAM
-        #     notifyStrategy: BACKOFF_RETRY
-        
-        # tablestore trigger is not supported yet in cn-huhehaote region
-        # - triggerName: tablestoreTrigger 
-        #   triggerType: tablestore 
-        #   invocationRole: aliyuntablestorestreamnotificationrole
-        #   sourceArn: acs:ots:${vars.region}:${config("AccountID")}:instance/s-fc3-ci-test/table/app_table
-        #   qualifier: LATEST 
-        #   triggerConfig: {}
+        - triggerName: mnsTrigger
+          triggerType: mns_topic
+          sourceArn: acs:mns:${vars.region}:${config("AccountID")}:/topics/serverless-devs-fc3-ci-test
+          invocationRole: aliyunmnsnotificationrole
+          qualifier: LATEST
+          triggerConfig:
+            filterTag: ss
+            notifyContentFormat: STREAM
+            notifyStrategy: BACKOFF_RETRY
 
-        # - triggerName: cdnTrigger 
-        #   triggerType: cdn_events 
-        #   invocationRole: aliyuncdneventnotificationrole
-        #   sourceArn: xxx # 触发器事件源的 ARN
-        #   qualifier: LATEST 
-        #   triggerConfig: 
-        #     eventName: LogFileCreated # 为 CDN 端触发函数执行的事件，一经创建不能更改
-        #     eventVersion: '1.0.0' # 为 CDN 端触发函数执行事件的版本，一经创建不能更改
-        #     notes: cdn events trigger test # 备注信息
-        #     filter: # 过滤器（至少需要一个过滤器）
-        #       domain: # 过滤参数值的集合
-        #         - 'www.taobao.com'
-        #         - 'www.tmall.com'
+        - triggerName: cdnTrigger 
+          triggerType: cdn_events 
+          invocationRole: aliyuncdneventnotificationrole
+          sourceArn: acs:cdn:*:${config("AccountID")}
+          qualifier: LATEST 
+          triggerConfig: 
+            eventName: LogFileCreated # 为 CDN 端触发函数执行的事件，一经创建不能更改
+            eventVersion: '1.0.0' # 为 CDN 端触发函数执行事件的版本，一经创建不能更改
+            notes: cdn events trigger test # 备注信息
+            filter: # 过滤器（至少需要一个过滤器）
+              domain: # 过滤参数值的集合
+                - 'www.taobao.com'
+                - 'www.tmall.com'
+
+  fcDemo2: # 呼和浩特不支持 ots 触发器
+    component: ${env('fc_component_version', path('../../../../'))}
+    props:
+      region: cn-shenzhen
+      function:
+        functionName: ${env('fc_component_function_name', 'nodejs14-ci')}
+        runtime: ${env('fc_component_runtime', 'nodejs14')}
+        code: ./code
+        handler: index.handler
+        memorySize: 128
+        timeout: 3
+      triggers:
+        - triggerName: tablestoreTrigger 
+          triggerType: tablestore 
+          invocationRole: aliyuntablestorestreamnotificationrole
+          #sourceArn: acs:ots:cn-shenzhen:${config("AccountID")}:instance/s-fc3-test-ci/table/app_table
+          sourceArn: acs:ots:cn-shenzhen:${config("AccountID")}:instance/test-ots-trigegr/table/test
+          qualifier: LATEST 
+          triggerConfig: {}

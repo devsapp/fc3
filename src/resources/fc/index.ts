@@ -33,6 +33,8 @@ export enum GetApiType {
   simpleUnsupported = 'simple-unsupported', // 返回数据时删除：空配置、系统字段
 }
 
+const UNSUPPORTED_UPDATE_TRIGGER_LIST = ['mns_topic', 'tablestore'];
+
 export default class FC extends FC_Client {
   static computeLocalAuto = computeLocalAuto;
   static isCustomContainerRuntime = isCustomContainerRuntime;
@@ -179,7 +181,12 @@ export default class FC extends FC_Client {
         }
 
         logger.debug(`Need update trigger ${id}`);
-        await this.updateTrigger(functionName, triggerName, config);
+        const triggerType = config.triggerType;
+        if (UNSUPPORTED_UPDATE_TRIGGER_LIST.includes(triggerType)) {
+          logger.warn(`${id} ${triggerType} trigger is no need update!`);
+        } else {
+          await this.updateTrigger(functionName, triggerName, config);
+        }
         return;
       } catch (ex) {
         logger.debug(`Deploy trigger error: ${ex}`);
