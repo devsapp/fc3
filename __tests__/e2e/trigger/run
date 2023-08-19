@@ -25,8 +25,8 @@ s3 remove -y
 
 echo "********* test other trigger ************"
 cd ../other
-export fc_component_function_name=test-timer-trigger-$(uname)-$(uname -m)-$RANDSTR
-echo "test nodejs14 runtime timer trigger ..."
+export fc_component_function_name=test-other-trigger-$(uname)-$(uname -m)-$RANDSTR
+echo "test nodejs14 runtime with timer/oss/sls/mns trigger ..."
 s3 deploy  -y
 s3 info
 s3 remove -y

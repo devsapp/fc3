@@ -72,38 +72,34 @@ resources:
               key: val
             enable: true # 触发器开关
 
-        # - triggerName: kafkaTrigger 
-        #   triggerType: eventbridge
-        #   qualifier: LATEST 
+        # - triggerName: mnsTrigger
+        #   triggerType: mns_topic
+        #   sourceArn: acs:mns:${vars.region}:${config("AccountID")}:/topics/serverless-devs-fc3-ci-test
+        #   invocationRole: aliyunmnsnotificationrole
+        #   qualifier: LATEST
         #   triggerConfig:
-        #     triggerEnable: true
-        #     asyncInvocationType: false
-        #     eventRuleFilterPattern: '{}'
-        #     eventSinkConfig:
-        #       deliveryOption:
-        #         mode: event-streaming # event source 为 Kafka 时，只支持 event-streaming 模式
-        #     runOptions:
-        #       mode: event-streaming # event source 为 Kafka 时，只支持 event-streaming 模式
-        #       maximumTasks: 3
-        #       errorsTolerance: 'ALL'
-        #       retryStrategy:
-        #         PushRetryStrategy: 'BACKOFF_RETRY'
-        #         MaximumEventAgeInSeconds: 0
-        #         MaximumRetryAttempts: 0
-        #       # deadLetterQueue:
-        #       #   Arn: acs:mns:cn-qingdao:123:/queues/queueName
-        #       batchWindow:
-        #         CountBasedWindow: 2
-        #         TimeBasedWindow: 10
-        #     eventSourceConfig:
-        #       eventSourceType: Kafka
-        #       eventSourceParameters:
-        #         sourceKafkaParameters:
-        #           RegionId: ${vars.region}
-        #           InstanceId: alikafka_post-cn-pe337q5qz00c
-        #           Topic: testTopic
-        #           ConsumerGroup: test-group
-        #           OffsetReset: latest
-        #           # Network: PublicNetwork
-        #           # VpcId: vpc-hp3e30chfnems32zmo9xe
-        #           # VSwitchIds: vsw-hp384zc64m80tyua9k4jz
+        #     filterTag: ss
+        #     notifyContentFormat: STREAM
+        #     notifyStrategy: BACKOFF_RETRY
+        
+        # tablestore trigger is not supported yet in cn-huhehaote region
+        # - triggerName: tablestoreTrigger 
+        #   triggerType: tablestore 
+        #   invocationRole: aliyuntablestorestreamnotificationrole
+        #   sourceArn: acs:ots:${vars.region}:${config("AccountID")}:instance/s-fc3-ci-test/table/app_table
+        #   qualifier: LATEST 
+        #   triggerConfig: {}
+
+        # - triggerName: cdnTrigger 
+        #   triggerType: cdn_events 
+        #   invocationRole: aliyuncdneventnotificationrole
+        #   sourceArn: xxx # 触发器事件源的 ARN
+        #   qualifier: LATEST 
+        #   triggerConfig: 
+        #     eventName: LogFileCreated # 为 CDN 端触发函数执行的事件，一经创建不能更改
+        #     eventVersion: '1.0.0' # 为 CDN 端触发函数执行事件的版本，一经创建不能更改
+        #     notes: cdn events trigger test # 备注信息
+        #     filter: # 过滤器（至少需要一个过滤器）
+        #       domain: # 过滤参数值的集合
+        #         - 'www.taobao.com'
+        #         - 'www.tmall.com'
