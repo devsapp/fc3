@@ -1,6 +1,6 @@
 edition: 3.0.0 #  命令行YAML规范版本，遵循语义化版本（Semantic Versioning）规范
-name: framework #  项目名称
-access: quanxi
+name: fc3-example #  项目名称
+access: default
 
 resources:
   fcDemo: # 业务名称/模块名称
@@ -12,7 +12,7 @@ resources:
         # code:
         #   ossBucketName: string
         #   ossObjectName: string
-        cpu: 0.05
+        cpu: 0.5
         customContainerConfig:
           accelerationType: string
           acrInstanceID: string
@@ -78,7 +78,7 @@ resources:
           logBeginRule: string
           logstore: string
           project: string
-        memorySize: 128
+        memorySize: 512
         nasConfig:
           groupId: 65534
           mountPoints:
@@ -114,7 +114,7 @@ resources:
       triggers:
         - triggerName: httpTrigger # 触发器名称
           triggerType: http # 触发器类型
-          qualifier: xxx # 触发服务的版本
+          qualifier: LATEST # 触发服务的版本
           triggerConfig: # 触发器配置，包括OSS触发器, Log触发器, Log触发器, Timer触发器, Http触发器, MNS触发器, CDN触发器
             authType: anonymous # 鉴权类型，可选值：anonymous、function
             disableURLInternet: false # 是否禁用公网访问 URL
@@ -122,16 +122,16 @@ resources:
               - GET
         - triggerName: timerTrigger # 触发器名称
           triggerType: timer # 触发器类型
-          qualifier: xxx # 触发服务的版本
+          qualifier: LATEST # 触发服务的版本
           triggerConfig: # 触发器配置，包括OSS触发器, Log触发器, Log触发器, Timer触发器, Http触发器, MNS触发器, CDN触发器
             cronExpression: '0 0 8 * * *' # 时间触发器表达式，支持两种设置：@every、cron 表达式
             enable: true # 是否启用该触发器
             payload: 'awesome-fc' # 代表触发器事件本身的输入内容
         - triggerName: ossTrigger # 触发器名称
           triggerType: oss # 触发器类型
-          invocationRole: xxx # 使用一个 RAM 角色的 ARN 为函数指定执行角色，事件源会使用该角色触发函数执行，请确保该角色有调用函数的权限
-          sourceArn: xxx # 触发器事件源的 ARN
-          qualifier: xxx # 触发服务的版本
+          invocationRole: acs:ram::<account-id>:role/aliyunosseventnotificationrole # 使用一个 RAM 角色的 ARN 为函数指定执行角色，事件源会使用该角色触发函数执行，请确保该角色有调用函数的权限
+          sourceArn: acs:oss:<region>:<account-id>:<buckctName> # 触发器事件源的 ARN
+          qualifier: LATEST # 触发服务的版本
           triggerConfig: # 触发器配置，包括OSS触发器, Log触发器, Log触发器, Timer触发器, Http触发器, MNS触发器, CDN触发器
             events: # OSS 端触发函数执行的事件列表，参考文档：https://help.aliyun.com/document_detail/62922.html#section-mf3-l4l-1nf
               - oss:ObjectCreated:*
@@ -142,9 +142,9 @@ resources:
                 suffix: .png # 后缀
         - triggerName: logTrigger # 触发器名称
           triggerType: log # 触发器类型
-          invocationRole: xxx # 使用一个 RAM 角色的 ARN 为函数指定执行角色，事件源会使用该角色触发函数执行，请确保该角色有调用函数的权限
-          sourceArn: xxx # 触发器事件源的 ARN
-          qualifier: xxx # 触发服务的版本
+          invocationRole: acs:ram::<account-id>:role/aliyunlogetlrole # 使用一个 RAM 角色的 ARN 为函数指定执行角色，事件源会使用该角色触发函数执行，请确保该角色有调用函数的权限
+          sourceArn: acs:log:<region>:<account-id>:project/<projectName> # 触发器事件源的 ARN
+          qualifier: LATEST # 触发服务的版本
           triggerConfig: # 触发器配置，包括OSS触发器, Log触发器, Log触发器, Timer触发器, Http触发器, MNS触发器, CDN触发器
             logConfig: # 日志配置
               project: fass-demo # 日志项目名称
@@ -159,20 +159,18 @@ resources:
             enable: true # 触发器开关
         - triggerName: mnsTrigger # 触发器名称
           triggerType: mns_topic # 触发器类型
-          invocationRole: xxx # 使用一个 RAM 角色的 ARN 为函数指定执行角色，事件源会使用该角色触发函数执行，请确保该角色有调用函数的权限
-          sourceArn: xxx # 触发器事件源的 ARN
-          qualifier: xxx # 触发服务的版本
+          invocationRole: acs:ram::<account-id>:role/aliyunmnsnotificationrole # 使用一个 RAM 角色的 ARN 为函数指定执行角色，事件源会使用该角色触发函数执行，请确保该角色有调用函数的权限
+          sourceArn: acs:mns:<region>:<account-id>:/topics/test # 触发器事件源的 ARN
+          qualifier: LATEST # 触发服务的版本
           triggerConfig: # 触发器配置，包括OSS触发器, Log触发器, Log触发器, Timer触发器, Http触发器, MNS触发器, CDN触发器
-            topicName: test-topic # mns topic的名字
-            region: cn-hangzhou # mns topic 所在的 region，如果不填，默认为和函数一样的 region
             notifyContentFormat: 'JSON' # 推送给函数入参 event 的格式，可选值：STREAM, JSON
             notifyStrategy: 'BACKOFF_RETRY' # 调用函数的重试策略，可选值：BACKOFF_RETRY, EXPONENTIAL_DECAY_RETRY
             filterTag: abc # 描述了该订阅中消息过滤的标签（标签一致的消息才会被推送）,不超过 16 个字符的字符串，默认不进行消息过滤，即默认不填写该字段
         - triggerName: cdnTrigger # 触发器名称
           triggerType: cdn_events # 触发器类型
-          invocationRole: xxx # 使用一个 RAM 角色的 ARN 为函数指定执行角色，事件源会使用该角色触发函数执行，请确保该角色有调用函数的权限
-          sourceArn: xxx # 触发器事件源的 ARN
-          qualifier: xxx # 触发服务的版本
+          invocationRole: acs:ram::<account-id>:role/aliyuncdneventnotificationrole # 使用一个 RAM 角色的 ARN 为函数指定执行角色，事件源会使用该角色触发函数执行，请确保该角色有调用函数的权限
+          sourceArn: acs:cdn:*:<account-id> # 触发器事件源的 ARN
+          qualifier: LATEST # 触发服务的版本
           triggerConfig: # 触发器配置，包括OSS触发器, Log触发器, Log触发器, Timer触发器, Http触发器, MNS触发器, CDN触发器
             eventName: LogFileCreated # 为 CDN 端触发函数执行的事件，一经创建不能更改
             eventVersion: '1.0.0' # 为 CDN 端触发函数执行事件的版本，一经创建不能更改
@@ -183,9 +181,7 @@ resources:
                 - 'www.tmall.com'
         - triggerName: tablestoreTrigger # 触发器名称
           triggerType: tablestore # 触发器类型
-          invocationRole: xxx # 使用一个 RAM 角色的 ARN 为函数指定执行角色，事件源会使用该角色触发函数执行，请确保该角色有调用函数的权限
-          sourceArn: xxx # 触发器事件源的 ARN
-          qualifier: xxx # 触发服务的版本
-          triggerConfig: # 触发器配置，包括OSS触发器, Log触发器, Log触发器, Timer触发器, Http触发器, MNS触发器, CDN触发器
-            instanceName: xxx # 表格存储实例的名称
-            tableName: xxxs # 实例中的表名称
+          invocationRole: acs:ram::<account-id>:role/aliyuntablestorestreamnotificationrole # 使用一个 RAM 角色的 ARN 为函数指定执行角色，事件源会使用该角色触发函数执行，请确保该角色有调用函数的权限
+          sourceArn: acs:ots:<region>:<account-id>:instance/<instance>/table/<table> # 触发器事件源的 ARN
+          qualifier: LATEST # 触发服务的版本
+          triggerConfig: {}

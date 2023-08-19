@@ -31,3 +31,13 @@ s3 deploy  -y
 s3 info
 s3 remove -y
 cd ..
+
+
+echo "********* test event bridge trigger ************"
+cd ../eb
+export fc_component_function_name=test-eb-trigger-$(uname)-$(uname -m)-$RANDSTR
+echo "test nodejs14 runtime with eb trigger ..."
+s3 deploy  -y
+s3 info
+s3 remove -y
+cd ..
