@@ -1,0 +1,58 @@
+edition: 3.0.0 #  命令行YAML规范版本，遵循语义化版本（Semantic Versioning）规范
+name: test-node-app #  项目名称
+access: quanxi
+
+vars:
+  region: cn-huhehaote
+
+resources:
+  fcDemo: # 业务名称/模块名称
+    component: ${env('fc_component_version', path('../../../../'))}
+    props: # 组件的属性值
+      region: ${vars.region}
+      function:
+        functionName: ${env('fc_component_function_name', 'nodejs14-ci')}
+        runtime: ${env('fc_component_runtime', 'nodejs14')}
+        code: ./code
+        handler: index.handler
+        memorySize: 128
+        timeout: 3
+        # vpcConfig: auto
+        # nasConfig: auto
+        # logConfig: auto
+      # triggers:
+      #   - triggerName: kafkaTrigger 
+      #     triggerType: eventbridge
+      #     qualifier: LATEST 
+      #     triggerConfig:
+      #       triggerEnable: true
+      #       asyncInvocationType: false
+      #       eventRuleFilterPattern: '{}'
+      #       eventSinkConfig:
+      #         deliveryOption:
+      #           mode: event-streaming # event source 为 Kafka 时，只支持 event-streaming 模式
+      #       runOptions:
+      #         mode: event-streaming # event source 为 Kafka 时，只支持 event-streaming 模式
+      #         maximumTasks: 3
+      #         errorsTolerance: 'ALL'
+      #         retryStrategy:
+      #           PushRetryStrategy: 'BACKOFF_RETRY'
+      #           MaximumEventAgeInSeconds: 0
+      #           MaximumRetryAttempts: 0
+      #         # deadLetterQueue:
+      #         #   Arn: acs:mns:cn-qingdao:123:/queues/queueName
+      #         batchWindow:
+      #           CountBasedWindow: 2
+      #           TimeBasedWindow: 10
+      #       eventSourceConfig:
+      #         eventSourceType: Kafka
+      #         eventSourceParameters:
+      #           sourceKafkaParameters:
+      #             RegionId: ${vars.region}
+      #             InstanceId: alikafka_post-cn-pe337q5qz00c
+      #             Topic: testTopic
+      #             ConsumerGroup: test-group
+      #             OffsetReset: latest
+      #             # Network: PublicNetwork
+      #             # VpcId: vpc-hp3e30chfnems32zmo9xe
+      #             # VSwitchIds: vsw-hp384zc64m80tyua9k4jz

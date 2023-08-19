@@ -111,8 +111,8 @@ export default class Base {
         triggerRole = await ramClient.initFcOtsTriggerRole();
         break;
       case 'eventbridge': // eb 触发器没有 trigger role, get or create slr role
-        // const eventSourceType = trigger.triggerConfig.eventSourceConfig.eventSourceType;
-        // await ramClient.initSlrRole(eventSourceType);
+        const eventSourceType = trigger.triggerConfig.eventSourceConfig.eventSourceType;
+        await ramClient.initSlrRole(eventSourceType.toUpperCase());
         break;
       default:
         logger.debug(`${triggerType} don't have default trigger role`);
