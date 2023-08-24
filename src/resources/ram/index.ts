@@ -31,6 +31,7 @@ export default class Role {
       accessKeySecret: credentials.AccessKeySecret,
       securityToken: credentials.SecurityToken,
       endpoint: 'ram.aliyuncs.com',
+      userAgent: 'serverless-devs',
     });
     this.client = new Ram(credentials.AccountID, config);
   }

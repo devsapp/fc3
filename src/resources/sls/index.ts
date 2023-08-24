@@ -30,6 +30,7 @@ export default class Sls {
       accessKeySecret: credentials.AccessKeySecret,
       securityToken: credentials.SecurityToken,
       endpoint: `${region}.log.aliyuncs.com`,
+      userAgent: 'serverless-devs',
     });
     this.client = new Sls20201230(config);
     this.accountID = credentials.AccountID;

@@ -20,7 +20,7 @@ export function isCustomRuntime(runtime: string): boolean {
 /**
  * 获取线上资源配置
  */
-export function getRemoveResourceConfig(remote) {
+export function getRemoteResourceConfig(remote) {
   const remoteNasConfig = _.get(remote, 'nasConfig') as INasConfig;
   const remoteVpcConfig = _.get(remote, 'vpcConfig') as IVpcConfig;
   const remoteLogConfig = _.get(remote, 'logConfig') as ILogConfig;

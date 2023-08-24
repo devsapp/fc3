@@ -2,7 +2,7 @@ import _ from 'lodash';
 import logger from '../../../logger';
 import {
   computeLocalAuto,
-  getRemoveResourceConfig,
+  getRemoteResourceConfig,
   isCustomContainerRuntime,
   isCustomRuntime,
 } from './utils';
@@ -17,7 +17,7 @@ export default function (_local: any, _remote: any) {
   // 线上配置如果存在，则需要将 auto 资源替换为线上资源配置
   if (remote) {
     const { remoteNasConfig, remoteVpcConfig, remoteLogConfig, remoteRole } =
-      getRemoveResourceConfig(remote);
+      getRemoteResourceConfig(remote);
     const { nasAuto, vpcAuto, slsAuto, roleAuto } = computeLocalAuto(local);
     logger.debug(
       `Init local compute local auto, nasAuto: ${nasAuto}; vpcAuto: ${vpcAuto}; slsAuto: ${slsAuto}; roleAuto: ${roleAuto}`,
@@ -41,6 +41,16 @@ export default function (_local: any, _remote: any) {
       } else {
         _.set(local, 'role', '');
       }
+    }
+
+    if (remote.layers) {
+      let layers = [];
+      for (const i in remote.layers) {
+        let layer = remote.layers[i];
+        layers.push(layer.arn);
+      }
+      _.unset(remote, 'layers');
+      _.set(remote, 'layers', layers);
     }
   }
 
