@@ -13,7 +13,7 @@ echo "********* test other trigger ************"
 cd ../other
 export fc_component_function_name=test-other-trigger-$(uname)-$(uname -m)-$RANDSTR
 echo "test nodejs14 runtime with timer/oss/sls/mns trigger ..."
-s3 remove -y
+s3 remove -y --debug
 
 echo "********* test event bridge trigger ************"
 cd ../eb

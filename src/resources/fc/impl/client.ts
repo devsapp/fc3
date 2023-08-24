@@ -161,7 +161,7 @@ export default class FC_Client {
       logType = 'None';
     }
     const headers = new InvokeFunctionHeaders({
-      xFcLogType: 'None',
+      xFcLogType: logType,
       xFcInvocationType: invokeType,
     });
     if (statefulAsyncInvocationId) {

@@ -35,10 +35,6 @@ export default function (_local: any, _remote: any) {
       _.set(local, 'logConfig', remoteLogConfig);
     }
 
-    // TODO: role是否传空 如果不是 auto 怎么不操作
-    // if (!local.role && roleAuto) {
-    //   _.set(local, 'role', _.isString(remoteRole) && remoteRole !== '' ? remoteRole : 'auto');
-    // }
     if (!local.role) {
       if (roleAuto) {
         _.set(local, 'role', _.isString(remoteRole) && remoteRole !== '' ? remoteRole : 'auto');
