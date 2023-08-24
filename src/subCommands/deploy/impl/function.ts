@@ -75,6 +75,8 @@ export default class Service extends Base {
     if (this.type !== 'code') {
       await this.deployAuto();
       logger.debug(`Deploy auto result: ${JSON.stringify(this.local)}`);
+      // TODO check nas mount target
+      // https://github.com/devsapp/fc-core/blob/master/src/nas/index.ts#L23C23-L23C49
     }
 
     // 如果不是仅仅部署配置，就需要处理代码
@@ -210,7 +212,7 @@ export default class Service extends Base {
   }
 
   /**
-   * 生成 auto 资源
+   * 生成 auto 资源，非 FC 资源，主要指 vpc、nas、log、role（oss mount 挂载点才有）
    */
   private async deployAuto() {
     const region = this.inputs.props.region;
