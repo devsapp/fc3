@@ -88,6 +88,7 @@ export default class FC_Client {
       endpoint,
       readTimeout: timeout || FC_CLIENT_READ_TIMEOUT,
       connectTimeout: timeout || FC_CLIENT_CONNECT_TIMEOUT,
+      userAgent: 'serverless-devs',
     });
 
     this.fc20230330Client = new FCClient(config);
