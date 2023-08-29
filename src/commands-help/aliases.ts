@@ -1,12 +1,12 @@
 export default {
   help: {
-    description: 'version command',
+    description: 'aliases command',
   },
   subCommands: {
     get: {
       help: {
-        description: 'version list command',
-        summary: 'version list summary',
+        description: 'aliases list command',
+        summary: 'aliases list summary',
         option: [
           ['--region <region>', 'Appoint region'],
           ['--function-name <functionName>', 'Appoint function name'],
@@ -16,8 +16,8 @@ export default {
     },
     list: {
       help: {
-        description: 'version list command',
-        summary: 'version list summary',
+        description: 'aliases list command',
+        summary: 'aliases list summary',
         option: [
           ['--region <region>', 'Appoint region'],
           ['--function-name <functionName>', 'Appoint function name'],
@@ -26,7 +26,7 @@ export default {
     },
     publish: {
       help: {
-        description: 'version publish command',
+        description: 'aliases publish command',
         option: [
           ['--region <region>', 'Appoint region'],
           ['--function-name <functionName>', 'Appoint function name'],
@@ -41,7 +41,7 @@ export default {
     },
     remove: {
       help: {
-        description: 'version publish command',
+        description: 'aliases publish command',
         option: [
           ['--region <region>', 'Appoint region'],
           ['--function-name <functionName>', 'Appoint function name'],

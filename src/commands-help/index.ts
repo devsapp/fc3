@@ -5,6 +5,8 @@ import sync from './sync';
 import invoke from './invoke';
 import version from './version';
 import concurrency from './concurrency';
+import plan from './plan';
+import aliases from './aliases';
 
 export default {
   deploy,
@@ -13,5 +15,7 @@ export default {
   sync,
   invoke,
   version,
+  aliases,
   concurrency,
+  plan,
 };

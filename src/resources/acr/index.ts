@@ -42,7 +42,7 @@ export default class Acr {
         this.credential,
         instanceID,
       );
-      let dockerCmdStr = `docker login ${image} --username=${dockerTmpUser} --password ${dockerTmpToken}`;
+      let dockerCmdStr = `echo ${dockerTmpToken} | docker login ${image} --username ${dockerTmpUser} --password-stdin`;
       await runCommand(dockerCmdStr, runCommand.showStdout.inherit);
 
       dockerCmdStr = `docker push ${image}`;
