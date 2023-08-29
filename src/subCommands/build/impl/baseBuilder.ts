@@ -84,7 +84,11 @@ export abstract class Builder {
   async getRuntimeBuildImage(): Promise<string> {
     let image: string;
     if (FC.isCustomContainerRuntime(this.getRuntime())) {
-      image = Acr.vpcImage2InternetImage(this.getProps().function.customContainerConfig?.image);
+      const img = this.getProps().function.customContainerConfig?.image;
+      if (_.isEmpty(img)) {
+        throw new Error('image must be set in custom-container runtime');
+      }
+      image = Acr.vpcImage2InternetImage(img);
       logger.debug(`use fc docker CustomContainer image: ${image}`);
     } else if (fcDockerUseImage) {
       image = fcDockerUseImage;
