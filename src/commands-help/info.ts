@@ -1,5 +1,6 @@
 export default {
   help: {
-    description: 'info command',
+    description: 'get fc function information',
+    summary: 'info command',
   },
 };

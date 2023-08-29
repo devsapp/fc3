@@ -19,7 +19,7 @@ resources:
         code: ./code
         instanceConcurrency: 4
         customContainerConfig:
-          image: 'registry.${vars.region}.aliyuncs.com/fc-demo2/node-express:v1002'
+          image: 'registry.${vars.region}.aliyuncs.com/fc-demo2/node-express:ciV1'
           entrypoint:
             - node
           command:
