@@ -137,7 +137,7 @@ resources:
               - oss:ObjectCreated:*
               - oss:ObjectRemoved:DeleteObject
             filter: # 触发条件
-              Key: # 键值
+              key: # 键值
                 prefix: source/ # 前缀
                 suffix: .png # 后缀
         - triggerName: logTrigger # 触发器名称
