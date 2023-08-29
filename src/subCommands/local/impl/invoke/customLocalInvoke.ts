@@ -1,6 +1,5 @@
 import { BaseLocalInvoke } from './baseLocalInvoke';
 import _ from 'lodash';
-// import logger from '../logger';
 
 export class CustomLocalInvoke extends BaseLocalInvoke {
   getDebugArgs(): string {

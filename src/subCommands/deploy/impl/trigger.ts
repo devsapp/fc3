@@ -49,7 +49,6 @@ export default class Trigger extends Base {
 
   async before() {
     await this.getRemote();
-    // TODO: 转化参数
 
     await this.plan();
   }

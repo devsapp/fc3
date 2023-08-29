@@ -1,4 +1,3 @@
-// most copy from build, todo combine
 import _ from 'lodash';
 import http from 'http';
 import fs from 'fs';
