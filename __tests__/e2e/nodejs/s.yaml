@@ -14,10 +14,11 @@ resources:
         handler: event.handler
         memorySize: 128
         timeout: 30
-        # vpcConfig: auto
         instanceLifecycleConfig:
           initializer:
             handler: event.initializer
             timeout: 10
-        # nasConfig: auto
-        # logConfig: auto
+
+        vpcConfig: auto
+        nasConfig: auto
+        logConfig: auto

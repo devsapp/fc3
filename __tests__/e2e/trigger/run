@@ -18,6 +18,7 @@ s3 alias list
 s3 deploy --trigger httpTrigger2
 
 s3 info
+s3 plan
 s3 invoke -e 'hello latest'
 s3 invoke -e 'hello latest' --qualifier 'test'
 
@@ -29,6 +30,7 @@ export fc_component_function_name=test-other-trigger-$(uname)-$(uname -m)-$RANDS
 echo "test nodejs14 runtime with timer/oss/sls/mns trigger ..."
 s3 deploy  -y
 s3 info
+s3 plan
 s3 remove -y
 
 echo "********* test event bridge trigger ************"
@@ -37,5 +39,6 @@ export fc_component_function_name=test-eb-trigger-$(uname)-$(uname -m)-$RANDSTR
 echo "test nodejs14 runtime with eb trigger ..."
 s3 deploy  -y
 s3 info
+s3 plan
 s3 remove -y
 cd ..

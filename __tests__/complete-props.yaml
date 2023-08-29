@@ -185,3 +185,135 @@ resources:
           sourceArn: acs:ots:<region>:<account-id>:instance/<instance>/table/<table> # 触发器事件源的 ARN
           qualifier: LATEST # 触发服务的版本
           triggerConfig: {}
+        # eb 触发器各种示例
+        - name: eventbridgeTriggerWithDefaultSource
+          # sourceArn: acs:eventbridge:<region>:<accountID>:eventbus/<eventBusName>/rule/<eventRuleName>
+          type: eventbridge
+          qualifier: LATEST
+          config:
+            triggerEnable: true
+            asyncInvocationType: false
+            eventRuleFilterPattern: '{"source":["acs.oss"],"type":["oss:BucketCreated:PutBucket"]}'
+            eventSourceConfig:
+              eventSourceType: Default
+        - name: eventbridgeTriggerWithMNSSource
+          # sourceArn: acs:eventbridge:<region>:<accountID>:eventbus/<eventBusName>/rule/<eventRuleName>
+          type: eventbridge
+          qualifier: LATEST
+          config:
+            triggerEnable: true
+            asyncInvocationType: false
+            eventRuleFilterPattern: '{"source":["MNS-${functionName}-eventbridgeTriggerWithMNSSource"]}'
+            eventSourceConfig:
+              eventSourceType: MNS
+              eventSourceParameters:
+                sourceMNSParameters:
+                  QueueName: gjl-test
+                  IsBase64Decode: false
+        - name: eventbridgeTriggerWithRocketMQSource
+          # sourceArn: acs:eventbridge:<region>:<accountID>:eventbus/<eventBusName>/rule/<eventRuleName>
+          type: eventbridge
+          qualifier: LATEST
+          config:
+            triggerEnable: true
+            asyncInvocationType: false
+            eventRuleFilterPattern: '{"source":["RocketMQ-${functionName}-eventbridgeTriggerWithRocketMQSource"]}'
+            eventSourceConfig:
+              eventSourceType: RocketMQ
+              eventSourceParameters:
+                sourceRocketMQParameters:
+                  RegionId: cn-hangzhou
+                  InstanceId: MQ_INST_164901546557****_BAAN****
+                  GroupID: GID_group1
+                  Topic: mytopic
+                  Timestamp: 1636597951984
+        - name: eventbridgeTriggerWithRabbitMQSource
+          # sourceArn: acs:eventbridge:<region>:<accountID>:eventbus/<eventBusName>/rule/<eventRuleName>
+          type: eventbridge
+          qualifier: LATEST
+          config:
+            triggerEnable: true
+            asyncInvocationType: false
+            eventRuleFilterPattern: '{"source":["RabbitMQ-${functionName}-eventbridgeTriggerWithRabbitMQSource"]}'
+            eventSourceConfig:
+              eventSourceType: RabbitMQ
+              eventSourceParameters:
+                sourceRabbitMQParameters:
+                  RegionId: cn-hangzhou
+                  InstanceId: amqp-cn-******
+                  QueueName: test-queue
+                  VirtualHostName: test-virtual
+        - name: eventbridgeTriggerWithKafkaSource
+          # sourceArn: acs:eventbridge:<region>:<accountID>:eventstreaming/<eventStreamingName>
+          type: eventbridge
+          qualifier: LATEST
+          config:
+            triggerEnable: true
+            asyncInvocationType: false
+            eventRuleFilterPattern: '{}'
+            eventSinkConfig:
+              deliveryOption:
+                mode: event-streaming # event source 为 Kafka 时，只支持 event-streaming 模式
+                eventSchema: CloudEvents
+            runOptions:
+              mode: event-streaming # event source 为 Kafka 时，只支持 event-streaming 模式
+              maximumTasks: 3
+              errorsTolerance: 'ALL'
+              retryStrategy:
+                PushRetryStrategy: 'BACKOFF_RETRY'
+                MaximumEventAgeInSeconds: 0
+                MaximumRetryAttempts: 0
+              deadLetterQueue:
+                Arn: acs:mns:cn-qingdao:123:/queues/queueName
+              batchWindow:
+                CountBasedWindow: 2
+                TimeBasedWindow: 10
+            eventSourceConfig:
+              eventSourceType: Kafka
+              eventSourceParameters:
+                sourceKafkaParameters:
+                  RegionId: cn-hangzhou
+                  InstanceId: myInstanceID
+                  Topic: myTopic
+                  ConsumerGroup: myConsumerGroup
+                  OffsetReset: latest
+                  Network: PublicNetwork
+                  VpcId: myVpcID
+                  VSwitchIds: myVSwitchID
+                  SecurityGroupId: mySecurityGroupID
+        - name: eventbridgeTriggerWithDTSSource
+          # sourceArn: acs:eventbridge:<region>:<accountID>:eventstreaming/<eventStreamingName>
+          type: eventbridge
+          qualifier: LATEST
+          config:
+            triggerEnable: true
+            asyncInvocationType: false
+            eventRuleFilterPattern: '{}'
+            eventSinkConfig:
+              deliveryOption:
+                eventSchema: CloudEvents  # 支持 CloudEvents 以及 RawData 两种取值
+            runOptions:
+              mode: event-streaming
+              maximumTasks: 3
+              errorsTolerance: 'ALL'
+              retryStrategy:
+                PushRetryStrategy: 'BACKOFF_RETRY'
+                MaximumEventAgeInSeconds: 0
+                MaximumRetryAttempts: 0
+              deadLetterQueue:
+                Arn: acs:mns:cn-qingdao:123:/queues/queueName
+              batchWindow:
+                CountBasedWindow: 2
+                TimeBasedWindow: 10
+            eventSourceConfig:
+              eventSourceType: DTS
+              eventSourceParameters:
+                sourceDTSParameters:
+                  RegionId: cn-hangzhou
+                  BrokerUrl: dts-cn-shanghai-vpc.aliyuncs.com:18003   # 数据订阅任务的网络连接地址
+                  Topic: cn_shanghai_vpc_rm_uf6398ykj0218rk6t_dts_trigger_upgrade_from_old_version2  # 数据订阅任务的 Topic
+                  Sid: dtse34j22j025aq26p # 数据订阅消费组 ID
+                  Username: dts_trigger   # 创建消费组时设置的账号
+                  Password: dtsTest123    # 创建消费组时设置的密码
+                  InitCheckPoint: 1677340805 # 期望消费第一条数据的时间戳。消费位点必须在订阅实例的数据范围之内
+                  TaskId: e34z2gm325qp37m # DTSJobId

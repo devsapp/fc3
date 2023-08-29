@@ -26,6 +26,7 @@ import {
 import replaceFunctionConfig from './impl/replace-function-config';
 import { IAlias } from '../../interface/cli-config/alias';
 import { removeNullValues } from '../../utils/index';
+import { TriggerType } from '../../interface/base';
 
 export enum GetApiType {
   original = 'original', // 直接返回接口返回值
@@ -346,8 +347,17 @@ export default class FC extends FC_Client {
       let r = _.omit(body, ['createdTime', 'httpTrigger', 'lastModifiedTime', 'triggerId']);
       // triggerConfig 可能会返回 key 为 null 的值， 比如 SLS 触发器
       removeNullValues(r);
+      // eb 触发器去掉 invocationRole, sourceArn 和 status
+      if (r.triggerType === TriggerType.eventbridge) {
+        r = _.omit(r, ['invocationRole', 'sourceArn', 'status']);
+      }
       logger.debug(`getTrigger simpleUnsupported Result body: ${JSON.stringify(r)}`);
       return r;
+    }
+
+    // eb 触发器去掉 eventSourceConfig.eventSourceParameters 中的其他无关的 null sourceParameters
+    if (body.triggerType === TriggerType.eventbridge) {
+      removeNullValues(body.triggerConfig.eventSourceConfig.eventSourceParameters);
     }
     logger.debug(`getTrigger simple Result body: ${JSON.stringify(body)}`);
     return body;
@@ -453,7 +463,18 @@ export default class FC extends FC_Client {
       const { body } = result.toMap();
       triggers.push(...body.triggers);
       if (!body.nextToken) {
-        return triggers;
+        let filteredTriggers = [];
+        for (const key in triggers) {
+          const trigger = triggers[key];
+          if (
+            trigger.triggerType === TriggerType.eventbridge &&
+            trigger.triggerName.indexOf('|') > -1
+          ) {
+            continue;
+          }
+          filteredTriggers.push(trigger);
+        }
+        return filteredTriggers;
       }
       nextToken = body.nextToken;
     }

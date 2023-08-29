@@ -9,6 +9,7 @@ import commandsHelp from './commands-help';
 import FC from './resources/fc';
 import { ICredentials } from '@serverless-devs/component-interface';
 import Role from './resources/ram';
+import { TriggerType } from './interface/base';
 
 export default class Base {
   commands: any;
@@ -95,22 +96,22 @@ export default class Base {
     }
     const ramClient = new Ram(inputs.credential as ICredentials).client;
     switch (triggerType) {
-      case 'oss':
+      case TriggerType.oss:
         triggerRole = await ramClient.initFcOssTriggerRole();
         break;
-      case 'sls':
+      case TriggerType.log:
         triggerRole = await ramClient.initFcSlsTriggerRole();
         break;
-      case 'mns_topic':
+      case TriggerType.mns_topic:
         triggerRole = await ramClient.initFcMnsTriggerRole();
         break;
-      case 'cdn_events':
+      case TriggerType.cdn_events:
         triggerRole = await ramClient.initFcCdnTriggerRole();
         break;
-      case 'tablestore':
+      case TriggerType.tablestore:
         triggerRole = await ramClient.initFcOtsTriggerRole();
         break;
-      case 'eventbridge': // eb 触发器没有 trigger role, get or create slr role
+      case TriggerType.eventbridge: // eb 触发器没有 trigger role, get or create slr role
         const eventSourceType = trigger.triggerConfig.eventSourceConfig.eventSourceType;
         await ramClient.initSlrRole(eventSourceType.toUpperCase());
         break;

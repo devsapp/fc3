@@ -156,15 +156,16 @@ export default class FC_Client {
     } = {},
   ) {
     const runtime = new RuntimeOptions({});
-    // xFcLogType in ['None' , 'Tail'], xFcInvocationType in ['Sync, 'Async']
+    // xFcLogType in ['None' , 'Tail'], xFcInvocationType in ['Sync, 'Async', 'Task']
     let logType = 'Tail';
-    if (invokeType === 'Async') {
+    if (invokeType === 'Async' || invokeType === 'Task') {
       logType = 'None';
     }
     const headers = new InvokeFunctionHeaders({
       xFcLogType: logType,
       xFcInvocationType: invokeType,
     });
+
     if (statefulAsyncInvocationId) {
       // TODO
     }
