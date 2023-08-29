@@ -3,7 +3,6 @@ import { TriggerType, Methods } from './base';
 export type ITriggerType = `${TriggerType}`;
 
 export interface IOssTriggerConfig {
-  bucketName: string;
   events: string[];
   filter: {
     key: {
@@ -40,11 +39,11 @@ export interface ITimerTriggerConfig {
 export interface IHttpTriggerConfig {
   authType: string;
   methods: `${Methods}`[];
+  disableURLInternet: boolean;
+  authConfig: string;
 }
 
 export interface IMnsTriggerConfig {
-  topicName: string;
-  region?: string;
   notifyContentFormat?: 'STREAM' | 'JSON';
   notifyStrategy?: 'BACKOFF_RETRY' | 'EXPONENTIAL_DECAY_RETRY';
   filterTag?: string;
@@ -59,13 +58,20 @@ export interface ICdnTriggerConfig {
   };
 }
 
-export interface IOtsConfig {
-  instanceName: string;
-  tableName: string;
-}
+export interface IOtsConfig {}
 
 export interface IEventBridge {
-  // TODO
+  triggerEnable: boolean;
+  asyncInvocationType: boolean;
+  eventRuleFilterPattern: string;
+  eventSourceConfig: {
+    eventSourceType: string;
+    eventSourceParameters: object;
+  };
+  eventSinkConfig: {
+    deliveryOption: object;
+  };
+  runOptions: object;
 }
 
 export interface ITrigger {
