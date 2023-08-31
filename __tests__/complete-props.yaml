@@ -186,21 +186,21 @@ resources:
           qualifier: LATEST # 触发服务的版本
           triggerConfig: {}
         # eb 触发器各种示例
-        - name: eventbridgeTriggerWithDefaultSource
+        - triggerName: eventbridgeTriggerWithDefaultSource
           # sourceArn: acs:eventbridge:<region>:<accountID>:eventbus/<eventBusName>/rule/<eventRuleName>
-          type: eventbridge
+          triggerType: eventbridge
           qualifier: LATEST
-          config:
+          triggerConfig:
             triggerEnable: true
             asyncInvocationType: false
             eventRuleFilterPattern: '{"source":["acs.oss"],"type":["oss:BucketCreated:PutBucket"]}'
             eventSourceConfig:
               eventSourceType: Default
-        - name: eventbridgeTriggerWithMNSSource
+        - triggerName: eventbridgeTriggerWithMNSSource
           # sourceArn: acs:eventbridge:<region>:<accountID>:eventbus/<eventBusName>/rule/<eventRuleName>
-          type: eventbridge
+          triggerType: eventbridge
           qualifier: LATEST
-          config:
+          triggerConfig:
             triggerEnable: true
             asyncInvocationType: false
             eventRuleFilterPattern: '{"source":["MNS-${functionName}-eventbridgeTriggerWithMNSSource"]}'
@@ -210,11 +210,11 @@ resources:
                 sourceMNSParameters:
                   QueueName: gjl-test
                   IsBase64Decode: false
-        - name: eventbridgeTriggerWithRocketMQSource
+        - triggerName: eventbridgeTriggerWithRocketMQSource
           # sourceArn: acs:eventbridge:<region>:<accountID>:eventbus/<eventBusName>/rule/<eventRuleName>
-          type: eventbridge
+          triggerType: eventbridge
           qualifier: LATEST
-          config:
+          triggerConfig:
             triggerEnable: true
             asyncInvocationType: false
             eventRuleFilterPattern: '{"source":["RocketMQ-${functionName}-eventbridgeTriggerWithRocketMQSource"]}'
@@ -227,11 +227,11 @@ resources:
                   GroupID: GID_group1
                   Topic: mytopic
                   Timestamp: 1636597951984
-        - name: eventbridgeTriggerWithRabbitMQSource
+        - triggerName: eventbridgeTriggerWithRabbitMQSource
           # sourceArn: acs:eventbridge:<region>:<accountID>:eventbus/<eventBusName>/rule/<eventRuleName>
-          type: eventbridge
+          triggerType: eventbridge
           qualifier: LATEST
-          config:
+          triggerConfig:
             triggerEnable: true
             asyncInvocationType: false
             eventRuleFilterPattern: '{"source":["RabbitMQ-${functionName}-eventbridgeTriggerWithRabbitMQSource"]}'
@@ -243,11 +243,11 @@ resources:
                   InstanceId: amqp-cn-******
                   QueueName: test-queue
                   VirtualHostName: test-virtual
-        - name: eventbridgeTriggerWithKafkaSource
+        - triggerName: eventbridgeTriggerWithKafkaSource
           # sourceArn: acs:eventbridge:<region>:<accountID>:eventstreaming/<eventStreamingName>
-          type: eventbridge
+          triggerType: eventbridge
           qualifier: LATEST
-          config:
+          triggerConfig:
             triggerEnable: true
             asyncInvocationType: false
             eventRuleFilterPattern: '{}'
@@ -281,11 +281,11 @@ resources:
                   VpcId: myVpcID
                   VSwitchIds: myVSwitchID
                   SecurityGroupId: mySecurityGroupID
-        - name: eventbridgeTriggerWithDTSSource
+        - triggerName: eventbridgeTriggerWithDTSSource
           # sourceArn: acs:eventbridge:<region>:<accountID>:eventstreaming/<eventStreamingName>
-          type: eventbridge
+          triggerType: eventbridge
           qualifier: LATEST
-          config:
+          triggerConfig:
             triggerEnable: true
             asyncInvocationType: false
             eventRuleFilterPattern: '{}'

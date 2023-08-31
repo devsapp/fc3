@@ -31,7 +31,6 @@ import FCClient, {
   UpdateTriggerResponse,
   PutAsyncInvokeConfigRequest,
   PutAsyncInvokeConfigInput,
-  DestinationConfig,
   PutAsyncInvokeConfigResponse,
 } from '@alicloud/fc20230330';
 import { ICredentials } from '@serverless-devs/component-interface';
