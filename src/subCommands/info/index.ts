@@ -23,10 +23,12 @@ export default class Info {
   async run() {
     const functionConfig = await this.getFunction();
     const triggers = await this.getTriggers();
+    const asyncInvokeConfig = await this.getAsyncInvokeConfig();
     return {
       region: this.region,
       function: functionConfig,
       triggers: isEmpty(triggers) ? undefined : triggers,
+      asyncInvokeConfig: isEmpty(asyncInvokeConfig) ? undefined : asyncInvokeConfig,
     };
   }
 
@@ -65,6 +67,15 @@ export default class Info {
       }
     }
     return result;
+  }
+
+  async getAsyncInvokeConfig(): Promise<any> {
+    try {
+      return await this.fcSdk.getAsyncInvokeConfig(this.functionName, 'LATEST', GetApiType.simple);
+    } catch (ex) {
+      logger.debug(`Get AsyncInvokeConfig ${this.functionName} error: ${ex}`);
+      return;
+    }
   }
 
   private checkProps() {
