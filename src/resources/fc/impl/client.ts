@@ -29,6 +29,10 @@ import FCClient, {
   UpdateTriggerInput,
   UpdateTriggerRequest,
   UpdateTriggerResponse,
+  PutAsyncInvokeConfigRequest,
+  PutAsyncInvokeConfigInput,
+  DestinationConfig,
+  PutAsyncInvokeConfigResponse,
 } from '@alicloud/fc20230330';
 import { ICredentials } from '@serverless-devs/component-interface';
 import { RuntimeOptions } from '@alicloud/tea-util';
@@ -37,7 +41,7 @@ import { Config } from '@alicloud/openapi-client';
 import FC2 from '@alicloud/fc2';
 
 import { FC_CLIENT_CONNECT_TIMEOUT, FC_CLIENT_READ_TIMEOUT } from '../../../default/config';
-import { IRegion, IFunction, ITrigger } from '../../../interface';
+import { IRegion, IFunction, ITrigger, IAsyncInvokeConfig } from '../../../interface';
 import { getCustomEndpoint } from './utils';
 import _ from 'lodash';
 import logger from '../../../logger';
@@ -362,5 +366,19 @@ export default class FC_Client {
       }
       nextToken = body.nextToken;
     }
+  }
+
+  async putAsyncInvokeConfig(
+    functionName: string,
+    qualifier: string,
+    config: IAsyncInvokeConfig,
+  ): Promise<PutAsyncInvokeConfigResponse> {
+    const request = new PutAsyncInvokeConfigRequest({
+      body: new PutAsyncInvokeConfigInput(config),
+      qualifier: qualifier,
+    });
+
+    logger.debug(`putAsyncInvokeConfig config = ${JSON.stringify(request)}`);
+    return await this.fc20230330Client.putAsyncInvokeConfig(functionName, request);
   }
 }

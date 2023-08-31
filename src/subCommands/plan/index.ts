@@ -35,6 +35,7 @@ export default class Plan {
   async run() {
     const functionConfig = await this.planFunction();
     const triggersConfig = await this.planTriggers();
+    const asyncInvokeConfig = await this.planAsyncInvokeConfig();
 
     let showDiff = `
 region: ${this.region}
@@ -46,15 +47,20 @@ ${functionConfig.show}
       showDiff += `triggers:
 ${triggersConfig.show}`;
     }
+
+    showDiff += `asyncInvokeConfig:
+${asyncInvokeConfig.show}`;
+
     logger.write(showDiff);
   }
 
   private async planFunction() {
-    let remote;
+    let remote = {};
     try {
       remote = await this.fcSdk.getFunction(this.functionName, GetApiType.simpleUnsupported);
     } catch (ex) {
       logger.debug(`Get remote function config error: ${ex.message}`);
+      console.log(JSON.stringify(ex));
       if (ex.code === FC_API_ERROR_CODE.FunctionNotFound) {
         remote = {};
       }
@@ -88,5 +94,24 @@ ${triggersConfig.show}`;
     }
 
     return diffConvertPlanYaml(result, this.triggers, { deep: 1, complete: true });
+  }
+
+  private async planAsyncInvokeConfig() {
+    let remote = {};
+    try {
+      const result = await this.fcSdk.getAsyncInvokeConfig(
+        this.functionName,
+        'LATEST',
+        GetApiType.simpleUnsupported,
+      );
+      remote = result;
+    } catch (ex) {
+      logger.debug(
+        `planAsyncInvokeConfig ==> Get remote asyncInvokeConfig of  ${this.functionName} error: ${ex.message}`,
+      );
+    }
+
+    let local = _.cloneDeep(_.get(this.inputs.props, 'asyncInvokeConfig', {}));
+    return diffConvertPlanYaml(remote, local, { deep: 1, complete: true });
   }
 }

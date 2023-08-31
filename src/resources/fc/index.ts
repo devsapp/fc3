@@ -7,6 +7,7 @@ import {
   GetFunctionResponse,
   ListFunctionVersionsRequest,
   ListTriggersRequest,
+  GetAsyncInvokeConfigRequest,
 } from '@alicloud/fc20230330';
 import { RuntimeOptions } from '@alicloud/tea-util';
 
@@ -15,7 +16,13 @@ import { sleep } from '../../utils';
 import { FC_DEPLOY_RETRY_COUNT } from '../../default/config';
 
 import FC_Client, { fc2Client } from './impl/client';
-import { ICustomContainerConfig, IFunction, ILogConfig, ITrigger } from '../../interface';
+import {
+  ICustomContainerConfig,
+  IFunction,
+  ILogConfig,
+  ITrigger,
+  IAsyncInvokeConfig,
+} from '../../interface';
 import { FC_API_ERROR_CODE, isAccessDenied, isSlsNotExistException } from './error-code';
 import {
   isCustomContainerRuntime,
@@ -173,7 +180,7 @@ export default class FC extends FC_Client {
             return;
           } catch (ex) {
             logger.debug(`Create trigger error: ${ex.message}`);
-            if (ex.code !== FC_API_ERROR_CODE.FunctionAlreadyExists) {
+            if (ex.code !== FC_API_ERROR_CODE.TriggerAlreadyExists) {
               throw ex;
             }
             logger.debug('Create trigger already exists, retry update');
@@ -478,5 +485,43 @@ export default class FC extends FC_Client {
       }
       nextToken = body.nextToken;
     }
+  }
+
+  /**
+   * 获取异步调用配置
+   */
+  async getAsyncInvokeConfig(
+    functionName: string,
+    qualifier: string,
+    type: `${GetApiType}` = GetApiType.original,
+  ): Promise<any> {
+    const runtime = new RuntimeOptions({});
+    const headers: { [key: string]: string } = {};
+    const req = new GetAsyncInvokeConfigRequest({ qualifier: qualifier });
+    const result = await this.fc20230330Client.getAsyncInvokeConfigWithOptions(
+      functionName,
+      req,
+      headers,
+      runtime,
+    );
+    if (type === GetApiType.original) {
+      return result;
+    }
+    let { body } = result.toMap();
+    if (type === GetApiType.simpleUnsupported) {
+      let r = _.omit(body, ['createdTime', 'functionArn', 'lastModifiedTime']);
+      removeNullValues(r);
+      logger.debug(`getAsyncInvokeConfig simpleUnsupported Result body: ${JSON.stringify(r)}`);
+      return r;
+    }
+    logger.debug(`getAsyncInvokeConfig simple Result body: ${JSON.stringify(body)}`);
+    if (
+      _.isEmpty(body.destinationConfig) &&
+      _.isEmpty(body.maxAsyncEventAgeInSeconds) &&
+      _.isEmpty(body.maxAsyncRetryAttempts)
+    ) {
+      return {};
+    }
+    return body;
   }
 }

@@ -2,16 +2,19 @@ import { IInputs as _IInputs, ICredentials } from '@serverless-devs/component-in
 import { IFunction } from './function';
 import { ITrigger } from './trigger';
 import { IRegion } from './region';
+import { IAsyncInvokeConfig } from './async_invoke_config';
 
 export * from './region';
 export * from './function';
 export * from './trigger';
 export * from './base';
+export * from './async_invoke_config';
 
 export interface IProps {
   region: IRegion;
   function: IFunction;
   triggers?: ITrigger[];
+  asyncInvokeConfig?: IAsyncInvokeConfig;
   endpoint?: string;
 }
 
