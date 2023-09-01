@@ -7,6 +7,8 @@ import version from './version';
 import concurrency from './concurrency';
 import plan from './plan';
 import aliases from './aliases';
+import provision from './provision';
+import layer from './layer';
 
 export default {
   deploy,
@@ -18,4 +20,6 @@ export default {
   aliases,
   concurrency,
   plan,
+  provision,
+  layer,
 };

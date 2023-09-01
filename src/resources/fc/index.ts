@@ -8,6 +8,11 @@ import {
   ListFunctionVersionsRequest,
   ListTriggersRequest,
   GetAsyncInvokeConfigRequest,
+  ListLayerVersionsRequest,
+  CreateLayerVersionRequest,
+  CreateLayerVersionInput,
+  InputCodeLocation,
+  PutLayerACLRequest,
 } from '@alicloud/fc20230330';
 import { RuntimeOptions } from '@alicloud/tea-util';
 
@@ -16,13 +21,7 @@ import { sleep } from '../../utils';
 import { FC_DEPLOY_RETRY_COUNT } from '../../default/config';
 
 import FC_Client, { fc2Client } from './impl/client';
-import {
-  ICustomContainerConfig,
-  IFunction,
-  ILogConfig,
-  ITrigger,
-  IAsyncInvokeConfig,
-} from '../../interface';
+import { ICustomContainerConfig, IFunction, ILogConfig, ITrigger } from '../../interface';
 import { FC_API_ERROR_CODE, isAccessDenied, isSlsNotExistException } from './error-code';
 import {
   isCustomContainerRuntime,
@@ -523,5 +522,73 @@ export default class FC extends FC_Client {
       return {};
     }
     return body;
+  }
+
+  /**
+   * list all layers
+   */
+  async listAllLayers(query: any) {
+    let layers = [];
+    while (true) {
+      let r = await this.listLayers(query);
+      for (const l of r.layers) {
+        layers.push(l);
+      }
+      if (_.isEmpty(r.nextToken)) {
+        break;
+      }
+      query.nextToken = r.nextToken;
+    }
+    return layers;
+  }
+
+  async getLayerVersion(layerName: string, version: string) {
+    const result = await this.fc20230330Client.getLayerVersion(layerName, version);
+    const { body } = result.toMap();
+    logger.debug(`getLayerVersion response  body: ${JSON.stringify(body)}`);
+    return body;
+  }
+
+  async listLayerVersions(layerName: string) {
+    const req = new ListLayerVersionsRequest({ limit: 100 });
+    const result = await this.fc20230330Client.listLayerVersions(layerName, req);
+    const { body } = result.toMap();
+    logger.debug(`listLayerVersions response  body: ${JSON.stringify(body)}`);
+    return body;
+  }
+
+  async createLayerVersion(
+    layerName: string,
+    ossBucketName: string,
+    ossObjectName: string,
+    compatibleRuntime?: string[],
+    description?: string,
+  ) {
+    const req = new CreateLayerVersionRequest({
+      body: new CreateLayerVersionInput({
+        code: new InputCodeLocation({
+          ossBucketName,
+          ossObjectName,
+        }),
+        compatibleRuntime,
+        description,
+      }),
+    });
+    const result = await this.fc20230330Client.createLayerVersion(layerName, req);
+    const { body } = result.toMap();
+    logger.debug(`createLayerVersion response  body: ${JSON.stringify(body)}`);
+    return body;
+  }
+
+  async deleteLayerVersion(layerName: string, version: string) {
+    await this.fc20230330Client.deleteLayerVersion(layerName, version);
+  }
+
+  async putLayerACL(layerName: string, isPublic: string) {
+    console.log(isPublic);
+    await this.fc20230330Client.putLayerACL(
+      layerName,
+      new PutLayerACLRequest({ public: isPublic }),
+    );
   }
 }
