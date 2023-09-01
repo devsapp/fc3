@@ -32,6 +32,7 @@ import FCClient, {
   PutAsyncInvokeConfigRequest,
   PutAsyncInvokeConfigInput,
   PutAsyncInvokeConfigResponse,
+  ListLayersRequest,
 } from '@alicloud/fc20230330';
 import { ICredentials } from '@serverless-devs/component-interface';
 import { RuntimeOptions } from '@alicloud/tea-util';
@@ -379,5 +380,13 @@ export default class FC_Client {
 
     logger.debug(`putAsyncInvokeConfig config = ${JSON.stringify(request)}`);
     return await this.fc20230330Client.putAsyncInvokeConfig(functionName, request);
+  }
+
+  async listLayers(query: any) {
+    const request = new ListLayersRequest(query);
+    const result = await this.fc20230330Client.listLayers(request);
+    const { body } = result.toMap();
+    logger.debug(`listLayers response  body: ${JSON.stringify(body)}`);
+    return body;
   }
 }

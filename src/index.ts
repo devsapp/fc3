@@ -1,6 +1,7 @@
 import { parseArgv } from '@serverless-devs/utils';
-import { IInputs, Runtime } from './interface';
+import { IInputs } from './interface';
 import _ from 'lodash';
+import FC from './resources/fc';
 
 import Base from './base';
 import logger from './logger';
@@ -12,6 +13,7 @@ import Info from './subCommands/info';
 import Plan from './subCommands/plan';
 import Invoke from './subCommands/invoke';
 import Provision from './subCommands/provision';
+import Layer from './subCommands/layer';
 import Remove from './subCommands/remove';
 import Sync from './subCommands/sync';
 import Version from './subCommands/version';
@@ -90,11 +92,17 @@ export default class Fc extends Base {
     return await provision[provision.subCommand]();
   }
 
+  public async layer(inputs: IInputs) {
+    await super.handlePreRun(inputs, true);
+    const layer = new Layer(inputs);
+    return await layer[layer.subCommand]();
+  }
+
   public async build(inputs: IInputs) {
     await super.handlePreRun(inputs, false);
 
     const runtime = _.get(inputs, 'props.function.runtime');
-    if (runtime === Runtime['custom-container']) {
+    if (FC.isCustomContainerRuntime(runtime)) {
       let dockerBuilder = BuilderFactory.getBuilder(BuildType.ImageDocker, inputs);
       await dockerBuilder.build();
     } else {
