@@ -42,7 +42,7 @@ export default class Layer {
     this.baseDir = path.dirname(inputs.yaml?.path || process.cwd());
     logger.info(`Layer baseDir is: ${this.baseDir}`);
 
-    const { region, yes, _: subCommands } = opts;
+    const { region, y, _: subCommands } = opts;
 
     logger.debug('subCommands: ', subCommands);
     const subCommand = _.get(subCommands, '[0]');
@@ -56,7 +56,7 @@ export default class Layer {
     }
     logger.debug(`region: ${this.region}`);
 
-    this.yes = yes;
+    this.yes = y;
     this.subCommand = subCommand;
     this.fcSdk = new FC(this.region, inputs.credential, {
       endpoint: inputs.props.endpoint,
@@ -141,7 +141,7 @@ export default class Layer {
     if (_.isEmpty(codeUri)) {
       throw new Error('layer code path not specified, please specify --code');
     }
-    if (_.isEmpty(codeUri)) {
+    if (_.isEmpty(compatibleRuntime)) {
       throw new Error(
         'compatible runtime is not specified, please specify --compatible-runtime, for example "python3.9,python3.10"',
       );
