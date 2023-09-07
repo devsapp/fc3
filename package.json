@@ -12,9 +12,7 @@
     "generate-schema": "npx typescript-json-schema ./src/interface/index.ts IProps --required -o ./dist/schema.json",
     "prepare": "husky install"
   },
-  "repository": {
-    "type": "git"
-  },
+  "repository": "git@gitlab.alibaba-inc.com:serverless-devs/fc.git",
   "keywords": [],
   "author": "",
   "license": "ISC",
@@ -23,7 +21,7 @@
     "@alicloud/fc20230330": "^3.0.0",
     "@alicloud/pop-core": "^1.7.13",
     "@serverless-cd/srm-aliyun-pop-core": "^0.0.7-beta.2",
-    "@serverless-cd/srm-aliyun-ram20150501": "^0.0.2-beta.5",
+    "@serverless-cd/srm-aliyun-ram20150501": "^0.0.2-beta.8",
     "@serverless-cd/srm-aliyun-sls20201230": "^0.0.1",
     "@serverless-devs/diff": "^0.0.3-beta.6",
     "@serverless-devs/downloads": "^0.0.2-beta.9",
