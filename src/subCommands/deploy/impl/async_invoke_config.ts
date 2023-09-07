@@ -60,7 +60,7 @@ export default class AsyncInvokeConfig extends Base {
       );
       this.remote = result;
     } catch (ex) {
-      logger.warn(`Get remote asyncInvokeConfig of  ${this.functionName} error: ${ex.message}`);
+      logger.debug(`Get remote asyncInvokeConfig of  ${this.functionName} error: ${ex.message}`);
       this.remote = {};
     }
   }

@@ -113,6 +113,7 @@ export default class Base {
         break;
       case TriggerType.eventbridge: // eb 触发器没有 trigger role, get or create slr role
         const eventSourceType = trigger.triggerConfig.eventSourceConfig.eventSourceType;
+        await ramClient.initSlrRole('SENDTOFC');
         await ramClient.initSlrRole(eventSourceType.toUpperCase());
         break;
       default:
