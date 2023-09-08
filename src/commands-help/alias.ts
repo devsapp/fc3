@@ -5,33 +5,35 @@ export default {
   subCommands: {
     get: {
       help: {
-        description: 'aliases list command',
-        summary: 'aliases list summary',
+        description: 'Get alias details',
+        summary: 'Get alias details ',
         option: [
-          ['--region <region>', 'Appoint region'],
-          ['--function-name <functionName>', 'Appoint function name'],
-          ['--alias-name <aliasName>', 'Appoint alias name'],
+          ['--region <region>', '[C-Required] Specify fc regions, you can see all supported regions in https://www.alibabacloud.com/help/en/fc/product-overview/region-availability'],
+          ['--function-name <functionName>', '[C-Required] Specify function name'],
+          ['--alias-name <aliasName>', '[Required] Specify alias name'],
         ],
       },
     },
     list: {
       help: {
-        description: 'aliases list command',
-        summary: 'aliases list summary',
+        description: 'View the list of function aliases',
+        summary: 'View the list of function aliases',
         option: [
-          ['--region <region>', 'Appoint region'],
-          ['--function-name <functionName>', 'Appoint function name'],
+          ['--region <region>', '[C-Required] Specify the fc regions, you can see all supported regions in https://www.alibabacloud.com/help/en/fc/product-overview/region-availability'],
+          ['--function-name <functionName>', '[C-Required] Specify function name'],
+          ['--table <table>', '[Optional] Specify if output the result as table format'],
         ],
       },
     },
     publish: {
       help: {
-        description: 'aliases publish command',
+        description: 'Publish function alias',
+        summary: 'Publish function alias',
         option: [
-          ['--region <region>', 'Appoint region'],
-          ['--function-name <functionName>', 'Appoint function name'],
-          ['--alias-name <aliasName>', 'Appoint alias name'],
-          ['--description <description>', 'Alias description'],
+          ['--region <region>', '[C-Required] Specify the fc regions, you can see all supported regions in https://www.alibabacloud.com/help/en/fc/product-overview/region-availability'],
+          ['--function-name <functionName>', '[C-Required] Specify function name'],
+          ['--alias-name <aliasName>', '[Required] Specify alias name'],
+          ['--description <description>', '[Optional] Specify alias description'],
           [
             '--vw,--additionalVersionWeight <json>',
             `Grayscale version and weights, e.g.: "{\\"1\\":0.2}"`,
@@ -41,7 +43,8 @@ export default {
     },
     remove: {
       help: {
-        description: 'aliases publish command',
+        description: 'Remove function alias',
+        summary: 'Remove function alias',
         option: [
           ['--region <region>', 'Appoint region'],
           ['--function-name <functionName>', 'Appoint function name'],
