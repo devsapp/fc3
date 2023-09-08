@@ -1,14 +1,18 @@
 export default {
   help: {
-    description: 'concurrency command',
+    description: 'Function concurrency operation ',
+    summary: 'Function concurrency operation ',
   },
   subCommands: {
     get: {
       help: {
-        description: 'concurrency list command',
+        description: 'get function concurrency detail',
         option: [
-          ['--region <region>', 'Appoint region'],
-          ['--function-name <functionName>', 'Appoint function name'],
+          [
+            '--region <region>',
+            '[C-Required] Specify fc regions, you can see all supported regions in https://www.alibabacloud.com/help/en/fc/product-overview/region-availability',
+          ],
+          ['--function-name <functionName>', '[C-Required] Specify function name'],
         ],
       },
     },
@@ -16,18 +20,24 @@ export default {
       help: {
         description: 'concurrency put command',
         option: [
-          ['--region <region>', 'Appoint region'],
-          ['--function-name <functionName>', 'Appoint function name'],
-          ['--reserved-concurrency <max>', 'Appoint reserved-concurrency'],
+          [
+            '--region <region>',
+            '[C-Required] Specify fc regions, you can see all supported regions in https://www.alibabacloud.com/help/en/fc/product-overview/region-availability',
+          ],
+          ['--function-name <functionName>', '[C-Required] Specify function name'],
+          ['--reserved-concurrency <max>', '[Required] Specify reserved concurrency'],
         ],
       },
     },
     remove: {
       help: {
-        description: 'concurrency remove command',
+        description: 'remove function concurrency',
         option: [
-          ['--region <region>', 'Appoint region'],
-          ['--function-name <functionName>', 'Appoint function name'],
+          [
+            '--region <region>',
+            '[C-Required] Specify the fc regions, you can see all supported regions in https://www.alibabacloud.com/help/en/fc/product-overview/region-availability',
+          ],
+          ['--function-name <functionName>', '[C-Required] Specify function name'],
           ['-y, --yes', "Don't ask, delete directly"],
         ],
       },
