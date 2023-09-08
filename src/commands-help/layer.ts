@@ -6,7 +6,8 @@ export default {
   subCommands: {
     publish: {
       help: {
-        description: 'Publish new layer version. \n' +
+        description:
+          'Publish new layer version. \n' +
           'Example: \n' +
           '  $ s3 layer publish --code layer.zip --layer-name testName --compatible-runtime nodejs12 \n' +
           '  $ s3 layer publish --code ./layer --layer-name testName --compatible-runtime nodejs12,nodejs10,python3 --description "this is description"',
@@ -16,23 +17,24 @@ export default {
             '--region <region>',
             '[C-Required] Specify the fc region of the layer, you can see all supported regions in https://www.alibabacloud.com/help/en/fc/product-overview/region-availability',
           ],
+          ['--layer-name <layerName>', '[Required] Specify the name of the layer'],
           ['--code <code>', '[Required] Specify the code path of the layer'],
           [
             '--compatible-runtime <compatibleRuntime>',
             '[Required] Specify the compatible runtimes of the layer, you can see all compatible runtimes in https://www.alibabacloud.com/help/en/fc/user-guide/overview-of-runtimes',
           ],
           ['--description <description>', '[Optional] Specify the description of the layer'],
-          ['--layer-name <layerName>', '[Required] Specify the name of the layer'],
         ],
       },
     },
     list: {
       help: {
-        description: 'Get layer list. \n' +
+        description:
+          'List layers. \n' +
           'Example: \n' +
           '  $ s3 layer list \n' +
           '  $ s3 layer list --prefix test --official --table',
-        summary: 'Get layer list',
+        summary: 'List layers',
         option: [
           [
             '--region <region>',
@@ -50,7 +52,8 @@ export default {
     },
     info: {
       help: {
-        description: 'Get layer version detail. \n' +
+        description:
+          'Get layer version detail. \n' +
           'Example: \n' +
           '  $ s3 layer info --layer-name testName --version-id 123',
         summary: 'Get layer version detail',
@@ -66,7 +69,8 @@ export default {
     },
     versions: {
       help: {
-        description: 'Get layer versions. \n' +
+        description:
+          'Get layer versions. \n' +
           'Example: \n' +
           '  $ s3 layer versions --layer-name testName \n' +
           '  $ s3 layer versions --layer-name testName --table',
@@ -83,7 +87,8 @@ export default {
     },
     download: {
       help: {
-        description: 'Download layer version code. \n' +
+        description:
+          'Download layer version code. \n' +
           'Example: \n' +
           '  $ s3 layer download --layer-name testName --version-id 123',
         summary: 'Download layer version code',
@@ -92,24 +97,19 @@ export default {
             '--region <region>',
             '[C-Required] Specify the fc region of the layer, you can see all supported regions in https://www.alibabacloud.com/help/en/fc/product-overview/region-availability',
           ],
-          [
-            '--layer-name <layerName>',
-            '[Required] Specify the name of the layer version. If you do not set "arn", "layer-name" is required.',
-          ],
-          [
-            '--version-id <versionId>',
-            '[Required] Specify the version id of the layer version. If you do not set "arn", "version-id" is required.',
-          ],
+          ['--layer-name <layerName>', '[Required] Specify the name of the layer version.'],
+          ['--version-id <versionId>', '[Required] Specify the version id of the layer version.'],
         ],
       },
     },
     acl: {
       help: {
-        description: 'Set the layer as publish or private. \n' +
+        description:
+          'Set the layer as public or private. \n' +
           'Example: \n' +
           '  $ s3 layer acl --layer-name testName \n' +
           '  $ s3 layer acl --layer-name testName --public',
-        summary: 'Set the layer as publish or private',
+        summary: 'Set the layer as public or private',
         option: [
           [
             '--region <region>',
@@ -125,17 +125,21 @@ export default {
     },
     remove: {
       help: {
-        description: 'Remove layer version. \n' +
+        description:
+          'Remove layer. \n' +
           'Example: \n' +
           '  $ s3 layer remove --layer-name testName --version-id 123',
-        summary: 'Remove layer version',
+        summary: 'Remove layer',
         option: [
           [
             '--region <region>',
             '[C-Required] Specify the fc region of the layer, you can see all supported regions in https://www.alibabacloud.com/help/en/fc/product-overview/region-availability',
           ],
           ['--layer-name <layerName>', '[Required] Specify the name of the layer'],
-          ['--version-id <versionId>', '[Required] Specify the version id of the layer version'],
+          [
+            '--version-id <versionId>',
+            '[Optional] Specify the version id of the layer version, if a version-id is not specified, all versions of this layer will be deleted.',
+          ],
         ],
       },
     },

@@ -6,9 +6,8 @@ export default {
   subCommands: {
     get: {
       help: {
-        description: 'Get alias details. \n' +
-          'Example: \n' +
-          '  $ s3 alias get --alias-name testName',
+        description:
+          'Get alias details. \n' + 'Example: \n' + '  $ s3 alias get --alias-name testName',
         summary: 'Get alias details ',
         option: [
           [
@@ -22,7 +21,8 @@ export default {
     },
     list: {
       help: {
-        description: 'View the list of function aliases. \n' +
+        description:
+          'View the list of function aliases. \n' +
           'Example: \n' +
           '  $ s3 alias list \n' +
           '  $ s3 alias list --table',
@@ -39,7 +39,8 @@ export default {
     },
     publish: {
       help: {
-        description: 'Publish function alias. \n' +
+        description:
+          'Publish function alias. \n' +
           'Example: \n' +
           '  $ s3 alias publish --alias-name aliasName \n' +
           '  $ s3 alias publish --alias-name aliasName --version-id 123 --description "this is description"\n' +
@@ -63,7 +64,8 @@ export default {
     },
     remove: {
       help: {
-        description: 'Remove function alias. \n' +
+        description:
+          'Remove function alias. \n' +
           'Example: \n' +
           '  $ s3 alias remove --alias-name aliasName \n' +
           '  $ s3 alias remove --alias-name aliasName -y',
