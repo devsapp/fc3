@@ -28,7 +28,7 @@ export default {
             '[C-Required] Specify the fc region, you can see all supported regions in https://www.alibabacloud.com/help/en/fc/product-overview/region-availability',
           ],
           ['--function-name <functionName>', '[C-Required] Specify function name'],
-          ['--table <table>', '[Optional] Specify if output the result as table format'],
+          ['--table', '[Optional] Specify if output the result as table format'],
         ],
       },
     },
