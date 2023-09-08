@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import inquirer from 'inquirer';
+import Table from 'tty-table';
 
 export { default as verify } from './verify';
 export { default as runCommand } from './run-command';
@@ -41,4 +42,25 @@ export function removeNullValues(obj: object) {
       removeNullValues(obj[key]);
     }
   }
+}
+
+export function tableShow(data: any, showKey: string[]) {
+  const options = {
+    borderStyle: 'solid',
+    borderColor: 'blue',
+    headerAlign: 'center',
+    align: 'left',
+    color: 'cyan',
+    width: '100%',
+  };
+
+  const header = showKey.map((value) => ({
+    value,
+    headerColor: 'cyan',
+    color: 'cyan',
+    align: 'left',
+    width: 'auto',
+    formatter: (v: any) => v,
+  }));
+  console.log(Table(header, data, options).render());
 }

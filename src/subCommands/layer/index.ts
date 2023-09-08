@@ -4,13 +4,12 @@ import { IInputs, IRegion } from '../../interface';
 import logger from '../../logger';
 import _ from 'lodash';
 import FC from '../../resources/fc';
-import Table from 'tty-table';
 import zip from '@serverless-devs/zip';
 import downloads from '@serverless-devs/downloads';
 import { getRootHome } from '@serverless-devs/utils';
 import path from 'path';
 import fs from 'fs';
-import { promptForConfirmOrDetails } from '../../utils';
+import { promptForConfirmOrDetails, tableShow } from '../../utils';
 
 const commandsList = Object.keys(commandsHelp.subCommands);
 
@@ -85,7 +84,15 @@ export default class Layer {
     console.log(JSON.stringify(list));
 
     if (this.opts.table) {
-      this.tableShow(list);
+      const showKey = [
+        'layerName',
+        'description',
+        'version',
+        'compatibleRuntime',
+        'acl',
+        'layerVersionArn',
+      ];
+      tableShow(list, showKey);
     } else {
       return list.map(
         ({ layerName, description, version, compatibleRuntime, layerVersionArn, acl }) => ({
@@ -254,33 +261,4 @@ export default class Layer {
     const isPublic = this.opts['public'];
     await this.fcSdk.putLayerACL(layerName, isPublic.toString());
   }
-
-  tableShow = (data: any) => {
-    const options = {
-      borderStyle: 'solid',
-      borderColor: 'blue',
-      headerAlign: 'center',
-      align: 'left',
-      color: 'cyan',
-      width: '100%',
-    };
-
-    const showKey = [
-      'layerName',
-      'description',
-      'version',
-      'compatibleRuntime',
-      'acl',
-      'layerVersionArn',
-    ];
-    const header = showKey.map((value) => ({
-      value,
-      headerColor: 'cyan',
-      color: 'cyan',
-      align: 'left',
-      width: 'auto',
-      formatter: (v: any) => v,
-    }));
-    console.log(Table(header, data, options).render());
-  };
 }

@@ -21,6 +21,7 @@ s3 alias list
 s3 alias publish --alias-name test --version-id latest
 s3 alias get --alias-name test
 s3 alias list
+s3 alias list --table
 s3 alias remove --alias-name test  -y
 s3 alias publish --alias-name test --version-id latest
 
