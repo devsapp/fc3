@@ -13,6 +13,7 @@ import {
   CreateLayerVersionInput,
   InputCodeLocation,
   PutLayerACLRequest,
+  ListInstancesRequest,
 } from '@alicloud/fc20230330';
 import { RuntimeOptions } from '@alicloud/tea-util';
 
@@ -33,6 +34,7 @@ import replaceFunctionConfig from './impl/replace-function-config';
 import { IAlias } from '../../interface/cli-config/alias';
 import { removeNullValues } from '../../utils/index';
 import { TriggerType } from '../../interface/base';
+import { FC_INSTANCE_EXEC_TIMEOUT } from '../../default/config';
 
 export enum GetApiType {
   original = 'original', // 直接返回接口返回值
@@ -590,5 +592,142 @@ export default class FC extends FC_Client {
       layerName,
       new PutLayerACLRequest({ public: isPublic }),
     );
+  }
+
+  async listInstances(functionName: string, qualifier: string) {
+    const result = await this.fc20230330Client.listInstances(
+      functionName,
+      new ListInstancesRequest({
+        qualifier,
+        withAllActive: true,
+      }),
+    );
+    const { body } = result.toMap();
+    logger.debug(`listInstances response  body: ${JSON.stringify(body)}`);
+    return body;
+  }
+
+  async instanceExec(
+    functionName: string,
+    instanceId: string,
+    rawData: string[],
+    qualifier,
+    tty = true,
+  ) {
+    const client = fc2Client(this.region, this.credentials, this.customEndpoint) as any;
+    client.version = '2023-03-30';
+    const queries = {
+      FC_INSTANCE_EXEC_TIMEOUT,
+      stdin: 'true',
+      tty: tty ? 'true' : 'false',
+      stdout: 'true',
+      stderr: 'true',
+      command: rawData,
+      qualifier,
+    };
+
+    logger.info(
+      'Enter `exit` to open the link on the server side to exit (recommended), or execute `control + ]` to force the client to exit',
+    );
+
+    // eslint-disable-next-line no-async-promise-executor
+    await new Promise(async (resolve) => {
+      logger.debug(`command-exec command:\n${JSON.stringify(queries, null, 2)}`);
+      logger.debug('----------------------------------------');
+
+      const messageStdout = 1;
+      const messageStderr = 2;
+
+      const onStdout = (msg) => process.stdout.write(msg.toString());
+      const onStderr = (msg) => process.stderr.write(msg.toString());
+      const onClose = (e) => {
+        //process.stdout.write(`on close --> ${e.toString()}`);
+        process.exit(0);
+      };
+      const onError = (e, reason) => {
+        process.stderr.write(e.toString());
+        process.stderr.write(reason);
+        process.stdin.setRawMode(false);
+        resolve(e);
+      };
+      const ws = client.websocket(
+        `/functions/${functionName}/instances/${instanceId}/exec`,
+        queries,
+      );
+
+      const ticker = setInterval(function () {
+        try {
+          ws.ping();
+        } catch (e) {
+          ws.close();
+        }
+      }, 5000);
+
+      ws.on('unexpected-response', function (req, incoming) {
+        var data = [];
+        incoming.on('data', function (chunk) {
+          data = data.concat(chunk);
+        });
+        incoming.on('end', function () {
+          const msg = JSON.parse(data.toString());
+          const err = new Error(msg.ErrorMessage);
+          onError(err, 'unexpected-response end');
+          ws.close();
+        });
+      });
+      ws.on('close', (err) => {
+        clearInterval(ticker);
+        onClose(err);
+      });
+      ws.on('error', (code, reason) => onError(code, reason));
+      ws.on('ping', (data) => ws.pong(data));
+      ws.on('message', (message) => {
+        if (!!message && message.length >= 2) {
+          const messageType = message[0];
+          const data = message.slice(1);
+          if (messageType === messageStdout && onStdout) {
+            onStdout(data);
+          } else if (messageType === messageStderr && onStderr) {
+            onStderr(data);
+          }
+        }
+      });
+
+      await (async () => {
+        new Promise((resolve) => (ws.onopen = resolve));
+      });
+
+      const conn = {
+        websocket: ws,
+        close: () => ws.close(),
+        sendMessage: (data) => {
+          if (!(data instanceof Uint8Array)) {
+            throw new Error('data must be Uint8Array');
+          }
+          const messageArray = new Uint8Array(data.length);
+          messageArray.set(data);
+          ws.send(messageArray);
+        },
+      };
+
+      if (process.stdin.isPaused()) {
+        logger.debug('In the running state, switch an explicitly paused stream to flow mode');
+        process.stdin.resume();
+      }
+      process.stdin.setEncoding('ascii');
+      process.stdin.setRawMode(true);
+      process.stdin.on('data', (chunk: string) => {
+        const arr = [];
+        for (const ch of chunk) {
+          // control + ] 退出
+          if (ch.charCodeAt(0) === 29) {
+            conn?.close();
+            process.exit(0);
+          }
+          arr.push(ch.charCodeAt(0));
+        }
+        conn.sendMessage(new Uint8Array(arr));
+      });
+    });
   }
 }

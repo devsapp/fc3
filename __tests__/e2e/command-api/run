@@ -8,6 +8,9 @@ export fc_component_function_name=node16-$(uname)-$(uname -m)-$RANDSTR
 echo "test command cli ..."
 s3 deploy -y
 
+s3  instance exec --instance-id `s3 invoke  | grep "Invoke instanceId:" |  sed "s/.*: //"`
+s3  instance list
+
 s3 version publish --description test
 s3 version list
 s3 version remove --version-id latest  -y

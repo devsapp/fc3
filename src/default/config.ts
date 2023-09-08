@@ -48,4 +48,9 @@ export const FC_CLIENT_CONNECT_TIMEOUT: number =
 export const FC_CLIENT_READ_TIMEOUT: number =
   parseInt(process.env.FC_CLIENT_READ_TIMEOUT || '10') * 1000;
 
+// seconds
+export const FC_INSTANCE_EXEC_TIMEOUT: number = parseInt(
+  process.env.FC_INSTANCE_EXEC_TIMEOUT || '600',
+);
+
 export const FC_DEPLOY_RETRY_COUNT = 3;

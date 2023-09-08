@@ -14,6 +14,7 @@ import Plan from './subCommands/plan';
 import Invoke from './subCommands/invoke';
 import Provision from './subCommands/provision';
 import Layer from './subCommands/layer';
+import Instance from './subCommands/instance';
 import Remove from './subCommands/remove';
 import Sync from './subCommands/sync';
 import Version from './subCommands/version';
@@ -96,6 +97,12 @@ export default class Fc extends Base {
     await super.handlePreRun(inputs, true);
     const layer = new Layer(inputs);
     return await layer[layer.subCommand]();
+  }
+
+  public async instance(inputs: IInputs) {
+    await super.handlePreRun(inputs, true);
+    const instance = new Instance(inputs);
+    return await instance[instance.subCommand]();
   }
 
   public async build(inputs: IInputs) {
