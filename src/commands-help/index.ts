@@ -9,6 +9,7 @@ import plan from './plan';
 import alias from './alias';
 import provision from './provision';
 import layer from './layer';
+import instance from './instance';
 
 export default {
   deploy,
@@ -22,4 +23,5 @@ export default {
   plan,
   provision,
   layer,
+  instance,
 };

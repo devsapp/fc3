@@ -16,7 +16,7 @@ resources:
         code: ./code
         handler: event.handler
         memorySize: 128
-        timeout: 30
+        timeout: 5
         instanceLifecycleConfig:
           initializer:
             handler: event.initializer
