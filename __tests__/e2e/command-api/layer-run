@@ -19,6 +19,8 @@ s3 layer publish --layer-name $layer_name --code ./pyyaml-layer.zip --compatible
 
 s3 layer list --prefix $layer_name
 
+s3 layer list --prefix $layer_name --table
+
 s3 layer versions --layer-name $layer_name
 
 s3 layer remove -y --layer-name $layer_name

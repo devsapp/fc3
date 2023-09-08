@@ -4,7 +4,7 @@ import _, { add } from 'lodash';
 import logger from '../../logger';
 import FC from '../../resources/fc';
 import commandsHelp from '../../commands-help/alias';
-import { promptForConfirmOrDetails } from '../../utils';
+import { promptForConfirmOrDetails, tableShow } from '../../utils';
 
 const commandsList = Object.keys(commandsHelp.subCommands);
 
@@ -17,6 +17,7 @@ export default class Alias {
   private aliasName: string;
   private fcSdk: FC;
   private yes: boolean;
+  private table: boolean;
   readonly subCommand: string;
 
   constructor(inputs: IInputs) {
@@ -26,6 +27,7 @@ export default class Alias {
       region,
       description,
       yes,
+      table,
       additionalVersionWeight,
       'version-id': versionId,
       _: subCommands,
@@ -34,7 +36,7 @@ export default class Alias {
         yes: 'y',
         additionalVersionWeight: 'vw',
       },
-      boolean: ['y'],
+      boolean: ['y', 'table'],
       string: [
         'description',
         'additionalVersionWeight',
@@ -61,6 +63,7 @@ export default class Alias {
     }
     logger.debug(`function name: ${this.functionName}`);
     this.yes = yes;
+    this.table = table;
     this.subCommand = subCommand;
     this.description = description;
     this.aliasName = aliasName;
@@ -74,7 +77,12 @@ export default class Alias {
 
   async list() {
     const aliases = await this.fcSdk.listAlias(this.functionName);
-    return aliases;
+    if (this.table) {
+      const showKey = ['aliasName', 'versionId', 'description', 'additionalVersionWeight'];
+      tableShow(aliases, showKey);
+    } else {
+      return aliases;
+    }
   }
 
   async get() {
