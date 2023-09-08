@@ -6,7 +6,10 @@ export default {
   subCommands: {
     publish: {
       help: {
-        description: 'Publish new layer version',
+        description: 'Publish new layer version. \n' +
+          'Example: \n' +
+          '  $ s3 layer publish --code layer.zip --layer-name testName --compatible-runtime nodejs12 \n' +
+          '  $ s3 layer publish --code ./layer --layer-name testName --compatible-runtime nodejs12,nodejs10,python3 --description "this is description"',
         summary: 'Publish new layer version',
         option: [
           [
@@ -16,7 +19,7 @@ export default {
           ['--code <code>', '[Required] Specify the code path of the layer'],
           [
             '--compatible-runtime <compatibleRuntime>',
-            '[Optional] Specify the compatible runtimes of the layer, you can see all compatible runtimes in https://www.alibabacloud.com/help/en/fc/user-guide/overview-of-runtimes',
+            '[Required] Specify the compatible runtimes of the layer, you can see all compatible runtimes in https://www.alibabacloud.com/help/en/fc/user-guide/overview-of-runtimes',
           ],
           ['--description <description>', '[Optional] Specify the description of the layer'],
           ['--layer-name <layerName>', '[Required] Specify the name of the layer'],
@@ -25,7 +28,10 @@ export default {
     },
     list: {
       help: {
-        description: 'Get layer list',
+        description: 'Get layer list. \n' +
+          'Example: \n' +
+          '  $ s3 layer list \n' +
+          '  $ s3 layer list --prefix test --official --table',
         summary: 'Get layer list',
         option: [
           [
@@ -44,7 +50,9 @@ export default {
     },
     info: {
       help: {
-        description: 'Get layer version detail',
+        description: 'Get layer version detail. \n' +
+          'Example: \n' +
+          '  $ s3 layer info --layer-name testName --version-id 123',
         summary: 'Get layer version detail',
         option: [
           [
@@ -58,8 +66,11 @@ export default {
     },
     versions: {
       help: {
-        description: 'Get layer versions ',
-        summary: 'Get layer versions ',
+        description: 'Get layer versions. \n' +
+          'Example: \n' +
+          '  $ s3 layer versions --layer-name testName \n' +
+          '  $ s3 layer versions --layer-name testName --table',
+        summary: 'Get layer versions',
         option: [
           [
             '--region <region>',
@@ -72,7 +83,9 @@ export default {
     },
     download: {
       help: {
-        description: 'Download layer version code',
+        description: 'Download layer version code. \n' +
+          'Example: \n' +
+          '  $ s3 layer download --layer-name testName --version-id 123',
         summary: 'Download layer version code',
         option: [
           [
@@ -81,18 +94,21 @@ export default {
           ],
           [
             '--layer-name <layerName>',
-            '[Optional] Specify the name of the layer version. If you do not set "arn", "layer-name" is required.',
+            '[Required] Specify the name of the layer version. If you do not set "arn", "layer-name" is required.',
           ],
           [
             '--version-id <versionId>',
-            '[Optional] Specify the version id of the layer version. If you do not set "arn", "version-id" is required.',
+            '[Required] Specify the version id of the layer version. If you do not set "arn", "version-id" is required.',
           ],
         ],
       },
     },
     acl: {
       help: {
-        description: 'Set the layer as publish or private',
+        description: 'Set the layer as publish or private. \n' +
+          'Example: \n' +
+          '  $ s3 layer acl --layer-name testName \n' +
+          '  $ s3 layer acl --layer-name testName --public',
         summary: 'Set the layer as publish or private',
         option: [
           [
@@ -101,7 +117,7 @@ export default {
           ],
           ['--layer-name <layerName>', '[Required] Specify the name of the layer version'],
           [
-            '--public <public>',
+            '--public',
             '[Optional] Specify if the layer is public. If you do not use this key, the layer will be set private',
           ],
         ],
@@ -109,7 +125,9 @@ export default {
     },
     remove: {
       help: {
-        description: 'Remove layer version',
+        description: 'Remove layer version. \n' +
+          'Example: \n' +
+          '  $ s3 layer remove --layer-name testName --version-id 123',
         summary: 'Remove layer version',
         option: [
           [
