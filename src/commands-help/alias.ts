@@ -42,9 +42,9 @@ export default {
         description:
           'Publish function alias. \n' +
           'Example: \n' +
-          '  $ s3 alias publish --alias-name aliasName \n' +
+          '  $ s3 alias publish --alias-name aliasName --version-id latest\n' +
           '  $ s3 alias publish --alias-name aliasName --version-id 123 --description "this is description"\n' +
-          '  $ s3 alias publish --alias-name aliasName --version-id 123 --vm "{}"',
+          '  $ s3 alias publish --alias-name aliasName --version-id 123 --vw "{\\"2\\":0.2}"',
         summary: 'Publish function alias',
         option: [
           [
@@ -53,11 +53,11 @@ export default {
           ],
           ['--function-name <functionName>', '[C-Required] Specify function name'],
           ['--alias-name <aliasName>', '[Required] Specify alias name'],
+          ['--version-id <versionId>', '[Required] Specify version id of the function'],
           ['--description <description>', '[Optional] Specify alias description'],
-          ['--version-id <versionId>', '[Optional] Specify version id of the function'],
           [
             '--vw,--additionalVersionWeight <json>',
-            `[Optional] Specify grayscale version and weights, e.g.: "{\\"1\\":0.2}"`,
+            `[Optional] Specify grayscale version and weights, e.g.: "{\\"2\\":0.2}"`,
           ],
         ],
       },
