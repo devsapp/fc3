@@ -3,7 +3,7 @@ import { IInputs, IRegion } from '../../interface';
 import _, { add } from 'lodash';
 import logger from '../../logger';
 import FC from '../../resources/fc';
-import commandsHelp from '../../commands-help/aliases';
+import commandsHelp from '../../commands-help/alias';
 import { promptForConfirmOrDetails } from '../../utils';
 
 const commandsList = Object.keys(commandsHelp.subCommands);
