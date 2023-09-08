@@ -6,9 +6,8 @@ export default {
   subCommands: {
     get: {
       help: {
-        description: 'Get function concurrency detail. \n' +
-          'Example: \n' +
-          '  $ s3 concurrency get',
+        description:
+          'Get function concurrency detail. \n' + 'Example: \n' + '  $ s3 concurrency get',
         summary: 'Get function concurrency detail',
         option: [
           [
@@ -21,9 +20,10 @@ export default {
     },
     put: {
       help: {
-        description: 'Put function concurrency. \n' +
-        'Example: \n' +
-        '  $ s3 concurrency put --reserved-concurrency 5',
+        description:
+          'Put function concurrency. \n' +
+          'Example: \n' +
+          '  $ s3 concurrency put --reserved-concurrency 5',
         summary: 'Put function concurrency',
         option: [
           [
@@ -37,10 +37,11 @@ export default {
     },
     remove: {
       help: {
-        description: 'Remove function concurrency. \n' +
-        'Example: \n' +
-        '  $ s3 concurrency remove \n' +
-        '  $ s3 concurrency remove -y',
+        description:
+          'Remove function concurrency. \n' +
+          'Example: \n' +
+          '  $ s3 concurrency remove \n' +
+          '  $ s3 concurrency remove -y',
         summary: 'Remove function concurrency',
         option: [
           [
