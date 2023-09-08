@@ -6,7 +6,7 @@ import invoke from './invoke';
 import version from './version';
 import concurrency from './concurrency';
 import plan from './plan';
-import aliases from './aliases';
+import alias from './alias';
 import provision from './provision';
 import layer from './layer';
 
@@ -17,7 +17,7 @@ export default {
   sync,
   invoke,
   version,
-  aliases,
+  alias,
   concurrency,
   plan,
   provision,
