@@ -11,7 +11,7 @@ export default {
         option: [
           [
             '--region <region>',
-            '[C-Required] Specify the fc regions of the layer, you can see all supported regions in https://www.alibabacloud.com/help/en/fc/product-overview/region-availability',
+            '[C-Required] Specify the fc region of the layer, you can see all supported regions in https://www.alibabacloud.com/help/en/fc/product-overview/region-availability',
           ],
           ['--code <code>', '[Required] Specify the code path of the layer'],
           [
@@ -30,7 +30,7 @@ export default {
         option: [
           [
             '--region <region>',
-            '[C-Required] Specify the fc regions, you can see all supported regions in https://www.alibabacloud.com/help/en/fc/product-overview/region-availability',
+            '[C-Required] Specify the fc region, you can see all supported regions in https://www.alibabacloud.com/help/en/fc/product-overview/region-availability',
           ],
           ['--prefix <prefix>', '[Optional] Specify the prefix of layer name'],
           ['--public <public>', '[Optional] Specify if show personal public layers'],
@@ -49,7 +49,7 @@ export default {
         option: [
           [
             '--region <region>',
-            '[C-Required] Specify the fc regions of the layer, you can see all supported regions in https://www.alibabacloud.com/help/en/fc/product-overview/region-availability',
+            '[C-Required] Specify the fc region of the layer, you can see all supported regions in https://www.alibabacloud.com/help/en/fc/product-overview/region-availability',
           ],
           ['--layer-name <layernName>', '[Required] Specify the name of the layer'],
           ['--version-id <versionId>', '[Required] Specify the version id of the layer version'],
@@ -63,7 +63,7 @@ export default {
         option: [
           [
             '--region <region>',
-            '[C-Required] Specify the fc regions of the layer, you can see all supported regions in https://www.alibabacloud.com/help/en/fc/product-overview/region-availability',
+            '[C-Required] Specify the fc region of the layer, you can see all supported regions in https://www.alibabacloud.com/help/en/fc/product-overview/region-availability',
           ],
           ['--layer-name <layerName>', '[Required] Specify the name of the layer version'],
           ['--table <table>', '[Optional] Specify if output the result as table format'],
@@ -77,7 +77,7 @@ export default {
         option: [
           [
             '--region <region>',
-            '[C-Required] Specify the fc regions of the layer, you can see all supported regions in https://www.alibabacloud.com/help/en/fc/product-overview/region-availability',
+            '[C-Required] Specify the fc region of the layer, you can see all supported regions in https://www.alibabacloud.com/help/en/fc/product-overview/region-availability',
           ],
           [
             '--layer-name <layerName>',
@@ -98,7 +98,7 @@ export default {
         option: [
           [
             '--region <region>',
-            '[C-Required] Specify the fc regions of the layer, you can see all supported regions in https://www.alibabacloud.com/help/en/fc/product-overview/region-availability',
+            '[C-Required] Specify the fc region of the layer, you can see all supported regions in https://www.alibabacloud.com/help/en/fc/product-overview/region-availability',
           ],
           ['--layer-name <layerName>', '[Required] Specify the name of the layer version'],
           [
@@ -115,7 +115,7 @@ export default {
         option: [
           [
             '--region <region>',
-            '[C-Required] Specify the fc regions of the layer, you can see all supported regions in https://www.alibabacloud.com/help/en/fc/product-overview/region-availability',
+            '[C-Required] Specify the fc region of the layer, you can see all supported regions in https://www.alibabacloud.com/help/en/fc/product-overview/region-availability',
           ],
           ['--layer-name <layerName>', '[Required] Specify the name of the layer'],
           ['--version-id <versionId>', '[Required] Specify the version id of the layer version'],
