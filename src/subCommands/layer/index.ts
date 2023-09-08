@@ -127,7 +127,11 @@ export default class Layer {
     for (let i in layers) {
       layers[i] = _.omit(layers[i], ['code', 'createTime', 'license', 'codeChecksum', 'codeSize']);
     }
-    return layers;
+    if (this.opts.table) {
+      this.tableShow(layers);
+    } else {
+      return layers;
+    }
   }
 
   async publish() {
