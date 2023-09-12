@@ -130,7 +130,7 @@ export default class Trigger extends Base {
       return;
     }
     logger.write(
-      `\n* You can also specify to use local configuration through --yes/-y during deployment`,
+      `\n* You can also specify to use local configuration through --assume-yes/-y during deployment`,
     );
     const message = `Deploy it with local config or skip deploy function?`;
     const answers = await inquirer.prompt([

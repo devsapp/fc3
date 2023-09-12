@@ -23,11 +23,11 @@ export default class Version {
       'version-id': versionId,
       region,
       description,
-      yes,
+      'assume-yes': yes,
       _: subCommands,
     } = parseArgv(inputs.args, {
       alias: {
-        yes: 'y',
+        'assume-yes': 'y',
       },
       boolean: ['y'],
       string: ['description', 'version-id', 'function-name', 'region'],

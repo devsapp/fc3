@@ -26,14 +26,14 @@ export default class Alias {
       'alias-name': aliasName,
       region,
       description,
-      yes,
+      'assume-yes': yes,
       table,
       additionalVersionWeight,
       'version-id': versionId,
       _: subCommands,
     } = parseArgv(inputs.args, {
       alias: {
-        yes: 'y',
+        'assume-yes': 'y',
         additionalVersionWeight: 'vw',
       },
       boolean: ['y', 'table'],

@@ -24,7 +24,7 @@ export default class Sync {
       region,
     } = parseArgv(inputs.args, {
       string: ['target-dir', 'function-name', 'qualifier', 'region'],
-      alias: { yes: 'y' },
+      alias: { 'assume-yes': 'y' },
     });
 
     if (fs.existsSync(target) && !fs.fstatSync(target).isDirectory()) {

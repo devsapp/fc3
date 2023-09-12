@@ -49,7 +49,7 @@ export default {
             '[C-Required] Specify the fc region, you can see all supported regions in https://www.alibabacloud.com/help/en/fc/product-overview/region-availability',
           ],
           ['--function-name <functionName>', '[C-Required] Specify function name'],
-          ['-y, --yes', "Don't ask, delete directly"],
+          ['-y, --assume-yes', "Don't ask, delete directly"],
         ],
       },
     },
