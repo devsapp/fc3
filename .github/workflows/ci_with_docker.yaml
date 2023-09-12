@@ -1,0 +1,121 @@
+name: FC3.0 component ci with docker (build and local)
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  python:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      max-parallel: 2
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v2
+      - uses: docker-practice/actions-setup-docker@master
+      - uses: actions/setup-node@v2
+        with:
+          node-version: 14
+          registry-url: https://registry.npmjs.org/
+      - name: install s
+        run: |
+          npm i @xsahxl/s@3.x -g
+      - name: config s
+        run: |
+          s3 config add --AccessKeyID ${{secrets.ACCESSKEYID}} --AccessKeySecret ${{secrets.ACCESSKEYSECRET}} -a quanxi -f
+      - name: test python
+        run: |
+          cd python && bash run && cd -
+  nodejs:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      max-parallel: 2
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v2
+      - uses: docker-practice/actions-setup-docker@master
+      - uses: actions/setup-node@v2
+        with:
+          node-version: 14
+          registry-url: https://registry.npmjs.org/
+      - name: npm install s
+        run: |
+          npm i @xsahxl/s@3.x -g
+      - name: s config
+        run: |
+          s3 config add --AccessKeyID ${{secrets.ACCESSKEYID}} --AccessKeySecret ${{secrets.ACCESSKEYSECRET}} -a quanxi -f
+      - name: test nodejs
+        run: |
+          cd nodejs && bash run && cd -
+  custom:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      max-parallel: 2
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v2
+      - uses: docker-practice/actions-setup-docker@master
+      - uses: actions/setup-node@v2
+        with:
+          node-version: 14
+          registry-url: https://registry.npmjs.org/
+      - name: npm install s
+        run: |
+          npm i @xsahxl/s@3.x -g
+      - name: s config
+        run: |
+          s3 config add --AccessKeyID ${{secrets.ACCESSKEYID}} --AccessKeySecret ${{secrets.ACCESSKEYSECRET}} -a quanxi -f
+      - name: test custom.debian10
+        run: |
+          cd custom.debian10 && bash run && cd -
+      - name: test custom
+        run: |
+          cd custom && bash run && cd -
+      # - name: test custom container
+      #   run: |
+      #     cd custom-container && bash run && cd -
+  other-runtimes:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      max-parallel: 2
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v2
+      - uses: docker-practice/actions-setup-docker@master
+      - uses: actions/setup-node@v2
+        with:
+          node-version: 14
+          registry-url: https://registry.npmjs.org/
+      - name: npm install s
+        run: |
+          npm i @xsahxl/s@3.x -g
+      - name: s config
+        run: |
+          s3 config add --AccessKeyID ${{secrets.ACCESSKEYID}} --AccessKeySecret ${{secrets.ACCESSKEYSECRET}} -a quanxi -f
+      - name: test golang
+        run: |
+          cd go && bash run && cd -
+      - name: test php
+        run: |
+          cd php && bash run && cd -
+      - name: test java
+        run: |
+          cd java && bash run && cd -
+      - name: test dotnetcore
+        run: |
+          cd dotnetcore && bash run && cd -
+      - name: test apt
+        run: |
+          cd apt && bash run && cd -
