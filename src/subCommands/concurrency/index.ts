@@ -21,11 +21,11 @@ export default class Concurrency {
       'function-name': functionName,
       'reserved-concurrency': reservedConcurrency,
       region,
-      yes,
+      'assume-yes': yes,
       _: subCommands,
     } = parseArgv(inputs.args, {
       alias: {
-        yes: 'y',
+        'assume-yes': 'y',
       },
       boolean: ['y'],
       string: ['reserved-concurrency', 'function-name', 'region'],

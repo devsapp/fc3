@@ -78,12 +78,12 @@ export default class AsyncInvokeConfig extends Base {
     logger.write(`asyncInvokeConfig was changed, please confirm before deployment:\n`);
     logger.write(show);
 
-    // 用户指定了 --yes 或者 --no-yes，不再交互
+    // 用户指定了 --assume-yes，不再交互
     if (_.isBoolean(this.needDeploy)) {
       return;
     }
     logger.write(
-      `\n* You can also specify to use local configuration through --yes/-y during deployment`,
+      `\n* You can also specify to use local configuration through --assume-yes/-y during deployment`,
     );
     const message = `Deploy it with local config or skip deploy asyncInvokeConfig?`;
     const answers = await inquirer.prompt([

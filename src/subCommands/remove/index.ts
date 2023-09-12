@@ -17,13 +17,13 @@ export default class Remove {
   constructor(inputs: IInputs) {
     const opts = parseArgv(inputs.args, {
       alias: {
-        yes: 'y',
+        'assume-yes': 'y',
       },
       boolean: ['function'],
     });
     logger.debug(`parse argv: ${JSON.stringify(opts)}`);
 
-    const { function: needRemoveFunction, trigger, yes } = opts;
+    const { function: needRemoveFunction, trigger, 'assume-yes': yes } = opts;
 
     const removeAll = !needRemoveFunction && !trigger;
 

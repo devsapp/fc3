@@ -18,7 +18,7 @@ export default class Deploy {
   constructor(inputs: IInputs) {
     this.opts = parseArgv(inputs.args, {
       alias: {
-        yes: 'y',
+        'assume-yes': 'y',
       },
       boolean: ['skip-push'],
     });
@@ -26,7 +26,7 @@ export default class Deploy {
     // TODO: 更完善的验证
     verify(inputs.props);
 
-    const { function: type, trigger, yes, 'skip-push': skipPush } = this.opts;
+    const { function: type, trigger, 'assume-yes': yes, 'skip-push': skipPush } = this.opts;
     logger.debug('parse argv:');
     logger.debug(this.opts);
     // 初始化部署实例

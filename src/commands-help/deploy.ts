@@ -3,7 +3,7 @@ export default {
     description: 'deploy command',
     // summary: '',
     option: [
-      ['-y, --yes', 'Configuring deployment using yaml'],
+      ['-y, --assume-yes', 'Configuring deployment using yaml'],
       ['--skip-push', 'Skip Mirror Push'],
       [
         "--function ['code'/'config']",

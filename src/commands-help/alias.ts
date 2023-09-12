@@ -77,7 +77,7 @@ export default {
           ],
           ['--function-name <functionName>', '[C-Required] Specify function name'],
           ['--alias-name <aliasName>', '[Required] Specify alias name'],
-          ['-y, --yes', "Don't ask, delete directly"],
+          ['-y, --assume-yes', "Don't ask, delete directly"],
         ],
       },
     },

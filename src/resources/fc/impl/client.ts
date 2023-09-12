@@ -81,7 +81,7 @@ export default class FC_Client {
     this.customEndpoint = options.endpoint;
     const { timeout } = options || {};
 
-    const { host: endpoint = `${accountID}.${region}.fc.aliyuncs.com`, protocol = 'https' } =
+    const { host: endpoint = `${accountID}.${region}.fc.aliyuncs.com`, protocol = 'http' } =
       getCustomEndpoint(options.endpoint);
 
     const config = new Config({

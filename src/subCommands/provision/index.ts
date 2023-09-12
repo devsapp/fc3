@@ -24,7 +24,7 @@ export default class Provision {
   constructor(inputs: IInputs) {
     const opts = parseArgv(inputs.args, {
       alias: {
-        yes: 'y',
+        'assume-yes': 'y',
         'always-allocate-cpu': 'ac',
       },
       boolean: ['y', 'always-allocate-cpu'],
@@ -48,7 +48,7 @@ export default class Provision {
       qualifier,
       target,
       region,
-      yes,
+      'assume-yes': yes,
       _: subCommands,
     } = opts;
 

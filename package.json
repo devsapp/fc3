@@ -26,7 +26,7 @@
     "@serverless-devs/diff": "^0.0.3-beta.6",
     "@serverless-devs/downloads": "^0.0.2-beta.9",
     "@serverless-devs/utils": "^0.0.8-beta.18",
-    "@serverless-devs/zip": "^0.0.3-beta.5",
+    "@serverless-devs/zip": "^0.0.3-beta.6",
     "ajv": "^8.12.0",
     "chalk": "^4.1.0",
     "extract-zip": "^2.0.1",
