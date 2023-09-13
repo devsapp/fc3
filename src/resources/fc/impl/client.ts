@@ -47,6 +47,7 @@ import _ from 'lodash';
 import logger from '../../../logger';
 import { IAlias } from '../../../interface/cli-config/alias';
 import { IProvision } from '../../../interface/cli-config/provision';
+const httpx = require('httpx');
 
 interface IOptions {
   timeout?: number;
@@ -184,21 +185,16 @@ export default class FC_Client {
       headers,
       runtime,
     );
-    const body = await new Promise((resolve, reject) => {
-      const chunks: any[] = [];
-      result.body.on('data', (chunk) => chunks.push(Buffer.from(chunk)));
-      result.body.on('error', (err) => reject(err));
-      result.body.on('end', () => resolve(Buffer.concat(chunks).toString('utf8')));
-    });
+
+    let body = await httpx.read(result.body);
     const res = result.toMap();
-    res.body = body;
+    res.body = body.toString('utf-8');
     if (res.headers?.['x-fc-log-result']) {
       res.headers['x-fc-log-result'] = Buffer.from(
         res.headers?.['x-fc-log-result'],
         'base64',
       ).toString();
     }
-
     return res;
   }
 
