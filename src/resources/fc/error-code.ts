@@ -32,4 +32,6 @@ export const isSlsNotExistException = (project: string, logstore: string, ex) =>
   return false;
 };
 
-export const isAccessDenied = (ex) => ex.code === FC_API_ERROR_CODE.AccessDenied;
+export const isAccessDenied = (ex) => ex.statusCode === 403;
+
+export const isInvalidArgument = (ex) => ex.statusCode === 400;
