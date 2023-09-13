@@ -7,6 +7,8 @@ import AsyncInvokeConfig from './impl/async_invoke_config';
 import logger from '../../logger';
 import { verify } from '../../utils';
 import { IInputs } from '../../interface';
+import Info from '../info/index';
+import { GetApiType } from '../../resources/fc';
 
 export default class Deploy {
   readonly opts: Record<string, any>;
@@ -15,7 +17,7 @@ export default class Deploy {
   readonly trigger?: Trigger;
   readonly asyncInvokeConfig?: AsyncInvokeConfig;
 
-  constructor(inputs: IInputs) {
+  constructor(readonly inputs: IInputs) {
     this.opts = parseArgv(inputs.args, {
       alias: {
         'assume-yes': 'y',
@@ -53,5 +55,12 @@ export default class Deploy {
     await this.service?.run();
     await this.trigger?.run();
     await this.asyncInvokeConfig?.run();
+
+    // 获取输出
+    const info = new Info(this.inputs);
+    info.setGetApiType(GetApiType.simpleUnsupported);
+    const result = await info.run();
+    logger.debug(`Get info: ${JSON.stringify(result)}`);
+    return result;
   }
 }

@@ -9,6 +9,7 @@ export default class Info {
   readonly functionName: string;
   readonly triggersName: string[];
   readonly fcSdk: FC;
+  getApiType: GetApiType;
 
   constructor(private inputs: IInputs) {
     this.region = _.get(inputs, 'props.region');
@@ -18,6 +19,11 @@ export default class Info {
     this.fcSdk = new FC(this.region, this.inputs.credential as ICredentials, {
       endpoint: inputs.props.endpoint,
     });
+    this.getApiType = GetApiType.simple;
+  }
+
+  public setGetApiType(type: GetApiType) {
+    this.getApiType = type;
   }
 
   async run() {
@@ -34,7 +40,7 @@ export default class Info {
 
   async getFunction(): Promise<{ error: any } | any> {
     try {
-      return await this.fcSdk.getFunction(this.functionName, GetApiType.simple);
+      return await this.fcSdk.getFunction(this.functionName, this.getApiType);
     } catch (ex) {
       logger.debug(`Get function ${this.functionName} error: ${ex}`);
       return {
@@ -50,11 +56,7 @@ export default class Info {
     const result: any[] = [];
     for (const triggerName of this.triggersName) {
       try {
-        const config = await this.fcSdk.getTrigger(
-          this.functionName,
-          triggerName,
-          GetApiType.simple,
-        );
+        const config = await this.fcSdk.getTrigger(this.functionName, triggerName, this.getApiType);
         result.push(config);
       } catch (ex) {
         logger.debug(`Get trigger ${this.functionName}/${triggerName} error: ${ex}`);
@@ -71,7 +73,7 @@ export default class Info {
 
   async getAsyncInvokeConfig(): Promise<any> {
     try {
-      return await this.fcSdk.getAsyncInvokeConfig(this.functionName, 'LATEST', GetApiType.simple);
+      return await this.fcSdk.getAsyncInvokeConfig(this.functionName, 'LATEST', this.getApiType);
     } catch (ex) {
       logger.debug(`Get AsyncInvokeConfig ${this.functionName} error: ${ex}`);
       return;
