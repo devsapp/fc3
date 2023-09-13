@@ -48,8 +48,10 @@ ${functionConfig.show}
 ${triggersConfig.show}`;
     }
 
-    showDiff += `asyncInvokeConfig:
+    if (_.get(this.inputs.props, 'asyncInvokeConfig')) {
+      showDiff += `asyncInvokeConfig:
 ${asyncInvokeConfig.show}`;
+    }
 
     logger.write(showDiff);
   }

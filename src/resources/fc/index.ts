@@ -23,7 +23,12 @@ import { FC_DEPLOY_RETRY_COUNT } from '../../default/config';
 
 import FC_Client, { fc2Client } from './impl/client';
 import { ICustomContainerConfig, IFunction, ILogConfig, ITrigger } from '../../interface';
-import { FC_API_ERROR_CODE, isAccessDenied, isSlsNotExistException } from './error-code';
+import {
+  FC_API_ERROR_CODE,
+  isAccessDenied,
+  isSlsNotExistException,
+  isInvalidArgument,
+} from './error-code';
 import {
   isCustomContainerRuntime,
   isCustomRuntime,
@@ -113,7 +118,6 @@ export default class FC extends FC_Client {
         return;
       } catch (ex) {
         logger.debug(`Deploy function error: ${ex}`);
-
         /**
          * 重试机制
           ○ 如果是权限问题不重重试直接异常
@@ -125,7 +129,7 @@ export default class FC extends FC_Client {
         const retrySls = slsAuto && isSlsNotExistException(project, logstore, ex);
         const retryContainerAccelerated = isContainerAccelerated; // TODO: 部署镜像并且使用 _accelerated 结尾：报错镜像不存在
         // TODO: 如果是权限问题不重试直接异常
-        if (isAccessDenied(ex)) {
+        if (isAccessDenied(ex) || isInvalidArgument(ex)) {
           throw ex;
         } else if (retrySls || retryContainerAccelerated) {
           if (calculateRetryTime(3)) {
@@ -201,7 +205,7 @@ export default class FC extends FC_Client {
         logger.debug(`Deploy trigger error: ${ex}`);
 
         // TODO: 如果是权限问题不重试直接异常
-        if (isAccessDenied(ex)) {
+        if (isAccessDenied(ex) || isInvalidArgument(ex)) {
           throw ex;
         } else if (retry > FC_DEPLOY_RETRY_COUNT) {
           throw ex;
