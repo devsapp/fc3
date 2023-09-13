@@ -19,26 +19,31 @@ export default class Invoke {
 
   constructor(inputs: IInputs) {
     this.functionName = inputs.props.function?.functionName;
-    let timeout = inputs.props.function?.timeout + 3; // 加大3s
-    if (FC.isCustomContainerRuntime(inputs.props.function.runtime)) {
-      timeout = inputs.props.function?.timeout + 30; // 考虑冷启动镜像的 pull 时间
-    }
-    this.fcSdk = new FC(inputs.props.region, inputs.credential as ICredentials, {
-      timeout: timeout ? timeout * 1000 : undefined,
-      endpoint: inputs.props.endpoint,
-    });
-    const {
+    let {
       event: payload,
       'event-file': eventFile,
       'invocation-type': invocationType,
       qualifier,
       'stateful-async-invocation-id': statefulAsyncInvocationId,
+      timeout,
     } = parseArgv(inputs.args, {
       alias: {
         event: 'e',
         'event-file': 'f',
       },
-      string: ['event', 'event-file'],
+      string: ['event', 'event-file', 'timeout'],
+    });
+    if (!timeout) {
+      let timeout = inputs.props.function?.timeout + 3; // 加大3s
+      if (FC.isCustomContainerRuntime(inputs.props.function.runtime)) {
+        timeout = inputs.props.function?.timeout + 30; // 考虑冷启动镜像的 pull 时间
+      }
+    } else {
+      timeout = parseInt(timeout);
+    }
+    this.fcSdk = new FC(inputs.props.region, inputs.credential as ICredentials, {
+      timeout: timeout ? timeout * 1000 : undefined,
+      endpoint: inputs.props.endpoint,
     });
 
     if (_.isString(payload)) {

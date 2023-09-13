@@ -3,8 +3,8 @@ export default {
     description:
       'Invoke online functions. \n' +
       'Example: \n' +
-      '  $ s3 invoke \n' +
-      '  $ s3 invoke --timeout 60 \n' +
+      '  $ s3 invoke -e \'{"key": "val"}\' \n' +
+      '  $ s3 invoke -f evt.json \n' +
       '  $ s3 invoke ---invocation-type async \n' +
       '',
     summary: 'Invoke online functions',
