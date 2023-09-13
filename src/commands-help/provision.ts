@@ -22,8 +22,8 @@ export default {
         description:
           'Get provision configuration. \n' +
           'Example: \n' +
-          '  $ s3 provision get LATEST \n' +
-          '  $ s3 provision get test',
+          '  $ s3 provision get --qualifier LATEST \n' +
+          '  $ s3 provision get --qualifier test',
         summary: 'Get provision configuration',
         option: [
           [
@@ -90,7 +90,6 @@ export default {
             '--qualifier <qualifier>',
             '[Required] Specify the qualifier parameter. Only supports LATEST and alias',
           ],
-          ,
           ['-y, --assume-yes', "[Optional] Don't ask, delete directly"],
         ],
       },

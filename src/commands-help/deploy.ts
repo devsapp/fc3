@@ -6,9 +6,9 @@ export default {
       '  $ s3 deploy \n' +
       '  $ s3 deploy --skip-push \n' +
       '  $ s3 deploy --function code \n' +
-      '  $ s3 deploy --skip-push --function config \n' +
+      '  $ s3 deploy --function config \n' +
       '  $ s3 deploy --trigger triggerName \n' +
-      '  $ s3 deploy --skip-push --trigger triggerName1,trigggerName2',
+      '  $ s3 deploy --trigger triggerName1,trigggerName2',
     summary: 'Deploy local resources online',
     option: [
       ['-y, --assume-yes', 'Configuring deployment using yaml'],
