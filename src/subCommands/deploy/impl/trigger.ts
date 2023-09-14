@@ -21,7 +21,7 @@ export default class Trigger extends Base {
 
   constructor(inputs: IInputs, opts: IOpts) {
     super(inputs, opts.yes);
-    this.functionName = inputs.props.function?.functionName;
+    this.functionName = inputs.props?.functionName;
 
     const local = _.cloneDeep(_.get(inputs, 'props.triggers', []));
     const triggerNames = local.map((item) => item.triggerName);

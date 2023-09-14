@@ -536,7 +536,13 @@ export default class FC extends FC_Client {
     const req = new ListAsyncInvokeConfigsRequest({ functionName, limit: 100 });
     const result = await this.fc20230330Client.listAsyncInvokeConfigs(req);
     const { body } = result.toMap();
-    const { configs } = body;
+    let configs = [];
+    for (const c of body.configs) {
+      if (_.isEmpty(c.destinationConfig)) {
+        continue;
+      }
+      configs.push(c);
+    }
     return configs;
   }
 

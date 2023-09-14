@@ -20,7 +20,7 @@ export default class ComponentBuild {
   public async invoke(inputs: IInputs) {
     logger.debug(`invoke input: ${JSON.stringify(inputs.props)}`);
 
-    switch (inputs.props.function.runtime) {
+    switch (inputs.props.runtime) {
       // case 'nodejs6':
       // case 'nodejs8':
       case 'nodejs10':
@@ -64,7 +64,7 @@ export default class ComponentBuild {
         await customContainerLocalInvoker.invoke();
         break;
       default:
-        logger.error(`${inputs.props.function.runtime} is not supported`);
+        logger.error(`${inputs.props.runtime} is not supported`);
     }
     return {};
   }
@@ -72,7 +72,7 @@ export default class ComponentBuild {
   public async start(inputs: IInputs) {
     logger.debug(`start input: ${JSON.stringify(inputs.props)}`);
 
-    switch (inputs.props.function.runtime) {
+    switch (inputs.props.runtime) {
       case 'custom':
       case 'custom.debian10':
         let customLocalInvoker = new CustomLocalStart(inputs);
@@ -83,7 +83,7 @@ export default class ComponentBuild {
         await customContainerLocalInvoker.start();
         break;
       default:
-        logger.error(`${inputs.props.function.runtime} is not supported`);
+        logger.error(`${inputs.props.runtime} is not supported`);
     }
   }
 }

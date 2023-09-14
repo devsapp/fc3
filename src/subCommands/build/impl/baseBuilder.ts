@@ -18,22 +18,20 @@ import FC from '../../../resources/fc';
 import chalk from 'chalk';
 
 export abstract class Builder {
-  inputProps: IInputs;
   private baseDir: string;
 
   abstract runBuild(): Promise<any>;
 
-  constructor(inputs: IInputs) {
-    this.inputProps = inputs;
+  constructor(readonly inputs: IInputs) {
     this.baseDir = inputs.baseDir || process.cwd();
   }
 
   getProps(): IProps {
-    return this.inputProps.props;
+    return this.inputs.props;
   }
 
   getRuntime(): string {
-    return this.getProps().function.runtime;
+    return this.getProps().runtime;
   }
 
   getRegion(): IRegion {
@@ -41,29 +39,29 @@ export abstract class Builder {
   }
 
   async getCredentials(): Promise<ICredentials> {
-    return this.inputProps.getCredential();
+    return this.inputs.getCredential();
   }
 
   getAcrEEInstanceID(): string {
-    return _.get(this.getProps(), 'function.customContainerConfig.acrInstanceID');
+    return _.get(this.getProps(), 'customContainerConfig.acrInstanceID');
   }
 
   getEnv(): Record<string, string> {
-    return this.getProps().function.environmentVariables || {};
+    return this.getProps().environmentVariables || {};
   }
 
   getCodeUri(): string {
     if (!this.checkCodeUri()) {
       return '';
     }
-    const codeUri = _.get(this.inputProps, 'props.function.code') as ICodeUri;
+    const codeUri = _.get(this.getProps(), 'code') as ICodeUri;
     const src: string = typeof codeUri === 'string' ? codeUri : codeUri.src;
     const resolvedCodeUri = path.isAbsolute(src) ? src : path.join(this.baseDir, src);
     return resolvedCodeUri;
   }
 
   checkCodeUri(): boolean {
-    const codeUri = _.get(this.inputProps, 'props.function.code') as ICodeUri;
+    const codeUri = _.get(this.getProps(), 'code') as ICodeUri;
     if (!codeUri) {
       logger.warn('Code config is not available');
       return false;
@@ -84,7 +82,7 @@ export abstract class Builder {
   async getRuntimeBuildImage(): Promise<string> {
     let image: string;
     if (FC.isCustomContainerRuntime(this.getRuntime())) {
-      const img = this.getProps().function.customContainerConfig?.image;
+      const img = this.getProps().customContainerConfig?.image;
       if (_.isEmpty(img)) {
         throw new Error('image must be set in custom-container runtime');
       }

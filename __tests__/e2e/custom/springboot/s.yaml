@@ -17,11 +17,6 @@ template:
             - DELETE
             - HEAD
             - OPTIONS
-    customDomains:
-      - domainName: auto
-        protocol: HTTP
-        routeConfigs:
-          - path: /*
 
 resources:
   jar:
@@ -33,20 +28,19 @@ resources:
         - run: mvn package -DskipTests
           path: ./code
     props:
-      function:
-        functionName: fc3-custom-${env('fc_component_function_name', 'springboot')}-jar
-        description: 'Serverless Devs Web Framework Function'
-        code: ./code/target/webframework.jar
-        runtime: custom
-        memorySize: 1024
-        cpu: 1
-        diskSize: 512
-        timeout: 30
-        customRuntimeConfig:
-          command:
-            - java
-          args:
-            - 'org.springframework.boot.loader.JarLauncher'
+      functionName: fc3-custom-${env('fc_component_function_name', 'springboot')}-jar
+      description: 'Serverless Devs Web Framework Function'
+      code: ./code/target/webframework.jar
+      runtime: custom
+      memorySize: 1024
+      cpu: 1
+      diskSize: 512
+      timeout: 30
+      customRuntimeConfig:
+        command:
+          - java
+        args:
+          - 'org.springframework.boot.loader.JarLauncher'
 
   jar_zip:
     component: ${env('fc_component_version', path('../../../../'))}
@@ -57,19 +51,18 @@ resources:
         - run: mvn package -DskipTests
           path: ./code
     props:
-      function:
-        functionName: fc3-custom-${env('fc_component_function_name', 'springboot')}
-        description: 'Serverless Devs Web Framework Function'
-        code: ./code/target/webframework.jar
-        runtime: custom
-        memorySize: 1024
-        cpu: 1
-        diskSize: 512
-        timeout: 30
-        customRuntimeConfig:
-          command:
-            - java
-            - -jar
-          args:
-            - webframework.jar
-          port: 9000
+      functionName: fc3-custom-${env('fc_component_function_name', 'springboot')}
+      description: 'Serverless Devs Web Framework Function'
+      code: ./code/target/webframework.jar
+      runtime: custom
+      memorySize: 1024
+      cpu: 1
+      diskSize: 512
+      timeout: 30
+      customRuntimeConfig:
+        command:
+          - java
+          - -jar
+        args:
+          - webframework.jar
+        port: 9000

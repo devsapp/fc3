@@ -10,21 +10,20 @@ resources:
     component: ${env('fc_component_version', path('../../../'))}
     props: # 组件的属性值
       region: ${vars.region}
-      function:
-        functionName: fc3-event-${env('fc_component_function_name', 'nodejs14')}
-        runtime: ${env('fc_component_runtime', 'nodejs14')}
-        code: ./code
-        handler: event.handler
-        memorySize: 128
-        timeout: 5
-        instanceLifecycleConfig:
-          initializer:
-            handler: event.initializer
-            timeout: 10
+      functionName: fc3-event-${env('fc_component_function_name', 'nodejs14')}
+      runtime: ${env('fc_component_runtime', 'nodejs14')}
+      code: ./code
+      handler: event.handler
+      memorySize: 128
+      timeout: 5
+      instanceLifecycleConfig:
+        initializer:
+          handler: event.initializer
+          timeout: 10
 
-        vpcConfig: auto
-        nasConfig: auto
-        logConfig: auto
+      vpcConfig: auto
+      nasConfig: auto
+      logConfig: auto
 
       asyncInvokeConfig:
         destinationConfig:

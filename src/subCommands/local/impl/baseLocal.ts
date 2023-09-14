@@ -9,7 +9,7 @@ import { parseArgv } from '@serverless-devs/utils';
 import { ICredentials } from '@serverless-devs/component-interface';
 import { vpcImage2InternetImage } from './utils';
 import logger from '../../../logger';
-import { ICodeUri, IFunction } from '../../../interface';
+import { ICodeUri } from '../../../interface';
 import { IDE_VSCODE } from '../../../constant';
 import { IInputs } from '../../../interface';
 import {
@@ -23,27 +23,21 @@ import FC from '../../../resources/fc';
 const { execSync } = require('child_process');
 
 export class BaseLocal {
-  protected inputProps: IInputs;
   protected defaultDebugArgs: string;
   protected _argsData: object;
   protected unzippedCodeDir?: string;
   private baseDir: string;
 
-  constructor(inputs: IInputs) {
-    this.inputProps = inputs;
+  constructor(readonly inputs: IInputs) {
     this.baseDir = path.dirname(inputs.yaml?.path || process.cwd());
     logger.info(`Local baseDir is: ${this.baseDir}`);
-  }
-
-  getProps(): any {
-    return this.inputProps.props;
   }
 
   getArgsData(): object {
     if (!_.isEmpty(this._argsData)) {
       return this._argsData;
     }
-    const argsData: { [key: string]: any } = parseArgv(this.inputProps.args, {
+    const argsData: { [key: string]: any } = parseArgv(this.inputs.args, {
       string: ['event', 'event-file'],
       alias: { event: 'e', 'event-file': 'f' },
     });
@@ -52,36 +46,32 @@ export class BaseLocal {
     return this._argsData;
   }
 
-  getFunctionProps(): IFunction {
-    return this.inputProps.props.function;
-  }
-
   getFunctionTriggers(): any {
-    return this.inputProps.props.triggers;
+    return this.inputs.props.triggers;
   }
 
   getRuntime(): string {
-    return this.getFunctionProps().runtime;
+    return this.inputs.props.runtime;
   }
 
   getFunctionName(): string {
-    return this.getFunctionProps().functionName;
+    return this.inputs.props.functionName;
   }
 
   getCaPort(): number {
     const runtime = this.getRuntime();
 
     if (FC.isCustomContainerRuntime(runtime)) {
-      return (this.getFunctionProps().customContainerConfig?.port as number) || 9000;
+      return (this.inputs.props.customContainerConfig?.port as number) || 9000;
     } else if (FC.isCustomRuntime(runtime)) {
-      return (this.getFunctionProps().customRuntimeConfig?.port as number) || 9000;
+      return (this.inputs.props.customRuntimeConfig?.port as number) || 9000;
     }
 
     return 9000;
   }
 
   getHandler(): string {
-    let handler = this.getFunctionProps().handler;
+    let handler = this.inputs.props.handler;
     if (this.getRuntime().startsWith('custom') && handler == undefined) {
       handler = 'index.handler';
     }
@@ -89,31 +79,31 @@ export class BaseLocal {
   }
 
   getTimeout(): number {
-    return this.getFunctionProps().timeout as number;
+    return this.inputs.props.timeout as number;
   }
 
   getInitializer(): string {
-    return this.getFunctionProps().instanceLifecycleConfig?.initializer?.handler;
+    return this.inputs.props.instanceLifecycleConfig?.initializer?.handler;
   }
 
   getInitializerTimeout(): number {
-    return this.getFunctionProps().instanceLifecycleConfig?.initializer?.timeout as number;
+    return this.inputs.props.instanceLifecycleConfig?.initializer?.timeout as number;
   }
 
   getMemorySize(): number {
-    return (this.getFunctionProps().memorySize as number) || 128;
+    return (this.inputs.props.memorySize as number) || 128;
   }
 
   getRegion(): string {
-    return this.getProps().region;
+    return this.inputs.props.region;
   }
 
   async getCredentials(): Promise<ICredentials> {
-    return await this.inputProps.getCredential();
+    return await this.inputs.getCredential();
   }
 
   getAcrEEInstanceID(): string {
-    return _.get(this.getFunctionProps(), 'customContainerConfig.acrInstanceID');
+    return _.get(this.inputs.props, 'customContainerConfig.acrInstanceID');
   }
 
   isHttpFunction(): boolean {
@@ -121,16 +111,17 @@ export class BaseLocal {
   }
 
   isCustomContainerRuntime(): boolean {
-    return this.getFunctionProps().runtime === 'custom-container';
+    return this.inputs.props.runtime === 'custom-container';
   }
 
   async getCodeUri(): Promise<string> {
     if (this.unzippedCodeDir) {
       return this.unzippedCodeDir;
     }
-    const codeUri = this.getFunctionProps().code as ICodeUri;
+    let props = this.inputs.props;
+    const codeUri = props.code as ICodeUri;
     let src: string = typeof codeUri === 'string' ? codeUri : codeUri.src;
-    const runtime = this.getFunctionProps().runtime;
+    const runtime = props.runtime;
     if (_.endsWith(src, '.zip') || (_.endsWith(src, '.jar') && runtime.startsWith('java'))) {
       const tmpCodeDir: string = path.join(tmpDir, uuidV4());
       await fs.ensureDir(tmpCodeDir);
@@ -139,7 +130,6 @@ export class BaseLocal {
       this.unzippedCodeDir = tmpCodeDir;
       return tmpCodeDir;
     } else if (_.endsWith(src, '.jar') && FC.isCustomRuntime(runtime)) {
-      let props = this.getFunctionProps();
       const command = _.get(props, 'customRuntimeConfig.command', []);
       const args = _.get(props, 'customRuntimeConfig.args', []);
       const commandStr = `${_.join(command, ' ')} ${_.join(args, ' ')}`;
@@ -182,7 +172,7 @@ export class BaseLocal {
   }
 
   checkCodeUri(): boolean {
-    const codeUri = this.getFunctionProps().code;
+    const codeUri = this.inputs.props.code;
     if (!codeUri) {
       return false;
     }
@@ -198,7 +188,7 @@ export class BaseLocal {
     let image: string;
 
     if (this.isCustomContainerRuntime()) {
-      image = vpcImage2InternetImage(this.getFunctionProps().customContainerConfig.image);
+      image = vpcImage2InternetImage(this.inputs.props.customContainerConfig.image);
       logger.debug(`use fc docker CustomContainer image: ${image}`);
     } else if (fcDockerUseImage) {
       image = fcDockerUseImage;
@@ -250,8 +240,8 @@ export class BaseLocal {
     }
 
     // function envs
-    if ('environmentVariables' in this.getFunctionProps()) {
-      const envs = this.getFunctionProps().environmentVariables;
+    if ('environmentVariables' in this.inputs.props) {
+      const envs = this.inputs.props.environmentVariables;
       for (const item in envs) {
         //console.log(`${item}: ${envs[item]}`);
         envStr += ` -e "${item}=${envs[item]}"`;

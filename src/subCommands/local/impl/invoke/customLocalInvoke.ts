@@ -14,7 +14,7 @@ export class CustomLocalInvoke extends BaseLocalInvoke {
     let envStr = await super.getEnvString();
     //  AGENT_SCRIPT
     let agent_script = '';
-    const customRuntimeConfig = this.getFunctionProps().customRuntimeConfig;
+    const customRuntimeConfig = this.inputs.props.customRuntimeConfig;
     if (!_.isEmpty(customRuntimeConfig)) {
       const command = customRuntimeConfig.command;
       const args = customRuntimeConfig.args;

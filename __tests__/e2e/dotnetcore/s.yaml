@@ -11,12 +11,11 @@ resources:
           path: ./HelloFcApp
     props: # 组件的属性值
       region: cn-huhehaote
-      function:
-        functionName: fc3-event-${env('fc_component_function_name', 'dotnetcore31')}
-        runtime: ${env('fc_component_runtime', 'dotnetcore3.1')}
-        code: ./HelloFcApp/target/
-        handler: HelloFcApp::Example.Hello::StreamHandler
-        memorySize: 512
-        timeout: 60
-        initializationTimeout: 60
-        initializer: example.App::initialize
+      functionName: fc3-event-${env('fc_component_function_name', 'dotnetcore31')}
+      runtime: ${env('fc_component_runtime', 'dotnetcore3.1')}
+      code: ./HelloFcApp/target/
+      handler: HelloFcApp::Example.Hello::StreamHandler
+      memorySize: 512
+      timeout: 60
+      initializationTimeout: 60
+      initializer: example.App::initialize

@@ -7,110 +7,119 @@ resources:
     component: ${path('../')} # 组件名称
     props: # 组件的属性值
       region: cn-hangzhou
-      function:
-        code: 'codeUri'
-        # code:
-        #   ossBucketName: string
-        #   ossObjectName: string
-        cpu: 0.5
-        customContainerConfig:
-          accelerationType: string
-          acrInstanceID: string
-          command:
-            - string
-          entrypoint:
-            - string
-          healthCheckConfig:
-            failureThreshold: 0
-            httpGetUrl: string
-            initialDelaySeconds: 0
-            periodSeconds: 0
-            successThreshold: 0
-            timeoutSeconds: 0
-          image: string
-          port: 0
-        customDNS:
-          dnsOptions:
-            -
-              name: string
-              value: string
-          nameServers:
-            - string
-          searches:
-            - string
-        customRuntimeConfig:
-          args:
-            - string
-          command:
-            - string
-          healthCheckConfig:
-            failureThreshold: 0
-            httpGetUrl: string
-            initialDelaySeconds: 0
-            periodSeconds: 0
-            successThreshold: 0
-            timeoutSeconds: 0
-          port: 0
-        description: string
-        diskSize: 512
-        environmentVariables:
-          additionalProp1: string
-          additionalProp2: string
-          additionalProp3: string
-        functionName: string
-        gpuConfig:
-          gpuMemorySize: 128
-          gpuType: string
-        handler: string
-        instanceLifecycleConfig:
-          initializer:
-            handler: string
-            timeout: 1
-          preStop:
-            handler: string
-            timeout: 1
-        internetAccess: true
-        layers:
+      code: 'codeUri'
+      # code:
+      #   ossBucketName: string
+      #   ossObjectName: string
+      cpu: 0.5
+      customContainerConfig:
+        accelerationType: string
+        acrInstanceID: string
+        command:
           - string
-        logConfig:
-          enableInstanceMetrics: true
-          enableRequestMetrics: true
-          logBeginRule: string
-          logstore: string
-          project: string
-        memorySize: 512
-        nasConfig:
-          groupId: 65534
-          mountPoints:
-            -
-              enableTLS: true
-              mountDir: string
-              serverAddr: string
-          userId: 65534
-        ossMountConfig:
-          mountPoints:
-            -
-              bucketName: string
-              bucketPath: string
-              endpoint: string
-              mountDir: string
-              readOnly: true
-        role: string
-        runtime: string
-        timeout: 1
-        tracingConfig:
-          jaegerConfig:
+        entrypoint:
+          - string
+        healthCheckConfig:
+          failureThreshold: 0
+          httpGetUrl: string
+          initialDelaySeconds: 0
+          periodSeconds: 0
+          successThreshold: 0
+          timeoutSeconds: 0
+        image: string
+        port: 0
+      customDNS:
+        dnsOptions:
+          -
+            name: string
+            value: string
+        nameServers:
+          - string
+        searches:
+          - string
+      customRuntimeConfig:
+        args:
+          - string
+        command:
+          - string
+        healthCheckConfig:
+          failureThreshold: 0
+          httpGetUrl: string
+          initialDelaySeconds: 0
+          periodSeconds: 0
+          successThreshold: 0
+          timeoutSeconds: 0
+        port: 0
+      description: string
+      diskSize: 512
+      environmentVariables:
+        additionalProp1: string
+        additionalProp2: string
+        additionalProp3: string
+      functionName: string
+      gpuConfig:
+        gpuMemorySize: 128
+        gpuType: string
+      handler: string
+      instanceLifecycleConfig:
+        initializer:
+          handler: string
+          timeout: 1
+        preStop:
+          handler: string
+          timeout: 1
+      internetAccess: true
+      layers:
+        - string
+      logConfig:
+        enableInstanceMetrics: true
+        enableRequestMetrics: true
+        logBeginRule: string
+        logstore: string
+        project: string
+      memorySize: 512
+      nasConfig:
+        groupId: 65534
+        mountPoints:
+          -
+            enableTLS: true
+            mountDir: string
+            serverAddr: string
+        userId: 65534
+      ossMountConfig:
+        mountPoints:
+          -
+            bucketName: string
+            bucketPath: string
             endpoint: string
-          params: string
-          type: string
-        vpcBinding:
-          vpcIds:
-            - string
-        vpcConfig:
-          securityGroupId: string
-          vSwitchIds:
-            - string
-          vpcId: string
+            mountDir: string
+            readOnly: true
+      role: string
+      runtime: string
+      timeout: 1
+      tracingConfig:
+        jaegerConfig:
+          endpoint: string
+        params: string
+        type: string
+      vpcBinding:
+        vpcIds:
+          - string
+      vpcConfig:
+        securityGroupId: string
+        vSwitchIds:
+          - string
+        vpcId: string
+  
+      asyncInvokeConfig:
+        destinationConfig:
+          onFailure:
+            destination: acs:mns:cn-huhehaote::/topics/serverless-devs-fc3-ci-test/messages
+          onSuccess:
+            destination: acs:fc:cn-huhehaote::functions/serverless-devs-ci-async-invoke-config-succ
+        maxAsyncEventAgeInSeconds: 360
+        maxAsyncRetryAttempts: 3
+  
       triggers:
         - triggerName: httpTrigger # 触发器名称
           triggerType: http # 触发器类型

@@ -37,7 +37,7 @@ export default class Sync {
     logger.debug(`qualifier: ${qualifier}`);
     this.region = region || _.get(inputs, 'props.region');
     logger.debug(`region: ${this.region}`);
-    this.functionName = functionName || _.get(inputs, 'props.function.functionName');
+    this.functionName = functionName || _.get(inputs, 'props.functionName');
     logger.debug(`function name: ${this.functionName}`);
 
     if (!this.region) {

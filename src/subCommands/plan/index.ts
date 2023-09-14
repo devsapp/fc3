@@ -14,7 +14,7 @@ export default class Plan {
 
   constructor(private inputs: IInputs) {
     this.region = _.get(this.inputs, 'props.region');
-    this.functionName = _.get(inputs, 'props.function.functionName');
+    this.functionName = _.get(inputs, 'props.functionName');
 
     if (!this.region) {
       throw new Error('Region not specified, please specify --region');
@@ -37,20 +37,14 @@ export default class Plan {
     const triggersConfig = await this.planTriggers();
     const asyncInvokeConfig = await this.planAsyncInvokeConfig();
 
-    let showDiff = `
-region: ${this.region}
-function:
-${functionConfig.show}
-`;
+    let showDiff = `region: ${this.region}\n${functionConfig.show}`;
 
     if (!_.isEmpty(this.triggers)) {
-      showDiff += `triggers:
-${triggersConfig.show}`;
+      showDiff += `\ntriggers:\n${triggersConfig.show}`;
     }
 
     if (_.get(this.inputs.props, 'asyncInvokeConfig')) {
-      showDiff += `asyncInvokeConfig:
-${asyncInvokeConfig.show}`;
+      showDiff += `\nasyncInvokeConfig:\n${asyncInvokeConfig.show}`;
     }
 
     logger.write(showDiff);
@@ -67,9 +61,13 @@ ${asyncInvokeConfig.show}`;
         remote = {};
       }
     }
-    _.unset(this.inputs.props.function, 'code');
-    const config = FC.replaceFunctionConfig(this.inputs.props.function, remote);
-    return diffConvertPlanYaml(config.remote, config.local, { deep: 1, complete: true });
+    _.unset(this.inputs.props, 'code');
+    let local = _.cloneDeep(this.inputs.props);
+    _.unset(local, 'region');
+    _.unset(local, 'triggers');
+    _.unset(local, 'asyncInvokeConfig');
+    const config = FC.replaceFunctionConfig(local, remote);
+    return diffConvertPlanYaml(config.remote, config.local, { deep: 0, complete: true });
   }
 
   private async planTriggers() {

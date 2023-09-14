@@ -18,7 +18,7 @@ export default class Invoke {
   private statefulAsyncInvocationId: string;
 
   constructor(inputs: IInputs) {
-    this.functionName = inputs.props.function?.functionName;
+    this.functionName = inputs.props?.functionName;
     let {
       event: payload,
       'event-file': eventFile,
@@ -34,9 +34,9 @@ export default class Invoke {
       string: ['event', 'event-file', 'timeout'],
     });
     if (!timeout) {
-      let timeout = inputs.props.function?.timeout + 3; // 加大3s
-      if (FC.isCustomContainerRuntime(inputs.props.function.runtime)) {
-        timeout = inputs.props.function?.timeout + 30; // 考虑冷启动镜像的 pull 时间
+      timeout = inputs.props?.timeout + 3; // 加大3s
+      if (FC.isCustomContainerRuntime(inputs.props.runtime)) {
+        timeout = inputs.props?.timeout + 30; // 考虑冷启动镜像的 pull 时间
       }
     } else {
       timeout = parseInt(timeout);

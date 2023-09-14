@@ -55,7 +55,9 @@ export default class Provision {
     logger.debug('subCommands: ', subCommands);
     const subCommand = _.get(subCommands, '[0]');
     if (!subCommand || !commandsList.includes(subCommand)) {
-      throw new Error(`Command "${subCommand}" not found, please use the command name instead`);
+      throw new Error(
+        `Command "${subCommand}" not found, Please use "s cli fc3 provision -h" to query how to use the command`,
+      );
     }
 
     this.region = region || _.get(inputs, 'props.region');
@@ -63,7 +65,7 @@ export default class Provision {
       throw new Error('Region not specified, please specify --region');
     }
     logger.debug(`region: ${this.region}`);
-    this.functionName = functionName || _.get(inputs, 'props.function.functionName');
+    this.functionName = functionName || _.get(inputs, 'props.functionName');
     if (!this.functionName) {
       throw new Error('Function name not specified, please specify --function-name');
     }

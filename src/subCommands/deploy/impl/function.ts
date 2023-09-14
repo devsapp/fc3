@@ -35,7 +35,7 @@ export default class Service extends Base {
 
   constructor(inputs: IInputs, opts: IOpts) {
     super(inputs, opts.yes);
-    const functionName = inputs.props.function?.functionName;
+    const functionName = inputs.props?.functionName;
     if (!functionName) {
       throw new Error(`Function ${functionName} is not defined`);
     }
@@ -44,7 +44,10 @@ export default class Service extends Base {
     this.skipPush = opts.skipPush;
     logger.debug(`deploy function type: ${this.type}`);
 
-    this.local = _.cloneDeep(inputs.props.function);
+    this.local = _.cloneDeep(inputs.props);
+    _.unset(this.local, 'region');
+    _.unset(this.local, 'triggers');
+    _.unset(this.local, 'asyncInvokeConfig');
   }
 
   // 准备动作
