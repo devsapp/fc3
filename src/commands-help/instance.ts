@@ -16,12 +16,12 @@ export default {
         option: [
           [
             '--region <region>',
-            '[C-Required] Specify the fc region, you can see all supported regions in https://www.alibabacloud.com/help/en/fc/product-overview/region-availability',
+            '[C-Required] Specify the fc region, you can see all supported regions in https://www.alibabacloud.com/help/zh/fc/product-overview/region-availability',
           ],
           ['--function-name <functionName>', '[C-Required] Specify function name'],
           ['--instance-id <instanceId>', '[Required] Specify function instance id'],
           ['--cmd <cmd>', '[Optional] Command string to be executed'],
-          ['--qualifier <qualifier>', '[Optional] version or alias, default is LATEST'],
+          ['--qualifier <qualifier>', '[Optional] Specify version or alias, default is LATEST'],
         ],
       },
     },
@@ -33,10 +33,10 @@ export default {
         option: [
           [
             '--region <region>',
-            '[C-Required] Specify the fc region, you can see all supported regions in https://www.alibabacloud.com/help/en/fc/product-overview/region-availability',
+            '[C-Required] Specify the fc region, you can see all supported regions in https://www.alibabacloud.com/help/zh/fc/product-overview/region-availability',
           ],
           ['--function-name <functionName>', '[C-Required] Specify function name'],
-          ['--qualifier <qualifier>', '[Optional] version or alias, default is LATEST'],
+          ['--qualifier <qualifier>', '[Optional] Specify version or alias, default is LATEST'],
         ],
       },
     },

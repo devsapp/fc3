@@ -12,7 +12,7 @@ export default {
         option: [
           [
             '--region <region>',
-            '[C-Required] Specify fc region, you can see all supported regions in https://www.alibabacloud.com/help/en/fc/product-overview/region-availability',
+            '[C-Required] Specify fc region, you can see all supported regions in https://www.alibabacloud.com/help/zh/fc/product-overview/region-availability',
           ],
           ['--function-name <functionName>', '[C-Required] Specify function name'],
           ['--alias-name <aliasName>', '[Required] Specify alias name'],
@@ -30,7 +30,7 @@ export default {
         option: [
           [
             '--region <region>',
-            '[C-Required] Specify the fc region, you can see all supported regions in https://www.alibabacloud.com/help/en/fc/product-overview/region-availability',
+            '[C-Required] Specify the fc region, you can see all supported regions in https://www.alibabacloud.com/help/zh/fc/product-overview/region-availability',
           ],
           ['--function-name <functionName>', '[C-Required] Specify function name'],
           ['--table', '[Optional] Specify if output the result as table format'],
@@ -49,7 +49,7 @@ export default {
         option: [
           [
             '--region <region>',
-            '[C-Required] Specify the fc region, you can see all supported regions in https://www.alibabacloud.com/help/en/fc/product-overview/region-availability',
+            '[C-Required] Specify the fc region, you can see all supported regions in https://www.alibabacloud.com/help/zh/fc/product-overview/region-availability',
           ],
           ['--function-name <functionName>', '[C-Required] Specify function name'],
           ['--alias-name <aliasName>', '[Required] Specify alias name'],
@@ -73,7 +73,7 @@ export default {
         option: [
           [
             '--region <region>',
-            '[C-Required] Specify the fc region, you can see all supported regions in https://www.alibabacloud.com/help/en/fc/product-overview/region-availability',
+            '[C-Required] Specify the fc region, you can see all supported regions in https://www.alibabacloud.com/help/zh/fc/product-overview/region-availability',
           ],
           ['--function-name <functionName>', '[C-Required] Specify function name'],
           ['--alias-name <aliasName>', '[Required] Specify alias name'],
