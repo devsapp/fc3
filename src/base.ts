@@ -24,27 +24,25 @@ export default class Base {
   async handlePreRun(inputs: IInputs, needCredential: boolean) {
     logger.debug(`input: ${JSON.stringify(inputs)}`);
     // fc组件镜像 trim 左右空格
-    const image = _.get(inputs, 'props.function.customContainerConfig.image');
+    const image = _.get(inputs, 'props.customContainerConfig.image');
     if (!_.isEmpty(image)) {
-      _.set(inputs, 'props.function.customContainerConfig.image', _.trim(image));
+      _.set(inputs, 'props.customContainerConfig.image', _.trim(image));
     }
 
-    const role = _.get(inputs, 'props.function.role');
+    const role = _.get(inputs, 'props.role');
     const functionRole = await this.handleRole(role, needCredential, inputs);
-    _.set(inputs, 'props.function.role', functionRole);
+    _.set(inputs, 'props.role', functionRole);
 
     inputs.baseDir = path.dirname(inputs.yaml?.path || process.cwd());
     logger.debug(`baseDir is: ${inputs.baseDir}`);
 
-    if (!_.isEmpty(inputs.props.function)) {
-      if (
-        FC.isCustomContainerRuntime(inputs.props.function.runtime) ||
-        FC.isCustomRuntime(inputs.props.function.runtime)
-      ) {
-        inputs.props.function = _.defaults(inputs.props.function, FUNCTION_CUSTOM_DEFAULT_CONFIG);
-      } else {
-        inputs.props.function = _.defaults(inputs.props.function, FUNCTION_DEFAULT_CONFIG);
-      }
+    if (
+      FC.isCustomContainerRuntime(inputs.props.runtime) ||
+      FC.isCustomRuntime(inputs.props.runtime)
+    ) {
+      inputs.props = _.defaults(inputs.props, FUNCTION_CUSTOM_DEFAULT_CONFIG);
+    } else {
+      inputs.props = _.defaults(inputs.props, FUNCTION_DEFAULT_CONFIG);
     }
 
     const triggers = _.cloneDeep(_.get(inputs, 'props.triggers', []));

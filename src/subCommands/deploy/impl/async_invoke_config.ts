@@ -18,7 +18,7 @@ export default class AsyncInvokeConfig extends Base {
 
   constructor(inputs: IInputs, opts: IOpts) {
     super(inputs, opts.yes);
-    this.functionName = inputs.props.function?.functionName;
+    this.functionName = inputs.props?.functionName;
 
     this.local = _.cloneDeep(_.get(inputs, 'props.asyncInvokeConfig', {})) as IAsyncInvokeConfig;
     logger.debug(`need deploy asyncInvokeConfig: ${JSON.stringify(this.local)}`);

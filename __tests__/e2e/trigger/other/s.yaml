@@ -10,16 +10,15 @@ resources:
     component: ${env('fc_component_version', path('../../../../'))}
     props: # 组件的属性值
       region: ${vars.region}
-      function:
-        functionName: ${env('fc_component_function_name', 'nodejs14-ci')}
-        runtime: ${env('fc_component_runtime', 'nodejs14')}
-        code: ./code
-        handler: index.handler
-        memorySize: 128
-        timeout: 3
-        # vpcConfig: auto
-        # nasConfig: auto
-        # logConfig: auto
+      functionName: ${env('fc_component_function_name', 'nodejs14-ci')}
+      runtime: ${env('fc_component_runtime', 'nodejs14')}
+      code: ./code
+      handler: index.handler
+      memorySize: 128
+      timeout: 3
+      # vpcConfig: auto
+      # nasConfig: auto
+      # logConfig: auto
       triggers:
         - triggerName: timerTrigger # 触发器名称
           triggerType: timer # 触发器类型
@@ -100,13 +99,12 @@ resources:
     component: ${env('fc_component_version', path('../../../../'))}
     props:
       region: cn-shenzhen
-      function:
-        functionName: ${env('fc_component_function_name', 'nodejs14-ci')}
-        runtime: ${env('fc_component_runtime', 'nodejs14')}
-        code: ./code
-        handler: index.handler
-        memorySize: 128
-        timeout: 3
+      functionName: ${env('fc_component_function_name', 'nodejs14-ci')}
+      runtime: ${env('fc_component_runtime', 'nodejs14')}
+      code: ./code
+      handler: index.handler
+      memorySize: 128
+      timeout: 3
       triggers:
         - triggerName: tablestoreTrigger 
           triggerType: tablestore 

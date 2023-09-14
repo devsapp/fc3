@@ -31,7 +31,7 @@ export default class Remove {
     if (!_.includes(RegionList, region)) {
       throw new Error(`Invalid region: ${region}`);
     }
-    this.functionName = inputs.props.function?.functionName;
+    this.functionName = inputs.props?.functionName;
 
     if (removeAll || needRemoveFunction === true) {
       this.resources.function = this.functionName;

@@ -7,14 +7,13 @@ resources:
     component: ${env('fc_component_version', path('../../../'))}
     props: # 组件的属性值
       region: cn-huhehaote
-      function:
-        functionName: fc3-event-${env('fc_component_function_name', 'python310')}
-        runtime: ${env('fc_component_runtime', 'python3.10')}
-        code: ./code
-        handler: index.handler
-        memorySize: 128
-        timeout: 30
-        environmentVariables:
-          LD_LIBRARY_PATH: /code/apt-archives/usr/local/lib:/code/apt-archives/usr/lib:/code/apt-archives/usr/lib/x86_64-linux-gnu:/code/apt-archives/usr/lib64:/code/apt-archives/lib:/code/apt-archives/lib/x86_64-linux-gnu:/code
-          PYTHONPATH: /code/3rd-packages
-          PATH: /code/apt-archives/usr/bin:/code/3rd-packages/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/code:/code/bin:/opt:/opt/bin
+      functionName: fc3-event-${env('fc_component_function_name', 'python310')}
+      runtime: ${env('fc_component_runtime', 'python3.10')}
+      code: ./code
+      handler: index.handler
+      memorySize: 128
+      timeout: 30
+      environmentVariables:
+        LD_LIBRARY_PATH: /code/apt-archives/usr/local/lib:/code/apt-archives/usr/lib:/code/apt-archives/usr/lib/x86_64-linux-gnu:/code/apt-archives/usr/lib64:/code/apt-archives/lib:/code/apt-archives/lib/x86_64-linux-gnu:/code
+        PYTHONPATH: /code/3rd-packages
+        PATH: /code/apt-archives/usr/bin:/code/3rd-packages/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/code:/code/bin:/opt:/opt/bin

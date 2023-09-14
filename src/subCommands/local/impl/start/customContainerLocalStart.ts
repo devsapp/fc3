@@ -18,7 +18,7 @@ export class CustomContainerLocalStart extends BaseLocalStart {
       throw new Error('only custom container get entrypoint and args');
     }
     let bootStrap = '';
-    const customContainerConfig = this.getFunctionProps().customContainerConfig;
+    const customContainerConfig = this.inputs.props.customContainerConfig;
     if (_.has(customContainerConfig, 'entrypoint')) {
       bootStrap += customContainerConfig.entrypoint.join(' ');
     }

@@ -10,13 +10,12 @@ resources:
     component: ${env('fc_component_version', path('../../../../'))}
     props: # 组件的属性值
       region: ${vars.region}
-      function:
-        functionName: ${env('fc_component_function_name', 'nodejs14-ci')}
-        runtime: ${env('fc_component_runtime', 'nodejs14')}
-        code: ./code
-        handler: index.handler
-        memorySize: 128
-        timeout: 3
+      functionName: ${env('fc_component_function_name', 'nodejs14-ci')}
+      runtime: ${env('fc_component_runtime', 'nodejs14')}
+      code: ./code
+      handler: index.handler
+      memorySize: 128
+      timeout: 3
       triggers:
         - triggerName: kafkaTrigger 
           triggerType: eventbridge

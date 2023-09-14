@@ -2,9 +2,6 @@
 
 set -e
 
-# export FC_DOCKER_VERSION=1.10.8
-# export fc_component_version=fc3@dev.0.1
-
 echo "test php runtime ..."
 rm -rf ./code/vendor
 export fc_component_function_name=php72-$(uname)-$(uname -m)

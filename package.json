@@ -6,8 +6,8 @@
   "scripts": {
     "prestart": "npm run generate-schema",
     "prebuild": "npm run generate-schema",
-    "start": "esbuild src/index.ts --bundle --log-level=error --minify --platform=node --format=cjs --target=node10 --outfile=dist/index.js --watch",
-    "build": "esbuild src/index.ts --bundle --log-level=error --minify --platform=node --format=cjs --target=node10 --outfile=dist/index.js",
+    "start": "esbuild src/index.ts --bundle --log-level=error --external:proxy-agent --minify --platform=node --format=cjs --target=node10 --outfile=dist/index.js --watch",
+    "build": "esbuild src/index.ts --bundle --log-level=error --external:proxy-agent --minify --platform=node --format=cjs --target=node10 --outfile=dist/index.js",
     "format": "prettier --write src/",
     "generate-schema": "npx typescript-json-schema ./src/interface/index.ts IProps --required -o ./dist/schema.json",
     "prepare": "husky install"

@@ -7,11 +7,10 @@ resources:
     component: ${env('fc_component_version', path('../../../'))}
     props:
       region: cn-huhehaote
-      function:
-        functionName: fc3-event-${env('fc_component_function_name', 'php72')}
-        description: 'hello world by serverless devs'
-        runtime: php7.2
-        code: ./code
-        timeout: 30
-        handler: index.handler
-        memorySize: 128
+      functionName: fc3-event-${env('fc_component_function_name', 'php72')}
+      description: 'hello world by serverless devs'
+      runtime: php7.2
+      code: ./code
+      timeout: 30
+      handler: index.handler
+      memorySize: 128

@@ -2,9 +2,6 @@
 
 set -e
 
-# export FC_DOCKER_VERSION=1.10.8
-# export fc_component_version=fc3@dev.0.1
-
 # nodejs14
 export fc_component_runtime=nodejs14
 export fc_component_function_name=nodejs14-$(uname)-$(uname -m)

@@ -25,7 +25,9 @@ export default class Instance {
     logger.debug('subCommands: ', subCommands);
     const subCommand = _.get(subCommands, '[0]');
     if (!subCommand || !commandsList.includes(subCommand)) {
-      throw new Error(`Command "${subCommand}" not found, please use the command name instead`);
+      throw new Error(
+        `Command "${subCommand}" not found, Please use "s cli fc3 instance -h" to query how to use the command`,
+      );
     }
 
     this.region = region || _.get(inputs, 'props.region');
@@ -43,8 +45,7 @@ export default class Instance {
   }
 
   async list() {
-    const functionName =
-      this.opts['function-name'] || _.get(this.inputs, 'props.function.functionName');
+    const functionName = this.opts['function-name'] || _.get(this.inputs, 'props.functionName');
     if (_.isEmpty(functionName)) {
       throw new Error('functionName not specified, please specify --function-name');
     }
@@ -59,8 +60,7 @@ export default class Instance {
    * s3  instance exec --instance-id `s3 invoke  | grep 'Invoke instanceId:' |  sed 's/.*: //'`
    */
   async exec() {
-    const functionName =
-      this.opts['function-name'] || _.get(this.inputs, 'props.function.functionName');
+    const functionName = this.opts['function-name'] || _.get(this.inputs, 'props.functionName');
     if (_.isEmpty(functionName)) {
       throw new Error('functionName not specified, please specify --function-name');
     }

@@ -10,9 +10,8 @@ export * from './trigger';
 export * from './base';
 export * from './async_invoke_config';
 
-export interface IProps {
+export interface IProps extends IFunction {
   region: IRegion;
-  function: IFunction;
   triggers?: ITrigger[];
   asyncInvokeConfig?: IAsyncInvokeConfig;
   endpoint?: string;

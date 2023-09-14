@@ -46,7 +46,9 @@ export default class Layer {
     logger.debug('subCommands: ', subCommands);
     const subCommand = _.get(subCommands, '[0]');
     if (!subCommand || !commandsList.includes(subCommand)) {
-      throw new Error(`Command "${subCommand}" not found, please use the command name instead`);
+      throw new Error(
+        `Command "${subCommand}" not found, Please use "s cli fc3 layer -h" to query how to use the command`,
+      );
     }
 
     this.region = region || _.get(inputs, 'props.region');

@@ -13,7 +13,7 @@ export default class Info {
 
   constructor(private inputs: IInputs) {
     this.region = _.get(inputs, 'props.region');
-    this.functionName = _.get(inputs, 'props.function.functionName');
+    this.functionName = _.get(inputs, 'props.functionName');
     this.checkProps();
     this.triggersName = _.get(inputs, 'props.triggers', []).map((item) => item.triggerName);
     this.fcSdk = new FC(this.region, this.inputs.credential as ICredentials, {
@@ -30,12 +30,15 @@ export default class Info {
     const functionConfig = await this.getFunction();
     const triggers = await this.getTriggers();
     const asyncInvokeConfig = await this.getAsyncInvokeConfig();
-    return {
+    let info = {
       region: this.region,
-      function: functionConfig,
+    };
+    info = Object.assign({}, info, functionConfig);
+    info = Object.assign({}, info, {
       triggers: isEmpty(triggers) ? undefined : triggers,
       asyncInvokeConfig: isEmpty(asyncInvokeConfig) ? undefined : asyncInvokeConfig,
-    };
+    });
+    return info;
   }
 
   async getFunction(): Promise<{ error: any } | any> {
@@ -91,7 +94,7 @@ export default class Info {
     }
 
     if (!_.isString(this.functionName)) {
-      throw new Error(`Invalid function.functionName: ${this.region}`);
+      throw new Error(`Invalid functionName: ${this.region}`);
     }
   }
 }

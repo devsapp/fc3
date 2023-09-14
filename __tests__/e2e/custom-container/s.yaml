@@ -10,19 +10,18 @@ resources:
     component: ${env('fc_component_version', path('../../../'))}
     props:
       region: ${vars.region}
-      function:
-        functionName: fc3-event-${env('fc_component_function_name', 'custom_container')}
-        runtime: custom-container
-        handler: index.handler
-        timeout: 30
-        memorySize: 1024
-        code: ./code
-        instanceConcurrency: 4
-        customContainerConfig:
-          image: 'registry.${vars.region}.aliyuncs.com/fc-demo2/node-express:ciV1'
-          entrypoint:
-            - node
-          command:
-            - /home/code/server.js
-          port: 9001
-          # accelerationType: 'None'
+      functionName: fc3-event-${env('fc_component_function_name', 'custom_container')}
+      runtime: custom-container
+      handler: index.handler
+      timeout: 30
+      memorySize: 1024
+      code: ./code
+      instanceConcurrency: 4
+      customContainerConfig:
+        image: 'registry.${vars.region}.aliyuncs.com/fc-demo2/node-express:ciV1'
+        entrypoint:
+          - node
+        command:
+          - /home/code/server.js
+        port: 9001
+        # accelerationType: 'None'
