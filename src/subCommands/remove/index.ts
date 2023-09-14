@@ -106,6 +106,24 @@ export default class Remove {
     }
 
     try {
+      const asyncInvokeConfigs = await this.fcSdk.listAsyncInvokeConfig(this.functionName);
+      if (!_.isEmpty(asyncInvokeConfigs)) {
+        this.resources.asyncInvokeConfigs = asyncInvokeConfigs.map((item) => ({
+          functionArn: item.functionArn,
+          // acs:fc:cn-huhehaote:123456:functions/fc3-command-fc3-command/test
+          // acs:fc:cn-huhehaote:123456:functions/fc3-command-fc3-command
+          qualifier: item.functionArn.split('/')[2] || 'LATEST',
+          destinationConfig: item.destinationConfig,
+        }));
+        logger.write(`Remove function ${this.functionName} asyncInvokeConfigs:`);
+        logger.output(this.resources.asyncInvokeConfigs, 2);
+        console.log();
+      }
+    } catch (ex) {
+      logger.debug(`List function ${this.functionName} asyncInvokeConfigs error: ${ex.message}`);
+    }
+
+    try {
       const provision = await this.fcSdk.listFunctionProvisionConfig(this.functionName);
       this.resources.provision = provision.map((item) => {
         const qualifier = _.findLast(item.functionArn.split('/'));
@@ -216,6 +234,7 @@ export default class Remove {
   async removeFunction() {
     // 删除资源顺序
     // {
+    //   asyncInvokeConfig: {}
     //   provision: [ { qualifier: 'test', current: 2, target: 2 } ], // target / current
     //   concurrency: 80,
     //   aliases: [ 'test' ],
@@ -224,6 +243,14 @@ export default class Remove {
     // }
     if (!this.resources.function) {
       return;
+    }
+
+    if (!_.isEmpty(this.resources.asyncInvokeConfigs)) {
+      for (const { qualifier } of this.resources.asyncInvokeConfigs) {
+        logger.spin('removing', 'function asyncInvokeConfigs', `${this.functionName}/${qualifier}`);
+        await this.fcSdk.removeAsyncInvokeConfig(this.functionName, qualifier);
+        logger.spin('removed', 'function asyncInvokeConfigs', `${this.functionName}/${qualifier}`);
+      }
     }
 
     if (!_.isEmpty(this.resources.provision)) {

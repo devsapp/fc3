@@ -298,7 +298,9 @@ export default class FC_Client {
     const request = new DeleteProvisionConfigRequest({ qualifier });
     const result = await this.fc20230330Client.deleteProvisionConfig(functionName, request);
     const { body } = result.toMap();
-    logger.debug(`Delete ${functionName}(${qualifier}) provision body: ${JSON.stringify(body)}`);
+    logger.debug(
+      `Delete ${functionName}(${qualifier}) provision result body: ${JSON.stringify(body)}`,
+    );
     return body;
   }
 

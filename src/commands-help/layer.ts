@@ -140,7 +140,7 @@ export default {
             '--version-id <versionId>',
             '[Optional] Specify the version id of the layer version, if a version-id is not specified, all versions of this layer will be deleted.',
           ],
-          ['-y, --assume-yes', "Don't ask, delete directly"],
+          ['-y, --assume-yes', "[Optional] Don't ask, delete directly"],
         ],
       },
     },

@@ -114,7 +114,7 @@ export default class Layer {
       throw new Error('layerName not specified, please specify --layer-name');
     }
     if (_.isEmpty(version)) {
-      throw new Error('version not specified, please specify --version');
+      throw new Error('version not specified, please specify --version-id');
     }
     return await this.fcSdk.getLayerVersion(layerName, version);
   }

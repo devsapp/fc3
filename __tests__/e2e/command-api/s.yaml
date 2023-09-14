@@ -24,3 +24,11 @@ resources:
             disableURLInternet: false # 是否禁用公网访问 URL
             methods: # HTTP 触发器支持的访问方法，可选值：GET、POST、PUT、DELETE、HEAD
               - GET
+      asyncInvokeConfig:
+        destinationConfig:
+          onFailure:
+            destination: acs:mns:cn-huhehaote::/topics/serverless-devs-fc3-ci-test/messages
+          onSuccess:
+            destination: acs:fc:cn-huhehaote::functions/serverless-devs-ci-async-invoke-config-succ
+        maxAsyncEventAgeInSeconds: 360
+        maxAsyncRetryAttempts: 3

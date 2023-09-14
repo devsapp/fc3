@@ -30,7 +30,7 @@ export default {
           ['--region <region>', 'Appoint region'],
           ['--function-name <functionName>', 'Appoint function name'],
           ['--version-id', 'Specify versionId'],
-          ['-y, --assume-yes', "Don't ask, delete directly"],
+          ['-y, --assume-yes', "[Optional] Don't ask, delete directly"],
         ],
       },
     },

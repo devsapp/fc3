@@ -14,6 +14,8 @@ import {
   InputCodeLocation,
   PutLayerACLRequest,
   ListInstancesRequest,
+  ListAsyncInvokeConfigsRequest,
+  DeleteAsyncInvokeConfigRequest,
 } from '@alicloud/fc20230330';
 import { RuntimeOptions } from '@alicloud/tea-util';
 
@@ -527,6 +529,24 @@ export default class FC extends FC_Client {
     ) {
       return {};
     }
+    return body;
+  }
+
+  async listAsyncInvokeConfig(functionName: string): Promise<any[]> {
+    const req = new ListAsyncInvokeConfigsRequest({ functionName, limit: 100 });
+    const result = await this.fc20230330Client.listAsyncInvokeConfigs(req);
+    const { body } = result.toMap();
+    const { configs } = body;
+    return configs;
+  }
+
+  async removeAsyncInvokeConfig(functionName: string, qualifier: string) {
+    const request = new DeleteAsyncInvokeConfigRequest({ qualifier });
+    const result = await this.fc20230330Client.deleteAsyncInvokeConfig(functionName, request);
+    const { body } = result.toMap();
+    logger.debug(
+      `Delete ${functionName}(${qualifier}) asyncInvokeConfig result body: ${JSON.stringify(body)}`,
+    );
     return body;
   }
 

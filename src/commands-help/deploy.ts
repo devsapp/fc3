@@ -11,7 +11,7 @@ export default {
       '  $ s3 deploy --trigger triggerName1,trigggerName2',
     summary: 'Deploy local resources online',
     option: [
-      ['-y, --assume-yes', 'Configuring deployment using yaml'],
+      ['-y, --assume-yes', "[Optional] Don't ask, delete directly"],
       ['--skip-push', '[Optional] Specify if skip automatically pushing docker container images'],
       [
         "--function ['code'/'config']",
