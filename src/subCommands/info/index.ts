@@ -76,7 +76,12 @@ export default class Info {
       return await this.fcSdk.getAsyncInvokeConfig(this.functionName, 'LATEST', this.getApiType);
     } catch (ex) {
       logger.debug(`Get AsyncInvokeConfig ${this.functionName} error: ${ex}`);
-      return;
+      return {
+        error: {
+          code: ex.code,
+          message: ex.message,
+        },
+      };
     }
   }
 
