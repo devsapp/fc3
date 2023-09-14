@@ -6,15 +6,15 @@ export default {
       '  $ s3 invoke -e \'{"key": "val"}\' \n' +
       '  $ s3 invoke -f evt.json \n' +
       '  $ s3 invoke ---invocation-type async \n' +
-      '',
+      '', //TODO: add more example
     summary: 'Invoke online functions',
     option: [
       [
         '--region <region>',
-        '[C-Required] Specify fc region, you can see all supported regions in https://www.alibabacloud.com/help/en/fc/product-overview/region-availability',
+        '[C-Required] Specify fc region, you can see all supported regions in https://www.alibabacloud.com/help/zh/fc/product-overview/region-availability',
       ],
       ['--function-name <functionName>', '[C-Required] Specify function name'],
-      ['--qualifier <qualifier>', '[Optional] Specify the qualifier parameter'],
+      ['--qualifier <qualifier>', '[Optional] Specify version or alias, default is LATEST'],
       ['--timeout <timeout>', '[Optional] Specify client timeout'],
       [
         '-e, --event <event>',
