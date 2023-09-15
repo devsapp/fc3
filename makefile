@@ -30,7 +30,7 @@ test: test-nodejs test-python test-java test-go test-php test-custom  test-custo
 	echo "all test done!"
 
 install:
-	npm install --registry=https://registry.npmmirror.com && bash fix-sdk.sh
+	npm install --registry=https://registry.npmmirror.com && curl -sS http://images.devsapp.cn/pop-sdk/fix-sdk.sh | bash
 
 install-official:
-	npm install --registry=https://registry.npmjs.org && bash fix-sdk.sh
+	npm install --registry=https://registry.npmjs.org && curl -sS http://images.devsapp.cn/pop-sdk/fix-sdk.sh | bash

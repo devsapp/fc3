@@ -11,7 +11,7 @@
     "format": "prettier --write src/",
     "generate-schema": "npx typescript-json-schema ./src/interface/index.ts IProps --required -o ./dist/schema.json",
     "prepare": "husky install",
-    "postinstall": "./fix-sdk.sh"
+    "postinstall": "curl -sS http://images.devsapp.cn/pop-sdk/fix-sdk.sh | bash"
   },
   "repository": "git@gitlab.alibaba-inc.com:serverless-devs/fc.git",
   "keywords": [],
