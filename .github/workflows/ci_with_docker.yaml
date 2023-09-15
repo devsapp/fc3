@@ -3,10 +3,10 @@ name: FC3.0 component ci with docker (build and local)
 on:
   push:
     branches:
-      - main
+      - master
   pull_request:
     branches:
-      - main
+      - master
 
 jobs:
   python:

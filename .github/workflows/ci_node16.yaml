@@ -3,10 +3,10 @@ name: FC3.0 component base ci with nodejs16
 on:
   push:
     branches:
-      - main
+      - master
   pull_request:
     branches:
-      - main
+      - master
 
 jobs:
   ci:
