@@ -28,3 +28,9 @@ test-apt:
 
 test: test-nodejs test-python test-java test-go test-php test-custom  test-custom-container test-apt
 	echo "all test done!"
+
+install:
+	npm install --registry=https://registry.npmmirror.com && bash fix-sdk.sh
+
+install-official:
+	npm install --registry=https://registry.npmjs.org && bash fix-sdk.sh
