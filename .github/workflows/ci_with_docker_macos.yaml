@@ -1,0 +1,73 @@
+name: macos docker (build and local) ci
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  python:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: docker-practice/actions-setup-docker@master
+      - uses: actions/setup-node@v2
+        with:
+          node-version: 14
+          registry-url: https://registry.npmjs.org/
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.18
+      - name: Set up Java
+        uses: actions/setup-java@v1
+        with:
+          java-version: 8
+      - name: Install dependencies
+        run: |
+          brew install wget curl
+      - name: install s
+        run: |
+          npm i @xsahxl/s@3.x -g
+      - name: config s
+        run: |
+          s3 config add --AccessKeyID ${{secrets.ACCESSKEYID}} --AccessKeySecret ${{secrets.ACCESSKEYSECRET}} -a quanxi -f
+      - name: NPM  install
+        run: |
+          npm install
+      - name: NPM run build
+        run: |
+          npm run build
+      - name: test python
+        run: |
+          cd __tests__/e2e/python && ./run && cd -
+      - name: test nodejs
+        run: |
+          cd __tests__/e2e/nodejs && ./run && cd -
+      - name: test golang
+        run: |
+          cd __tests__/e2e/go && ./run && cd -
+      - name: test php
+        run: |
+          cd __tests__/e2e/php && ./run && cd -
+      - name: test java
+        run: |
+          cd __tests__/e2e/java && ./run && cd -
+      - name: test dotnetcore
+        run: |
+          cd __tests__/e2e/dotnetcore && ./run && cd -
+      - name: test apt
+        run: |
+          cd __tests__/e2e/apt && ./run && cd -
+      - name: test custom.debian10
+        run: |
+          cd __tests__/e2e/custom.debian10 && ./run && cd -
+      - name: test custom
+        run: |
+          cd __tests__/e2e/custom && ./run && cd -
+      # - name: test custom container
+      #   run: |
+      #     cd custom-container && ./run && cd -
