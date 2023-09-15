@@ -10,7 +10,8 @@
     "build": "esbuild src/index.ts --bundle --log-level=error --external:proxy-agent --minify --platform=node --format=cjs --target=node10 --outfile=dist/index.js",
     "format": "prettier --write src/",
     "generate-schema": "npx typescript-json-schema ./src/interface/index.ts IProps --required -o ./dist/schema.json",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "postinstall": "./fix-sdk.sh"
   },
   "repository": "git@gitlab.alibaba-inc.com:serverless-devs/fc.git",
   "keywords": [],
