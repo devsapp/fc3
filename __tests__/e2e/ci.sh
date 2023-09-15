@@ -6,9 +6,8 @@
 set -e
 set -v
 
-export FC_CLIENT_CONNECT_TIMEOUT=3
-export FC_CLIENT_READ_TIMEOUT=5
-export RANDSTR=ci
+# export FC_CLIENT_CONNECT_TIMEOUT=3
+# export FC_CLIENT_READ_TIMEOUT=5
 
 echo "test go runtime"
 cd go
@@ -41,6 +40,16 @@ s3 invoke -e '{"hello":"fc custom go"}' -t ./go/s.yaml
 s3 info -y -t ./go/s.yaml
 s3 remove -y -t ./go/s.yaml
 rm -rf ./go/code/target
+cd ..
+
+
+echo "test nodejs runtime with auto ..."
+cd nodejs
+export fc_component_function_name=go1-$(uname)-$(uname -m)-$RANDSTR
+s3 deploy -y -t ./s_auto.yaml
+s3 invoke -e '{"hello":"fc custom go"}' -t ./s_auto.yaml
+s3 info -y -t ./s_auto.yaml
+s3 remove -y -t ./s_auto.yaml
 cd ..
 
 echo " *********  command-api *********"

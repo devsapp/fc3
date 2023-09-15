@@ -1,4 +1,4 @@
-name: FC3.0 component base ci with nodejs16
+name: Nodejs16 base ci
 
 on:
   push:
@@ -9,19 +9,18 @@ on:
       - master
 
 jobs:
-  ci:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      max-parallel: 3
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+  macos-ci:
+    runs-on: macos-latest
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
         with:
           node-version: 16
           registry-url: https://registry.npmjs.org/
+      - name: Install dependencies
+        run: |
+          brew update
+          brew install curl wget
       - name: install s
         run: |
           npm i @xsahxl/s@3.x -g
@@ -36,7 +35,65 @@ jobs:
           npm run build
       - name: run base ci 
         run: |
-          export RANDSTR=github_16 && cd __tests__/e2e && bash -c ci.sh && cd -
-      - name: run trigger ci
+          export RANDSTR=github_16
+          cd __tests__/e2e && ./ci.sh && cd -
+
+
+  windows-ci:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: 16
+          registry-url: https://registry.npmjs.org/
+      - name: Install dependencies
         run: |
-          export RANDSTR=github_16 &&  cd __tests__/e2e && bash -c ci_trigger.sh && cd -
+          choco install -y wget
+          choco install -y curl
+      - name: install s
+        run: |
+          npm i @xsahxl/s@3.x -g
+      - name: config s
+        run: |
+          s3 config add --AccessKeyID ${{secrets.ACCESSKEYID}} --AccessKeySecret ${{secrets.ACCESSKEYSECRET}} -a quanxi -f
+      - name: NPM  install
+        run: |
+          npm install
+      - name: NPM run build
+        run: |
+          npm run build
+      - name: run base ci 
+        run: |
+          echo "RANDSTR=github_16" >> $GITHUB_ENV
+          cd __tests__/e2e && ./ci.sh && cd -
+
+
+  linux-ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: 16
+          registry-url: https://registry.npmjs.org/
+      - name: Install dependencies
+        run: |
+          sudo apt-get update 
+          sudo apt-get install -y wget curl
+      - name: install s
+        run: |
+          npm i @xsahxl/s@3.x -g
+      - name: config s
+        run: |
+          s3 config add --AccessKeyID ${{secrets.ACCESSKEYID}} --AccessKeySecret ${{secrets.ACCESSKEYSECRET}} -a quanxi -f
+      - name: NPM  install
+        run: |
+          npm install
+      - name: NPM run build
+        run: |
+          npm run build
+      - name: run base ci 
+        run: |
+          export RANDSTR=github_16
+          cd __tests__/e2e && ./ci.sh && cd -
