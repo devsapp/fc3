@@ -12,7 +12,7 @@ import { IFunction, IInputs } from '../../../interface';
 import { FC_RESOURCES_EMPTY_CONFIG } from '../../../default/config';
 import Acr from '../../../resources/acr';
 import Sls from '../../../resources/sls';
-import Ram from '../../../resources/ram';
+import { RamClient } from '../../../resources/ram';
 import FC, { GetApiType } from '../../../resources/fc';
 import VPC_NAS from '../../../resources/vpc-nas';
 import Base from './base';
@@ -250,7 +250,7 @@ logConfig:
     }
 
     if (roleAuto) {
-      const client = new Ram(credential as ICredentials).client;
+      const client = new RamClient(credential as ICredentials);
       const arn = await client.initFcDefaultServiceRole();
       logger.info(yellow(`Using role: ${arn}\n`));
       this.createResource.role = { arn };
@@ -260,7 +260,7 @@ logConfig:
       !this.local.role &&
       (nasAuto || vpcAuto || slsAuto || FC.isCustomContainerRuntime(this.local?.runtime))
     ) {
-      const client = new Ram(credential as ICredentials).client;
+      const client = new RamClient(credential as ICredentials);
       await client.initSlrRole('FC');
     }
 

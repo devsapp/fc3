@@ -22,9 +22,9 @@ export default class Role {
     logger.debug(`Assemble role: ${arn}`);
     return arn;
   }
+}
 
-  readonly client: Ram;
-
+export class RamClient extends Ram {
   constructor(credentials: ICredentials) {
     const config = new Config({
       accessKeyId: credentials.AccessKeyID,
@@ -33,6 +33,6 @@ export default class Role {
       endpoint: 'ram.aliyuncs.com',
       userAgent: 'serverless-devs',
     });
-    this.client = new Ram(credentials.AccountID, config);
+    super(credentials.AccountID, config);
   }
 }
