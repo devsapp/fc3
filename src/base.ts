@@ -2,13 +2,13 @@ import _ from 'lodash';
 import { IInputs } from './interface';
 import Logger from './logger';
 import logger from './logger';
-import Ram from './resources/ram';
 import { FUNCTION_CUSTOM_DEFAULT_CONFIG, FUNCTION_DEFAULT_CONFIG } from './default/config';
 import path from 'path';
 import commandsHelp from './commands-help';
 import FC from './resources/fc';
 import { ICredentials } from '@serverless-devs/component-interface';
 import Role from './resources/ram';
+import { RamClient } from './resources/ram';
 import { TriggerType } from './interface/base';
 
 export default class Base {
@@ -92,7 +92,7 @@ export default class Base {
     if (_.isEmpty(inputs.credential)) {
       inputs.credential = await inputs.getCredential();
     }
-    const ramClient = new Ram(inputs.credential as ICredentials).client;
+    const ramClient = new RamClient(inputs.credential as ICredentials);
     switch (triggerType) {
       case TriggerType.oss:
         triggerRole = await ramClient.initFcOssTriggerRole();
