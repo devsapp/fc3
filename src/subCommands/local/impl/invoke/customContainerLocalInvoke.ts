@@ -28,7 +28,7 @@ export class CustomContainerLocalInvoke extends BaseLocalInvoke {
       throw new Error('only custom container get command and args');
     }
     let bootStrap = '';
-    const customContainerConfig = this.getFunctionProps().customContainerConfig;
+    const customContainerConfig = this.inputs.props.customContainerConfig;
     if (_.has(customContainerConfig, 'entrypoint')) {
       bootStrap += customContainerConfig.entrypoint.join(' ');
     }

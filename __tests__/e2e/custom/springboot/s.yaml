@@ -2,9 +2,12 @@ edition: 3.0.0
 name: test-custom-springboot
 access: 'quanxi'
 
+vars: 
+  region: ${env('region', 'cn-huhehaote')}
+
 template:
   props:
-    region: cn-huhehaote
+    region: ${vars.region}
     triggers:
       - triggerName: httpTrigger
         triggerType: http

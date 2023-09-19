@@ -2,6 +2,9 @@ edition: 3.0.0
 name: test-custom-go
 access: quanxi
 
+vars: 
+  region: ${env('region', 'cn-huhehaote')}
+
 resources:
   fcDemo:
     component: ${env('fc_component_version', path('../../../../'))}
@@ -12,7 +15,7 @@ resources:
         - run: GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o target/main main.go
           path: ./code
     props:
-      region: cn-huhehaote
+      region: ${vars.region}
       functionName: fc3-event-custom-${env('fc_component_function_name', 'go1')}
       description: 'hello world by serverless devs'
       timeout: 5

@@ -2,11 +2,14 @@ edition: 3.0.0
 name: test-custom-debian10-python
 access: "quanxi"
 
+vars: 
+  region: ${env('region', 'cn-huhehaote')}
+
 resources:
   helloworld:
     component: ${env('fc_component_version', path('../../../../'))}
     props:
-      region: cn-huhehaote
+      region: ${vars.region}
       functionName: fc3-event-debian10-${env('fc_component_function_name', 'python310')}
       handler: index.handler
       timeout: 60

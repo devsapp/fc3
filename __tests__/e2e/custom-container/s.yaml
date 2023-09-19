@@ -2,8 +2,8 @@ edition: 3.0.0 #  命令行YAML规范版本，遵循语义化版本（Semantic V
 name: framework #  项目名称
 access: quanxi
 
-vars:
-  region: cn-huhehaote
+vars: 
+  region: ${env('region', 'cn-huhehaote')}
 
 resources:
   fcDemo: # 业务名称/模块名称

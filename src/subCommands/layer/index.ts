@@ -137,7 +137,15 @@ export default class Layer {
       layers[i] = _.omit(layers[i], ['code', 'createTime', 'license', 'codeChecksum', 'codeSize']);
     }
     if (this.opts.table) {
-      this.tableShow(layers);
+      const showKey = [
+        'layerName',
+        'description',
+        'version',
+        'compatibleRuntime',
+        'acl',
+        'layerVersionArn',
+      ];
+      tableShow(layers, showKey);
     } else {
       return layers;
     }
