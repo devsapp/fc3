@@ -5,7 +5,7 @@ import logger from '../../../logger';
 
 export class ImageKanikoBuilder extends Builder {
   async runBuild() {
-    logger.debug(`ImageKanikoBuilder building ... ${JSON.stringify(this.inputProps)}`);
+    logger.debug(`ImageKanikoBuilder building ... ${JSON.stringify(this.inputs)}`);
     await this.mockDockerLogin();
 
     // TODO: parse dockerfile and context from args

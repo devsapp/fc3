@@ -9,7 +9,7 @@ import { buildPythonLocalPath } from '../../../default/image';
 
 export class DefaultBuilder extends Builder {
   public async runBuild() {
-    logger.debug(`DefaultBuilder building ... ${JSON.stringify(this.inputProps)}`);
+    logger.debug(`DefaultBuilder building ... ${JSON.stringify(this.inputs)}`);
     let tasks = this.getBuildTasks();
     logger.debug(`DefaultBuilder tasks=${JSON.stringify(tasks)}`);
     if (_.isEmpty(tasks)) {

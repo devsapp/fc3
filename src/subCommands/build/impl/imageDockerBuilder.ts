@@ -5,7 +5,7 @@ import { runCommand } from '../../../utils';
 
 export class ImageDockerBuilder extends Builder {
   async runBuild() {
-    logger.debug(`ImageDockerBuilder building ... ${JSON.stringify(this.inputProps)}`);
+    logger.debug(`ImageDockerBuilder building ... ${JSON.stringify(this.inputs)}`);
 
     // TODO: parse dockerfile and context from args
     const dockerFile = path.join(this.getCodeUri(), 'Dockerfile');

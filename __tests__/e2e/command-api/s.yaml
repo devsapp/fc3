@@ -2,11 +2,14 @@ edition: 3.0.0 #  命令行YAML规范版本，遵循语义化版本（Semantic V
 name: test-node-app #  项目名称
 access: quanxi
 
+vars: 
+  region: ${env('region', 'cn-huhehaote')}
+
 resources:
   fcDemo:
     component: ${env('fc_component_version', path('../../../'))}
     props: # 组件的属性值
-      region: cn-huhehaote
+      region: ${vars.region}
       functionName: fc3-command-${env('fc_component_function_name', 'fc3-command')}
       runtime: nodejs14
       code: ./code
@@ -26,8 +29,8 @@ resources:
       asyncInvokeConfig:
         destinationConfig:
           onFailure:
-            destination: acs:mns:cn-huhehaote::/topics/serverless-devs-fc3-ci-test/messages
+            destination: acs:mns:${vars.region}::/topics/serverless-devs-fc3-ci-test/messages
           onSuccess:
-            destination: acs:fc:cn-huhehaote::functions/serverless-devs-ci-async-invoke-config-succ
+            destination: acs:fc:${vars.region}::functions/serverless-devs-ci-async-invoke-config-succ
         maxAsyncEventAgeInSeconds: 360
         maxAsyncRetryAttempts: 3

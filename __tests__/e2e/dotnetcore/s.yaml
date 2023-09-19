@@ -2,6 +2,9 @@ edition: 3.0.0 #  命令行YAML规范版本，遵循语义化版本（Semantic V
 name: test-dotnet-app #  项目名称
 access: quanxi
 
+vars: 
+  region: ${env('region', 'cn-huhehaote')}
+
 resources:
   fcDemo: # 业务名称/模块名称
     component: ${env('fc_component_version', path('../../../'))}
@@ -10,7 +13,7 @@ resources:
         - run: dotnet publish -c Release -o ./target
           path: ./HelloFcApp
     props: # 组件的属性值
-      region: cn-huhehaote
+      region: ${vars.region}
       functionName: fc3-event-${env('fc_component_function_name', 'dotnetcore31')}
       runtime: ${env('fc_component_runtime', 'dotnetcore3.1')}
       code: ./HelloFcApp/target/

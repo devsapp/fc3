@@ -1,6 +1,6 @@
 import { parseArgv } from '@serverless-devs/utils';
 import { IInputs, IRegion } from '../../interface';
-import _, { add } from 'lodash';
+import _ from 'lodash';
 import logger from '../../logger';
 import FC from '../../resources/fc';
 import commandsHelp from '../../commands-help/alias';

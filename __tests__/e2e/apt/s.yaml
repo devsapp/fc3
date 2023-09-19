@@ -2,11 +2,14 @@ edition: 3.0.0
 name: framework
 access: quanxi
 
+vars: 
+  region: ${env('region', 'cn-huhehaote')}
+
 resources:
   fcDemo:
     component: ${env('fc_component_version', path('../../../'))}
     props: # 组件的属性值
-      region: cn-huhehaote
+      region: ${vars.region}
       functionName: fc3-event-apt-get-${env('fc_component_function_name', 'nodejs14')}
       runtime: nodejs14
       code: ./code

@@ -24,6 +24,11 @@ s3 invoke -e 'hello latest' --qualifier 'test'
 
 s3 remove -y
 
+if [ -n "$region" ] && [ "$region" != "cn-huhehaote" ]; then
+  echo "Region is not equal to cn-huhehaote. skip eb and other trigger test"
+  exit 0
+fi
+
 echo "********* test other trigger ************"
 cd ../other
 export fc_component_function_name=test-other-trigger-$(uname)-$(uname -m)-$RANDSTR
