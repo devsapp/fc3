@@ -18,7 +18,7 @@ import FC from '../../../resources/fc';
 import chalk from 'chalk';
 
 export abstract class Builder {
-  private baseDir: string;
+  protected baseDir: string;
 
   abstract runBuild(): Promise<any>;
 
@@ -261,5 +261,9 @@ export abstract class Builder {
 
     logger.debug(`isPython ${isPython}`);
     return isPython;
+  }
+
+  protected isAppCenter(): boolean {
+    return process.env.BUILD_IMAGE_ENV === 'fc-backend';
   }
 }

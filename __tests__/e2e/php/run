@@ -1,13 +1,34 @@
 #!/bin/bash
 
 set -e
+set -v
 
 echo "test php runtime ..."
 rm -rf ./code/vendor
 export fc_component_function_name=php72-$(uname)-$(uname -m)
+
 s3 build
 s3 local invoke -e '{"hello":"fc php"}'
 s3 deploy -y 
 s3 info
 s3 invoke -e '{"hello":"fc php"}'
+
+rm -rf ./code/vendor
+s3 build --script-file ./test.sh
+s3 deploy -y 
+s3 info
+s3 invoke -e '{"hello":"fc php"}'
+
+rm -rf ./code/vendor
+s3 build --command='composer install -vvv' --custom-env '{"k": "v"}' --debug
+s3 deploy -y 
+s3 info
+s3 invoke -e '{"hello":"fc php"}'
+
+rm -rf ./code/vendor
+s3 build --custom-args='-v' --debug
+s3 deploy -y 
+s3 info
+s3 invoke -e '{"hello":"fc php"}'
+
 s3 remove -y
