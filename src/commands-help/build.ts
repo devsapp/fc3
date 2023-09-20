@@ -10,21 +10,21 @@ Example:
     summary: 'Build the dependencies',
     option: [
       ['--use-sandbox', '[Optional] Enter the sandbox container of the corresponding runtime'],
+      ['--custom-env <json>', '[Optional] Custom environment variables injected during build'],
       [
-        '--custom-env <jsonString>',
-        '[Optional] Custom environment variables injected during build',
-      ],
-      [
-        '--custom-args <argsString>',
+        '--custom-args <string>',
         '[Optional] Additional parameters when using the default build behavior, such as specifying a pypi or NPM source',
       ],
-      ['--command <commandString>', '[Optional] Using custom commands'],
+      ['--command <string>', '[Optional] Using custom commands'],
       ['--script-file <scriptFile>', '[Optional] Using custom shell scripts'],
       [
-        '-f, --dockerfile <dockerfile>',
+        '-f, --dockerfile <string>',
         '[Optional] Specify the dockerfile path, Use docker to build the image of the custom container runtime',
       ],
-      ['context <dir>', '[Optional] custom-container Context for constructing the image'],
+      [
+        'context <string>',
+        '[Optional] custom-container context directory for constructing the image',
+      ],
     ],
   },
 };

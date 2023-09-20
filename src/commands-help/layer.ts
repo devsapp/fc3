@@ -6,11 +6,10 @@ export default {
   subCommands: {
     publish: {
       help: {
-        description:
-          'Publish new layer version. \n' +
-          'Example: \n' +
-          '  $ s3 layer publish --code layer.zip --layer-name testName --compatible-runtime nodejs12 \n' +
-          '  $ s3 layer publish --code ./layer --layer-name testName --compatible-runtime nodejs12,nodejs10,python3 --description "this is description"',
+        description: `Publish new layer version.
+Example:
+  $ s3 layer publish --code layer.zip --layer-name testName --compatible-runtime nodejs12
+  $ s3 layer publish --code ./layer --layer-name testName --compatible-runtime nodejs12,nodejs10,python3 --description "this is description"`,
         summary: 'Publish new layer version',
         option: [
           [
@@ -29,11 +28,10 @@ export default {
     },
     list: {
       help: {
-        description:
-          'List layers. \n' +
-          'Example: \n' +
-          '  $ s3 layer list \n' +
-          '  $ s3 layer list --prefix test --official --table',
+        description: `List layers.
+Example:
+  $ s3 layer list
+  $ s3 layer list --prefix test --official --table`,
         summary: 'List layers',
         option: [
           [
@@ -52,10 +50,9 @@ export default {
     },
     info: {
       help: {
-        description:
-          'Get layer version detail. \n' +
-          'Example: \n' +
-          '  $ s3 layer info --layer-name testName --version-id 123',
+        description: `Get layer version detail.
+Example:
+  $ s3 layer info --layer-name testName --version-id 123`,
         summary: 'Get layer version detail',
         option: [
           [
@@ -69,11 +66,10 @@ export default {
     },
     versions: {
       help: {
-        description:
-          'Get layer versions. \n' +
-          'Example: \n' +
-          '  $ s3 layer versions --layer-name testName \n' +
-          '  $ s3 layer versions --layer-name testName --table',
+        description: `Get layer versions.
+Example:
+  $ s3 layer versions --layer-name testName
+  $ s3 layer versions --layer-name testName --table`,
         summary: 'Get layer versions',
         option: [
           [
@@ -87,10 +83,9 @@ export default {
     },
     download: {
       help: {
-        description:
-          'Download layer version code. \n' +
-          'Example: \n' +
-          '  $ s3 layer download --layer-name testName --version-id 123',
+        description: `Download layer version code.
+Example:
+  $ s3 layer download --layer-name testName --version-id 123`,
         summary: 'Download layer version code',
         option: [
           [
@@ -104,11 +99,10 @@ export default {
     },
     acl: {
       help: {
-        description:
-          'Set the layer as public or private. \n' +
-          'Example: \n' +
-          '  $ s3 layer acl --layer-name testName \n' +
-          '  $ s3 layer acl --layer-name testName --public',
+        description: `Set the layer as public or private.
+Example:
+  $ s3 layer acl --layer-name testName
+  $ s3 layer acl --layer-name testName --public`,
         summary: 'Set the layer as public or private',
         option: [
           [
@@ -125,10 +119,9 @@ export default {
     },
     remove: {
       help: {
-        description:
-          'Remove layer. \n' +
-          'Example: \n' +
-          '  $ s3 layer remove --layer-name testName --version-id 123',
+        description: `Remove layer.
+Example:
+  $ s3 layer remove --layer-name testName --version-id 123`,
         summary: 'Remove layer',
         option: [
           [

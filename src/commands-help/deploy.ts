@@ -1,14 +1,13 @@
 export default {
   help: {
-    description:
-      'Deploy local resources online. \n' +
-      'Example: \n' +
-      '  $ s3 deploy \n' +
-      '  $ s3 deploy --skip-push \n' +
-      '  $ s3 deploy --function code \n' +
-      '  $ s3 deploy --function config \n' +
-      '  $ s3 deploy --trigger triggerName \n' +
-      '  $ s3 deploy --trigger triggerName1,trigggerName2',
+    description: `Deploy local resources online.
+Example:
+  $ s3 deploy
+  $ s3 deploy --skip-push
+  $ s3 deploy --function code
+  $ s3 deploy --function config
+  $ s3 deploy --trigger triggerName
+  $ s3 deploy --trigger triggerName1,trigggerName2`,
     summary: 'Deploy local resources online',
     option: [
       ['-y, --assume-yes', "[Optional] Don't ask, delete directly"],

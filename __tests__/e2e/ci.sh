@@ -45,9 +45,9 @@ cd ..
 
 echo "test nodejs runtime with auto ..."
 cd nodejs
-export fc_component_function_name=go1-$(uname)-$(uname -m)-$RANDSTR
+export fc_component_function_name=nodejs14-$(uname)-$(uname -m)-$RANDSTR
 s3 deploy -y -t ./s_auto.yaml
-s3 invoke -e '{"hello":"fc custom go"}' -t ./s_auto.yaml
+s3 invoke -e '{"hello":"fc nodejs with auto"}' -t ./s_auto.yaml
 s3 info -y -t ./s_auto.yaml
 s3 remove -y -t ./s_auto.yaml
 cd ..

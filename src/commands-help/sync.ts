@@ -1,10 +1,9 @@
 export default {
   help: {
-    description:
-      'Synchronize online resources to offline resources. \n' +
-      'Example: \n' +
-      '  $ s3 sync \n' +
-      '  $ s3 sync --target ./test --qualifier testAlias \n',
+    description: `Synchronize online resources to offline resources.
+Example:
+  $ s3 sync
+  $ s3 sync --target ./test --qualifier testAlias`,
     summary: 'Synchronize online resources to offline resources',
     option: [
       [

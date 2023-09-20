@@ -1,7 +1,9 @@
 export default {
   help: {
-    description: 'Query online resource details. \n' + 'Example: \n' + '  $ s3 info',
-    summary: 'Query online resource details ',
+    description: `Query online resource details.
+Example:
+  $ s3 info`,
+    summary: 'Query online resource details',
     option: [
       [
         '--region <region>',

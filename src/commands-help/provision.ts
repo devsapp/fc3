@@ -6,7 +6,9 @@ export default {
   subCommands: {
     list: {
       help: {
-        description: 'View the list of provision. \n' + 'Example: \n' + '  $ s3 provision list',
+        description: `View the list of provision.
+Example:
+  $ s3 provision list`,
         summary: 'View the list of provision',
         option: [
           [
@@ -19,11 +21,10 @@ export default {
     },
     get: {
       help: {
-        description:
-          'Get provision configuration. \n' +
-          'Example: \n' +
-          '  $ s3 provision get --qualifier LATEST \n' +
-          '  $ s3 provision get --qualifier test',
+        description: `Get provision configuration.
+Example:
+  $ s3 provision get --qualifier LATEST
+  $ s3 provision get --qualifier test`,
         summary: 'Get provision configuration',
         option: [
           [
@@ -40,11 +41,10 @@ export default {
     },
     put: {
       help: {
-        description:
-          'Set provision configuration. \n' +
-          'Example: \n' +
-          '  $ s3 provision put --qualifier test --target 2 \n' +
-          `  $ s3 provision put --qualifier test --ac --target 2 --scheduled-actions '[{"name":"scheduled-actions","startTime":"2023-08-15T02:04:00.000Z","endTime":"2033-08-15T02:04:00.000Z","target":1,"scheduleExpression":"cron(0 0 4 * * *)"}]' --target-tracking-policies '[{"name":"target-tracking-policies","startTime":"2023-08-15T02:05:00.000Z","endTime":"2033-08-15T02:05:00.000Z","metricType":"ProvisionedConcurrencyUtilization","metricTarget":0.6,"minCapacity":1,"maxCapacity":3}]'`,
+        description: `Set provision configuration.
+Example:
+  $ s3 provision put --qualifier test --target 2
+  $ s3 provision put --qualifier test --ac --target 2 --scheduled-actions '[{"name":"scheduled-actions","startTime":"2023-08-15T02:04:00.000Z","endTime":"2033-08-15T02:04:00.000Z","target":1,"scheduleExpression":"cron(0 0 4 * * *)"}]' --target-tracking-policies '[{"name":"target-tracking-policies","startTime":"2023-08-15T02:05:00.000Z","endTime":"2033-08-15T02:05:00.000Z","metricType":"ProvisionedConcurrencyUtilization","metricTarget":0.6,"minCapacity":1,"maxCapacity":3}]'`,
         summary: 'Set provision configuration',
         option: [
           [
@@ -74,11 +74,10 @@ export default {
     },
     remove: {
       help: {
-        description:
-          'Delete provision. \n' +
-          'Example: \n' +
-          '  $ s3 provision remove LATEST \n' +
-          '  $ s3 provision remove test -y',
+        description: `Delete provision.
+Example:
+  $ s3 provision remove LATEST
+  $ s3 provision remove test -y`,
         summary: 'Delete provision',
         option: [
           [
