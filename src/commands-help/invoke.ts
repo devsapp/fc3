@@ -1,12 +1,10 @@
 export default {
   help: {
-    description:
-      'Invoke online functions. \n' +
-      'Example: \n' +
-      '  $ s3 invoke -e \'{"key": "val"}\' \n' +
-      '  $ s3 invoke -f evt.json \n' +
-      '  $ s3 invoke ---invocation-type async \n' +
-      '', //TODO: add more example
+    description: `Invoke online functions.
+Example:
+  $ s3 invoke -e \'{"key": "val"}
+  $ s3 invoke -f evt.json
+  $ s3 invoke ---invocation-type async`,
     summary: 'Invoke online functions',
     option: [
       [

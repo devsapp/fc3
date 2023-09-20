@@ -1,13 +1,12 @@
 export default {
   help: {
-    description:
-      'Remove resources online. \n' +
-      'Example: \n' +
-      '  $ s3 remove \n' +
-      '  $ s3 remove -y \n' +
-      '  $ s3 remove --trigger \n' +
-      '  $ s3 remove --trigger triggerName \n' +
-      '  $ s3 remove --trigger triggerName1,trigggerName2',
+    description: `Remove resources online.
+Example:
+  $ s3 remove
+  $ s3 remove -y
+  $ s3 remove --trigger
+  $ s3 remove --trigger triggerName
+  $ s3 remove --trigger triggerName1,trigggerName2`,
     summary: 'Remove resources online',
     option: [
       [

@@ -6,12 +6,11 @@ export default {
   subCommands: {
     exec: {
       help: {
-        description:
-          'Execute a command in a instance.\n' +
-          'Example: \n' +
-          '  $ s3  instance exec --instance-id c-64fec1fc-27c4833c325445879a28 --cmd "ls -lh" \n' +
-          '  $ s3  instance exec --instance-id c-64fec1fc-27c4833c325445879a28 \n' +
-          '  $ s3  instance exec --instance-id `s3 invoke  | grep "Invoke instanceId:" |  sed "s/.*: //"`',
+        description: `Execute a command in a instance.
+Example:
+  $ s3 instance exec --instance-id c-64fec1fc-27c4833c325445879a28 --cmd "ls -lh"
+  $ s3 instance exec --instance-id c-64fec1fc-27c4833c325445879a28
+  $ s3 instance exec --instance-id \`s3 invoke  | grep "Invoke instanceId:" |  sed "s/.*: //"\``,
         summary: 'Execute a command in a instance',
         option: [
           [
@@ -27,8 +26,9 @@ export default {
     },
     list: {
       help: {
-        description:
-          'View the list of active function instance.\n' + 'Example: \n' + '  $ s3  instance list',
+        description: `View the list of active function instance.
+Example:
+  $ s3 instance list`,
         summary: 'View the list of active function instance',
         option: [
           [

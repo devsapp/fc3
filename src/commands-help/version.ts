@@ -6,8 +6,9 @@ export default {
   subCommands: {
     list: {
       help: {
-        description:
-          'View the list of function versions. \n' + 'Example: \n' + '  $ s3 version list',
+        description: `View the list of function versions.
+Example:
+  $ s3 version list`,
         summary: 'View the list of function versions',
         option: [
           [
@@ -20,11 +21,10 @@ export default {
     },
     publish: {
       help: {
-        description:
-          'Publish function version. \n' +
-          'Example: \n' +
-          '  $ s3 publish \n' +
-          '  $ s3 publish --description test',
+        description: `Publish function version.
+Example:
+  $ s3 publish
+  $ s3 publish --description test`,
         summary: 'Publish function version',
         option: [
           [
@@ -38,11 +38,10 @@ export default {
     },
     remove: {
       help: {
-        description:
-          'Remove function version. \n' +
-          'Example: \n' +
-          '  $ s3 remove --version-id 123 \n' +
-          '  $ s3 remove --version-id 123 -y',
+        description: `Remove function version.
+Example:
+  $ s3 remove --version-id 123
+  $ s3 remove --version-id 123 -y`,
         summary: 'Remove function version',
         option: [
           [
