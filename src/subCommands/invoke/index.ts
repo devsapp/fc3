@@ -34,7 +34,7 @@ export default class Invoke {
       string: ['event', 'event-file', 'timeout'],
     });
     if (!timeout) {
-      timeout = inputs.props?.timeout + 3; // 加大3s
+      timeout = inputs.props?.timeout + 5; // 加大5s
       if (FC.isCustomContainerRuntime(inputs.props.runtime)) {
         timeout = inputs.props?.timeout + 30; // 考虑冷启动镜像的 pull 时间
       }

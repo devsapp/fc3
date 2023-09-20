@@ -10,6 +10,7 @@ import alias from './alias';
 import provision from './provision';
 import layer from './layer';
 import instance from './instance';
+import build from './build';
 
 export default {
   deploy,
@@ -24,4 +25,5 @@ export default {
   provision,
   layer,
   instance,
+  build,
 };

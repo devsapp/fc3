@@ -4,7 +4,7 @@ set -e
 
 echo "test custom-container runtime ..."
 export fc_component_function_name=custom_container-$(uname)-$(uname -m)
-s3 build
+s3 build --dockerfile ./code/Dockerfile
 s3 deploy -y 
 s3 invoke -e '{"hello":"fc custom-container"}'
 s3 info

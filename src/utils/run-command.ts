@@ -7,7 +7,12 @@ enum COMMAND_STDIO {
   // null = 'null',
 }
 
-async function runCommand(command: string, showStdout: COMMAND_STDIO, shellScript?: string) {
+async function runCommand(
+  command: string,
+  showStdout: COMMAND_STDIO,
+  shellScript?: string,
+  cwd?: string,
+) {
   logger.debug(`runCommand command = ${command} ${shellScript || ''}`);
   let [cmd, ...args] = command.split(' ');
   if (cmd.includes('=') && args.length > 0) {
@@ -26,10 +31,13 @@ async function runCommand(command: string, showStdout: COMMAND_STDIO, shellScrip
 
   const isInherit = showStdout === COMMAND_STDIO.inherit;
   return new Promise<void>((resolve, reject) => {
-    const options = {
+    let options = {
       shell: true,
       stdio: (isInherit ? 'inherit' : 'pipe') as StdioOptions,
     };
+    if (cwd) {
+      options['cwd'] = cwd;
+    }
     const dProcess = spawn(cmd, args, options);
 
     if (!isInherit) {

@@ -1,6 +1,7 @@
 #!/bin/bash
 
 set -e
+set -v
 
 # nodejs14
 export fc_component_runtime=nodejs14
@@ -12,8 +13,14 @@ s3 local invoke -e '{"hello":"fc nodejs14"}'
 s3 deploy -y 
 s3 info
 s3 invoke -e '{"hello":"fc nodejs14"}'
+export BUILD_IMAGE_ENV=fc-backend
+rm -rf ./code/node_modules
+s3 build 
+s3 deploy -y 
+s3 info
+s3 invoke -e '{"hello":"fc nodejs14 fc backed"}'
 s3 remove -y
-
+unset BUILD_IMAGE_ENV
 
 # nodejs12
 export fc_component_runtime=nodejs12

@@ -16,16 +16,16 @@ export enum BuildType {
 }
 
 export default class BuilderFactory {
-  public static getBuilder(buildType: BuildType, props: IInputs): Builder {
+  public static getBuilder(buildType: BuildType, inputs: IInputs): Builder {
     switch (buildType) {
       case BuildType.ImageDocker:
-        return new ImageDockerBuilder(props);
+        return new ImageDockerBuilder(inputs);
       case BuildType.ImageBuildKit:
-        return new ImageBuiltKitBuilder(props);
+        return new ImageBuiltKitBuilder(inputs);
       case BuildType.ImageKaniko:
-        return new ImageKanikoBuilder(props);
+        return new ImageKanikoBuilder(inputs);
       case BuildType.Default:
-        return new DefaultBuilder(props);
+        return new DefaultBuilder(inputs);
       default:
         logger.error(`Invalid buildType ${buildType}`);
         throw new Error(`Invalid buildType ${buildType}`);
