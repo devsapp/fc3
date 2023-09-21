@@ -8,7 +8,8 @@ export default {
       help: {
         description: `Get alias details.
 Example:
-  $ s3 alias get --alias-name testName`,
+  $ s3 alias get --alias-name aliasName
+  $ s3 cli fc3 alias get --alias-name aliasName --region cn-hangzhou --function-name test -a default`,
         summary: 'Get alias details ',
         option: [
           [
@@ -25,7 +26,8 @@ Example:
         description: `View the list of function aliases.
 Example:
   $ s3 alias list
-  $ s3 alias list --table`,
+  $ s3 alias list --table
+  $ s3 cli fc3 alias list --table --region cn-hangzhou --function-name test -a default`,
         summary: 'View the list of function aliases',
         option: [
           [
@@ -43,7 +45,8 @@ Example:
 Example:
   $ s3 alias publish --alias-name aliasName --version-id latest
   $ s3 alias publish --alias-name aliasName --version-id 123 --description "this is description"
-  $ s3 alias publish --alias-name aliasName --version-id 123 --vw "{\\"2\\":0.2}"`,
+  $ s3 alias publish --alias-name aliasName --version-id 123 --vw "{\\"2\\":0.2}"
+  $ s3 cli fc3 alias publish --alias-name aliasName --version-id 123 --region cn-hangzhou --function-name test -a default`,
         summary: 'Publish function alias',
         option: [
           [
@@ -66,7 +69,8 @@ Example:
         description: `Remove function alias.
 Example:
   $ s3 alias remove --alias-name aliasName
-  $ s3 alias remove --alias-name aliasName -y`,
+  $ s3 alias remove --alias-name aliasName -y
+  $ s3 cli fc3 alias remove --alias-name aliasName --region cn-hangzhou --function-name test -a default`,
         summary: 'Remove function alias',
         option: [
           [

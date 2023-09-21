@@ -1,5 +1,5 @@
 import { parseArgv } from '@serverless-devs/utils';
-import { IInputs, IRegion } from '../../interface';
+import { IInputs, IRegion, checkRegion } from '../../interface';
 import _ from 'lodash';
 import logger from '../../logger';
 import FC from '../../resources/fc';
@@ -46,17 +46,12 @@ export default class Version {
     this.versionId = versionId;
     this.region = region || _.get(inputs, 'props.region');
     logger.debug(`region: ${this.region}`);
+    checkRegion(this.region);
     this.functionName = functionName || _.get(inputs, 'props.functionName');
     logger.debug(`function name: ${this.functionName}`);
-
-    if (!this.region) {
-      throw new Error('Region not specified, please specify --region');
-    }
-    logger.debug(`region: ${this.region}`);
     if (!this.functionName) {
       throw new Error('Function name not specified, please specify --function-name');
     }
-
     this.fcSdk = new FC(this.region, inputs.credential, {
       endpoint: inputs.props.endpoint,
     });

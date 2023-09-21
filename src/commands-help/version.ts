@@ -8,7 +8,8 @@ export default {
       help: {
         description: `View the list of function versions.
 Example:
-  $ s3 version list`,
+  $ s3 version list
+  $ s3 cli fc3 version list --region cn-hangzhou --function-name test -a default`,
         summary: 'View the list of function versions',
         option: [
           [
@@ -23,8 +24,9 @@ Example:
       help: {
         description: `Publish function version.
 Example:
-  $ s3 publish
-  $ s3 publish --description test`,
+  $ s3 version publish
+  $ s3 version publish --description "test desc"
+  $ s3 cli fc3 version publish --description "test desc" --region cn-hangzhou --function-name test -a default`,
         summary: 'Publish function version',
         option: [
           [
@@ -40,8 +42,9 @@ Example:
       help: {
         description: `Remove function version.
 Example:
-  $ s3 remove --version-id 123
-  $ s3 remove --version-id 123 -y`,
+  $ s3 version remove --version-id 123
+  $ s3 version remove --version-id 123 -y
+  $ s3 cli fc3 version remove --version-id 123 --region cn-hangzhou --function-name test -a default`,
         summary: 'Remove function version',
         option: [
           [

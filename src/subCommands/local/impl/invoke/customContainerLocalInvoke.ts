@@ -73,8 +73,8 @@ export class CustomContainerLocalInvoke extends BaseLocalInvoke {
   async runInvoke() {
     const image = await this.getRuntimeRunImage();
     // TODO: 主进程的事件已经被注册，怎么处理到这个事件
-    process.on('SIGINT', () => {
-      console.log('\nSIGINT, stop container');
+    process.on('DEVS:SIGINT', () => {
+      console.log('\nDEVS:SIGINT, stop container');
       const out = execSync(`docker ps -a | grep ${image} | awk '{print $1}' | xargs docker kill`);
       logger.debug(`stdout: ${out}`);
       process.exit();

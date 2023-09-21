@@ -49,8 +49,8 @@ export class CustomContainerLocalStart extends BaseLocalStart {
 
   async runStart() {
     const image = this.getRuntimeRunImage();
-    process.on('SIGINT', () => {
-      console.log('\nSIGINT, stop container');
+    process.on('DEVS:SIGINT', () => {
+      console.log('\nDEVS:SIGINT, stop container');
       const out = execSync(`docker ps -a | grep ${image} | awk '{print $1}' | xargs docker kill`);
       logger.debug(`stdout: ${out}`);
       process.exit();
