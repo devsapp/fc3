@@ -11,6 +11,7 @@ import provision from './provision';
 import layer from './layer';
 import instance from './instance';
 import build from './build';
+import local from './local';
 
 export default {
   deploy,
@@ -26,4 +27,5 @@ export default {
   layer,
   instance,
   build,
+  local,
 };

@@ -30,10 +30,8 @@ export class CustomContainerLocalStart extends BaseLocalStart {
 
   async getLocalStartCmdStr(): Promise<string> {
     const port = await portFinder.getPortPromise({ port: this.getCaPort() });
-    logger.info(
-      `You can use curl or Postman to make an HTTP request to 127.0.0.1:${port} to test the function.`,
-      'yellow',
-    );
+    const msg = `You can use curl or Postman to make an HTTP request to 127.0.0.1:${port} to test the function.`;
+    console.log('\x1b[33m%s\x1b[0m', msg);
     const mntStr = await this.getMountString();
     const envStr = await this.getEnvString();
     const image = await this.getRuntimeRunImage();

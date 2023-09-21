@@ -31,13 +31,12 @@ export class BaseLocalInvoke extends BaseLocal {
   }
 
   getEventString(): string {
-    const argsData = this.getArgsData();
-    const eventStr = _.get(argsData, 'event');
+    const eventStr = _.get(this._argsData, 'event');
     if (!_.isEmpty(_.trim(eventStr))) {
       return formatJsonString(eventStr);
     }
 
-    const eventFile = _.get(argsData, 'event-file');
+    const eventFile = _.get(this._argsData, 'event-file');
     if (eventFile && fs.existsSync(eventFile) && fs.statSync(eventFile).isFile()) {
       const str = fs.readFileSync(eventFile, 'utf-8');
       return formatJsonString(str);
