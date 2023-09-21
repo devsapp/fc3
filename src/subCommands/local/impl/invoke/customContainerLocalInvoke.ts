@@ -40,10 +40,9 @@ export class CustomContainerLocalInvoke extends BaseLocalInvoke {
 
   async getLocalInvokeCmdStr(): Promise<string> {
     const port = await portFinder.getPortPromise({ port: this.getCaPort() });
-    logger.log(
-      `You can use curl or Postman to make an HTTP request to 127.0.0.1:${port} to test the function. for example:`,
-      'yellow',
-    );
+    const msg = `You can use curl or Postman to make an HTTP request to 127.0.0.1:${port} to test the function.for example:`;
+    console.log('\x1b[33m%s\x1b[0m', msg);
+
     const credentials = await this.getCredentials();
 
     const image = await this.getRuntimeRunImage();
@@ -67,7 +66,7 @@ export class CustomContainerLocalInvoke extends BaseLocalInvoke {
       credentials.AccessKeySecret || ''
     }" -H "x-fc-security-token: ${credentials.SecurityToken || ''}" -d '${this.getEventString()}'`;
     logger.info('Use other terminals to initiate requests:');
-    logger.write(`${chalk.blue(curl)}\n`);
+    logger.write(`${chalk.yellow(curl)}\n`);
     return dockerCmdStr;
   }
 

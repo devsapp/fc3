@@ -31,19 +31,12 @@ export class BaseLocal {
   constructor(readonly inputs: IInputs) {
     this.baseDir = path.dirname(inputs.yaml?.path || process.cwd());
     logger.info(`Local baseDir is: ${this.baseDir}`);
-  }
-
-  getArgsData(): object {
-    if (!_.isEmpty(this._argsData)) {
-      return this._argsData;
-    }
     const argsData: { [key: string]: any } = parseArgv(this.inputs.args, {
-      string: ['event', 'event-file'],
-      alias: { event: 'e', 'event-file': 'f' },
+      string: ['event', 'event-file', 'config', 'debug-port'],
+      alias: { event: 'e', 'event-file': 'f', config: 'c', 'debug-port': 'd' },
     });
     logger.debug(`argsData ====> ${JSON.stringify(argsData)}`);
     this._argsData = argsData;
-    return this._argsData;
   }
 
   getFunctionTriggers(): any {
@@ -292,11 +285,11 @@ export class BaseLocal {
   }
 
   getDebugPort(): number {
-    return this.getArgsData()['debug-port'] as number;
+    return parseInt(this._argsData['debug-port']);
   }
 
   getDebugIDE(): string {
-    return this.getArgsData()['config'] as string;
+    return this._argsData['config'] as string;
   }
 
   debugIDEIsVsCode(): boolean {

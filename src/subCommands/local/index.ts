@@ -83,7 +83,9 @@ export default class ComponentBuild {
         await customContainerLocalInvoker.start();
         break;
       default:
-        logger.error(`${inputs.props.runtime} is not supported`);
+        logger.error(
+          `start command ${inputs.props.runtime} is not supported, only custom/custom.debian10/custom-container supported!`,
+        );
     }
   }
 }

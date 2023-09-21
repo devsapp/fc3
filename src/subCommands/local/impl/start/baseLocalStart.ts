@@ -31,9 +31,8 @@ export class BaseLocalStart extends BaseLocal {
 
   async getLocalStartCmdStr(): Promise<string> {
     const port = await portFinder.getPortPromise({ port: this.getCaPort() });
-    logger.info(
-      `You can use curl or Postman to make an HTTP request to 127.0.0.1:${port} to test the function`,
-    );
+    const msg = `You can use curl or Postman to make an HTTP request to 127.0.0.1:${port} to test the function`;
+    console.log('\x1b[33m%s\x1b[0m', msg);
     const mntStr = await this.getMountString();
     const envStr = await this.getEnvString();
     let dockerCmdStr = `docker run --platform linux/amd64 --rm -p ${port}:${this.getCaPort()} --memory=${this.getMemorySize()}m ${mntStr} ${envStr} ${await this.getRuntimeRunImage()} --http --server`;
