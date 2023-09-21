@@ -3,7 +3,8 @@ export default {
     description: `Synchronize online resources to offline resources.
 Example:
   $ s3 sync
-  $ s3 sync --target ./test --qualifier testAlias`,
+  $ s3 sync --target ./test --qualifier testAlias
+  $ s3 cli fc3 sync --region cn-hangzhou --function-name test -a default`,
     summary: 'Synchronize online resources to offline resources',
     option: [
       [
@@ -12,7 +13,7 @@ Example:
       ],
       ['--function-name <functionName>', '[C-Required] Specify function name'],
       [
-        '--target <target>',
+        '--target-dir <target-dir>',
         '[Optional] [Optional] Specify storage directory, default is current directory',
       ],
       ['--qualifier <qualifier>', '[Optional] Specify version or alias, default is LATEST'],

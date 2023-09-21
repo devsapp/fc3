@@ -17,11 +17,11 @@ export default class Plan {
     this.functionName = _.get(inputs, 'props.functionName');
 
     if (!this.region) {
-      throw new Error('Region not specified, please specify --region');
+      throw new Error('Region not specified');
     }
     logger.debug(`region: ${this.region}`);
     if (!this.functionName) {
-      throw new Error('Function name not specified, please specify --function-name');
+      throw new Error('Function name not specified');
     }
 
     this.triggers = _.get(inputs, 'props.triggers', []).map((item) =>

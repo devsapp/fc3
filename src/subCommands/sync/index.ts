@@ -3,7 +3,7 @@ import fs_extra from 'fs-extra';
 import _ from 'lodash';
 import yaml from 'js-yaml';
 import downloads from '@serverless-devs/downloads';
-import { IInputs, IRegion } from '../../interface';
+import { IInputs, IRegion, checkRegion } from '../../interface';
 import FC, { GetApiType } from '../../resources/fc';
 import { parseArgv } from '@serverless-devs/utils';
 import path from 'path';
@@ -27,7 +27,7 @@ export default class Sync {
       alias: { 'assume-yes': 'y' },
     });
 
-    if (fs.existsSync(target) && !fs.fstatSync(target).isDirectory()) {
+    if (fs.existsSync(target) && !fs.statSync(target).isDirectory()) {
       throw new Error(`--target-dir "${target}" exists, but is not a directory`);
     }
 
@@ -39,15 +39,11 @@ export default class Sync {
     logger.debug(`region: ${this.region}`);
     this.functionName = functionName || _.get(inputs, 'props.functionName');
     logger.debug(`function name: ${this.functionName}`);
-
-    if (!this.region) {
-      throw new Error('Region not specified, please specify --region');
-    }
     logger.debug(`region: ${this.region}`);
+    checkRegion(region);
     if (!this.functionName) {
       throw new Error('Function name not specified, please specify --function-name');
     }
-
     this.fcSdk = new FC(this.region, inputs.credential, {
       endpoint: inputs.props.endpoint,
     });
@@ -65,7 +61,9 @@ export default class Sync {
   write = async (functionConfig) => {
     const syncFolderName = 'sync-clone';
 
-    const baseDir = this.target ? this.target : path.join(this.inputs.baseDir, syncFolderName);
+    const baseDir = this.target
+      ? this.target
+      : path.join(this.inputs.baseDir || process.cwd(), syncFolderName);
     logger.debug(`sync base dir: ${baseDir}`);
     await fs_extra.removeSync(baseDir);
     logger.debug(`clear sync target path: ${baseDir}`);
