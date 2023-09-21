@@ -7,8 +7,12 @@ export default {
     get: {
       help: {
         description: `Get function concurrency detail.
-Example:
-  $ s3 concurrency get`,
+
+Examples with Yaml:
+  $ s3 concurrency get
+
+Examples with CLI:
+  $ s3 cli fc3 concurrency get --region cn-hangzhou --function-name test -a default`,
         summary: 'Get function concurrency detail',
         option: [
           [
@@ -22,8 +26,12 @@ Example:
     put: {
       help: {
         description: `Put function concurrency.
-Example:
-  $ s3 concurrency put --reserved-concurrency 5`,
+
+Examples with Yaml:
+  $ s3 concurrency put --reserved-concurrency 5
+
+Examples with CLI:
+  $ s3 cli fc3 concurrency put --reserved-concurrency 3 --region cn-hangzhou --function-name test -a default`,
         summary: 'Put function concurrency',
         option: [
           [
@@ -38,9 +46,13 @@ Example:
     remove: {
       help: {
         description: `Remove function concurrency.
-Example:
+
+Examples with Yaml:
   $ s3 concurrency remove
-  $ s3 concurrency remove -y`,
+  $ s3 concurrency remove -y
+
+Examples with CLI:
+  $ s3 cli fc3 concurrency remove --region cn-hangzhou --function-name test -a default`,
         summary: 'Remove function concurrency',
         option: [
           [

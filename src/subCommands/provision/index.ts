@@ -1,6 +1,6 @@
 import { parseArgv } from '@serverless-devs/utils';
 import commandsHelp from '../../commands-help/provision';
-import { IInputs, IRegion } from '../../interface';
+import { IInputs, IRegion, checkRegion } from '../../interface';
 import logger from '../../logger';
 import _ from 'lodash';
 import FC from '../../resources/fc';
@@ -61,16 +61,13 @@ export default class Provision {
     }
 
     this.region = region || _.get(inputs, 'props.region');
-    if (!this.region) {
-      throw new Error('Region not specified, please specify --region');
-    }
     logger.debug(`region: ${this.region}`);
+    checkRegion(this.region);
     this.functionName = functionName || _.get(inputs, 'props.functionName');
     if (!this.functionName) {
       throw new Error('Function name not specified, please specify --function-name');
     }
     this.qualifier = qualifier;
-
     this.yes = yes;
     this.subCommand = subCommand;
     this.alwaysAllocateCPU = alwaysAllocateCPU;
@@ -151,9 +148,10 @@ export default class Provision {
       await sleep(1.5);
       const { current } = (await this.get()) || {};
       if (current === 0 || !current) {
-        logger.spin('removed', 'function provision', `${this.functionName}/${this.qualifier}`);
-        return;
+        break;
       }
     }
+    logger.spin('removed', 'function provision', `${this.functionName}/${this.qualifier}`);
+    return;
   }
 }

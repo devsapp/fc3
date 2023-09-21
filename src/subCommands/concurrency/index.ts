@@ -1,6 +1,6 @@
 import { parseArgv } from '@serverless-devs/utils';
 import commandsHelp from '../../commands-help/concurrency';
-import { IInputs, IRegion } from '../../interface';
+import { IInputs, IRegion, checkRegion } from '../../interface';
 import logger from '../../logger';
 import _ from 'lodash';
 import FC from '../../resources/fc';
@@ -40,10 +40,8 @@ export default class Concurrency {
     }
 
     this.region = region || _.get(inputs, 'props.region');
-    if (!this.region) {
-      throw new Error('Region not specified, please specify --region');
-    }
     logger.debug(`region: ${this.region}`);
+    checkRegion(region);
     this.functionName = functionName || _.get(inputs, 'props.functionName');
     if (!this.functionName) {
       throw new Error('Function name not specified, please specify --function-name');

@@ -7,10 +7,13 @@ export default {
     exec: {
       help: {
         description: `Execute a command in a instance.
-Example:
+
+Examples with Yaml:
   $ s3 instance exec --instance-id c-64fec1fc-27c4833c325445879a28 --cmd "ls -lh"
   $ s3 instance exec --instance-id c-64fec1fc-27c4833c325445879a28
   $ s3 instance exec --instance-id \`s3 invoke  | grep "Invoke instanceId:" |  sed "s/.*: //"\`
+
+Examples with CLI:
   $ s3 cli fc3 instance --instance-id c-64fec1fc-27c4833c325445879a28 --region cn-hangzhou --function-name test -a default`,
         summary: 'Execute a command in a instance',
         option: [
