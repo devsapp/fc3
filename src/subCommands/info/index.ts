@@ -1,6 +1,6 @@
 import { ICredentials } from '@serverless-devs/component-interface';
 import _, { isEmpty } from 'lodash';
-import { RegionList, IInputs, IRegion } from '../../interface';
+import { IInputs, IRegion, checkRegion } from '../../interface';
 import FC, { GetApiType } from '../../resources/fc';
 import logger from '../../logger';
 
@@ -14,12 +14,12 @@ export default class Info {
   constructor(private inputs: IInputs) {
     this.region = _.get(inputs, 'props.region');
     this.functionName = _.get(inputs, 'props.functionName');
-    this.checkProps();
     this.triggersName = _.get(inputs, 'props.triggers', []).map((item) => item.triggerName);
     this.fcSdk = new FC(this.region, this.inputs.credential as ICredentials, {
       endpoint: inputs.props.endpoint,
     });
     this.getApiType = GetApiType.simple;
+    checkRegion(this.region);
   }
 
   public setGetApiType(type: GetApiType) {
@@ -85,16 +85,6 @@ export default class Info {
           message: ex.message,
         },
       };
-    }
-  }
-
-  private checkProps() {
-    if (!_.includes(RegionList, this.region)) {
-      throw new Error(`Invalid region: ${this.region}`);
-    }
-
-    if (!_.isString(this.functionName)) {
-      throw new Error(`Invalid functionName: ${this.region}`);
     }
   }
 }

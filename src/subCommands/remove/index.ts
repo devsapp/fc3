@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { IInputs, RegionList } from '../../interface';
+import { IInputs, IRegion, checkRegion } from '../../interface';
 import chalk from 'chalk';
 import logger from '../../logger';
 import FC from '../../resources/fc';
@@ -27,10 +27,8 @@ export default class Remove {
 
     const removeAll = !needRemoveFunction && !trigger;
 
-    const region = inputs.props.region;
-    if (!_.includes(RegionList, region)) {
-      throw new Error(`Invalid region: ${region}`);
-    }
+    const region: IRegion = inputs.props.region;
+    checkRegion(region);
     this.functionName = inputs.props?.functionName;
 
     if (removeAll || needRemoveFunction === true) {

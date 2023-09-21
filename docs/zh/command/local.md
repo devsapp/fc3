@@ -122,12 +122,15 @@ $ s local invoke --config intellij --debug-port 3000
 ##### step2：启动断点调试器
 
 - 打开 `Intellij` 界面，在菜单栏依次选择 `Run -> Edit Configurations`, 随后如下图所示，新建一个 `Remote JVM Debug`。
+
   ![](https://img.alicdn.com/imgextra/i3/O1CN01rauocH1lv5Y3crJOB_!!6000000004880-2-tps-1080-389.png)
 
 - 接着，自定义调试器名称，并将端口设置为 3000，如下图所示。
+
   ![](https://img.alicdn.com/imgextra/i4/O1CN01FRAQlP1cXQXeReL4z_!!6000000003610-2-tps-1080-817.png)
 
 - 最后，打开 s.yml 中 codeUri 存放的源代码，为其打上断点，接着点击开始调试按钮，如图所示。
+
   ![](https://img.alicdn.com/imgextra/i1/O1CN01uaa9LY1kBSTUS6hdp_!!6000000004645-2-tps-1080-663.png)
 
 ## 附录
