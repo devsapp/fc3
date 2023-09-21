@@ -1,7 +1,8 @@
 export default {
   help: {
     description: `Build the dependencies.
-Example:
+
+Examples:
   $ s3 build
   $ s3 build --dockerfile ./code/Dockerfile --context ./code
   $ s3 build --custom-env '{"myenv": "test"}' --custom-args='-i https://pypi.tuna.tsinghua.edu.cn/simple'

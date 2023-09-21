@@ -8,6 +8,7 @@ import { parseArgv } from '@serverless-devs/utils';
 import { promptForConfirmOrDetails, sleep } from '../../utils';
 
 export default class Remove {
+  private region: IRegion;
   private functionName: string;
   private yes: boolean = false;
   private resources: Record<string, any> = {};
@@ -20,16 +21,27 @@ export default class Remove {
         'assume-yes': 'y',
       },
       boolean: ['function'],
+      string: ['function-name', 'region'],
     });
     logger.debug(`parse argv: ${JSON.stringify(opts)}`);
 
-    const { function: needRemoveFunction, trigger, 'assume-yes': yes } = opts;
+    const {
+      region,
+      function: needRemoveFunction,
+      trigger,
+      'assume-yes': yes,
+      'function-name': functionName,
+    } = opts;
 
     const removeAll = !needRemoveFunction && !trigger;
 
-    const region: IRegion = inputs.props.region;
-    checkRegion(region);
-    this.functionName = inputs.props?.functionName;
+    this.region = region || _.get(inputs, 'props.region');
+    logger.debug(`region: ${this.region}`);
+    checkRegion(this.region);
+    this.functionName = functionName || _.get(inputs, 'props.functionName');
+    if (!this.functionName) {
+      throw new Error('Function name not specified, please specify --function-name');
+    }
 
     if (removeAll || needRemoveFunction === true) {
       this.resources.function = this.functionName;
@@ -48,12 +60,12 @@ export default class Remove {
       throw new Error('Function name not specified');
     }
 
-    logger.debug(`region ${region}`);
+    logger.debug(`region ${this.region}`);
     logger.debug(`function ${this.functionName}, needRemoveFunction: ${this.resources.function}`);
     logger.debug(`Appoint triggers ${this.resources.triggerNames}`);
 
     this.yes = yes;
-    this.fcSdk = new FC(region, inputs.credential, {
+    this.fcSdk = new FC(this.region, inputs.credential, {
       endpoint: inputs.props.endpoint,
     });
   }

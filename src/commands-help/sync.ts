@@ -1,9 +1,12 @@
 export default {
   help: {
     description: `Synchronize online resources to offline resources.
-Example:
+
+Examples with Yaml:
   $ s3 sync
   $ s3 sync --target ./test --qualifier testAlias
+
+Examples with CLI:
   $ s3 cli fc3 sync --region cn-hangzhou --function-name test -a default`,
     summary: 'Synchronize online resources to offline resources',
     option: [

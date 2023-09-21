@@ -1,8 +1,11 @@
 export default {
   help: {
     description: `Query online resource details.
-Example:
+
+Examples with Yaml:
   $ s3 info
+
+Examples with CLI:
   $ s3 cli fc3 info --region cn-hangzhou --function-name  test -a default`,
     summary: 'Query online resource details',
     option: [

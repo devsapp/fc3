@@ -1,7 +1,8 @@
 export default {
   help: {
     description: `Deploy local resources online.
-Example:
+
+Examples:
   $ s3 deploy
   $ s3 deploy --skip-push
   $ s3 deploy --function code

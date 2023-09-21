@@ -7,8 +7,11 @@ export default {
     list: {
       help: {
         description: `View the list of function versions.
-Example:
+
+Examples with Yaml:
   $ s3 version list
+
+Examples with CLI:
   $ s3 cli fc3 version list --region cn-hangzhou --function-name test -a default`,
         summary: 'View the list of function versions',
         option: [
@@ -23,9 +26,12 @@ Example:
     publish: {
       help: {
         description: `Publish function version.
-Example:
+
+Examples with Yaml:
   $ s3 version publish
   $ s3 version publish --description "test desc"
+
+Examples with CLI:
   $ s3 cli fc3 version publish --description "test desc" --region cn-hangzhou --function-name test -a default`,
         summary: 'Publish function version',
         option: [
@@ -41,9 +47,12 @@ Example:
     remove: {
       help: {
         description: `Remove function version.
-Example:
+
+Examples with Yaml:
   $ s3 version remove --version-id 123
   $ s3 version remove --version-id 123 -y
+
+Examples with CLI:
   $ s3 cli fc3 version remove --version-id 123 --region cn-hangzhou --function-name test -a default`,
         summary: 'Remove function version',
         option: [

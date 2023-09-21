@@ -18,3 +18,5 @@ package-lock.json
 .gitignore
 makefile
 README.md
+docs
+replace-committers.sh

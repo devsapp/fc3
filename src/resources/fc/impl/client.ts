@@ -291,6 +291,9 @@ export default class FC_Client {
     const result = await this.fc20230330Client.getProvisionConfig(functionName, request);
     const { body } = result.toMap();
     logger.debug(`Get ${functionName}(${qualifier}) provision body: ${JSON.stringify(body)}`);
+    if (_.isEmpty(body.functionArn)) {
+      return {};
+    }
     return body;
   }
 

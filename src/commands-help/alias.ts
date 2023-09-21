@@ -7,8 +7,11 @@ export default {
     get: {
       help: {
         description: `Get alias details.
-Example:
+
+Examples with Yaml:
   $ s3 alias get --alias-name aliasName
+
+Examples with CLI:
   $ s3 cli fc3 alias get --alias-name aliasName --region cn-hangzhou --function-name test -a default`,
         summary: 'Get alias details ',
         option: [
@@ -24,9 +27,12 @@ Example:
     list: {
       help: {
         description: `View the list of function aliases.
-Example:
+
+Examples with Yaml:
   $ s3 alias list
   $ s3 alias list --table
+
+Examples with CLI:
   $ s3 cli fc3 alias list --table --region cn-hangzhou --function-name test -a default`,
         summary: 'View the list of function aliases',
         option: [
@@ -42,10 +48,13 @@ Example:
     publish: {
       help: {
         description: `Publish function alias.
-Example:
+
+Examples with Yaml:
   $ s3 alias publish --alias-name aliasName --version-id latest
   $ s3 alias publish --alias-name aliasName --version-id 123 --description "this is description"
   $ s3 alias publish --alias-name aliasName --version-id 123 --vw "{\\"2\\":0.2}"
+
+Examples with CLI:
   $ s3 cli fc3 alias publish --alias-name aliasName --version-id 123 --region cn-hangzhou --function-name test -a default`,
         summary: 'Publish function alias',
         option: [
@@ -67,9 +76,12 @@ Example:
     remove: {
       help: {
         description: `Remove function alias.
-Example:
+
+Examples with Yaml:
   $ s3 alias remove --alias-name aliasName
   $ s3 alias remove --alias-name aliasName -y
+
+Examples with CLI:
   $ s3 cli fc3 alias remove --alias-name aliasName --region cn-hangzhou --function-name test -a default`,
         summary: 'Remove function alias',
         option: [
