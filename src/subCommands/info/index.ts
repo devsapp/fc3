@@ -3,6 +3,7 @@ import _, { isEmpty } from 'lodash';
 import { IInputs, IRegion, checkRegion } from '../../interface';
 import FC, { GetApiType } from '../../resources/fc';
 import logger from '../../logger';
+import { parseArgv } from '@serverless-devs/utils';
 
 export default class Info {
   readonly region: IRegion;
@@ -12,14 +13,26 @@ export default class Info {
   getApiType: GetApiType;
 
   constructor(private inputs: IInputs) {
-    this.region = _.get(inputs, 'props.region');
-    this.functionName = _.get(inputs, 'props.functionName');
+    const opts = parseArgv(inputs.args, {
+      alias: { help: 'h' },
+      boolean: ['help'],
+      string: ['region', 'function-name'],
+    });
+    logger.debug(`layer opts: ${JSON.stringify(opts)}`);
+
+    const { region, 'function-name': functionName } = opts;
+    this.region = region || _.get(inputs, 'props.region', '');
+    logger.debug(`${this.region}`);
+    checkRegion(this.region);
+    this.functionName = functionName || _.get(inputs, 'props.functionName');
+    if (_.isEmpty(this.functionName)) {
+      throw new Error('functionName not specified, please specify --function-name');
+    }
     this.triggersName = _.get(inputs, 'props.triggers', []).map((item) => item.triggerName);
     this.fcSdk = new FC(this.region, this.inputs.credential as ICredentials, {
       endpoint: inputs.props.endpoint,
     });
     this.getApiType = GetApiType.simple;
-    checkRegion(this.region);
   }
 
   public setGetApiType(type: GetApiType) {
