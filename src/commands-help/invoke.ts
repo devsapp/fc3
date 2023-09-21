@@ -4,7 +4,8 @@ export default {
 Example:
   $ s3 invoke -e \'{"key": "val"}
   $ s3 invoke -f evt.json
-  $ s3 invoke ---invocation-type async`,
+  $ s3 invoke ---invocation-type async
+  $ s3 cli fc3 invoke -e "payload" --region cn-huhehaote --function-name test -a default`,
     summary: 'Invoke online functions',
     option: [
       [

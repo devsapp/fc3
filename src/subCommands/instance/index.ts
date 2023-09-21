@@ -1,6 +1,6 @@
 import { parseArgv } from '@serverless-devs/utils';
 import commandsHelp from '../../commands-help/instance';
-import { IInputs, IRegion } from '../../interface';
+import { IInputs, IRegion, checkRegion } from '../../interface';
 import logger from '../../logger';
 import _ from 'lodash';
 import FC from '../../resources/fc';
@@ -31,9 +31,7 @@ export default class Instance {
     }
 
     this.region = region || _.get(inputs, 'props.region');
-    if (!this.region) {
-      throw new Error('Region not specified, please specify --region');
-    }
+    checkRegion(this.region);
     logger.debug(`region: ${this.region}`);
 
     this.subCommand = subCommand;
