@@ -37,10 +37,9 @@ export default class Sync {
     logger.debug(`qualifier: ${qualifier}`);
     this.region = region || _.get(inputs, 'props.region');
     logger.debug(`region: ${this.region}`);
+    checkRegion(this.region);
     this.functionName = functionName || _.get(inputs, 'props.functionName');
     logger.debug(`function name: ${this.functionName}`);
-    logger.debug(`region: ${this.region}`);
-    checkRegion(region);
     if (!this.functionName) {
       throw new Error('Function name not specified, please specify --function-name');
     }

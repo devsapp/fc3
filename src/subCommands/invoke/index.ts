@@ -4,7 +4,7 @@ import fs from 'fs';
 import _ from 'lodash';
 import path from 'path';
 
-import { IInputs } from '../../interface';
+import { IInputs, IRegion, checkRegion } from '../../interface';
 import logger from '../../logger';
 import FC from '../../resources/fc';
 import { parseArgv } from '@serverless-devs/utils';
@@ -16,9 +16,9 @@ export default class Invoke {
   private qualifier: string;
   private invokeType: string;
   private statefulAsyncInvocationId: string;
+  private region: IRegion;
 
   constructor(inputs: IInputs) {
-    this.functionName = inputs.props?.functionName;
     let {
       event: payload,
       'event-file': eventFile,
@@ -26,13 +26,22 @@ export default class Invoke {
       qualifier,
       'stateful-async-invocation-id': statefulAsyncInvocationId,
       timeout,
+      region,
+      'function-name': functionName,
     } = parseArgv(inputs.args, {
       alias: {
         event: 'e',
         'event-file': 'f',
       },
-      string: ['event', 'event-file', 'timeout'],
+      string: ['event', 'event-file', 'timeout', 'region', 'function-name'],
     });
+    this.region = region || _.get(inputs, 'props.region');
+    logger.debug(`region: ${this.region}`);
+    checkRegion(this.region);
+    this.functionName = functionName || inputs.props?.functionName;
+    if (_.isEmpty(this.functionName)) {
+      throw new Error('functionName not specified, please specify --function-name');
+    }
     if (!timeout) {
       timeout = inputs.props?.timeout + 5; // 加大5s
       if (FC.isCustomContainerRuntime(inputs.props.runtime)) {
@@ -41,7 +50,7 @@ export default class Invoke {
     } else {
       timeout = parseInt(timeout);
     }
-    this.fcSdk = new FC(inputs.props.region, inputs.credential as ICredentials, {
+    this.fcSdk = new FC(this.region, inputs.credential as ICredentials, {
       timeout: timeout ? timeout * 1000 : undefined,
       endpoint: inputs.props.endpoint,
     });
