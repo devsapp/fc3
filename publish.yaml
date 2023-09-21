@@ -3,7 +3,7 @@ Type: Component
 Name: fc3
 Provider:
   - 阿里云
-Version: dev.0.25
+Version: dev.0.26
 Description: 简短的描述/介绍
 HomePage: https://github.com/devsapp/fc3
 Organization: 阿里云函数计算（FC）

@@ -1,6 +1,6 @@
 import { parseArgv } from '@serverless-devs/utils';
 import commandsHelp from '../../commands-help/layer';
-import { IInputs, IRegion } from '../../interface';
+import { IInputs, IRegion, checkRegion } from '../../interface';
 import logger from '../../logger';
 import _ from 'lodash';
 import FC from '../../resources/fc';
@@ -50,13 +50,9 @@ export default class Layer {
         `Command "${subCommand}" not found, Please use "s cli fc3 layer -h" to query how to use the command`,
       );
     }
-
-    this.region = region || _.get(inputs, 'props.region');
-    if (!this.region) {
-      throw new Error('Region not specified, please specify --region');
-    }
-    logger.debug(`region: ${this.region}`);
-
+    this.region = region || _.get(inputs, 'props.region', '');
+    logger.debug(`${this.region}`);
+    checkRegion(this.region);
     this.yes = y;
     this.subCommand = subCommand;
     this.fcSdk = new FC(this.region, inputs.credential, {

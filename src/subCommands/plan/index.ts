@@ -66,6 +66,7 @@ export default class Plan {
     _.unset(local, 'region');
     _.unset(local, 'triggers');
     _.unset(local, 'asyncInvokeConfig');
+    _.unset(local, 'endpoint');
     const config = FC.replaceFunctionConfig(local, remote);
     return diffConvertPlanYaml(config.remote, config.local, { deep: 0, complete: true });
   }
