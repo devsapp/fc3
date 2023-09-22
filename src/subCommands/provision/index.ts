@@ -68,7 +68,7 @@ export default class Provision {
       throw new Error('Function name not specified, please specify --function-name');
     }
     this.qualifier = qualifier;
-    this.yes = yes;
+    this.yes = !!yes;
     this.subCommand = subCommand;
     this.alwaysAllocateCPU = alwaysAllocateCPU;
     this.scheduledActions = scheduledActions;

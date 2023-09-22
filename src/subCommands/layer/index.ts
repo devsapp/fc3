@@ -58,7 +58,7 @@ export default class Layer {
     this.region = region || _.get(inputs, 'props.region', '');
     logger.debug(`${this.region}`);
     checkRegion(this.region);
-    this.yes = y;
+    this.yes = !!y;
     this.subCommand = subCommand;
     this.fcSdk = new FC(this.region, inputs.credential, {
       endpoint: inputs.props.endpoint,

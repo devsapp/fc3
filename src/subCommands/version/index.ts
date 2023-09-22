@@ -40,7 +40,7 @@ export default class Version {
         `Command "${subCommand}" not found, Please use "s cli fc3 version -h" to query how to use the command`,
       );
     }
-    this.yes = yes;
+    this.yes = !!yes;
     this.subCommand = subCommand;
     this.description = description;
     this.versionId = versionId;

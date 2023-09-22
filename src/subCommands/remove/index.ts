@@ -64,7 +64,7 @@ export default class Remove {
     logger.debug(`function ${this.functionName}, needRemoveFunction: ${this.resources.function}`);
     logger.debug(`Appoint triggers ${this.resources.triggerNames}`);
 
-    this.yes = yes;
+    this.yes = !!yes;
     this.fcSdk = new FC(this.region, inputs.credential, {
       endpoint: inputs.props.endpoint,
     });

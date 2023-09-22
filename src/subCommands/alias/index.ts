@@ -62,7 +62,7 @@ export default class Alias {
       throw new Error('Function name not specified, please specify --function-name');
     }
     logger.debug(`function name: ${this.functionName}`);
-    this.yes = yes;
+    this.yes = !!yes;
     this.table = table;
     this.subCommand = subCommand;
     this.description = description;
