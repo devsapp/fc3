@@ -50,7 +50,7 @@ export default class Concurrency {
     this.reservedConcurrency = reservedConcurrency ? Number(reservedConcurrency) : undefined;
     logger.debug(`reservedConcurrency: ${reservedConcurrency}`);
 
-    this.yes = yes;
+    this.yes = !!yes;
     this.subCommand = subCommand;
 
     this.fcSdk = new FC(this.region, inputs.credential, {
