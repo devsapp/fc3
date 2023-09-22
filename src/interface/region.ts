@@ -1,5 +1,3 @@
-import _ from 'lodash';
-
 enum Region {
   'cn-hangzhou' = 'cn-hangzhou',
   'cn-shanghai' = 'cn-shanghai',
@@ -26,13 +24,13 @@ enum Region {
 
 export type IRegion = `${Region}`;
 
-export const RegionList = Object.values(Region);
+export const RegionList = Object.values(Region) as string[];
 
 export function checkRegion(r: IRegion): boolean {
   if (!r) {
     throw new Error('Region not specified, please specify --region');
   }
-  if (!_.includes(RegionList, r)) {
+  if (!RegionList.includes(r)) {
     throw new Error(`Invalid region, The allowed regions are ${RegionList}`);
   }
   return true;

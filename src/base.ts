@@ -33,7 +33,11 @@ export default class Base {
     const functionRole = await this.handleRole(role, needCredential, inputs);
     _.set(inputs, 'props.role', functionRole);
 
-    inputs.baseDir = path.dirname(inputs.yaml?.path || process.cwd());
+    if (inputs.yaml?.path) {
+      inputs.baseDir = path.dirname(inputs.yaml?.path);
+    } else {
+      inputs.baseDir = process.cwd();
+    }
     logger.debug(`baseDir is: ${inputs.baseDir}`);
 
     if (

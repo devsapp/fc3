@@ -41,7 +41,7 @@ export default class Concurrency {
 
     this.region = region || _.get(inputs, 'props.region');
     logger.debug(`region: ${this.region}`);
-    checkRegion(region);
+    checkRegion(this.region);
     this.functionName = functionName || _.get(inputs, 'props.functionName');
     if (!this.functionName) {
       throw new Error('Function name not specified, please specify --function-name');

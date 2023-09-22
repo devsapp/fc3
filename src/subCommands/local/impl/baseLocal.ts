@@ -29,7 +29,11 @@ export class BaseLocal {
   private baseDir: string;
 
   constructor(readonly inputs: IInputs) {
-    this.baseDir = path.dirname(inputs.yaml?.path || process.cwd());
+    if (inputs.yaml?.path) {
+      this.baseDir = path.dirname(inputs.yaml?.path);
+    } else {
+      this.baseDir = process.cwd();
+    }
     logger.info(`Local baseDir is: ${this.baseDir}`);
     const argsData: { [key: string]: any } = parseArgv(this.inputs.args, {
       string: ['event', 'event-file', 'config', 'debug-port'],

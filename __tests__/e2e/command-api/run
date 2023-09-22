@@ -5,7 +5,7 @@ set -v
 
 export fc_component_function_name=node16-$(uname)-$(uname -m)-$RANDSTR
 
-echo "test command cli ..."
+echo "test command instance/version/alias/concurrency/provision ..."
 s3 deploy -y
 
 s3  instance exec --instance-id `s3 invoke  | grep "Invoke instanceId:" |  sed "s/.*: //"` --cmd 'ls -lh'
@@ -36,3 +36,16 @@ s3 provision list
 s3 provision put --qualifier test --target 2 
 
 s3 remove -y
+
+
+echo "test layer ..."
+export layer_name=pyyaml-layer-$(uname)-$(uname -m)-$RANDSTR
+s3 layer list 
+s3 layer list --prefix python
+s3 layer info --layer-name Python39-Aliyun-SDK --version-id 2
+s3 layer download --layer-name Python39-Aliyun-SDK --version-id 2
+s3 layer publish --layer-name $layer_name --code ./pyyaml-layer.zip --compatible-runtime "python3.9,python3.10,custom,custom.debian10"
+s3 layer list --prefix $layer_name
+s3 layer list --prefix $layer_name --table
+s3 layer versions --layer-name $layer_name
+s3 layer remove -y --layer-name $layer_name

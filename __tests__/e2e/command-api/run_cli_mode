@@ -1,0 +1,57 @@
+#!/bin/bash
+
+set -e
+set -v 
+
+export fc_component_function_name=node16-cli-$(uname)-$(uname -m)-$RANDSTR
+functionName=fc3-command-$fc_component_function_name
+s3 remove -y
+
+echo "test command instance/version/alias/concurrency/provision ..."
+s3 deploy -y
+instanceId=`s3 invoke  | grep "Invoke instanceId:" |  sed "s/.*: //"`
+
+# 故意跳转到其他目录
+cd ../
+
+s3 cli fc3@dev instance exec --instance-id $instanceId --cmd 'pwd' --region cn-huhehaote --function-name $functionName  -a quanxi
+s3 cli fc3@dev instance list --region cn-huhehaote --function-name $functionName  -a quanxi
+
+
+s3 cli fc3@dev version publish --description "test version" --region cn-huhehaote --function-name $functionName  -a quanxi
+s3 cli fc3@dev version list --region cn-huhehaote --function-name $functionName  -a quanxi
+s3 cli fc3@dev version remove --version-id latest  -y --region cn-huhehaote --function-name $functionName  -a quanxi
+s3 cli fc3@dev version publish --description "test version2" --region cn-huhehaote --function-name $functionName  -a quanxi
+
+s3 cli fc3@dev concurrency put --reserved-concurrency 80 --region cn-huhehaote --function-name $functionName  -a quanxi
+s3 cli fc3@dev concurrency get --region cn-huhehaote --function-name $functionName  -a quanxi
+s3 cli fc3@dev concurrency remove -y --region cn-huhehaote --function-name $functionName  -a quanxi
+
+s3 cli fc3@dev alias list --region cn-huhehaote --function-name $functionName  -a quanxi
+s3 cli fc3@dev alias publish --alias-name test --version-id latest --region cn-huhehaote --function-name $functionName  -a quanxi
+s3 cli fc3@dev alias get --alias-name test --region cn-huhehaote --function-name $functionName  -a quanxi
+s3 cli fc3@dev alias list --region cn-huhehaote --function-name $functionName  -a quanxi
+s3 cli fc3@dev alias list --table --region cn-huhehaote --function-name $functionName  -a quanxi
+s3 cli fc3@dev alias remove --alias-name test  -y --region cn-huhehaote --function-name $functionName  -a quanxi
+s3 cli fc3@dev alias publish --alias-name test --version-id latest --region cn-huhehaote --function-name $functionName  -a quanxi
+
+s3 cli fc3@dev provision put --qualifier test --ac --target 2 --scheduled-actions '[{"name":"scheduled-actions","startTime":"2023-08-15T02:04:00.000Z","endTime":"2033-08-15T02:04:00.000Z","target":1,"scheduleExpression":"cron(0 0 4 * * *)"}]' --target-tracking-policies '[{"name":"target-tracking-policies","startTime":"2023-08-15T02:05:00.000Z","endTime":"2033-08-15T02:05:00.000Z","metricType":"ProvisionedConcurrencyUtilization","metricTarget":0.6,"minCapacity":1,"maxCapacity":3}]' --region cn-huhehaote --function-name $functionName  -a quanxi
+s3 cli fc3@dev provision get --qualifier test --region cn-huhehaote --function-name $functionName  -a quanxi
+s3 cli fc3@dev provision list --region cn-huhehaote --function-name $functionName  -a quanxi
+s3 cli fc3@dev provision remove --qualifier test -y --region cn-huhehaote --function-name $functionName  -a quanxi
+s3 cli fc3@dev provision list --region cn-huhehaote --function-name $functionName  -a quanxi
+s3 cli fc3@dev provision put --qualifier test --target 2  --region cn-huhehaote --function-name $functionName  -a quanxi
+
+s3 cli fc3@dev remove -y  --region cn-huhehaote --function-name $functionName  -a quanxi
+
+
+cd ./command-api
+export layer_name=pyyaml-layer-$(uname)-$(uname -m)-$RANDSTR
+s3 cli fc3@dev layer list --prefix python --region cn-huhehaote -a quanxi
+s3 cli fc3@dev layer info --layer-name Python39-Aliyun-SDK --version-id 2 --region cn-huhehaote -a quanxi 
+s3 cli fc3@dev layer download --layer-name Python39-Aliyun-SDK --version-id 2 --region cn-huhehaote -a quanxi
+s3 cli fc3@dev layer publish --layer-name $layer_name --code ./pyyaml-layer.zip --compatible-runtime "python3.9,python3.10,custom,custom.debian10" --region cn-huhehaote -a quanxi --debug
+s3 cli fc3@dev layer list --prefix $layer_name --region cn-huhehaote -a quanxi
+s3 cli fc3@dev layer list --prefix $layer_name --table --region cn-huhehaote -a quanxi
+s3 cli fc3@dev layer versions --layer-name $layer_name --region cn-huhehaote -a quanxi
+s3 cli fc3@dev layer remove -y --layer-name $layer_name --region cn-huhehaote -a quanxi

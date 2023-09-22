@@ -70,7 +70,6 @@ jobs:
         run: |
           cd __tests__/e2e && ./ci.sh && cd -
 
-
   linux-ci:
     runs-on: ubuntu-latest
     steps:

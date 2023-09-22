@@ -54,6 +54,4 @@ cd ..
 
 echo " *********  command-api *********"
 cd command-api && ./run && cd -
-
-echo " *********  test alyer *********"
-cd command-api && ./layer-run && cd -
+cd command-api && ./run_cli_mode && cd -
