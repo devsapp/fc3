@@ -84,7 +84,6 @@ export default class Layer {
       }
     }
     let list = await this.fcSdk.listAllLayers(query);
-    console.log(JSON.stringify(list));
 
     if (this.opts.table) {
       const showKey = [

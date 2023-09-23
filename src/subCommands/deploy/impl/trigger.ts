@@ -26,6 +26,8 @@ export default class Trigger extends Base {
     const local = _.cloneDeep(_.get(inputs, 'props.triggers', []));
     const triggerNames = local.map((item) => item.triggerName);
 
+    logger.debug(local);
+
     // 如果指定了 trigger 为字符串，则认为指定了 trigger name
     if (_.isString(opts.trigger) && opts.trigger !== '') {
       const onlyDeployTrigger = opts.trigger.split(',');

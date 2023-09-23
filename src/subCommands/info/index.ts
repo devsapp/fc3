@@ -88,6 +88,9 @@ export default class Info {
   }
 
   async getAsyncInvokeConfig(): Promise<any> {
+    if (!this.inputs.props.asyncInvokeConfig) {
+      return {};
+    }
     try {
       return await this.fcSdk.getAsyncInvokeConfig(this.functionName, 'LATEST', this.getApiType);
     } catch (ex) {

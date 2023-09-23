@@ -617,7 +617,7 @@ export default class FC extends FC_Client {
   }
 
   async putLayerACL(layerName: string, isPublic: string) {
-    console.log(isPublic);
+    logger.debug(`isPublic=${isPublic}`);
     await this.fc20230330Client.putLayerACL(
       layerName,
       new PutLayerACLRequest({ public: isPublic }),

@@ -27,7 +27,7 @@ jobs:
           brew install curl wget
       - name: install s
         run: |
-          npm i @xsahxl/s@3.x -g
+          npm i @serverless-devs/s3 -g
       - name: config s
         run: |
           s3 config add --AccountID  ${{secrets.ACCOUNTID}} --AccountID  ${{secrets.ACCOUNTID}} --AccessKeyID ${{secrets.ACCESSKEYID}} --AccessKeySecret ${{secrets.ACCESSKEYSECRET}} -a quanxi -f
@@ -56,7 +56,7 @@ jobs:
           choco install -y curl
       - name: install s
         run: |
-          npm i @xsahxl/s@3.x -g
+          npm i @serverless-devs/s3 -g
       - name: config s
         run: |
           s3 config add --AccountID  ${{secrets.ACCOUNTID}} --AccessKeyID ${{secrets.ACCESSKEYID}} --AccessKeySecret ${{secrets.ACCESSKEYSECRET}} -a quanxi -f
@@ -68,7 +68,7 @@ jobs:
           npm run build
       - name: run base ci 
         run: |
-          cd __tests__/e2e && ./ci.sh && cd -
+          powershell -File __tests__/e2e/ci-windows.ps1
 
   linux-ci:
     runs-on: ubuntu-latest
@@ -84,7 +84,7 @@ jobs:
           sudo apt-get install -y wget curl
       - name: install s
         run: |
-          npm i @xsahxl/s@3.x -g
+          npm i @serverless-devs/s3 -g
       - name: config s
         run: |
           s3 config add --AccountID  ${{secrets.ACCOUNTID}} --AccessKeyID ${{secrets.ACCESSKEYID}} --AccessKeySecret ${{secrets.ACCESSKEYSECRET}} -a quanxi -f
