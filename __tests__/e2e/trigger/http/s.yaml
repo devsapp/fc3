@@ -19,24 +19,24 @@ resources:
       # vpcConfig: auto
       # nasConfig: auto
       # logConfig: auto
-    triggers:
-      - triggerName: http_t2 # 触发器名称
-        triggerType: http # 触发器类型
-        description: 'http trigger --> test'
-        qualifier: test # 触发服务的版本
-        triggerConfig:
-          authType: function # 鉴权类型，可选值：anonymous、function
-          disableURLInternet: false # 是否禁用公网访问 URL
-          methods: # HTTP 触发器支持的访问方法，可选值：GET、POST、PUT、DELETE、HEAD
-            - GET
-            - POST
-      - triggerName: http_t # 触发器名称
-        triggerType: http # 触发器类型
-        description: 'http trigger --> LATEST'
-        #qualifier: LATEST # 触发服务的版本
-        triggerConfig:
-          authType: anonymous # 鉴权类型，可选值：anonymous、function
-          disableURLInternet: false # 是否禁用公网访问 URL
-          methods: # HTTP 触发器支持的访问方法，可选值：GET、POST、PUT、DELETE、HEAD
-            - GET
-            - POST
+      triggers:
+        - triggerName: http_t2 # 触发器名称
+          triggerType: http # 触发器类型
+          description: 'http trigger --> test'
+          qualifier: test # 触发服务的版本
+          triggerConfig:
+            authType: function # 鉴权类型，可选值：anonymous、function
+            disableURLInternet: false # 是否禁用公网访问 URL
+            methods: # HTTP 触发器支持的访问方法，可选值：GET、POST、PUT、DELETE、HEAD
+              - GET
+              - POST
+        - triggerName: http_t # 触发器名称
+          triggerType: http # 触发器类型
+          description: 'http trigger --> LATEST'
+          #qualifier: LATEST # 触发服务的版本
+          triggerConfig:
+            authType: anonymous # 鉴权类型，可选值：anonymous、function
+            disableURLInternet: false # 是否禁用公网访问 URL
+            methods: # HTTP 触发器支持的访问方法，可选值：GET、POST、PUT、DELETE、HEAD
+              - GET
+              - POST

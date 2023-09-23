@@ -56,7 +56,7 @@ export default class Plan {
       remote = await this.fcSdk.getFunction(this.functionName, GetApiType.simpleUnsupported);
     } catch (ex) {
       logger.debug(`Get remote function config error: ${ex.message}`);
-      console.log(JSON.stringify(ex));
+      //console.log(JSON.stringify(ex));
       if (ex.code === FC_API_ERROR_CODE.FunctionNotFound) {
         remote = {};
       }

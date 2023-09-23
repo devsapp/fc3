@@ -34,7 +34,7 @@ jobs:
           brew install wget curl
       - name: install s
         run: |
-          npm i @xsahxl/s@3.x -g
+          npm i @serverless-devs/s3 -g
       - name: config s
         run: |
           s3 config add --AccountID  ${{secrets.ACCOUNTID}} --AccessKeyID ${{secrets.ACCESSKEYID}} --AccessKeySecret ${{secrets.ACCESSKEYSECRET}} -a quanxi -f
