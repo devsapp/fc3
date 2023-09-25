@@ -81,6 +81,14 @@ export default class Sync {
       functionConfig.code = codePath;
     }
 
+    if (functionConfig.role) {
+      let role = functionConfig.role as string;
+      functionConfig.role = role.toLowerCase();
+    }
+
+    let props = { region: this.region };
+    props = Object.assign(props, functionConfig);
+
     const config = {
       edition: '3.0.0',
       name: this.inputs.name,
@@ -88,10 +96,7 @@ export default class Sync {
       resources: {
         [this.inputs.resource.name]: {
           component: 'fc',
-          props: {
-            region: this.region,
-            function: functionConfig,
-          },
+          props: props,
         },
       },
     };
