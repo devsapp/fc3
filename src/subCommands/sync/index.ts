@@ -95,7 +95,7 @@ export default class Sync {
       access: this.inputs.resource.access,
       resources: {
         [this.inputs.resource.name]: {
-          component: 'fc',
+          component: 'fc3',
           props: props,
         },
       },

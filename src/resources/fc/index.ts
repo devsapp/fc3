@@ -426,8 +426,8 @@ export default class FC extends FC_Client {
         needUpdate = true;
       }
     }
-
-    await this.updateAlias(functionName, aliasName, config);
+    const ret = await this.updateAlias(functionName, aliasName, config);
+    return ret.body;
   }
 
   /**

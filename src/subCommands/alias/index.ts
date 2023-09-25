@@ -124,7 +124,7 @@ export default class Alias {
       description: this.description,
       additionalVersionWeight: additionalVersionWeight,
     };
-    await this.fcSdk.publishAlias(this.functionName, this.aliasName, config);
+    return await this.fcSdk.publishAlias(this.functionName, this.aliasName, config);
   }
 
   async remove() {
@@ -140,7 +140,6 @@ export default class Alias {
         return;
       }
     }
-
     await this.fcSdk.removeAlias(this.functionName, this.aliasName);
   }
 }
