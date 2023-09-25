@@ -12,7 +12,8 @@
     "generate-schema": "npx typescript-json-schema ./src/interface/index.ts IProps --required -o ./dist/schema.json",
     "prepare": "husky install",
     "postinstall": "curl -sS https://images.devsapp.cn/pop-sdk/fix-sdk.sh | bash",
-    "watch": "tsc -w"
+    "watch": "tsc -w",
+    "publish": "npm i && npm run build && s3 registry publish"
   },
   "repository": "git@gitlab.alibaba-inc.com:serverless-devs/fc.git",
   "keywords": [],
