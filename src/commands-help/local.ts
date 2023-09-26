@@ -3,10 +3,10 @@ export default {
     description: `Local invoke fc function.
 
 Examples:
-  $ s3 local invoke -e '{"key":"val"}'
-  $ s3 local invoke -f evt.json
-  $ s3 local invoke -e '{"key":"val"}' -c vscode -d 3000 
-  $ s3 local start`,
+  $ s local invoke -e '{"key":"val"}'
+  $ s local invoke -f evt.json
+  $ s local invoke -e '{"key":"val"}' -c vscode -d 3000 
+  $ s local start`,
     summary: 'Local invoke fc function',
     option: [
       [

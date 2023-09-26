@@ -9,10 +9,10 @@ export default {
         description: `Get alias details.
 
 Examples with Yaml:
-  $ s3 alias get --alias-name aliasName
+  $ s alias get --alias-name aliasName
 
 Examples with CLI:
-  $ s3 cli fc3 alias get --alias-name aliasName --region cn-hangzhou --function-name test -a default`,
+  $ s cli fc3 alias get --alias-name aliasName --region cn-hangzhou --function-name test -a default`,
         summary: 'Get alias details ',
         option: [
           [
@@ -29,11 +29,11 @@ Examples with CLI:
         description: `View the list of function aliases.
 
 Examples with Yaml:
-  $ s3 alias list
-  $ s3 alias list --table
+  $ s alias list
+  $ s alias list --table
 
 Examples with CLI:
-  $ s3 cli fc3 alias list --table --region cn-hangzhou --function-name test -a default`,
+  $ s cli fc3 alias list --table --region cn-hangzhou --function-name test -a default`,
         summary: 'View the list of function aliases',
         option: [
           [
@@ -50,12 +50,12 @@ Examples with CLI:
         description: `Publish function alias.
 
 Examples with Yaml:
-  $ s3 alias publish --alias-name aliasName --version-id latest
-  $ s3 alias publish --alias-name aliasName --version-id 123 --description "this is description"
-  $ s3 alias publish --alias-name aliasName --version-id 123 --vw "{\\"2\\":0.2}"
+  $ s alias publish --alias-name aliasName --version-id latest
+  $ s alias publish --alias-name aliasName --version-id 123 --description "this is description"
+  $ s alias publish --alias-name aliasName --version-id 123 --vw "{\\"2\\":0.2}"
 
 Examples with CLI:
-  $ s3 cli fc3 alias publish --alias-name aliasName --version-id 123 --region cn-hangzhou --function-name test -a default`,
+  $ s cli fc3 alias publish --alias-name aliasName --version-id 123 --region cn-hangzhou --function-name test -a default`,
         summary: 'Publish function alias',
         option: [
           [
@@ -78,11 +78,11 @@ Examples with CLI:
         description: `Remove function alias.
 
 Examples with Yaml:
-  $ s3 alias remove --alias-name aliasName
-  $ s3 alias remove --alias-name aliasName -y
+  $ s alias remove --alias-name aliasName
+  $ s alias remove --alias-name aliasName -y
 
 Examples with CLI:
-  $ s3 cli fc3 alias remove --alias-name aliasName --region cn-hangzhou --function-name test -a default`,
+  $ s cli fc3 alias remove --alias-name aliasName --region cn-hangzhou --function-name test -a default`,
         summary: 'Remove function alias',
         option: [
           [

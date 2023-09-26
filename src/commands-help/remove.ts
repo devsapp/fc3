@@ -3,14 +3,14 @@ export default {
     description: `Remove resources online.
 
 Examples with Yaml:
-  $ s3 remove
-  $ s3 remove -y
-  $ s3 remove --trigger
-  $ s3 remove --trigger triggerName
-  $ s3 remove --trigger triggerName1,trigggerName2
+  $ s remove
+  $ s remove -y
+  $ s remove --trigger
+  $ s remove --trigger triggerName
+  $ s remove --trigger triggerName1,trigggerName2
 
 Examples with CLI:
-  $ s3 cli fc3 remove --region cn-hangzhou --function-name test -a default`,
+  $ s cli fc3 remove --region cn-hangzhou --function-name test -a default`,
     summary: 'Remove resources online',
     option: [
       [
