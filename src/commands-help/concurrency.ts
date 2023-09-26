@@ -9,10 +9,10 @@ export default {
         description: `Get function concurrency detail.
 
 Examples with Yaml:
-  $ s3 concurrency get
+  $ s concurrency get
 
 Examples with CLI:
-  $ s3 cli fc3 concurrency get --region cn-hangzhou --function-name test -a default`,
+  $ s cli fc3 concurrency get --region cn-hangzhou --function-name test -a default`,
         summary: 'Get function concurrency detail',
         option: [
           [
@@ -28,10 +28,10 @@ Examples with CLI:
         description: `Put function concurrency.
 
 Examples with Yaml:
-  $ s3 concurrency put --reserved-concurrency 5
+  $ s concurrency put --reserved-concurrency 5
 
 Examples with CLI:
-  $ s3 cli fc3 concurrency put --reserved-concurrency 3 --region cn-hangzhou --function-name test -a default`,
+  $ s cli fc3 concurrency put --reserved-concurrency 3 --region cn-hangzhou --function-name test -a default`,
         summary: 'Put function concurrency',
         option: [
           [
@@ -48,11 +48,11 @@ Examples with CLI:
         description: `Remove function concurrency.
 
 Examples with Yaml:
-  $ s3 concurrency remove
-  $ s3 concurrency remove -y
+  $ s concurrency remove
+  $ s concurrency remove -y
 
 Examples with CLI:
-  $ s3 cli fc3 concurrency remove --region cn-hangzhou --function-name test -a default`,
+  $ s cli fc3 concurrency remove --region cn-hangzhou --function-name test -a default`,
         summary: 'Remove function concurrency',
         option: [
           [

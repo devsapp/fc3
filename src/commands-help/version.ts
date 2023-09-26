@@ -9,10 +9,10 @@ export default {
         description: `View the list of function versions.
 
 Examples with Yaml:
-  $ s3 version list
+  $ s version list
 
 Examples with CLI:
-  $ s3 cli fc3 version list --region cn-hangzhou --function-name test -a default`,
+  $ s cli fc3 version list --region cn-hangzhou --function-name test -a default`,
         summary: 'View the list of function versions',
         option: [
           [
@@ -28,11 +28,11 @@ Examples with CLI:
         description: `Publish function version.
 
 Examples with Yaml:
-  $ s3 version publish
-  $ s3 version publish --description "test desc"
+  $ s version publish
+  $ s version publish --description "test desc"
 
 Examples with CLI:
-  $ s3 cli fc3 version publish --description "test desc" --region cn-hangzhou --function-name test -a default`,
+  $ s cli fc3 version publish --description "test desc" --region cn-hangzhou --function-name test -a default`,
         summary: 'Publish function version',
         option: [
           [
@@ -49,11 +49,11 @@ Examples with CLI:
         description: `Remove function version.
 
 Examples with Yaml:
-  $ s3 version remove --version-id 123
-  $ s3 version remove --version-id 123 -y
+  $ s version remove --version-id 123
+  $ s version remove --version-id 123 -y
 
 Examples with CLI:
-  $ s3 cli fc3 version remove --version-id 123 --region cn-hangzhou --function-name test -a default`,
+  $ s cli fc3 version remove --version-id 123 --region cn-hangzhou --function-name test -a default`,
         summary: 'Remove function version',
         option: [
           [

@@ -3,11 +3,11 @@ export default {
     description: `Synchronize online resources to offline resources.
 
 Examples with Yaml:
-  $ s3 sync
-  $ s3 sync --target ./test --qualifier testAlias
+  $ s sync
+  $ s sync --target ./test --qualifier testAlias
 
 Examples with CLI:
-  $ s3 cli fc3 sync --region cn-hangzhou --function-name test -a default`,
+  $ s cli fc3 sync --region cn-hangzhou --function-name test -a default`,
     summary: 'Synchronize online resources to offline resources',
     option: [
       [

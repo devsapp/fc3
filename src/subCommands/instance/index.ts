@@ -53,9 +53,9 @@ export default class Instance {
   }
 
   /**
-   * s3  instance exec --instance-id c-64fec1fc-27c4833c325445879a28 --cmd "ls -lh"
-   * s3  instance exec --instance-id c-64fec1fc-27c4833c325445879a28
-   * s3  instance exec --instance-id `s3 invoke  | grep 'Invoke instanceId:' |  sed 's/.*: //'`
+   * s  instance exec --instance-id c-64fec1fc-27c4833c325445879a28 --cmd "ls -lh"
+   * s  instance exec --instance-id c-64fec1fc-27c4833c325445879a28
+   * s  instance exec --instance-id `s invoke  | grep 'Invoke instanceId:' |  sed 's/.*: //'`
    */
   async exec() {
     const functionName = this.opts['function-name'] || _.get(this.inputs, 'props.functionName');

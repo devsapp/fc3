@@ -9,10 +9,10 @@ export default {
         description: `View the list of provision.
 
 Examples with Yaml:
-  $ s3 provision list
+  $ s provision list
 
 Examples with CLI:
-  $ s3 cli fc3 provision list --region cn-hangzhou --function-name test -a default`,
+  $ s cli fc3 provision list --region cn-hangzhou --function-name test -a default`,
         summary: 'View the list of provision',
         option: [
           [
@@ -28,11 +28,11 @@ Examples with CLI:
         description: `Get provision configuration.
 
 Examples with Yaml:
-  $ s3 provision get --qualifier LATEST
-  $ s3 provision get --qualifier test
+  $ s provision get --qualifier LATEST
+  $ s provision get --qualifier test
 
 Examples with CLI:
-  $ s3 cli fc3 provision get --qualifier LATEST --region cn-hangzhou --function-name test -a default`,
+  $ s cli fc3 provision get --qualifier LATEST --region cn-hangzhou --function-name test -a default`,
         summary: 'Get provision configuration',
         option: [
           [
@@ -52,11 +52,11 @@ Examples with CLI:
         description: `Set provision configuration.
 
 Examples with Yaml:
-  $ s3 provision put --qualifier test --target 2
-  $ s3 provision put --qualifier test --ac --target 2 --scheduled-actions '[{"name":"scheduled-actions","startTime":"2023-08-15T02:04:00.000Z","endTime":"2033-08-15T02:04:00.000Z","target":1,"scheduleExpression":"cron(0 0 4 * * *)"}]' --target-tracking-policies '[{"name":"target-tracking-policies","startTime":"2023-08-15T02:05:00.000Z","endTime":"2033-08-15T02:05:00.000Z","metricType":"ProvisionedConcurrencyUtilization","metricTarget":0.6,"minCapacity":1,"maxCapacity":3}]'
+  $ s provision put --qualifier test --target 2
+  $ s provision put --qualifier test --ac --target 2 --scheduled-actions '[{"name":"scheduled-actions","startTime":"2023-08-15T02:04:00.000Z","endTime":"2033-08-15T02:04:00.000Z","target":1,"scheduleExpression":"cron(0 0 4 * * *)"}]' --target-tracking-policies '[{"name":"target-tracking-policies","startTime":"2023-08-15T02:05:00.000Z","endTime":"2033-08-15T02:05:00.000Z","metricType":"ProvisionedConcurrencyUtilization","metricTarget":0.6,"minCapacity":1,"maxCapacity":3}]'
 
 Examples with CLI:
-  $ s3 cli fc3 provision put --qualifier LATEST --target 2 --region cn-hangzhou --function-name test -a default`,
+  $ s cli fc3 provision put --qualifier LATEST --target 2 --region cn-hangzhou --function-name test -a default`,
         summary: 'Set provision configuration',
         option: [
           [
@@ -89,11 +89,11 @@ Examples with CLI:
         description: `Delete provision.
 
 Examples with Yaml:
-  $ s3 provision remove --qualifier LATEST
-  $ s3 provision remove --qualifier test -y
+  $ s provision remove --qualifier LATEST
+  $ s provision remove --qualifier test -y
 
 Examples with CLI:
-  $ s3 cli fc3 provision remove --qualifier LATEST --region cn-hangzhou --function-name test -a default`,
+  $ s cli fc3 provision remove --qualifier LATEST --region cn-hangzhou --function-name test -a default`,
         summary: 'Delete provision',
         option: [
           [

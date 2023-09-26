@@ -9,11 +9,11 @@ export default {
         description: `Publish new layer version.
 
 Examples with Yaml:
-  $ s3 layer publish --code layer.zip --layer-name testName --compatible-runtime nodejs12
-  $ s3 layer publish --code ./layer --layer-name testName --compatible-runtime nodejs12,nodejs10,python3 --description "this is description"
+  $ s layer publish --code layer.zip --layer-name testName --compatible-runtime nodejs12
+  $ s layer publish --code ./layer --layer-name testName --compatible-runtime nodejs12,nodejs10,python3 --description "this is description"
 
 Examples with CLI:
-  $ s3 cli fc3 layerpublish --code layer.zip --layer-name testName --compatible-runtime nodejs12,nodejs14 --region cn-hangzhou -a default`,
+  $ s cli fc3 layerpublish --code layer.zip --layer-name testName --compatible-runtime nodejs12,nodejs14 --region cn-hangzhou -a default`,
         summary: 'Publish new layer version',
         option: [
           [
@@ -34,9 +34,9 @@ Examples with CLI:
       help: {
         description: `List layers.
 Example:
-  $ s3 layer list
-  $ s3 layer list --prefix test --official --table
-  $ s3 cli fc3 layer list --prefix test --region cn-hangzhou -a default`,
+  $ s layer list
+  $ s layer list --prefix test --official --table
+  $ s cli fc3 layer list --prefix test --region cn-hangzhou -a default`,
         summary: 'List layers',
         option: [
           [
@@ -57,8 +57,8 @@ Example:
       help: {
         description: `Get layer version detail.
 Example:
-  $ s3 layer info --layer-name testName --version-id 123
-  $ s3 cli fc3 layer info --layer-name testName --version-id 123 --region cn-hangzhou -a default`,
+  $ s layer info --layer-name testName --version-id 123
+  $ s cli fc3 layer info --layer-name testName --version-id 123 --region cn-hangzhou -a default`,
         summary: 'Get layer version detail',
         option: [
           [
@@ -74,9 +74,9 @@ Example:
       help: {
         description: `Get layer versions.
 Example:
-  $ s3 layer versions --layer-name testName
-  $ s3 layer versions --layer-name testName --table
-  $ s3 cli fc3 layer versions --layer-name testName --region cn-hangzhou -a default`,
+  $ s layer versions --layer-name testName
+  $ s layer versions --layer-name testName --table
+  $ s cli fc3 layer versions --layer-name testName --region cn-hangzhou -a default`,
         summary: 'Get layer versions',
         option: [
           [
@@ -92,8 +92,8 @@ Example:
       help: {
         description: `Download layer version code.
 Example:
-  $ s3 layer download --layer-name testName --version-id 123
-  $ s3 cli fc3 layer download --layer-name testName --version-id 123 --region cn-hangzhou -a default`,
+  $ s layer download --layer-name testName --version-id 123
+  $ s cli fc3 layer download --layer-name testName --version-id 123 --region cn-hangzhou -a default`,
         summary: 'Download layer version code',
         option: [
           [
@@ -109,9 +109,9 @@ Example:
       help: {
         description: `Set the layer as public or private.
 Example:
-  $ s3 layer acl --layer-name testName
-  $ s3 layer acl --layer-name testName --public
-  $ s3 cli fc3 layer acl --layer-name testName --public --region cn-hangzhou -a default`,
+  $ s layer acl --layer-name testName
+  $ s layer acl --layer-name testName --public
+  $ s cli fc3 layer acl --layer-name testName --public --region cn-hangzhou -a default`,
         summary: 'Set the layer as public or private',
         option: [
           [
@@ -130,8 +130,8 @@ Example:
       help: {
         description: `Remove layer.
 Example:
-  $ s3 layer remove --layer-name testName --version-id 123
-  $ s3 cli fc3 layer remove --layer-name testName --version-id 123 --region cn-hangzhou -a default`,
+  $ s layer remove --layer-name testName --version-id 123
+  $ s cli fc3 layer remove --layer-name testName --version-id 123 --region cn-hangzhou -a default`,
         summary: 'Remove layer',
         option: [
           [

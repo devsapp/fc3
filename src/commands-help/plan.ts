@@ -3,7 +3,7 @@ export default {
     description: `Show the differences between the local and remote.
 
 Examples:
-  $ s3 plan`,
+  $ s plan`,
     summary: 'Perceive resource change',
     option: [],
   },

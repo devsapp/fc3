@@ -3,10 +3,10 @@ export default {
     description: `Query online resource details.
 
 Examples with Yaml:
-  $ s3 info
+  $ s info
 
 Examples with CLI:
-  $ s3 cli fc3 info --region cn-hangzhou --function-name  test -a default`,
+  $ s cli fc3 info --region cn-hangzhou --function-name  test -a default`,
     summary: 'Query online resource details',
     option: [
       [
