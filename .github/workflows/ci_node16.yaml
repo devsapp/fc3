@@ -66,9 +66,11 @@ jobs:
       - name: NPM run build
         run: |
           npm run build
-      - name: run base ci 
+      - name: run base ci
+        shell: pwsh
         run: |
-          powershell -File __tests__/e2e/ci-windows.ps1
+          cd __tests__/e2e
+          .\ci-windows.ps1
 
   linux-ci:
     runs-on: ubuntu-latest

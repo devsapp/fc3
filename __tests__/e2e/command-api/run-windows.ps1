@@ -6,7 +6,7 @@ Write-Host "test command instance/version/alias/concurrency/provision ..."
 s3 deploy -y
 s3 invoke
 
-s3  instance list
+s3 instance list
 
 s3 version publish --description test
 s3 version list
@@ -39,8 +39,8 @@ Write-Host "test layer ..."
 $layer_name="pyyaml-layer-$($env:OS)-$($env:PROCESSOR_ARCHITECTURE)-$($env:RANDSTR)"
 s3 layer list 
 s3 layer list --prefix python
-s3 layer info --layer-name Python39-Aliyun-SDK --version-id 2
-s3 layer download --layer-name Python39-Aliyun-SDK --version-id 2
+s3 layer info --layer-name Python39-Gradio --version-id 1
+s3 layer download --layer-name Python39-Gradio --version-id 1
 s3 layer publish --layer-name $layer_name --code ./pyyaml-layer.zip --compatible-runtime "python3.9,python3.10,custom,custom.debian10"
 s3 layer list --prefix $layer_name
 s3 layer list --prefix $layer_name --table

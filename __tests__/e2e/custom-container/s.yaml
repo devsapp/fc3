@@ -3,7 +3,7 @@ name: framework #  项目名称
 access: quanxi
 
 vars: 
-  region: ${env('region', 'cn-huhehaote')}
+  region: ${env('REGION', 'cn-huhehaote')}
 
 resources:
   fcDemo: # 业务名称/模块名称
