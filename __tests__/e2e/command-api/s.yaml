@@ -3,7 +3,7 @@ name: test-node-app #  项目名称
 access: quanxi
 
 vars: 
-  region: ${env('region', 'cn-huhehaote')}
+  region: ${env('REGION', 'cn-huhehaote')}
 
 resources:
   fcDemo:

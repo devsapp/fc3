@@ -3,7 +3,7 @@ name: test-custom-debian10-go
 access: quanxi
 
 vars: 
-  region: ${env('region', 'cn-huhehaote')}
+  region: ${env('REGION', 'cn-huhehaote')}
 
 resources:
   fcDemo:
