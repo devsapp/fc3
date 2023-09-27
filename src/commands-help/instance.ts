@@ -7,10 +7,9 @@ export default {
     exec: {
       help: {
         description: `Execute a command in a instance.
-
 Examples with Yaml:
-  $ s instance exec --instance-id c-64fec1fc-27c4833c325445879a28 --cmd "ls -lh"
-  $ s instance exec --instance-id c-64fec1fc-27c4833c325445879a28
+  $ s instance exec --instance-id c-6******-27c4833c325445879a28 --cmd "ls -lh"
+  $ s instance exec --instance-id c-6******-27c4833c325445879a28
   $ s instance exec --instance-id \`s invoke  | grep "Invoke instanceId:" |  sed "s/.*: //"\`
 
 Examples with CLI:

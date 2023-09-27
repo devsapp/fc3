@@ -53,7 +53,7 @@ Examples with CLI:
 
 Examples with Yaml:
   $ s provision put --qualifier test --target 2
-  $ s provision put --qualifier test --ac --target 2 --scheduled-actions '[{"name":"scheduled-actions","startTime":"2023-08-15T02:04:00.000Z","endTime":"2033-08-15T02:04:00.000Z","target":1,"scheduleExpression":"cron(0 0 4 * * *)"}]' --target-tracking-policies '[{"name":"target-tracking-policies","startTime":"2023-08-15T02:05:00.000Z","endTime":"2033-08-15T02:05:00.000Z","metricType":"ProvisionedConcurrencyUtilization","metricTarget":0.6,"minCapacity":1,"maxCapacity":3}]'
+  $ s provision put --qualifier test --ac --target 2 --scheduled-actions '[{"name":"scheduled-actions","startTime":"2023-08-15T02:04:00.000Z","endTime":"2033-08-15T03:04:00.000Z","target":1,"scheduleExpression":"cron(0 0 4 * * *)"}]' --target-tracking-policies '[{"name":"target-tracking-policies","startTime":"2023-08-15T02:05:00.000Z","endTime":"2033-08-15T02:55:00.000Z","metricType":"ProvisionedConcurrencyUtilization","metricTarget":0.6,"minCapacity":1,"maxCapacity":3}]'
 
 Examples with CLI:
   $ s cli fc3 provision put --qualifier LATEST --target 2 --region cn-hangzhou --function-name test -a default`,
@@ -64,7 +64,11 @@ Examples with CLI:
             '[C-Required] Specify fc region, you can see all supported regions in https://www.alibabacloud.com/help/zh/fc/product-overview/region-availability',
           ],
           ['--function-name <functionName>', '[C-Required] Specify function name'],
-          ['--target <max>', '[Optional] Specify the provision target parameter'],
+          [
+            '--qualifier <qualifier>',
+            '[Required] Specify the qualifier parameter. Only supports LATEST and alias',
+          ],
+          ['--target <max>', '[Required] Specify the provision target parameter'],
           [
             '--ac, --always-allocate-cpu',
             '[Optional] Specify if always allocate CPU resources to the provisioned instances',
@@ -76,10 +80,6 @@ Examples with CLI:
           [
             '--target-tracking-policies <json>',
             '[Optional] Set	the configuration details of metric-based auto scaling.',
-          ],
-          [
-            '--qualifier <qualifier>',
-            '[Required] Specify the qualifier parameter. Only supports LATEST and alias',
           ],
         ],
       },

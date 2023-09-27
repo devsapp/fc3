@@ -1,11 +1,36 @@
 {
-  "path": "string",
-  "method": "POST",
+  "version": "v1",
+  "rawPath": "/2023-03-30/functions/fc3-event-test-http-trigger-Darwin-x86_64/invocations",
   "headers": {
-    "key": "value"
+    "Accept": "application/json",
+    "Authorization": "ACS3-HMAC-SHA256 Credential=LTA******************ibC,SignedHeaders=content-type;host;x-acs-action;x-acs-content-sha256;x-acs-date;x-acs-signature-nonce;x-acs-version,Signature=c360d2c33196********901bef1cd44f2bd",
+    "Connection": "keep-alive",
+    "Content-Type": "application/octet-stream",
+    "User-Agent": "AlibabaCloud (darwin; x64) Node.js/v14.20.0 Core/1.0.1 TeaDSL/1",
+    "X-Acs-Action": "InvokeFunction",
+    "X-Acs-Content-Sha256": "676903d7d4ba9666*********8877348e1b09a5dd13f",
+    "X-Acs-Date": "2023-08-17T14:08:11Z",
+    "X-Acs-Signature-Nonce": "2d13b9477e5e25d6b5c63fee372a9351",
+    "X-Acs-Version": "2023-03-30",
+    "X-Fc-Log-Type": "Tail"
   },
-  "queries": {
-    "key": "value"
-  },
-  "body": "body"
+  "queryParameters": {},
+  "body": "haha",
+  "isBase64Encoded": false,
+  "requestContext": {
+    "accountId": "143**********149",
+    "triggerId": "1e875ca5-8fd9-4893-b690-cc81c41e5bdc",
+    "domainName": "143**********149.cn-huhehaote.fc.aliyuncs.com",
+    "domainPrefix": "143**********149",
+    "requestId": "",
+    "time": "2023-08-17T14:08:11Z",
+    "timeEpoch": "1692281291805",
+    "http": {
+      "method": "POST",
+      "path": "/2023-03-30/functions/fc3-event-test-http-trigger-Darwin-x86_64/invocations",
+      "protocol": "HTTP/1.1",
+      "sourceIp": "112.10.236.5",
+      "userAgent": "AlibabaCloud (darwin; x64) Node.js/v14.20.0 Core/1.0.1 TeaDSL/1"
+    }
+  }
 }

@@ -3,7 +3,7 @@ export default {
     description: `Invoke online functions.
 
 Examples with Yaml:
-  $ s invoke -e \'{"key": "val"}
+  $ s invoke -e "{\\"key\\": \\"val\\"}"
   $ s invoke -f evt.json
   $ s invoke ---invocation-type async
 
