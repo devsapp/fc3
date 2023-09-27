@@ -5,7 +5,7 @@ export default {
 Examples:
   $ s build
   $ s build --dockerfile ./code/Dockerfile --context ./code
-  $ s build --custom-env '{"myenv": "test"}' --custom-args='-i https://pypi.tuna.tsinghua.edu.cn/simple'
+  $ s build --custom-env "{\\"myenv\\": \\"test\\"}" --custom-args="-i https://pypi.tuna.tsinghua.edu.cn/simple"
   $ s build --command="pip install -t . flask -i https://pypi.tuna.tsinghua.edu.cn/simple"
   $ s build --script-file my_script.sh`,
     summary: 'Build the dependencies',

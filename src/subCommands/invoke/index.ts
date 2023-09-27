@@ -107,7 +107,7 @@ export default class Invoke {
     let showLog = `${startStr}\n${log}\n${endStr}\n
 ${bold('Invoke instanceId:')} ${green(instanceId)}
 ${bold('Code Checksum:')} ${green(codeChecksum)}
-${bold('Qualifier:')} ${green(qualifier)}
+${bold('Qualifier:')} ${green(qualifier || 'LATEST')}
 ${bold('RequestId:')} ${green(requestId)}
 `;
 

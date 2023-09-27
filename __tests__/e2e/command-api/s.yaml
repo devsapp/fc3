@@ -20,7 +20,7 @@ resources:
         - triggerName: httpTrigger # 触发器名称
           triggerType: http # 触发器类型
           description: 'xxxx'
-          qualifier: LATEST # 触发服务的版本
+          qualifier: LATEST # 触发函数的版本
           triggerConfig:
             authType: anonymous # 鉴权类型，可选值：anonymous、function
             disableURLInternet: false # 是否禁用公网访问 URL
