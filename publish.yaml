@@ -3,8 +3,8 @@ Type: Component
 Name: fc3
 Provider:
   - 阿里云
-Version: dev.0.34
-Description: 简短的描述/介绍
+Version: dev.0.35
+Description: 阿里云函数计算全生命周期管理
 HomePage: https://github.com/devsapp/fc3
 Organization: 阿里云函数计算（FC）
 Effective: Public
