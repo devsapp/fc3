@@ -8,6 +8,7 @@ import FC, { GetApiType } from '../../resources/fc';
 import { parseArgv } from '@serverless-devs/utils';
 import path from 'path';
 import logger from '../../logger';
+import { TriggerType } from '../../interface/base';
 
 export default class Sync {
   private region: IRegion;
@@ -48,16 +49,57 @@ export default class Sync {
     });
   }
 
+  async getTriggers(): Promise<any[]> {
+    const result: any[] = [];
+    const triggers = await this.fcSdk.listTriggers(this.functionName);
+    logger.debug(triggers);
+    for (const t of triggers) {
+      let {
+        triggerName,
+        triggerType,
+        description,
+        qualifier,
+        triggerConfig,
+        invocationRole,
+        sourceArn,
+      } = t;
+      triggerConfig = JSON.parse(triggerConfig);
+      if (triggerType === TriggerType.eventbridge) {
+        result.push({ triggerName, triggerType, description, qualifier, triggerConfig });
+      } else {
+        result.push({
+          triggerName,
+          triggerType,
+          description,
+          qualifier,
+          invocationRole,
+          sourceArn,
+          triggerConfig,
+        });
+      }
+    }
+    return result;
+  }
+
   async run() {
     const functionInfo = await this.fcSdk.getFunction(
       this.functionName,
       GetApiType.simpleUnsupported,
       this.qualifier,
     );
-    return await this.write(functionInfo);
+    const triggers = await this.getTriggers();
+    let asyncInvokeConfig = {};
+    try {
+      asyncInvokeConfig = await this.fcSdk.getAsyncInvokeConfig(
+        this.functionName,
+        'LATEST',
+        GetApiType.simpleUnsupported,
+      );
+    } catch (ex) {}
+    return await this.write(functionInfo, triggers, asyncInvokeConfig);
   }
 
-  write = async (functionConfig) => {
+  async write(functionConfig: any, triggers: any, asyncInvokeConfig: any) {
     const syncFolderName = 'sync-clone';
 
     const baseDir = this.target
@@ -88,13 +130,19 @@ export default class Sync {
 
     let props = { region: this.region };
     props = Object.assign(props, functionConfig);
+    if (!_.isEmpty(triggers)) {
+      props['triggers'] = triggers;
+    }
+    if (!_.isEmpty(asyncInvokeConfig)) {
+      props['asyncInvokeConfig'] = asyncInvokeConfig;
+    }
 
     const config = {
       edition: '3.0.0',
       name: this.inputs.name,
       access: this.inputs.resource.access,
       resources: {
-        [this.inputs.resource.name]: {
+        [this.functionName]: {
           component: 'fc3',
           props: props,
         },
@@ -111,5 +159,5 @@ export default class Sync {
     logger.debug(`write file: ${baseDir}`);
 
     return { ymlPath, codePath };
-  };
+  }
 }
