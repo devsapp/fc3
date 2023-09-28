@@ -22,7 +22,8 @@ and they lived at the bottom of a well.</p>
 
 def isPython3():
     import sys
-    if sys.version > '3':
+
+    if sys.version > "3":
         return True
     return False
 
@@ -31,10 +32,10 @@ def handler(event, context):
     logger = logging.getLogger()
     logger.info(event)
     logger.info(flask.__version__)
-    soup = BeautifulSoup(html_doc, 'html.parser')
+    soup = BeautifulSoup(html_doc, "html.parser")
     print(soup.prettify())
     out_bytes = subprocess.check_output(["jq", "--version"])
     print(out_bytes)
-    # if isPython3():
-    #     assert out_bytes == b'/code/.s/root/usr/bin/git\n'
+    out_bytes = subprocess.check_output(["git", "--version"])
+    print(out_bytes)
     return event

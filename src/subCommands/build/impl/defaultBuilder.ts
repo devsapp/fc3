@@ -56,7 +56,7 @@ export class DefaultBuilder extends Builder {
         logger.info('No need build for this project.');
         return;
       }
-      shellScript = `"${tasks.join('\n')}"`;
+      shellScript = `"${tasks.join(' && ')}"`;
     }
 
     if (this.isAppCenter()) {
