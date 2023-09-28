@@ -461,7 +461,7 @@ export default class FC extends FC_Client {
 
   async listTriggers(functionName: string) {
     let nextToken: string;
-    const limit = 1;
+    const limit = 10;
     const triggers: any[] = [];
 
     while (true) {
