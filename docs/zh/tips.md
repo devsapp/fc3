@@ -10,6 +10,7 @@ category: '概览'
 - [ServerlessDevs和fc3组件的关系](#serverless-devs和fc3组件的关系)
 - [如何声明/部署多个函数](#如何声明部署多个函数)
 - [如何配置函数的自定义域名](#如何配置函数的自定义域名)
+- [如何给`VSCode`插件做智能提示和检测](#智能提示和检测)
 - [关于`.fcignore`使用方法](#关于fcignore使用方法)
 - [关于`.env`使用方法](#关于env使用方法)
 - [Yaml是否支持全局变量/环境变量/引用外部文件](#Yaml是否支持全局变量/环境变量/引用外部文件)
@@ -36,6 +37,10 @@ category: '概览'
 示例请参考[fc-custom-domain](https://github.com/devsapp/start-fc/blob/V3/fc-custom-domain/src/s.yaml#L52-L65)
 
 有关 fc3-domain 组件请参考 [fc3-domain](https://github.com/devsapp/fc3-domain)
+
+## 智能提示和检测
+
+给`VSCode`插件做智能提示和检测, 详情参考[intelligent](./intelligent.md)
 
 ## 关于fcignore使用方法
 

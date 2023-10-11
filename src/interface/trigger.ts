@@ -1,9 +1,9 @@
-import { TriggerType, Methods } from './base';
+import { TriggerType, Methods, OSSEvents } from './base';
 
 export type ITriggerType = `${TriggerType}`;
 
 export interface IOssTriggerConfig {
-  events: string[];
+  events: `${OSSEvents}`[];
   filter: {
     key: {
       prefix: string;
@@ -37,15 +37,15 @@ export interface ITimerTriggerConfig {
 }
 
 export interface IHttpTriggerConfig {
-  authType: string;
+  authType: 'anonymous' | 'function';
   methods: `${Methods}`[];
-  disableURLInternet: boolean;
-  authConfig: string;
+  disableURLInternet?: boolean;
+  authConfig?: string;
 }
 
 export interface IMnsTriggerConfig {
-  notifyContentFormat?: 'STREAM' | 'JSON';
-  notifyStrategy?: 'BACKOFF_RETRY' | 'EXPONENTIAL_DECAY_RETRY';
+  notifyContentFormat: 'STREAM' | 'JSON';
+  notifyStrategy: 'BACKOFF_RETRY' | 'EXPONENTIAL_DECAY_RETRY';
   filterTag?: string;
 }
 
