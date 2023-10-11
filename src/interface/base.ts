@@ -56,3 +56,20 @@ export enum Methods {
   PUT = 'PUT',
   PATCH = 'PATCH',
 }
+
+export enum OSSEvents {
+  CREATED_ALL = 'oss:ObjectCreated:*',
+  CREATED_PutObject = 'oss:ObjectCreated:PutObject',
+  CREATED_PostObject = 'oss:ObjectCreated:PostObject',
+  CREATED_CompleteMultipartUpload = 'oss:ObjectCreated:CompleteMultipartUpload',
+  CREATED_PutSymlink = 'oss:ObjectCreated:PutSymlink',
+  CREATED_CopyObject = 'oss:ObjectCreated:CopyObject',
+  CREATED_InitiateMultipartUpload = 'oss:ObjectCreated:InitiateMultipartUpload',
+  CREATED_UploadPart = 'oss:ObjectCreated:UploadPart',
+  CREATED_UploadPartCopy = 'oss:ObjectCreated:UploadPartCopy',
+  CREATED_AppendObject = 'oss:ObjectCreated:AppendObject',
+  REMOVED_DeleteObject = 'oss:ObjectRemoved:DeleteObject',
+  REMOVED_DeleteObjects = 'oss:ObjectRemoved:DeleteObjects',
+  REMOVED_AbortMultipartUpload = 'oss:ObjectRemoved:AbortMultipartUpload',
+  MODIFIED_UpdateObjectMeta = 'oss:ObjectModified:UpdateObjectMeta',
+}

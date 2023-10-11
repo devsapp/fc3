@@ -37,6 +37,9 @@ category: '概览'
 ❷ 初始化一个函数计算的 `Hello World` 项目：`s init --project start-fc3-python`；      
 ❸ 初始化完成之后，系统会提示是否部署项目，只需要输入`y`并按回车按钮即可完成项目的部署；
 
+- [更多入门示例](https://github.com/devsapp/start-fc/tree/V3)
+- [Tips](./tips.md)
+
 # 文档相关
 
 函数计算（fc3）组件全部支持的能力列表如下：
