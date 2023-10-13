@@ -65,7 +65,7 @@ export interface INasConfig {
 export interface IOssMountConfig {
   mountPoints: {
     bucketName: string;
-    bucketPath: string;
+    bucketPath?: string;
     endpoint: string;
     mountDir: string;
     readOnly?: boolean;

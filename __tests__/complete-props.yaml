@@ -58,7 +58,7 @@ resources:
         additionalProp3: string
       functionName: string
       gpuConfig:
-        gpuMemorySize: 128
+        gpuMemorySize: 1024
         gpuType: string
       handler: string
       instanceLifecycleConfig:

@@ -28,6 +28,10 @@ category: '概览'
 - **可观测性**：拥有完善的可观测性，在客户端可以通过[日志查询 logs](./command/logs.md) 等命令，进行执行日志观测；
 - **多模调试**：提出了多模调试方案，可以同时满足开发态、运维态的不同调试需求；包括[本地运行](./command/local.md)、[在线运行](./command/invoke.md) 等功能；
 
+**注意:**
+
+> 如果您是函数计算老用户，操作存量具有 Service 的函数, 见[fc组件](https://docs.serverless-devs.com/fc/readme)
+
 # 快速开始
 
 🙋 三步即可上手 函数计算（fc3）组件的使用：   

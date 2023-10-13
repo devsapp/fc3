@@ -13,7 +13,6 @@
 
 [![Nodejs16 base ci](https://github.com/devsapp/fc3/actions/workflows/ci_node16.yaml/badge.svg)](https://github.com/devsapp/fc3/actions/workflows/ci_node16.yaml) [![Linux docker ci](https://github.com/devsapp/fc3/actions/workflows/ci_with_docker_linux.yaml/badge.svg)](https://github.com/devsapp/fc3/actions/workflows/ci_with_docker_linux.yaml)  [![macos docker ci](https://github.com/devsapp/fc3/actions/workflows/ci_with_docker_macos.yaml/badge.svg)](https://github.com/devsapp/fc3/actions/workflows/ci_with_docker_macos.yaml) 
 
-
 # 五大亮点
 
 - **全生命周期管理**：组件拥有项目的创建、开发、调试、部署、运维全生命周期管理能力；
@@ -21,6 +20,10 @@
 - **快速集成**：借助于 Serverless Devs 的集成性和被集成性，可以与常见的 [CI/CD 平台工具](https://github.com/Serverless-Devs/Serverless-Devs/blob/master/docs/cicd.md) 等集成；
 - **可观测性**：拥有完善的可观测性，在客户端可以通过[日志查询 logs](./docs/zh/command/logs.md) 等命令，进行执行日志观测；
 - **多模调试**：提出了多模调试方案，可以同时满足开发态、运维态的不同调试需求；包括[本地运行](./docs/zh/command/local.md)、[在线运行](./docs/zh/command/invoke.md) 等功能；
+
+**注意:**
+
+> 如果您是函数计算老用户，操作存量具有 Service 的函数, 见[fc组件](https://docs.serverless-devs.com/fc/readme)
 
 # 快速开始
 
