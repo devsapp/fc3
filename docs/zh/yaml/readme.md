@@ -7,6 +7,8 @@ category: 'Yaml规范'
 
 # Yaml 完整配置
 
+如果您使用 VsCode 开发， 推荐您配置[智能提示和检测](../tips.md)
+
 阿里云函数计算（fc3）组件的 Yaml 字段如下：
 
 ```yaml
@@ -16,10 +18,10 @@ access: default #  秘钥别名
 
 resources:
   fcDemo: # 业务名称/模块名称
-    component: ${path('../')} # 组件名称
+    component: fc3 # 组件名称
     props: # 组件的属性值
       region: cn-hangzhou
-      code: 'codeUri'
+      code: './code' # 文件夹或者 zip 文件
       # code:
       #   ossBucketName: string
       #   ossObjectName: string
@@ -63,15 +65,15 @@ resources:
           timeoutSeconds: 0
         port: 0
       description: string
-      diskSize: 512
+      diskSize: 512 # 可选值: 512 | 10240
       environmentVariables:
         additionalProp1: string
         additionalProp2: string
         additionalProp3: string
       functionName: string
       gpuConfig:
-        gpuMemorySize: 128
-        gpuType: string
+        gpuMemorySize: 1024
+        gpuType: string  # 可选值: fc.gpu.tesla.1 | fc.gpu.ampere.1
       handler: string
       instanceLifecycleConfig:
         initializer:
@@ -82,22 +84,22 @@ resources:
           timeout: 1
       internetAccess: true
       layers:
-        - string
+        - string # layer arn, 比如 acs:fc:cn-huhehaote:123456789:layers/test-lh/versions/1
       logConfig:
         enableInstanceMetrics: true
         enableRequestMetrics: true
-        logBeginRule: string
+        logBeginRule: string # 可选值: DefaultRegex | None
         logstore: string
         project: string
       memorySize: 512
       nasConfig:
-        groupId: 65534
+        groupId: 0
+        userId: 0
         mountPoints:
           -
             enableTLS: true
             mountDir: string
             serverAddr: string
-        userId: 65534
       ossMountConfig:
         mountPoints:
           -
