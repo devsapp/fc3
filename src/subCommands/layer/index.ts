@@ -37,12 +37,7 @@ export default class Layer {
     });
 
     logger.debug(`layer opts: ${JSON.stringify(opts)}`);
-
-    if (inputs.yaml?.path) {
-      this.baseDir = path.dirname(inputs.yaml?.path);
-    } else {
-      this.baseDir = process.cwd();
-    }
+    this.baseDir = inputs.baseDir || process.cwd();
 
     logger.info(`Layer baseDir is: ${this.baseDir}`);
 
