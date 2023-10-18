@@ -12,6 +12,7 @@ import layer from './layer';
 import instance from './instance';
 import build from './build';
 import local from './local';
+import s2tos3 from './s2tos3';
 
 export default {
   deploy,
@@ -28,4 +29,5 @@ export default {
   instance,
   build,
   local,
+  s2tos3,
 };

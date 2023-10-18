@@ -20,6 +20,7 @@ import Sync from './subCommands/sync';
 import Version from './subCommands/version';
 import Alias from './subCommands/alias';
 import Concurrency from './subCommands/concurrency';
+import SYaml2To3 from './subCommands/2to3';
 
 export default class Fc extends Base {
   // 部署函数
@@ -135,5 +136,11 @@ export default class Fc extends Base {
       return await local.invoke(inputs);
     }
     throw new Error("Please use 's local start -h' or 's local invoke -h'");
+  }
+
+  public async s2tos3(inputs: IInputs) {
+    await super.handlePreRun(inputs, false);
+    const trans = new SYaml2To3(inputs);
+    return await trans.run();
   }
 }
