@@ -13,7 +13,7 @@
     "prepare": "husky install",
     "postinstall": "curl -sS https://images.devsapp.cn/pop-sdk/fix-sdk.sh | bash",
     "watch": "tsc -w",
-    "publish": "npm i && npm run build && s3 registry publish"
+    "publish": "npm i && npm run build && s registry publish"
   },
   "repository": "git@gitlab.alibaba-inc.com:serverless-devs/fc.git",
   "keywords": [],

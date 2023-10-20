@@ -5,9 +5,9 @@ set -e
 echo "test dotnetcore3.1 runtime ..."
 rm -rf ./HelloFcApp/target
 export fc_component_function_name=dotnetcore31-$(uname)-$(uname -m)
-# s3 build
-# s3 local invoke -e '{"hello":"fc dotnetcore3.1"}'
-s3 deploy -y 
-s3 info
-s3 invoke -e '{"hello":"fc dotnetcore3.1"}'
-s3 remove -y
+# s build
+# s local invoke -e '{"hello":"fc dotnetcore3.1"}'
+s deploy -y 
+s info
+s invoke -e '{"hello":"fc dotnetcore3.1"}'
+s remove -y

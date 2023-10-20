@@ -5,30 +5,30 @@ set -e
 echo "test custom go runtime ..."
 rm -rf ./go/code/go.sum
 export fc_component_function_name=go1-$(uname)-$(uname -m)
-s3 deploy -y -t ./go/s.yaml
-s3 invoke -e '{"hello":"fc custom go"}' -t ./go/s.yaml
-s3 local invoke -e '{"hello":"fc custom go"}' -t ./go/s.yaml
-s3 info -y -t ./go/s.yaml
-s3 remove -y -t ./go/s.yaml
+s deploy -y -t ./go/s.yaml
+s invoke -e '{"hello":"fc custom go"}' -t ./go/s.yaml
+s local invoke -e '{"hello":"fc custom go"}' -t ./go/s.yaml
+s info -y -t ./go/s.yaml
+s remove -y -t ./go/s.yaml
 rm -rf ./go/code/target
 
 echo "test custom python runtime ..."
 rm -rf ./python/code/3rd-packages
 rm -rf ./python/code/__pycache__
 export fc_component_function_name=python310-$(uname)-$(uname -m)
-s3 build -t ./python/s.yaml
-s3 local invoke -e '{"hello":"fc custom python"}' -t ./python/s.yaml
-s3 deploy -y -t ./python/s.yaml
-s3 invoke -e '{"hello":"fc custom python"}' -t ./python/s.yaml
-s3 info -y -t ./python/s.yaml
-s3 remove -y -t ./python/s.yaml
+s build -t ./python/s.yaml
+s local invoke -e '{"hello":"fc custom python"}' -t ./python/s.yaml
+s deploy -y -t ./python/s.yaml
+s invoke -e '{"hello":"fc custom python"}' -t ./python/s.yaml
+s info -y -t ./python/s.yaml
+s remove -y -t ./python/s.yaml
 
 echo "test custom java(springboot) runtime ..."
 rm -rf ./springboot/code/target
 export fc_component_function_name=springboot-$(uname)-$(uname -m)
-s3 deploy -y -t ./springboot/s.yaml
-s3 invoke --event-file ./springboot/event/http.json -t ./springboot/s.yaml
-s3 info -t ./springboot/s.yaml
-s3 jar_zip local invoke --event-file ./springboot/event/http.json -t ./springboot/s.yaml
-s3 jar local invoke --event-file ./springboot/event/http.json -t ./springboot/s.yaml
-s3 remove -y -t ./springboot/s.yaml
+s deploy -y -t ./springboot/s.yaml
+s invoke --event-file ./springboot/event/http.json -t ./springboot/s.yaml
+s info -t ./springboot/s.yaml
+s jar_zip local invoke --event-file ./springboot/event/http.json -t ./springboot/s.yaml
+s jar local invoke --event-file ./springboot/event/http.json -t ./springboot/s.yaml
+s remove -y -t ./springboot/s.yaml

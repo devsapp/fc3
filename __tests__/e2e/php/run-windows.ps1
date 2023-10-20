@@ -1,29 +1,29 @@
-$ErrorActionPreference="Stop"
+$ErrorActionPreference = "Stop"
 
 Write-Host "test php runtime ..."
-$env:fc_component_function_name="php72-$($env:OS)-$($env:PROCESSOR_ARCHITECTURE)"
-s3 build
-s3 local invoke -e '{"hello":"fc php"}'
-s3 deploy -y
-s3 info
-s3 invoke -e '{"hello":"fc php"}'
+$env:fc_component_function_name = "php72-$($env:OS)-$($env:PROCESSOR_ARCHITECTURE)"
+s build
+s local invoke -e '{"hello":"fc php"}'
+s deploy -y
+s info
+s invoke -e '{"hello":"fc php"}'
 
 Remove-Item -Recurse -Force ./code/vendor -ErrorAction SilentlyContinue
-s3 build --script-file ./test.sh
-s3 deploy -y 
-s3 info
-s3 invoke -e '{"hello":"fc php"}'
+s build --script-file ./test.sh
+s deploy -y 
+s info
+s invoke -e '{"hello":"fc php"}'
 
 Remove-Item -Recurse -Force ./code/vendor -ErrorAction SilentlyContinue
-s3 build --command='composer install -vvv' --custom-env '{"k": "v"}' --debug
-s3 deploy -y 
-s3 info
-s3 invoke -e '{"hello":"fc php"}'
+s build --command='composer install -vvv' --custom-env '{"k": "v"}' --debug
+s deploy -y 
+s info
+s invoke -e '{"hello":"fc php"}'
 
 Remove-Item -Recurse -Force ./code/vendor -ErrorAction SilentlyContinue
-s3 build --custom-args='-v' --debug
-s3 deploy -y 
-s3 info
-s3 invoke -e '{"hello":"fc php"}'
+s build --custom-args='-v' --debug
+s deploy -y 
+s info
+s invoke -e '{"hello":"fc php"}'
 
-s3 remove -y
+s remove -y

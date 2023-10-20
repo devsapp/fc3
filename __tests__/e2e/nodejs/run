@@ -8,18 +8,18 @@ export fc_component_runtime=nodejs14
 export fc_component_function_name=nodejs14-$(uname)-$(uname -m)
 rm -rf ./code/node_modules
 echo "test nodejs14 runtime ..."
-s3 build
-s3 local invoke -e '{"hello":"fc nodejs14"}'
-s3 deploy -y 
-s3 info
-s3 invoke -e '{"hello":"fc nodejs14"}'
+s build
+s local invoke -e '{"hello":"fc nodejs14"}'
+s deploy -y 
+s info
+s invoke -e '{"hello":"fc nodejs14"}'
 export BUILD_IMAGE_ENV=fc-backend
 rm -rf ./code/node_modules
-s3 build 
-s3 deploy -y 
-s3 info
-s3 invoke -e '{"hello":"fc nodejs14 fc backed"}'
-s3 remove -y
+s build 
+s deploy -y 
+s info
+s invoke -e '{"hello":"fc nodejs14 fc backed"}'
+s remove -y
 unset BUILD_IMAGE_ENV
 
 # nodejs12
@@ -27,22 +27,22 @@ export fc_component_runtime=nodejs12
 export fc_component_function_name=nodejs12-$(uname)-$(uname -m)
 rm -rf ./code/node_modules
 echo "test nodejs12 runtime ..."
-s3 build
-s3 local invoke -e '{"hello":"fc nodejs12"}'
-s3 deploy -y 
-s3 invoke -e '{"hello":"fc nodejs12"}'
-s3 remove -y
+s build
+s local invoke -e '{"hello":"fc nodejs12"}'
+s deploy -y 
+s invoke -e '{"hello":"fc nodejs12"}'
+s remove -y
 
 # nodejs16
 export fc_component_runtime=nodejs16
 export fc_component_function_name=nodejs16-$(uname)-$(uname -m)
 echo "test nodejs16 runtime ..."
 rm -rf ./code/node_modules
-s3 build
-s3 local invoke -e '{"hello":"fc nodejs16"}'
-s3 deploy -y 
-s3 invoke -e '{"hello":"fc nodejs16"}'
-s3 remove -y
+s build
+s local invoke -e '{"hello":"fc nodejs16"}'
+s deploy -y 
+s invoke -e '{"hello":"fc nodejs16"}'
+s remove -y
 
 
 # nodejs10
@@ -50,19 +50,19 @@ export fc_component_runtime=nodejs10
 export fc_component_function_name=nodejs10-$(uname)-$(uname -m)
 rm -rf ./code/node_modules
 echo "test nodejs10 runtime ..."
-s3 build
-s3 local invoke -e '{"hello":"fc nodejs10"}'
-s3 deploy -y 
-s3 invoke -e '{"hello":"fc nodejs10"}'
-s3 remove -y
+s build
+s local invoke -e '{"hello":"fc nodejs10"}'
+s deploy -y 
+s invoke -e '{"hello":"fc nodejs10"}'
+s remove -y
 
 # nodejs8
 # export fc_component_runtime=nodejs8
 # export fc_component_function_name=nodejs8-$(uname)-$(uname -m)
 # rm -rf ./code/node_modules
 # echo "test nodejs8 runtime ..."
-# s3 build
-# s3 local invoke -e '{"hello":"fc nodejs8"}'
-# s3 deploy -y 
-# s3 invoke -e '{"hello":"fc nodejs8"}'
-# s3 remove -y
+# s build
+# s local invoke -e '{"hello":"fc nodejs8"}'
+# s deploy -y 
+# s invoke -e '{"hello":"fc nodejs8"}'
+# s remove -y

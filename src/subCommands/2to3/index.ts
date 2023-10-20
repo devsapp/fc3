@@ -122,7 +122,7 @@ export default class SYaml2To3 {
         v.props['asyncInvokeConfig'] = v.props['asyncConfiguration'];
         _.unset(v.props, 'asyncConfiguration');
         let asyncInvokeConfig = v.props['asyncInvokeConfig'];
-        _.unset(asyncInvokeConfig, 'statefulInvocation');
+        //_.unset(asyncInvokeConfig, 'statefulInvocation');
         if (_.get(asyncInvokeConfig, 'destination')) {
           asyncInvokeConfig['destinationConfig'] = asyncInvokeConfig['destination'];
           _.unset(asyncInvokeConfig, 'destination');

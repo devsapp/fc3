@@ -7,17 +7,17 @@ echo "********* test http trigger ************"
 cd ./http
 export fc_component_function_name=test-http-trigger-$(uname)-$(uname -m)-$RANDSTR
 echo "test nodejs14 runtime http trigger ..."
-s3 remove -y
+s remove -y
 
 echo "********* test other trigger ************"
 cd ../other
 export fc_component_function_name=test-other-trigger-$(uname)-$(uname -m)-$RANDSTR
 echo "test nodejs14 runtime with timer/oss/sls/mns trigger ..."
-s3 remove -y --debug
+s remove -y --debug
 
 echo "********* test event bridge trigger ************"
 cd ../eb
 export fc_component_function_name=test-eb-trigger-$(uname)-$(uname -m)-$RANDSTR
 echo "test nodejs14 runtime with eb trigger ..."
-s3 remove -y
+s remove -y
 cd ..
