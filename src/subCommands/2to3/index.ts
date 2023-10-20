@@ -87,7 +87,7 @@ export default class SYaml2To3 {
         for (let i = 0; i < kLi.length; i++) {
           srv = srv[kLi[i]];
         }
-        console.info(`${service} ====> ${JSON.stringify(srv)}`);
+        //console.info(`${service} ====> ${JSON.stringify(srv)}`);
         _.unset(parsedYamlData, key);
       } else {
         srv = _.get(v.props, 'service') || {};
@@ -118,9 +118,42 @@ export default class SYaml2To3 {
 
       _.unset(v.props, 'instanceType');
 
-      v.props['asyncInvokeConfig'] = v.props['asyncConfiguration'];
-      _.unset(v.props, 'asyncConfiguration');
+      if (_.get(v.props, 'asyncConfiguration')) {
+        v.props['asyncInvokeConfig'] = v.props['asyncConfiguration'];
+        _.unset(v.props, 'asyncConfiguration');
+        let asyncInvokeConfig = v.props['asyncInvokeConfig'];
+        _.unset(asyncInvokeConfig, 'statefulInvocation');
+        if (_.get(asyncInvokeConfig, 'destination')) {
+          asyncInvokeConfig['destinationConfig'] = asyncInvokeConfig['destination'];
+          _.unset(asyncInvokeConfig, 'destination');
 
+          let destinationConfig = asyncInvokeConfig['destinationConfig'];
+          if (_.get(destinationConfig, 'onSuccess')) {
+            let succ = destinationConfig['onSuccess'];
+            if (succ.startsWith('acs:fc')) {
+              succ = succ.split('services/')[0] + 'functions/' + succ.split('functions/')[1];
+              if (succ.startsWith('acs:fc:::')) {
+                succ = succ.replace('acs:fc:::', 'acs:fc:${this.props.region}::');
+              }
+            }
+            destinationConfig['onSuccess'] = {
+              destination: succ,
+            };
+          }
+          if (_.get(destinationConfig, 'onFailure')) {
+            let fail = destinationConfig['onFailure'];
+            if (fail.startsWith('acs:fc')) {
+              fail = fail.split('services/')[0] + 'functions/' + fail.split('functions/')[1];
+              if (fail.startsWith('acs:fc:::')) {
+                fail = fail.replace('acs:fc:::', 'acs:fc:${this.props.region}::');
+              }
+            }
+            destinationConfig['onFailure'] = {
+              destination: fail,
+            };
+          }
+        }
+      }
       // 处理 nas mount config
       if (_.get(v.props, 'nasConfig')) {
         let mountPoints = v.props['nasConfig']['mountPoints'];
