@@ -9,7 +9,7 @@ on:
       - master
 
 env:
-  region: cn-hongkong
+  REGION: cn-hongkong
 
 jobs:
   docker-ci:

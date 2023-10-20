@@ -10,7 +10,7 @@ on:
 
 env:
   RANDSTR: github_16
-  region: cn-hongkong
+  REGION: cn-hongkong
 
 jobs:
   macos-ci:
