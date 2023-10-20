@@ -27,7 +27,7 @@ category: '概览'
     ```
 - 第三步：可以通过`s -v`判断工具是否安装成功，如果安装成功可以看到相对应的版本信息，例如：
     ```shell script
-    @serverless-devs/s3: 3.0.0, s-home: /Users/xiliu/.s, darwin-x64, node-v16.16.0
+    @serverless-devs/s3: 0.0.4, s-home: /Users/xiliu/.s, darwin-x64, node-v16.16.0
     ```
 
 ## 密钥配置
@@ -146,7 +146,7 @@ A complete log of this run can be found in: /Users/xiliu/.s/logs/0927161111
 在当前项目下，直接使用 `s invoke` 即可实现线上函数的调用/触发：
 
 ```
-xiliu@xl-mac start-fc3-python $ s3 invoke -e "test"
+xiliu@xl-mac start-fc3-python $ s invoke -e "test"
 ⌛ Steps for [invoke] of [hello-world-app]
 ====================
 ========= FC invoke Logs begin =========

@@ -5,9 +5,9 @@ set -e
 echo "test custom go runtime ..."
 rm -rf ./code/go.sum
 export fc_component_function_name=go1-$(uname)-$(uname -m)
-s3 deploy -y
-s3 invoke -e '{"hello":"fc go1"}'
-s3 local invoke -e '{"hello":"fc go1"}'
-s3 info
-s3 remove -y
+s deploy -y
+s invoke -e '{"hello":"fc go1"}'
+s local invoke -e '{"hello":"fc go1"}'
+s info
+s remove -y
 rm -rf ./code/target
