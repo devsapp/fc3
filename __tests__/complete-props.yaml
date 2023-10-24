@@ -78,6 +78,7 @@ resources:
         logstore: string
         project: string
       memorySize: 512
+      instanceConcurrency: 1 # 该参数仅针对 custom/custom.debian10/custom-container runtime 有效，范围为 [1, 100]
       nasConfig:
         groupId: 65534
         mountPoints:

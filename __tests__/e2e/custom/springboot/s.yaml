@@ -62,6 +62,7 @@ resources:
       cpu: 1
       diskSize: 512
       timeout: 30
+      instanceConcurrency: 10
       customRuntimeConfig:
         command:
           - java

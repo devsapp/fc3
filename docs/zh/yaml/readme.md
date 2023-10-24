@@ -66,6 +66,7 @@ resources:
         port: 0
       description: string
       diskSize: 512 # 可选值: 512 | 10240
+      instanceConcurrency: 1 # # 该参数仅针对 custom/custom.debian10/custom-container runtime 有效，范围为 [1, 100]
       environmentVariables:
         additionalProp1: string
         additionalProp2: string
