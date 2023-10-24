@@ -95,6 +95,7 @@ export default class SYaml2To3 {
       _.unset(v.props, 'service');
 
       // 去掉 service name 和 desc, 只使用 function 的name 和 desc 作为  fc3.0 的 functionName 和 desc
+      const serviceName = srv['name'];
       _.unset(srv, 'name');
       _.unset(srv, 'description');
 
@@ -102,7 +103,7 @@ export default class SYaml2To3 {
       _.unset(v.props, 'function');
       v.props = { ...v.props, ...func, ...srv };
 
-      v.props['functionName'] = v.props['name'];
+      v.props['functionName'] = serviceName + '$' + v.props['name'];
       _.unset(v.props, 'name');
 
       v.props['code'] = v.props['codeUri'];
