@@ -17,8 +17,6 @@ export interface IHealthCheckConfig {
 }
 
 export interface ICustomContainerConfig {
-  accelerationType?: string; // ?
-  acrInstanceID?: string;
   command?: string[];
   entrypoint?: string[];
   healthCheckConfig?: IHealthCheckConfig;

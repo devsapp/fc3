@@ -211,3 +211,78 @@ export async function getDockerTmpUser(
   }
   return dockerTmpConfig;
 }
+
+export async function getAcrEEInstanceID(
+  region: IRegion,
+  credentials: ICredentials,
+  instanceName: string,
+): Promise<string> {
+  if (!instanceName) {
+    return;
+  }
+  const defaultPageSize = 30;
+  const client = await getPopClient(credentials, `https://cr.${region}.aliyuncs.com`, '2018-12-01');
+  const requestOption = {
+    method: 'GET',
+    formatParams: false,
+  };
+
+  for (let i = 1; i < 100; i++) {
+    const result: any = await client.request('ListInstance', { PageNo: i }, requestOption);
+    logger.debug(`getAcrEEInstanceID result: ${JSON.stringify(result)}`);
+    const totalCount = result['TotalCount'];
+    const instances = result['Instances'];
+    for (const inst of instances) {
+      if (inst['InstanceName'] === instanceName) {
+        if (inst['InstanceStatus'] !== 'RUNNING') {
+          throw new Error(`AcrEE ${instanceName} Status is ${inst['InstanceStatus']}`);
+        }
+        logger.info(`getAcrEEInstanceID : ${inst['InstanceId']}`);
+        return inst['InstanceId'];
+      }
+    }
+    if (totalCount < i * defaultPageSize) {
+      break;
+    }
+  }
+  logger.error(`fail to getAcrEEInstanceID from ${instanceName}`);
+  return '';
+}
+
+export async function getAcrImageMeta(
+  region: IRegion,
+  credentials: ICredentials,
+  imageUrl: string,
+  instanceID: string,
+): Promise<boolean> {
+  if (instanceID) {
+    // TODO: ACREE 支持
+    return false;
+  } else {
+    const httpMethod = 'GET';
+    let li = imageUrl.split('/');
+    const repoNameSpace = li[1];
+    let li2 = li[2].split(':');
+    const repoName = li2[0];
+    const tag = li2[1];
+    const uriPath = `/repos/${repoNameSpace}/${repoName}/tags/${tag}`;
+    logger.debug(`getAcrImageMeta uriPath=${uriPath}`);
+    const queries = {};
+    const body = JSON.stringify({});
+    const headers = {
+      'Content-Type': 'application/json',
+    };
+    const requestOption = {};
+    const acrClient = getAcrClient(region, credentials);
+    try {
+      let ret = await acrClient.request(httpMethod, uriPath, queries, body, headers, requestOption);
+      logger.debug(`get ${imageUrl} meta ===> ${JSON.stringify(ret)}`);
+      return true;
+    } catch (e) {
+      if (e.statusCode === 404) {
+        logger.info(`${imageUrl} is not in Acr`);
+      }
+    }
+    return false;
+  }
+}

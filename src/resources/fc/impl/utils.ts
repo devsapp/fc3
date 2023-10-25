@@ -1,11 +1,5 @@
 import _ from 'lodash';
-import {
-  INasConfig,
-  IVpcConfig,
-  ILogConfig,
-  Runtime,
-  ICustomContainerConfig,
-} from '../../../interface';
+import { INasConfig, IVpcConfig, ILogConfig, Runtime } from '../../../interface';
 import { isAuto } from '../../../utils';
 import logger from '../../../logger';
 
@@ -41,18 +35,6 @@ export function computeLocalAuto(local) {
   const roleAuto =
     isAuto(local.role) || (_.isNil(local.role) && !_.isEmpty(local?.ossMountConfig?.mountPoints));
   return { nasAuto, vpcAuto, slsAuto, roleAuto };
-}
-
-/**
- * 是否启用了镜像加速
- */
-export function isContainerAccelerated(customContainerConfig: ICustomContainerConfig): boolean {
-  if (_.isEmpty(customContainerConfig)) {
-    return false;
-  }
-  const acrInstanceID = _.get(customContainerConfig, 'acrInstanceID');
-  const image = _.get(customContainerConfig, 'image', '');
-  return !!(acrInstanceID && image.endsWith('_accelerated'));
 }
 
 /**

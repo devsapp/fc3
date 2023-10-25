@@ -63,6 +63,7 @@ export default class SYaml2To3 {
 
   private _transform(parsedYamlData: any) {
     let resources = parsedYamlData['resources'];
+    let toDelServiceKeys = [];
     for (let k in resources) {
       let v = resources[k];
       const cp = v['component'] as string;
@@ -88,7 +89,8 @@ export default class SYaml2To3 {
           srv = srv[kLi[i]];
         }
         //console.info(`${service} ====> ${JSON.stringify(srv)}`);
-        _.unset(parsedYamlData, key);
+        //_.unset(parsedYamlData, key);
+        toDelServiceKeys.push(key);
       } else {
         srv = _.get(v.props, 'service') || {};
       }
@@ -157,13 +159,18 @@ export default class SYaml2To3 {
       }
       // 处理 nas mount config
       if (_.get(v.props, 'nasConfig')) {
-        let mountPoints = v.props['nasConfig']['mountPoints'];
-        for (let i = 0; i < mountPoints.length; i++) {
-          let mountPoint = mountPoints[i];
-          mountPoint['serverAddr'] = mountPoint['serverAddr'] + ':' + mountPoint['nasDir'];
-          mountPoint['mountDir'] = mountPoint['fcDir'];
-          _.unset(mountPoint, 'fcDir');
-          _.unset(mountPoint, 'nasDir');
+        let nasConfig = v.props['nasConfig'];
+        if (typeof nasConfig === 'string' && nasConfig.toLocaleLowerCase() === 'auto') {
+          v.props['nasConfig'] = 'auto';
+        } else {
+          let mountPoints = nasConfig['mountPoints'];
+          for (let i = 0; i < mountPoints.length; i++) {
+            let mountPoint = mountPoints[i];
+            mountPoint['serverAddr'] = mountPoint['serverAddr'] + ':' + mountPoint['nasDir'];
+            mountPoint['mountDir'] = mountPoint['fcDir'];
+            _.unset(mountPoint, 'fcDir');
+            _.unset(mountPoint, 'nasDir');
+          }
         }
       }
 
@@ -287,7 +294,10 @@ export default class SYaml2To3 {
         let actions = v['actions'];
         for (let k in actions) {
           let action = actions[k];
-          //console.log(k, action)
+          if (!action) {
+            continue;
+          }
+          console.log(`action: ${k}: ${action}`);
           for (let i = 0; i < action.length; i++) {
             let acV = action[i];
             if ('component' in acV) {
@@ -300,6 +310,10 @@ export default class SYaml2To3 {
           }
         }
       }
+    }
+
+    for (const key of toDelServiceKeys) {
+      _.unset(parsedYamlData, key);
     }
   }
 }

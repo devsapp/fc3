@@ -24,19 +24,14 @@ import { sleep } from '../../utils';
 import { FC_DEPLOY_RETRY_COUNT } from '../../default/config';
 
 import FC_Client, { fc2Client } from './impl/client';
-import { ICustomContainerConfig, IFunction, ILogConfig, ITrigger } from '../../interface';
+import { IFunction, ILogConfig, ITrigger } from '../../interface';
 import {
   FC_API_ERROR_CODE,
   isAccessDenied,
   isSlsNotExistException,
   isInvalidArgument,
 } from './error-code';
-import {
-  isCustomContainerRuntime,
-  isCustomRuntime,
-  isContainerAccelerated,
-  computeLocalAuto,
-} from './impl/utils';
+import { isCustomContainerRuntime, isCustomRuntime, computeLocalAuto } from './impl/utils';
 import replaceFunctionConfig from './impl/replace-function-config';
 import { IAlias } from '../../interface/cli-config/alias';
 import { removeNullValues } from '../../utils/index';
@@ -55,8 +50,55 @@ export default class FC extends FC_Client {
   static computeLocalAuto = computeLocalAuto;
   static isCustomContainerRuntime = isCustomContainerRuntime;
   static isCustomRuntime = isCustomRuntime;
-  static isContainerAccelerated = isContainerAccelerated;
   static replaceFunctionConfig = replaceFunctionConfig;
+
+  async untilFunctionStateOK(config: IFunction, reason: string) {
+    let retryTime = 5;
+    const currentTime = new Date().getTime();
+    const calculateRetryTime = (minute: number) =>
+      currentTime - new Date().getTime() > minute * 60 * 1000;
+    const retryContainerAccelerated = FC.isCustomContainerRuntime(config.runtime);
+    // 部署镜像需要重试 3min, 直到达到!(State == Pending || LastUpdateStatus == InProgress)
+    if (retryContainerAccelerated) {
+      console.log('');
+      if (reason === 'CREATE') {
+        logger.spin(
+          'waiting',
+          `waiting ${config.customContainerConfig.image} optimization to be ready,`,
+          `the function will be available for invocation once this process is complete ...`,
+        );
+      }
+      if (reason === 'UPDATE') {
+        logger.spin(
+          'waiting',
+          `waiting ${config.customContainerConfig.image}  optimization to be ready, `,
+          `function calls will be updated to the latest deployed version once the image optimization process is complete ...`,
+        );
+      }
+      while (true) {
+        const functionMeta = await this.getFunction(
+          config.functionName,
+          GetApiType.simpleUnsupported,
+        );
+        const state = _.get(functionMeta, 'state');
+        const lastUpdateStatus = _.get(functionMeta, 'lastUpdateStatus');
+        logger.debug(
+          `untilFunctionStateOK ==>  function State=${state},  LastUpdateStatus=${lastUpdateStatus}`,
+        );
+        if (state === 'Pending' || lastUpdateStatus === 'InProgress') {
+          if (calculateRetryTime(3)) {
+            throw new Error(
+              `retry to wait function state ok timeout, function State=${state},  LastUpdateStatus=${lastUpdateStatus}`,
+            );
+          }
+          await sleep(retryTime);
+        } else {
+          logger.spin('waited', `${config.customContainerConfig.image} optimization is ready!`);
+          break;
+        }
+      }
+    }
+  }
 
   /**
    * 创建或者修改函数
@@ -75,10 +117,6 @@ export default class FC extends FC_Client {
       }
     }
 
-    const isContainerAccelerated = FC.isContainerAccelerated(
-      config.customContainerConfig as ICustomContainerConfig,
-    );
-
     let retry = 0;
     let retryTime = 3;
 
@@ -93,6 +131,7 @@ export default class FC extends FC_Client {
           logger.debug(`Need create function ${config.functionName}`);
           try {
             await this.createFunction(config);
+            await this.untilFunctionStateOK(config, 'CREATE');
             return;
           } catch (ex) {
             logger.debug(`Create function error: ${ex.message}`);
@@ -117,23 +156,22 @@ export default class FC extends FC_Client {
           _.unset(config, 'customContainerConfig');
         }
         await this.updateFunction(config);
+        await this.untilFunctionStateOK(config, 'UPDATE');
         return;
       } catch (ex) {
         logger.debug(`Deploy function error: ${ex}`);
         /**
          * 重试机制
-          ○ 如果是权限问题不重重试直接异常
-          ○ 部署镜像并且使用 _accelerated 结尾：报错镜像不存在，需要重试 3min
-          ○ 首次创建日志：报错日志不存在，需要重试 3min
-          ○ 默认重试 3 次
+          ○ 1. 如果是权限问题不重重试直接异常
+          ○ 2. 重试 3min, 首次创建日志：报错日志不存在，需要重试 3min
+          ○ 3. 其他情况，默认重试 3 次
         */
         const { project, logstore } = (config.logConfig || {}) as ILogConfig;
         const retrySls = slsAuto && isSlsNotExistException(project, logstore, ex);
-        const retryContainerAccelerated = isContainerAccelerated; // TODO: 部署镜像并且使用 _accelerated 结尾：报错镜像不存在
         // TODO: 如果是权限问题不重试直接异常
         if (isAccessDenied(ex) || isInvalidArgument(ex)) {
           throw ex;
-        } else if (retrySls || retryContainerAccelerated) {
+        } else if (retrySls) {
           if (calculateRetryTime(3)) {
             throw ex;
           }
@@ -150,7 +188,6 @@ export default class FC extends FC_Client {
           `${this.region}/${config.functionName}`,
           retry,
         );
-
         await sleep(retryTime);
       }
     }

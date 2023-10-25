@@ -52,15 +52,17 @@ export default class Deploy {
     await this.asyncInvokeConfig?.before();
 
     // 调用运行
-    await this.service?.run();
-    await this.trigger?.run();
-    await this.asyncInvokeConfig?.run();
+    let run1 = await this.service?.run();
+    let run2 = await this.trigger?.run();
+    let run3 = await this.asyncInvokeConfig?.run();
 
     // 获取输出
-    const info = new Info(this.inputs);
-    info.setGetApiType(GetApiType.simpleUnsupported);
-    const result = await info.run();
-    logger.debug(`Get info: ${JSON.stringify(result)}`);
-    return result;
+    if (run1 && run2 && run3) {
+      const info = new Info(this.inputs);
+      info.setGetApiType(GetApiType.simpleUnsupported);
+      const result = await info.run();
+      logger.debug(`Get info: ${JSON.stringify(result)}`);
+      return result;
+    }
   }
 }

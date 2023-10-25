@@ -32,6 +32,7 @@ export default class Service extends Base {
   remote?: any;
   local: IFunction;
   createResource: Record<string, any> = {};
+  acr: Acr;
 
   constructor(inputs: IInputs, opts: IOpts) {
     super(inputs, opts.yes);
@@ -48,6 +49,14 @@ export default class Service extends Base {
     _.unset(this.local, 'region');
     _.unset(this.local, 'triggers');
     _.unset(this.local, 'asyncInvokeConfig');
+  }
+
+  private getAcr() {
+    if (this.acr) {
+      return this.acr;
+    }
+    this.acr = new Acr(this.inputs.props.region, this.inputs.credential as ICredentials);
+    return this.acr;
   }
 
   // 准备动作
@@ -97,6 +106,8 @@ export default class Service extends Base {
       slsAuto: !_.isEmpty(this.createResource.sls),
       type: this.type,
     });
+
+    return this.needDeploy;
   }
 
   /**
@@ -109,6 +120,7 @@ export default class Service extends Base {
       return;
     }
 
+    _.unset(this.local, 'endpoint');
     const code = this.local.code;
     _.unset(this.local, 'code');
     const { diffResult, show } = diffConvertYaml(this.remote, this.local);
@@ -116,14 +128,43 @@ export default class Service extends Base {
 
     logger.debug(`diff result: ${JSON.stringify(diffResult)}`);
     logger.debug(`diff show:\n${show}`);
+
+    let tipsMsg = `Function ${this.local.functionName} was changed, please confirm before deployment:\n`;
     // 没有差异，直接部署
     if (_.isEmpty(diffResult)) {
-      this.needDeploy = true;
-      return;
+      if (!FC.isCustomContainerRuntime(this.local.runtime)) {
+        this.needDeploy = true;
+        return;
+      }
     }
-    logger.write(
-      `Function ${this.local.functionName} was changed, please confirm before deployment:\n`,
-    );
+
+    // custom-container 检查 s.yaml 中 image 是否存在 acr 中， 如果存在， 则弹出交互提示
+    // --skip-push 则不用提示
+    if (FC.isCustomContainerRuntime(this.local.runtime)) {
+      const { image } = this.local.customContainerConfig || {};
+      if (_.isNil(image)) {
+        throw new Error('CustomContainerRuntime must have a valid image URL');
+      }
+      const isExist = await this.getAcr().checkAcr(image, this.needDeploy);
+      if (!isExist) {
+        if (_.isEmpty(diffResult)) {
+          this.needDeploy = true;
+          return;
+        }
+      } else {
+        if (!this.skipPush) {
+          tipsMsg = yellow(
+            `WARNING: You are pushing ${image} to overwrite an existing image tag.If this image tag is being used by any other functions, subsequent calls to these functions may fail.Please confirm if you want to continue.`,
+          );
+        } else {
+          if (_.isEmpty(diffResult)) {
+            this.needDeploy = true;
+            return;
+          }
+        }
+      }
+    }
+    logger.write(tipsMsg);
     logger.write(show);
     // 用户指定了 --yes 或者 --no-yes，不再交互
     if (_.isBoolean(this.needDeploy)) {
@@ -132,7 +173,7 @@ export default class Service extends Base {
     logger.write(
       `\n* You can also specify to use local configuration through --assume-yes/-y during deployment`,
     );
-    const message = `Deploy it with local config or skip deploy function?`;
+    const message = `Deploy it with local config?`;
     const answers = await inquirer.prompt([
       {
         type: 'confirm',
@@ -151,14 +192,11 @@ export default class Service extends Base {
       logger.debug(`skip push is ${this.skipPush}`);
       return;
     }
-    const { image, acrInstanceID } = this.local.customContainerConfig || {};
+    const { image } = this.local.customContainerConfig || {};
     if (_.isNil(image)) {
       throw new Error('CustomContainerRuntime must have a valid image URL');
     }
-    logger.spin('creating', 'Acr', image);
-    const acr = new Acr(this.inputs.props.region, this.inputs.credential as ICredentials);
-    await acr.pushAcr(image, acrInstanceID);
-    logger.spin('created', 'Acr', image);
+    await this.getAcr().pushAcr(image);
   }
 
   /**
