@@ -49,6 +49,7 @@ export default class AsyncInvokeConfig extends Base {
         `Online asyncInvokeConfig exists, specified not to deploy, skipping deployment ${id}`,
       );
     }
+    return this.needDeploy;
   }
 
   private async getRemote() {
@@ -85,7 +86,7 @@ export default class AsyncInvokeConfig extends Base {
     logger.write(
       `\n* You can also specify to use local configuration through --assume-yes/-y during deployment`,
     );
-    const message = `Deploy it with local config or skip deploy asyncInvokeConfig?`;
+    const message = `Deploy it with local config?`;
     const answers = await inquirer.prompt([
       {
         type: 'confirm',

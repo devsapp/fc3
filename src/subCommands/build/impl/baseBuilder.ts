@@ -42,10 +42,6 @@ export abstract class Builder {
     return this.inputs.getCredential();
   }
 
-  getAcrEEInstanceID(): string {
-    return _.get(this.getProps(), 'customContainerConfig.acrInstanceID');
-  }
-
   getEnv(): Record<string, string> {
     return this.getProps().environmentVariables || {};
   }
@@ -82,11 +78,10 @@ export abstract class Builder {
   async getRuntimeBuildImage(): Promise<string> {
     let image: string;
     if (FC.isCustomContainerRuntime(this.getRuntime())) {
-      const img = this.getProps().customContainerConfig?.image;
-      if (_.isEmpty(img)) {
+      image = this.getProps().customContainerConfig?.image;
+      if (_.isEmpty(image)) {
         throw new Error('image must be set in custom-container runtime');
       }
-      image = Acr.vpcImage2InternetImage(img);
       logger.debug(`use fc docker CustomContainer image: ${image}`);
     } else if (fcDockerUseImage) {
       image = fcDockerUseImage;
@@ -165,9 +160,9 @@ export abstract class Builder {
   }
 
   async mockDockerLogin() {
-    const acrInstanceID = this.getAcrEEInstanceID();
-    logger.info(`acrInstanceID: ${acrInstanceID}`);
     let imageName = await this.getRuntimeBuildImage();
+    const acrInstanceID = await Acr.getAcrEEInstanceID(imageName, await this.getCredentials());
+    logger.info(`acrInstanceID: ${acrInstanceID}`);
     this.checkAcreeInstanceID(imageName, acrInstanceID);
     const credential = await this.getCredentials();
     await mockDockerConfigFile(this.getRegion(), imageName, credential, acrInstanceID);

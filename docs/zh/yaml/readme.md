@@ -27,8 +27,6 @@ resources:
       #   ossObjectName: string
       cpu: 0.5
       customContainerConfig:
-        accelerationType: string
-        acrInstanceID: string
         command:
           - string
         entrypoint:

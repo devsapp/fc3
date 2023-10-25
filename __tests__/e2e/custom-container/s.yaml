@@ -24,4 +24,3 @@ resources:
         command:
           - /home/code/server.js
         port: 9001
-        # accelerationType: 'None'
