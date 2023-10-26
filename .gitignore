@@ -7,7 +7,6 @@
 !.editorconfig
 
 # Logs
-logs
 *.log*
 
 # Runtime data

@@ -21,6 +21,7 @@ import Version from './subCommands/version';
 import Alias from './subCommands/alias';
 import Concurrency from './subCommands/concurrency';
 import SYaml2To3 from './subCommands/2to3';
+import Logs from './subCommands/logs';
 
 export default class Fc extends Base {
   // 部署函数
@@ -142,5 +143,11 @@ export default class Fc extends Base {
     await super.handlePreRun(inputs, false);
     const trans = new SYaml2To3(inputs);
     return await trans.run();
+  }
+
+  public async logs(inputs: IInputs) {
+    await super.handlePreRun(inputs, true);
+    const logs = new Logs(inputs);
+    return await logs.run();
   }
 }

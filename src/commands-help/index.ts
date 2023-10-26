@@ -13,6 +13,7 @@ import instance from './instance';
 import build from './build';
 import local from './local';
 import s2tos3 from './s2tos3';
+import logs from './logs';
 
 export default {
   deploy,
@@ -30,4 +31,5 @@ export default {
   build,
   local,
   s2tos3,
+  logs,
 };
