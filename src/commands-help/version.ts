@@ -1,7 +1,7 @@
 export default {
   help: {
-    description: 'Service version operation ',
-    summary: 'Service version operation ',
+    description: 'Function version operation ',
+    summary: 'Function version operation ',
   },
   subCommands: {
     list: {

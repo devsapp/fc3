@@ -6,21 +6,21 @@
   "scripts": {
     "prestart": "npm run generate-schema",
     "prebuild": "npm run generate-schema",
-    "start": "esbuild src/index.ts --bundle --log-level=error --external:proxy-agent --minify --platform=node --format=cjs --target=node10 --outfile=dist/index.js --watch",
-    "build": "esbuild src/index.ts --bundle --log-level=error --external:proxy-agent --minify --platform=node --format=cjs --target=node10 --outfile=dist/index.js",
-    "format": "prettier --write ./src",
+    "start": "esbuild src/index.ts --bundle --log-level=error --external:proxy-agent  --external:aliyun-sdk --minify --platform=node --format=cjs --target=node10 --outfile=dist/index.js --watch",
+    "build": "esbuild src/index.ts --bundle --log-level=error --external:proxy-agent  --external:aliyun-sdk --minify --platform=node --format=cjs --target=node10 --outfile=dist/index.js",
+    "format": "prettier --write src/",
     "generate-schema": "npx typescript-json-schema ./src/interface/index.ts IProps --required -o ./dist/schema.json",
     "prepare": "husky install",
     "postinstall": "curl -sS https://images.devsapp.cn/pop-sdk/fix-sdk.sh | bash",
     "watch": "tsc -w",
     "publish": "npm i && npm run build && s registry publish",
-    "f2elint-scan": "f2elint scan -i src/ --quiet"
+    "f2elint-scan": "f2elint scan -i src/  --quiet"
   },
   "repository": "git@gitlab.alibaba-inc.com:serverless-devs/fc.git",
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "dependencies": {
+   "dependencies": {
     "@alicloud/fc2": "^2.6.6",
     "@alicloud/fc20230330": "^3.0.2",
     "@alicloud/pop-core": "^1.7.13",
@@ -32,6 +32,7 @@
     "@serverless-devs/utils": "^0.0.10",
     "@serverless-devs/zip": "^0.0.3-beta.6",
     "ajv": "^8.12.0",
+    "aliyun-sdk": "^1.12.10",
     "chalk": "^4.1.0",
     "extract-zip": "^2.0.1",
     "fs-extra": "^11.1.1",
