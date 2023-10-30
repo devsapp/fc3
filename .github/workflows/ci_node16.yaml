@@ -39,7 +39,7 @@ jobs:
           npm run build
       - name: run base ci 
         run: |
-          cd __tests__/e2e && ./ci.sh && cd -
+          cd __tests__/e2e && ./ci-mac-linux.sh && cd -
 
 
   windows-ci:
@@ -98,4 +98,4 @@ jobs:
           npm run build
       - name: run base ci 
         run: |
-          cd __tests__/e2e && ./ci.sh && cd -
+          cd __tests__/e2e && ./ci-mac-linux.sh && cd -

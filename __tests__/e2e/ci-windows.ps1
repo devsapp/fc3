@@ -1,3 +1,5 @@
+# github action 使用
+
 $ErrorActionPreference = "Stop"
 
 # $env:region="ap-southeast-1"
@@ -42,14 +44,14 @@ s remove -y
 Remove-Item -Recurse -Force ./target -ErrorAction SilentlyContinue
 cd ..
 
-Write-Host "test nodejs runtime with auto ..."
-cd nodejs
-$env:fc_component_function_name = "nodejs14-$($env:OS)-$($env:PROCESSOR_ARCHITECTURE)-$($env:RANDSTR)"
-s deploy -y -t ./s_auto.yaml
-s invoke -e '{"hello":"fc nodejs with auto"}' -t ./s_auto.yaml
-s info -y -t ./s_auto.yaml
-s remove -y -t ./s_auto.yaml
-cd ../
+# Write-Host "test nodejs runtime with auto ..."
+# cd nodejs
+# $env:fc_component_function_name = "nodejs14-$($env:OS)-$($env:PROCESSOR_ARCHITECTURE)-$($env:RANDSTR)"
+# s deploy -y -t ./s_auto.yaml
+# s invoke -e '{"hello":"fc nodejs with auto"}' -t ./s_auto.yaml
+# s info -y -t ./s_auto.yaml
+# s remove -y -t ./s_auto.yaml
+# cd ../
 
 Write-Host " *********  command-api *********"
 cd command-api; ./run-windows.ps1; cd ../
