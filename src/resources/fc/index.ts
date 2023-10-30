@@ -63,18 +63,18 @@ export default class FC extends FC_Client {
       console.log('');
       if (reason === 'CREATE') {
         logger.spin(
-          'waiting',
-          `waiting ${config.customContainerConfig.image} optimization to be ready,`,
-          `the function will be available for invocation once this process is complete ...`,
+          'checking',
+          `${config.customContainerConfig.image} `,
+          `optimization to be ready, the function will be available for invocation once this process is complete ...`,
         );
-      }
-      if (reason === 'UPDATE') {
+      } else if (reason === 'UPDATE') {
         logger.spin(
-          'waiting',
-          `waiting ${config.customContainerConfig.image}  optimization to be ready, `,
-          `function calls will be updated to the latest deployed version once the image optimization process is complete ...`,
+          'checking',
+          `${config.customContainerConfig.image}`,
+          `optimization to be ready, function calls will be updated to the latest deployed version once the image optimization process is complete ...`,
         );
       }
+      let retry = 1;
       while (true) {
         const functionMeta = await this.getFunction(
           config.functionName,
@@ -92,8 +92,17 @@ export default class FC extends FC_Client {
             );
           }
           await sleep(retryTime);
+          logger.spin(
+            'checking',
+            `${config.customContainerConfig.image}`,
+            `optimization is not ready, function state=${state}, lastUpdateStatus=${lastUpdateStatus}, waiting ${
+              retry * 5
+            } seconds...`,
+          );
+
+          retry++;
         } else {
-          logger.spin('waited', `${config.customContainerConfig.image} optimization is ready!`);
+          logger.spin('checked', `${config.customContainerConfig.image}`, `optimization is ready`);
           break;
         }
       }
