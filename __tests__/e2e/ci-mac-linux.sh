@@ -7,9 +7,6 @@
 set -e
 set -v
 
-# export FC_CLIENT_CONNECT_TIMEOUT=3
-# export FC_CLIENT_READ_TIMEOUT=5
-
 echo "test go runtime"
 cd go
 export fc_component_function_name=go1-$(uname)-$(uname -m)-$RANDSTR
