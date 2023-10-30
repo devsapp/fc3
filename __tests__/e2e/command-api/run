@@ -42,8 +42,8 @@ echo "test layer ..."
 export layer_name=pyyaml-layer-$(uname)-$(uname -m)-$RANDSTR
 s layer list 
 s layer list --prefix python
-s layer info --layer-name Python39-Aliyun-SDK --version-id 2
-s layer download --layer-name Python39-Aliyun-SDK --version-id 2
+s layer info --layer-name Python39-Scrapy2x --version-id 2
+s layer download --layer-name Python39-Scrapy2x --version-id 2
 s layer publish --layer-name $layer_name --code ./pyyaml-layer.zip --compatible-runtime "python3.9,python3.10,custom,custom.debian10"
 s layer list --prefix $layer_name
 s layer list --prefix $layer_name --table
