@@ -53,7 +53,7 @@ export default class FC extends FC_Client {
   static replaceFunctionConfig = replaceFunctionConfig;
 
   async untilFunctionStateOK(config: IFunction, reason: string) {
-    let retryTime = 5;
+    let retryTime = 2;
     const currentTime = new Date().getTime();
     const calculateRetryTime = (minute: number) =>
       currentTime - new Date().getTime() > minute * 60 * 1000;
