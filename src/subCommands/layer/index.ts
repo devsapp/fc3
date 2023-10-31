@@ -1,4 +1,4 @@
-import { parseArgv } from '@serverless-devs/utils';
+import { parseArgv, getRootHome } from '@serverless-devs/utils';
 import commandsHelp from '../../commands-help/layer';
 import { IInputs, IRegion, checkRegion } from '../../interface';
 import logger from '../../logger';
@@ -6,7 +6,6 @@ import _ from 'lodash';
 import FC from '../../resources/fc';
 import zip from '@serverless-devs/zip';
 import downloads from '@serverless-devs/downloads';
-import { getRootHome } from '@serverless-devs/utils';
 import path from 'path';
 import fs from 'fs';
 import { promptForConfirmOrDetails, tableShow } from '../../utils';
@@ -63,22 +62,23 @@ export default class Layer {
   }
 
   async list() {
-    let query = {
+    // eslint-disable-next-line prefer-const
+    let query: any = {
       limit: 20,
     };
     if (this.opts.prefix !== undefined) {
-      query['prefix'] = this.opts.prefix;
+      query.prefix = this.opts.prefix;
     }
     if (this.opts.public !== undefined) {
-      query['public'] = this.opts.public.toString();
+      query.public = this.opts.public.toString();
     }
     if (this.opts.official !== undefined) {
-      query['official'] = this.opts.official.toString();
+      query.official = this.opts.official.toString();
       if (this.opts.official) {
-        query['public'] = 'true';
+        query.public = 'true';
       }
     }
-    let list = await this.fcSdk.listAllLayers(query);
+    const list = await this.fcSdk.listAllLayers(query);
 
     if (this.opts.table) {
       const showKey = [
@@ -127,8 +127,8 @@ export default class Layer {
     if (_.isEmpty(layerName)) {
       throw new Error('layerName not specified, please specify --layer-name');
     }
-    let layers = (await this.fcSdk.listLayerVersions(layerName)).layers;
-    for (let i in layers) {
+    const layers = (await this.fcSdk.listLayerVersions(layerName)).layers;
+    for (const i in layers) {
       layers[i] = _.omit(layers[i], ['code', 'createTime', 'license', 'codeChecksum', 'codeSize']);
     }
     if (this.opts.table) {
@@ -148,7 +148,7 @@ export default class Layer {
 
   async publish() {
     const layerName = this.opts['layer-name'];
-    const codeUri = this.opts['code'];
+    const codeUri = this.opts.code;
     const compatibleRuntime = this.opts['compatible-runtime'];
 
     if (_.isEmpty(layerName)) {
@@ -163,7 +163,7 @@ export default class Layer {
       );
     }
 
-    let toZipDir: string = path.isAbsolute(codeUri) ? codeUri : path.join(this.baseDir, codeUri);
+    const toZipDir: string = path.isAbsolute(codeUri) ? codeUri : path.join(this.baseDir, codeUri);
 
     let zipPath = toZipDir;
     let generateZipFilePath: string = '';
@@ -185,12 +185,12 @@ export default class Layer {
 
     const compatibleRuntimeList = compatibleRuntime.split(',');
 
-    let result = await this.fcSdk.createLayerVersion(
+    const result = await this.fcSdk.createLayerVersion(
       layerName,
-      ossConfig['ossBucketName'],
-      ossConfig['ossObjectName'],
+      ossConfig.ossBucketName,
+      ossConfig.ossObjectName,
       compatibleRuntimeList,
-      this.opts['description'] || '',
+      this.opts.description || '',
     );
 
     if (generateZipFilePath) {
@@ -224,7 +224,7 @@ export default class Layer {
       await this.fcSdk.deleteLayerVersion(layerName, version);
     } else {
       try {
-        let layers = (await this.fcSdk.listLayerVersions(layerName)).layers;
+        const layers = (await this.fcSdk.listLayerVersions(layerName)).layers;
         for (const l of layers) {
           await this.fcSdk.deleteLayerVersion(layerName, l.version);
         }
@@ -236,7 +236,7 @@ export default class Layer {
 
   async download() {
     const { code, layerName, version } = await this._getLayer();
-    const url = code['location'];
+    const url = code.location;
 
     const localDir = path.join(
       getRootHome(),
@@ -263,7 +263,7 @@ export default class Layer {
     if (_.isEmpty(layerName)) {
       throw new Error('layerName not specified, please specify --layer-name');
     }
-    const isPublic = this.opts['public'];
+    const isPublic = this.opts.public;
     await this.fcSdk.putLayerACL(layerName, isPublic.toString());
   }
 }

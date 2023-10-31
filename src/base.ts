@@ -1,21 +1,21 @@
 import _ from 'lodash';
 import { IInputs } from './interface';
-import Logger from './logger';
+// eslint-disable-next-line @typescript-eslint/no-shadow
 import logger from './logger';
 import { FUNCTION_CUSTOM_DEFAULT_CONFIG, FUNCTION_DEFAULT_CONFIG } from './default/config';
 import path from 'path';
 import commandsHelp from './commands-help';
 import FC from './resources/fc';
 import { ICredentials } from '@serverless-devs/component-interface';
-import Role from './resources/ram';
-import { RamClient } from './resources/ram';
+import Role, { RamClient } from './resources/ram';
 import { TriggerType } from './interface/base';
 
 export default class Base {
   commands: any;
-
-  constructor({ logger }: any) {
-    Logger._set(logger);
+  // eslint-disable-next-line @typescript-eslint/no-shadow
+  constructor({ logger: log }: any) {
+    // eslint-disable-next-line @typescript-eslint/no-shadow
+    logger._set(log);
 
     this.commands = commandsHelp;
   }
@@ -51,15 +51,16 @@ export default class Base {
 
     const triggers = _.cloneDeep(_.get(inputs, 'props.triggers', []));
     for (const index in triggers) {
+      // eslint-disable-next-line prefer-const
       let trigger = triggers[index];
-      const role = _.get(trigger, 'invocationRole');
-      let triggerRole = await this.handleRole(role, needCredential, inputs);
+      const invocationRole = _.get(trigger, 'invocationRole');
+      let triggerRole = await this.handleRole(invocationRole, needCredential, inputs);
       if (triggerRole === undefined) {
         triggerRole = await this.handleDefaultTriggerRole(inputs, trigger);
       }
       if (triggerRole !== undefined) {
         _.set(trigger, 'invocationRole', triggerRole);
-        inputs['props']['triggers'][index] = trigger;
+        inputs.props.triggers[index] = trigger;
       }
     }
     logger.debug(`handle pre run config: ${JSON.stringify(inputs.props)}`);
@@ -91,7 +92,7 @@ export default class Base {
     2. 针对 EB 触发器，GetOrCreate 和控制台一样的 service linked role
   */
   private async handleDefaultTriggerRole(inputs: IInputs, trigger: any): Promise<string> {
-    let triggerRole = undefined;
+    let triggerRole;
     const triggerType = _.get(trigger, 'triggerType');
     if (_.isEmpty(inputs.credential)) {
       inputs.credential = await inputs.getCredential();
@@ -113,11 +114,13 @@ export default class Base {
       case TriggerType.tablestore:
         triggerRole = await ramClient.initFcOtsTriggerRole();
         break;
-      case TriggerType.eventbridge: // eb 触发器没有 trigger role, get or create slr role
+      case TriggerType.eventbridge: {
+        // eb 触发器没有 trigger role, get or create slr role
         const eventSourceType = trigger.triggerConfig.eventSourceConfig.eventSourceType;
         await ramClient.initSlrRole('SENDTOFC');
         await ramClient.initSlrRole(eventSourceType.toUpperCase());
         break;
+      }
       default:
         logger.debug(`${triggerType} don't have default trigger role`);
     }

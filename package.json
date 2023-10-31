@@ -13,7 +13,8 @@
     "prepare": "husky install",
     "postinstall": "curl -sS https://images.devsapp.cn/pop-sdk/fix-sdk.sh | bash",
     "watch": "tsc -w",
-    "publish": "npm i && npm run build && s registry publish"
+    "publish": "npm i && npm run build && s registry publish",
+    "f2elint-scan": "f2elint scan -i src/  --quiet"
   },
   "repository": "git@gitlab.alibaba-inc.com:serverless-devs/fc.git",
   "keywords": [],
@@ -50,10 +51,17 @@
     "@types/node": "^14.0.23",
     "@vercel/ncc": "^0.36.1",
     "esbuild": "^0.18.13",
+    "f2elint": "^2.2.1",
     "husky": "^8.0.1",
     "prettier": "^2.8.4",
     "ts-node": "^8.10.2",
     "typescript": "^4.4.2",
     "typescript-json-schema": "^0.59.0"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "f2elint commit-file-scan",
+      "commit-msg": "f2elint commit-msg-scan"
+    }
   }
 }

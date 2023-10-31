@@ -1,5 +1,4 @@
 import { parseArgv } from '@serverless-devs/utils';
-import _ from 'lodash';
 
 import Service from './impl/function';
 import Trigger from './impl/trigger';
@@ -52,9 +51,9 @@ export default class Deploy {
     await this.asyncInvokeConfig?.before();
 
     // 调用运行
-    let run1 = await this.service?.run();
-    let run2 = await this.trigger?.run();
-    let run3 = await this.asyncInvokeConfig?.run();
+    const run1 = await this.service?.run();
+    const run2 = await this.trigger?.run();
+    const run3 = await this.asyncInvokeConfig?.run();
 
     // 获取输出
     if (run1 && run2 && run3) {

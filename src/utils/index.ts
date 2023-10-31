@@ -17,7 +17,7 @@ export const isAuto = (config: unknown): boolean => {
 };
 
 export const getTimeZone = (): string => {
-  const timeZone = 'UTC+' + (0 - new Date().getTimezoneOffset() / 60);
+  const timeZone = `UTC+${0 - new Date().getTimezoneOffset() / 60}`;
   return timeZone;
 };
 
@@ -35,9 +35,9 @@ export async function promptForConfirmOrDetails(message: string): Promise<boolea
 }
 
 export function removeNullValues(obj: object) {
-  for (let key in obj) {
+  for (const key in obj) {
     if (obj[key] === null) {
-      delete obj[key];
+      _.unset(obj, key);
     } else if (typeof obj[key] === 'object') {
       removeNullValues(obj[key]);
     }
@@ -62,5 +62,6 @@ export function tableShow(data: any, showKey: string[]) {
     width: 'auto',
     formatter: (v: any) => v,
   }));
+
   console.log(Table(header, data, options).render());
 }

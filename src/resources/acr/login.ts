@@ -191,7 +191,7 @@ export async function mockDockerConfigFile(
 ) {
   const { fileContent, dockerConfigPath } = await getDockerConfigInformation();
 
-  let dockerTmpConfig = await getDockerTmpUser(region, credentials, instanceID);
+  const dockerTmpConfig = await getDockerTmpUser(region, credentials, instanceID);
   const auth = Buffer.from(
     `${dockerTmpConfig.dockerTmpUser}:${dockerTmpConfig.dockerTmpToken}`,
   ).toString('base64');
@@ -230,15 +230,15 @@ export async function getAcrEEInstanceID(
   for (let i = 1; i < 100; i++) {
     const result: any = await client.request('ListInstance', { PageNo: i }, requestOption);
     logger.debug(`getAcrEEInstanceID result: ${JSON.stringify(result)}`);
-    const totalCount = result['TotalCount'];
-    const instances = result['Instances'];
+    const totalCount = result.TotalCount;
+    const instances = result.Instances;
     for (const inst of instances) {
-      if (inst['InstanceName'] === instanceName) {
-        if (inst['InstanceStatus'] !== 'RUNNING') {
-          throw new Error(`AcrEE ${instanceName} Status is ${inst['InstanceStatus']}`);
+      if (inst.InstanceName === instanceName) {
+        if (inst.InstanceStatus !== 'RUNNING') {
+          throw new Error(`AcrEE ${instanceName} Status is ${inst.InstanceStatus}`);
         }
-        logger.info(`getAcrEEInstanceID : ${inst['InstanceId']}`);
-        return inst['InstanceId'];
+        logger.info(`getAcrEEInstanceID : ${inst.InstanceId}`);
+        return inst.InstanceId;
       }
     }
     if (totalCount < i * defaultPageSize) {
@@ -260,9 +260,9 @@ export async function getAcrImageMeta(
     return false;
   } else {
     const httpMethod = 'GET';
-    let li = imageUrl.split('/');
+    const li = imageUrl.split('/');
     const repoNameSpace = li[1];
-    let li2 = li[2].split(':');
+    const li2 = li[2].split(':');
     const repoName = li2[0];
     const tag = li2[1];
     const uriPath = `/repos/${repoNameSpace}/${repoName}/tags/${tag}`;
@@ -275,7 +275,14 @@ export async function getAcrImageMeta(
     const requestOption = {};
     const acrClient = getAcrClient(region, credentials);
     try {
-      let ret = await acrClient.request(httpMethod, uriPath, queries, body, headers, requestOption);
+      const ret = await acrClient.request(
+        httpMethod,
+        uriPath,
+        queries,
+        body,
+        headers,
+        requestOption,
+      );
       logger.debug(`get ${imageUrl} meta ===> ${JSON.stringify(ret)}`);
       return true;
     } catch (e) {

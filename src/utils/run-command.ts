@@ -14,7 +14,8 @@ async function runCommand(
   cwd?: string,
 ) {
   logger.debug(`runCommand command = ${command} ${shellScript || ''}`);
-  let [cmd, ...args] = command.split(' ');
+  const [cmdStr, ...args] = command.split(' ');
+  let cmd = cmdStr;
   if (cmd.includes('=') && args.length > 0) {
     const c = args.shift();
     cmd = `${cmd} ${c}`;
@@ -31,13 +32,11 @@ async function runCommand(
 
   const isInherit = showStdout === COMMAND_STDIO.inherit;
   return new Promise<void>((resolve, reject) => {
-    let options = {
+    const options = {
       shell: true,
       stdio: (isInherit ? 'inherit' : 'pipe') as StdioOptions,
+      cwd,
     };
-    if (cwd) {
-      options['cwd'] = cwd;
-    }
     const dProcess = spawn(cmd, args, options);
 
     if (!isInherit) {

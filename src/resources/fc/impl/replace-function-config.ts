@@ -44,9 +44,10 @@ export default function (_local: any, _remote: any) {
     }
 
     if (remote.layers) {
-      let layers = [];
+      // eslint-disable-next-line prefer-const
+      let layers: any[] = [];
       for (const i in remote.layers) {
-        let layer = remote.layers[i];
+        const layer = remote.layers[i];
         layers.push(layer.arn);
       }
       _.unset(remote, 'layers');

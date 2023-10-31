@@ -8,12 +8,12 @@ module.exports.handler = function (event, context, callback) {
   console.log(event.toString());
   execSync('jq --help', {
     shell: true,
-    stdio: 'inherit'
+    stdio: 'inherit',
   });
-  
+
   execSync('rsync --version', {
     shell: true,
-    stdio: 'inherit'
+    stdio: 'inherit',
   });
   callback(null, 'hello world');
 };

@@ -122,7 +122,7 @@ export default class Alias {
       aliasName: this.aliasName,
       versionId: this.versionId,
       description: this.description,
-      additionalVersionWeight: additionalVersionWeight,
+      additionalVersionWeight,
     };
     return await this.fcSdk.publishAlias(this.functionName, this.aliasName, config);
   }

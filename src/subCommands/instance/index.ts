@@ -47,8 +47,8 @@ export default class Instance {
     if (_.isEmpty(functionName)) {
       throw new Error('functionName not specified, please specify --function-name');
     }
-    const qualifier = this.opts['qualifier'] || 'LATEST';
-    let list = await this.fcSdk.listInstances(functionName, qualifier);
+    const qualifier = this.opts.qualifier || 'LATEST';
+    const list = await this.fcSdk.listInstances(functionName, qualifier);
     return list;
   }
 
@@ -66,8 +66,8 @@ export default class Instance {
     if (_.isEmpty(instanceId)) {
       throw new Error('instanceId not specified, please specify --instance-id');
     }
-    const qualifier = this.opts['qualifier'] || 'LATEST';
-    const cmd = this.opts['cmd'] as string;
+    const qualifier = this.opts.qualifier || 'LATEST';
+    const cmd = this.opts.cmd as string;
     let rawData = [];
     if (cmd) {
       rawData = ['bash', '-c', cmd];

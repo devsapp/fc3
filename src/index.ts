@@ -111,10 +111,10 @@ export default class Fc extends Base {
 
     const runtime = _.get(inputs, 'props.runtime');
     if (FC.isCustomContainerRuntime(runtime)) {
-      let dockerBuilder = BuilderFactory.getBuilder(BuildType.ImageDocker, inputs);
+      const dockerBuilder = BuilderFactory.getBuilder(BuildType.ImageDocker, inputs);
       await dockerBuilder.build();
     } else {
-      let defaultBuilder = BuilderFactory.getBuilder(BuildType.Default, inputs);
+      const defaultBuilder = BuilderFactory.getBuilder(BuildType.Default, inputs);
       await defaultBuilder.build();
     }
     return {};

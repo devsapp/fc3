@@ -8,9 +8,8 @@ import * as rimraf from 'rimraf';
 import { parseArgv } from '@serverless-devs/utils';
 import { ICredentials } from '@serverless-devs/component-interface';
 import logger from '../../../logger';
-import { ICodeUri } from '../../../interface';
+import { ICodeUri, IInputs } from '../../../interface';
 import { IDE_VSCODE } from '../../../constant';
-import { IInputs } from '../../../interface';
 import {
   fcDockerNameSpace,
   fcDockerUseImage,
@@ -23,7 +22,7 @@ const { execSync } = require('child_process');
 
 export class BaseLocal {
   protected defaultDebugArgs: string;
-  protected _argsData: object;
+  protected _argsData: any;
   protected unzippedCodeDir?: string;
   private baseDir: string;
 
@@ -106,9 +105,9 @@ export class BaseLocal {
     if (this.unzippedCodeDir) {
       return this.unzippedCodeDir;
     }
-    let props = this.inputs.props;
+    const props = this.inputs.props;
     const codeUri = props.code as ICodeUri;
-    let src: string = typeof codeUri === 'string' ? codeUri : codeUri.src;
+    const src: string = typeof codeUri === 'string' ? codeUri : codeUri.src;
     const runtime = props.runtime;
     if (_.endsWith(src, '.zip') || (_.endsWith(src, '.jar') && runtime.startsWith('java'))) {
       const tmpCodeDir: string = path.join(tmpDir, uuidV4());
@@ -198,13 +197,13 @@ export class BaseLocal {
     // TODO: layer and  tmp dir
     const codeUri = await this.getCodeUri();
     logger.debug(`mount codeUri = ${codeUri}`);
-    let mntStr = `-v ${codeUri}:/code`;
-    return mntStr;
+    return `-v ${codeUri}:/code`;
   }
 
   async getEnvString(): Promise<string> {
     const credentials = await this.getCredentials();
-    const sysEnvs = {
+    // eslint-disable-next-line prefer-const
+    let sysEnvs: any = {
       FC_ACCOUNT_ID: credentials.AccountID || '',
       FC_ACCESS_KEY_ID: credentials.AccessKeyID || '',
       FC_ACCESS_KEY_SECRET: credentials.AccessKeySecret || '',
@@ -217,8 +216,8 @@ export class BaseLocal {
       FC_SERVER_PORT: this.getCaPort(),
     };
     if (!_.isEmpty(this.getInitializer())) {
-      sysEnvs['FC_INITIALIZER'] = this.getInitializer();
-      sysEnvs['FC_INITIALIZATION_TIMEOUT'] = this.getInitializerTimeout();
+      sysEnvs.FC_INITIALIZER = this.getInitializer();
+      sysEnvs.FC_INITIALIZATION_TIMEOUT = this.getInitializerTimeout();
     }
 
     let envStr = '';
@@ -231,7 +230,6 @@ export class BaseLocal {
     if ('environmentVariables' in this.inputs.props) {
       const envs = this.inputs.props.environmentVariables;
       for (const item in envs) {
-        //console.log(`${item}: ${envs[item]}`);
         envStr += ` -e "${item}=${envs[item]}"`;
       }
     }
@@ -284,7 +282,7 @@ export class BaseLocal {
   }
 
   getDebugIDE(): string {
-    return this._argsData['config'] as string;
+    return this._argsData?.config as string;
   }
 
   debugIDEIsVsCode(): boolean {
