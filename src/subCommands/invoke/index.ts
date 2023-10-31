@@ -19,7 +19,7 @@ export default class Invoke {
   private region: IRegion;
 
   constructor(inputs: IInputs) {
-    let {
+    const {
       event: payload,
       'event-file': eventFile,
       'invocation-type': invocationType,
@@ -42,16 +42,17 @@ export default class Invoke {
     if (_.isEmpty(this.functionName)) {
       throw new Error('functionName not specified, please specify --function-name');
     }
+    let sdkTimeout = timeout;
     if (!timeout) {
-      timeout = inputs.props?.timeout + 5; // 加大5s
+      sdkTimeout = inputs.props?.timeout + 5; // 加大5s
       if (FC.isCustomContainerRuntime(inputs.props.runtime)) {
-        timeout = inputs.props?.timeout + 30; // 考虑冷启动镜像的 pull 时间
+        sdkTimeout = inputs.props?.timeout + 30; // 考虑冷启动镜像的 pull 时间
       }
     } else {
-      timeout = parseInt(timeout);
+      sdkTimeout = parseInt(timeout);
     }
     this.fcSdk = new FC(this.region, inputs.credential as ICredentials, {
-      timeout: timeout ? timeout * 1000 : undefined,
+      timeout: sdkTimeout ? sdkTimeout * 1000 : undefined,
       endpoint: inputs.props.endpoint,
     });
 
@@ -114,11 +115,11 @@ ${bold('RequestId:')} ${green(requestId)}
     if (headers['x-fc-error-type']) {
       showLog += `${bold('Error Type:')} ${red(errorType)}
 
-${bold('Invoke Result:')} 
+${bold('Invoke Result:')}
 ${red(body)}`;
     } else {
       showLog += `
-${bold('Invoke Result:')} 
+${bold('Invoke Result:')}
 ${green(body)}`;
     }
 

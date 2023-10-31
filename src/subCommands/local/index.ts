@@ -26,43 +26,51 @@ export default class ComponentBuild {
       case 'nodejs10':
       case 'nodejs12':
       case 'nodejs14':
-      case 'nodejs16':
-        let nodeLocalInvoker = new NodejsLocalInvoke(inputs);
+      case 'nodejs16': {
+        const nodeLocalInvoker = new NodejsLocalInvoke(inputs);
         await nodeLocalInvoker.invoke();
         break;
+      }
       case 'python2.7':
       case 'python3':
       case 'python3.9':
-      case 'python3.10':
-        let pythonLocalInvoker = new PythonLocalInvoke(inputs);
+      case 'python3.10': {
+        const pythonLocalInvoker = new PythonLocalInvoke(inputs);
         await pythonLocalInvoker.invoke();
         break;
+      }
       case 'java8':
-      case 'java11':
-        let javaLocalInvoker = new JavaLocalInvoke(inputs);
+      case 'java11': {
+        const javaLocalInvoker = new JavaLocalInvoke(inputs);
         await javaLocalInvoker.invoke();
         break;
-      case 'php7.2':
-        let phpLocalInvoker = new PhpLocalInvoke(inputs);
+      }
+      case 'php7.2': {
+        const phpLocalInvoker = new PhpLocalInvoke(inputs);
         await phpLocalInvoker.invoke();
         break;
-      case 'go1':
-        let goLocalInvoke = new GoLocalInvoke(inputs);
+      }
+      case 'go1': {
+        const goLocalInvoke = new GoLocalInvoke(inputs);
         await goLocalInvoke.invoke();
         break;
-      case 'dotnetcore2.1':
-        let dotnetLocalInvoker = new DotnetLocalInvoke(inputs);
+      }
+      case 'dotnetcore2.1': {
+        const dotnetLocalInvoker = new DotnetLocalInvoke(inputs);
         await dotnetLocalInvoker.invoke();
         break;
+      }
       case 'custom':
-      case 'custom.debian10':
-        let customLocalInvoker = new CustomLocalInvoke(inputs);
+      case 'custom.debian10': {
+        const customLocalInvoker = new CustomLocalInvoke(inputs);
         await customLocalInvoker.invoke();
         break;
-      case 'custom-container':
-        let customContainerLocalInvoker = new CustomContainerLocalInvoke(inputs);
+      }
+      case 'custom-container': {
+        const customContainerLocalInvoker = new CustomContainerLocalInvoke(inputs);
         await customContainerLocalInvoker.invoke();
         break;
+      }
       default:
         logger.error(`${inputs.props.runtime} is not supported`);
     }
@@ -74,14 +82,16 @@ export default class ComponentBuild {
 
     switch (inputs.props.runtime) {
       case 'custom':
-      case 'custom.debian10':
-        let customLocalInvoker = new CustomLocalStart(inputs);
+      case 'custom.debian10': {
+        const customLocalInvoker = new CustomLocalStart(inputs);
         await customLocalInvoker.start();
         break;
-      case 'custom-container':
-        let customContainerLocalInvoker = new CustomContainerLocalStart(inputs);
+      }
+      case 'custom-container': {
+        const customContainerLocalInvoker = new CustomContainerLocalStart(inputs);
         await customContainerLocalInvoker.start();
         break;
+      }
       default:
         logger.error(
           `start command ${inputs.props.runtime} is not supported, only custom/custom.debian10/custom-container supported!`,

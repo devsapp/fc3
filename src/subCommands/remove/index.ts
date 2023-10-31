@@ -235,7 +235,7 @@ export default class Remove {
       try {
         await this.fcSdk.removeTrigger(this.functionName, triggerName);
       } catch (ex) {
-        throw ex;
+        logger.error(`${ex}`);
       }
       logger.spin('removed', 'trigger', `${this.functionName}/${triggerName}`);
     }

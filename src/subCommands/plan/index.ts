@@ -56,12 +56,12 @@ export default class Plan {
       remote = await this.fcSdk.getFunction(this.functionName, GetApiType.simpleUnsupported);
     } catch (ex) {
       logger.debug(`Get remote function config error: ${ex.message}`);
-      //console.log(JSON.stringify(ex));
       if (ex.code === FC_API_ERROR_CODE.FunctionNotFound) {
         remote = {};
       }
     }
     _.unset(this.inputs.props, 'code');
+    // eslint-disable-next-line prefer-const
     let local = _.cloneDeep(this.inputs.props);
     _.unset(local, 'region');
     _.unset(local, 'triggers');
@@ -112,6 +112,7 @@ export default class Plan {
       );
     }
 
+    // eslint-disable-next-line prefer-const
     let local = _.cloneDeep(_.get(this.inputs.props, 'asyncInvokeConfig', {}));
     return diffConvertPlanYaml(remote, local, { deep: 1, complete: true });
   }

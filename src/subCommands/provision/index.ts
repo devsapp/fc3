@@ -152,6 +152,5 @@ export default class Provision {
       }
     }
     logger.spin('removed', 'function provision', `${this.functionName}/${this.qualifier}`);
-    return;
   }
 }

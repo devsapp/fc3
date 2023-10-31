@@ -8,7 +8,7 @@ export function isCustomContainerRuntime(runtime: string): boolean {
 }
 
 export function isCustomRuntime(runtime: string): boolean {
-  return runtime === Runtime['custom'] || runtime === Runtime['custom.debian10'];
+  return runtime === Runtime.custom || runtime === Runtime['custom.debian10'];
 }
 
 /**

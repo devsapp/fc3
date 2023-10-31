@@ -54,16 +54,8 @@ export default class Sync {
     const triggers = await this.fcSdk.listTriggers(this.functionName);
     logger.debug(triggers);
     for (const t of triggers) {
-      let {
-        triggerName,
-        triggerType,
-        description,
-        qualifier,
-        triggerConfig,
-        invocationRole,
-        sourceArn,
-      } = t;
-      triggerConfig = JSON.parse(triggerConfig);
+      const { triggerName, triggerType, description, qualifier, invocationRole, sourceArn } = t;
+      const triggerConfig = JSON.parse(t.triggerConfig);
       if (triggerType === TriggerType.eventbridge) {
         result.push({ triggerName, triggerType, description, qualifier, triggerConfig });
       } else {
@@ -95,7 +87,9 @@ export default class Sync {
         'LATEST',
         GetApiType.simpleUnsupported,
       );
-    } catch (ex) {}
+    } catch (ex) {
+      // eslint-disable-next-line no-empty
+    }
     return await this.write(functionInfo, triggers, asyncInvokeConfig);
   }
 
@@ -124,17 +118,17 @@ export default class Sync {
     }
 
     if (functionConfig.role) {
-      let role = functionConfig.role as string;
+      const role = functionConfig.role as string;
       functionConfig.role = role.toLowerCase();
     }
 
-    let props = { region: this.region };
+    let props: any = { region: this.region };
     props = Object.assign(props, functionConfig);
     if (!_.isEmpty(triggers)) {
-      props['triggers'] = triggers;
+      props.triggers = triggers;
     }
     if (!_.isEmpty(asyncInvokeConfig)) {
-      props['asyncInvokeConfig'] = asyncInvokeConfig;
+      props.asyncInvokeConfig = asyncInvokeConfig;
     }
 
     const config = {
@@ -144,7 +138,7 @@ export default class Sync {
       resources: {
         [this.functionName]: {
           component: 'fc3',
-          props: props,
+          props,
         },
       },
     };

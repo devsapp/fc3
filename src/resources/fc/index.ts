@@ -20,8 +20,8 @@ import {
 import { RuntimeOptions } from '@alicloud/tea-util';
 
 import logger from '../../logger';
-import { sleep } from '../../utils';
-import { FC_DEPLOY_RETRY_COUNT } from '../../default/config';
+import { sleep, removeNullValues } from '../../utils/index';
+import { FC_DEPLOY_RETRY_COUNT, FC_INSTANCE_EXEC_TIMEOUT } from '../../default/config';
 
 import FC_Client, { fc2Client } from './impl/client';
 import { IFunction, ILogConfig, ITrigger } from '../../interface';
@@ -34,9 +34,7 @@ import {
 import { isCustomContainerRuntime, isCustomRuntime, computeLocalAuto } from './impl/utils';
 import replaceFunctionConfig from './impl/replace-function-config';
 import { IAlias } from '../../interface/cli-config/alias';
-import { removeNullValues } from '../../utils/index';
 import { TriggerType } from '../../interface/base';
-import { FC_INSTANCE_EXEC_TIMEOUT } from '../../default/config';
 
 export enum GetApiType {
   original = 'original', // 直接返回接口返回值
@@ -53,7 +51,7 @@ export default class FC extends FC_Client {
   static replaceFunctionConfig = replaceFunctionConfig;
 
   async untilFunctionStateOK(config: IFunction, reason: string) {
-    let retryTime = 2;
+    const retryTime = 2;
     const currentTime = new Date().getTime();
     const calculateRetryTime = (minute: number) =>
       currentTime - new Date().getTime() > minute * 60 * 1000;
@@ -400,6 +398,7 @@ export default class FC extends FC_Client {
     if (type === GetApiType.original) {
       return result;
     }
+    // eslint-disable-next-line prefer-const
     let { body } = result.toMap();
     body.triggerConfig = JSON.parse(body.triggerConfig);
 
@@ -523,6 +522,7 @@ export default class FC extends FC_Client {
       const { body } = result.toMap();
       triggers.push(...body.triggers);
       if (!body.nextToken) {
+        // eslint-disable-next-line prefer-const
         let filteredTriggers = [];
         for (const key in triggers) {
           const trigger = triggers[key];
@@ -550,7 +550,7 @@ export default class FC extends FC_Client {
   ): Promise<any> {
     const runtime = new RuntimeOptions({});
     const headers: { [key: string]: string } = {};
-    const req = new GetAsyncInvokeConfigRequest({ qualifier: qualifier });
+    const req = new GetAsyncInvokeConfigRequest({ qualifier });
     const result = await this.fc20230330Client.getAsyncInvokeConfigWithOptions(
       functionName,
       req,
@@ -560,8 +560,10 @@ export default class FC extends FC_Client {
     if (type === GetApiType.original) {
       return result;
     }
+    // eslint-disable-next-line prefer-const
     let { body } = result.toMap();
     if (type === GetApiType.simpleUnsupported) {
+      // eslint-disable-next-line prefer-const
       let r = _.omit(body, ['createdTime', 'functionArn', 'lastModifiedTime']);
       removeNullValues(r);
       logger.debug(`getAsyncInvokeConfig simpleUnsupported Result body: ${JSON.stringify(r)}`);
@@ -582,6 +584,7 @@ export default class FC extends FC_Client {
     const req = new ListAsyncInvokeConfigsRequest({ functionName, limit: 100 });
     const result = await this.fc20230330Client.listAsyncInvokeConfigs(req);
     const { body } = result.toMap();
+    // eslint-disable-next-line prefer-const
     let configs = [];
     for (const c of body.configs) {
       if (_.isEmpty(c.destinationConfig)) {
@@ -606,9 +609,10 @@ export default class FC extends FC_Client {
    * list all layers
    */
   async listAllLayers(query: any) {
+    // eslint-disable-next-line prefer-const
     let layers = [];
     while (true) {
-      let r = await this.listLayers(query);
+      const r = await this.listLayers(query);
       for (const l of r.layers) {
         layers.push(l);
       }
@@ -716,10 +720,13 @@ export default class FC extends FC_Client {
 
       const onStdout = (msg) => process.stdout.write(msg.toString());
       const onStderr = (msg) => process.stderr.write(msg.toString());
+
+      /* eslint-disable @typescript-eslint/no-unused-vars */
       const onClose = (e) => {
-        //process.stdout.write(`on close --> ${e.toString()}`);
         process.exit(0);
       };
+      /* eslint-disable @typescript-eslint/no-unused-vars */
+
       const onError = (e, reason) => {
         process.stderr.write(e.toString());
         process.stderr.write(reason);
@@ -731,7 +738,7 @@ export default class FC extends FC_Client {
         queries,
       );
 
-      const ticker = setInterval(function () {
+      const ticker = setInterval(() => {
         try {
           ws.ping();
         } catch (e) {
@@ -739,12 +746,12 @@ export default class FC extends FC_Client {
         }
       }, 5000);
 
-      ws.on('unexpected-response', function (req, incoming) {
-        var data = [];
-        incoming.on('data', function (chunk) {
+      ws.on('unexpected-response', (req, incoming) => {
+        let data = [];
+        incoming.on('data', (chunk) => {
           data = data.concat(chunk);
         });
-        incoming.on('end', function () {
+        incoming.on('end', () => {
           const msg = JSON.parse(data.toString());
           const err = new Error(msg.ErrorMessage);
           onError(err, 'unexpected-response end');
@@ -769,9 +776,7 @@ export default class FC extends FC_Client {
         }
       });
 
-      await (async () => {
-        new Promise((resolve) => (ws.onopen = resolve));
-      });
+      ws.onopen = resolve;
 
       const conn = {
         websocket: ws,

@@ -186,7 +186,7 @@ export default class FC_Client {
       runtime,
     );
 
-    let body = await httpx.read(result.body);
+    const body = await httpx.read(result.body);
     const res = result.toMap();
     res.body = body.toString('utf-8');
     if (res.headers?.['x-fc-log-result']) {
@@ -376,7 +376,7 @@ export default class FC_Client {
   ): Promise<PutAsyncInvokeConfigResponse> {
     const request = new PutAsyncInvokeConfigRequest({
       body: new PutAsyncInvokeConfigInput(config),
-      qualifier: qualifier,
+      qualifier,
     });
 
     logger.debug(`putAsyncInvokeConfig config = ${JSON.stringify(request)}`);

@@ -31,7 +31,8 @@ export default class Acr {
     const Li = imageUrl.split('.');
     const region = Li[1] as IRegion;
     const t = Li[0];
-    let instanceName = t.endsWith('-registry-vpc')
+    /* eslint-disable no-nested-ternary */
+    const instanceName = t.endsWith('-registry-vpc')
       ? t.substring(0, t.length - 13)
       : t.endsWith('-registry')
       ? t.substring(0, t.length - 9)
@@ -46,7 +47,7 @@ export default class Acr {
   private instanceID: string;
   constructor(private region: IRegion, private credential: ICredentials) {}
 
-  async checkAcr(imageUrl: string, yes: boolean): Promise<boolean> {
+  async checkAcr(imageUrl: string): Promise<boolean> {
     const instanceID = await Acr.getAcrEEInstanceID(imageUrl, this.credential);
     this.instanceID = instanceID;
     const image = Acr.vpcImage2InternetImage(imageUrl);
@@ -87,7 +88,7 @@ export default class Acr {
           dockerCmdStr = `docker push ${imageUrl}`;
           await runCommand(dockerCmdStr, runCommand.showStdout.inherit);
         }
-      } catch (err) {
+      } catch (err2) {
         logger.error(
           `Fail to push image, if you have already pushed the image, you can use the "--skip-push" option to avoid pushing the image again. for example: s deploy --skip-push`,
         );
