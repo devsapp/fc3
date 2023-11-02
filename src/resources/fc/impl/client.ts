@@ -72,7 +72,11 @@ export default class FC_Client {
   readonly fc20230330Client: FCClient;
   customEndpoint: string;
 
-  constructor(readonly region: IRegion, readonly credentials: ICredentials, options: IOptions) {
+  constructor(
+    readonly region: IRegion,
+    readonly credentials: ICredentials,
+    options: IOptions,
+  ) {
     const {
       AccountID: accountID,
       AccessKeyID: accessKeyId,

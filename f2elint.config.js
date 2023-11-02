@@ -1,5 +1,5 @@
 module.exports = {
   enableStylelint: true,
-  enableMarkdownlint: false,
+  enableMarkdownlint: true,
   enablePrettier: true,
 };
