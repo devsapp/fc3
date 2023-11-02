@@ -31,7 +31,7 @@ export default class Provision {
       string: [
         'function-name',
         'region',
-        // 'target',
+        'target',
         'qualifier',
         'scheduled-actions',
         'target-tracking-policies',
