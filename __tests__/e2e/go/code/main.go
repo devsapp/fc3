@@ -10,6 +10,7 @@ func main() {
 	fc.Start(HandleRequest)
 }
 
+// HandleRequest ...
 func HandleRequest(event []byte) (string, error) {
 	fmt.Printf("event: %s\n", string(event))
 	fmt.Println("hello world! 你好，世界!")
