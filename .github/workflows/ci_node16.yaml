@@ -9,7 +9,7 @@ on:
       - master
 
 env:
-  RANDSTR: github_16
+  RANDSTR: github_node16
   REGION: cn-hongkong
 
 jobs:
@@ -37,7 +37,7 @@ jobs:
       - name: NPM run build
         run: |
           npm run build
-      - name: run base ci 
+      - name: run base ci
         run: |
           cd __tests__/e2e && ./ci-mac-linux.sh && cd -
 
@@ -82,7 +82,7 @@ jobs:
           registry-url: https://registry.npmjs.org/
       - name: Install dependencies
         run: |
-          sudo apt-get update 
+          sudo apt-get update
           sudo apt-get install -y wget curl
       - name: install s
         run: |
@@ -96,6 +96,6 @@ jobs:
       - name: NPM run build
         run: |
           npm run build
-      - name: run base ci 
+      - name: run base ci
         run: |
           cd __tests__/e2e && ./ci-mac-linux.sh && cd -

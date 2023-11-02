@@ -31,7 +31,7 @@ jobs:
           java-version: 8
       - name: Install dependencies
         run: |
-          sudo apt-get update 
+          sudo apt-get update
           sudo apt-get install -y wget curl
       - name: install s
         run: |

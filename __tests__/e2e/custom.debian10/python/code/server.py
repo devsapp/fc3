@@ -8,17 +8,17 @@ import traceback
 import logging
 
 
-log = logging.getLogger('werkzeug')
+log = logging.getLogger("werkzeug")
 log.setLevel(logging.ERROR)
 
 
 app = Flask(__name__)
 
 
-REQUEST_ID_HEADER = 'x-fc-request-id'
+REQUEST_ID_HEADER = "x-fc-request-id"
 
 
-@app.route('/invoke', methods=['POST'])
+@app.route("/invoke", methods=["POST"])
 def event_invoke():
     rid = request.headers.get(REQUEST_ID_HEADER)
     print("FC Invoke Start RequestId: " + rid)
@@ -33,10 +33,7 @@ def event_invoke():
     except Exception as e:
         exc_info = sys.exc_info()
         trace = traceback.format_tb(exc_info[2])
-        errRet = {
-            "message": str(e),
-            "stack": trace
-        }
+        errRet = {"message": str(e), "stack": trace}
         print(errRet)
         print("FC Invoke End RequestId: " + rid)
         return errRet, 404, [("x-fc-status", "404")]
@@ -46,10 +43,10 @@ def event_invoke():
     return data
 
 
-@app.route('/', methods=['GET'])
+@app.route("/", methods=["GET"])
 def home():
     return "hello world\n"
 
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=9000)
+    app.run(host="0.0.0.0", port=9000)
