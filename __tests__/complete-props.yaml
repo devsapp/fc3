@@ -1,5 +1,5 @@
-edition: 3.0.0 #  命令行YAML规范版本，遵循语义化版本（Semantic Versioning）规范
-name: fc3-example #  项目名称
+edition: 3.0.0 # 命令行YAML规范版本，遵循语义化版本（Semantic Versioning）规范
+name: fc3-example # 项目名称
 access: default
 
 resources:
@@ -109,7 +109,7 @@ resources:
         vSwitchIds:
           - string
         vpcId: string
-  
+
       asyncInvokeConfig:
         destinationConfig:
           onFailure:
@@ -118,7 +118,7 @@ resources:
             destination: acs:fc:cn-huhehaote::functions/serverless-devs-ci-async-invoke-config-succ
         maxAsyncEventAgeInSeconds: 360
         maxAsyncRetryAttempts: 3
-  
+
       triggers:
         - triggerName: httpTrigger # 触发器名称
           triggerType: http # 触发器类型

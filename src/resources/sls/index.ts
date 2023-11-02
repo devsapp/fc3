@@ -24,7 +24,10 @@ export default class Sls {
   readonly client: Sls20201230;
   private accountID: string;
 
-  constructor(private region: IRegion, credentials: ICredentials) {
+  constructor(
+    private region: IRegion,
+    credentials: ICredentials,
+  ) {
     const config = new Config({
       accessKeyId: credentials.AccessKeyID,
       accessKeySecret: credentials.AccessKeySecret,

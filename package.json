@@ -8,13 +8,13 @@
     "prebuild": "npm run generate-schema",
     "start": "esbuild src/index.ts --bundle --log-level=error --external:proxy-agent --minify --platform=node --format=cjs --target=node10 --outfile=dist/index.js --watch",
     "build": "esbuild src/index.ts --bundle --log-level=error --external:proxy-agent --minify --platform=node --format=cjs --target=node10 --outfile=dist/index.js",
-    "format": "prettier --write src/",
+    "format": "prettier --write ./src",
     "generate-schema": "npx typescript-json-schema ./src/interface/index.ts IProps --required -o ./dist/schema.json",
     "prepare": "husky install",
     "postinstall": "curl -sS https://images.devsapp.cn/pop-sdk/fix-sdk.sh | bash",
     "watch": "tsc -w",
     "publish": "npm i && npm run build && s registry publish",
-    "f2elint-scan": "f2elint scan -i src/  --quiet"
+    "f2elint-scan": "f2elint scan -i src/ --quiet"
   },
   "repository": "git@gitlab.alibaba-inc.com:serverless-devs/fc.git",
   "keywords": [],
@@ -28,8 +28,8 @@
     "@serverless-cd/srm-aliyun-ram20150501": "^0.0.2-beta.9",
     "@serverless-cd/srm-aliyun-sls20201230": "^0.0.1",
     "@serverless-devs/diff": "^0.0.3-beta.6",
-    "@serverless-devs/downloads": "^0.0.2-beta.9",
-    "@serverless-devs/utils": "^0.0.8-beta.18",
+    "@serverless-devs/downloads": "^0.0.3",
+    "@serverless-devs/utils": "^0.0.10",
     "@serverless-devs/zip": "^0.0.3-beta.6",
     "ajv": "^8.12.0",
     "chalk": "^4.1.0",
@@ -47,16 +47,16 @@
   },
   "devDependencies": {
     "@serverless-devs/component-interface": "^0.0.3-beta.1",
-    "@types/lodash": "^4.14.197",
-    "@types/node": "^14.0.23",
-    "@vercel/ncc": "^0.36.1",
-    "esbuild": "^0.18.13",
+    "@types/lodash": "^4.14.200",
+    "@types/node": "^20.8.10",
+    "@vercel/ncc": "^0.38.1",
+    "esbuild": "^0.19.5",
     "f2elint": "^2.2.1",
-    "husky": "^8.0.1",
-    "prettier": "^2.8.4",
-    "ts-node": "^8.10.2",
+    "husky": "^8.0.3",
+    "prettier": "^3.0.3",
+    "ts-node": "^10.9.1",
     "typescript": "^4.4.2",
-    "typescript-json-schema": "^0.59.0"
+    "typescript-json-schema": "^0.62.0"
   },
   "husky": {
     "hooks": {

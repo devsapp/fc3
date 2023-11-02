@@ -1,5 +1,6 @@
 node_modules/
-__test__/e2e
+__test__/complete-props.yaml
 dist/
-docs
+docs/
 *.json
+*.yaml
