@@ -59,7 +59,7 @@ export default class SYaml2To3 {
 
   async run() {
     logger.info(`transform ${this.source}  =====>  ${this.target}`);
-    const fileContents = fs.readFileSync('s.yaml', 'utf8');
+    const fileContents = fs.readFileSync(this.source, 'utf8');
     // eslint-disable-next-line prefer-const
     let parsedYamlData = yaml.load(fileContents);
     parsedYamlData.edition = '3.0.0';

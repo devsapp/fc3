@@ -3,7 +3,7 @@ Type: Component
 Name: fc3
 Provider:
   - 阿里云
-Version: 0.0.7
+Version: 0.0.8
 Description: 阿里云函数计算全生命周期管理
 HomePage: https://github.com/devsapp/fc3
 Organization: 阿里云函数计算（FC）
@@ -72,7 +72,7 @@ Properties:
     type: string | object
     required: true
     description: 函数代码包地址，本地文件夹/本地zip文件/oss bucket+object
-  
+
   triggers:
     type: array
     required: false
