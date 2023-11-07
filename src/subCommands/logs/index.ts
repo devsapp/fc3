@@ -1,5 +1,5 @@
 import { parseArgv } from '@serverless-devs/utils';
-import { IInputs } from '../../interface';
+import { IInputs, ILogConfig } from '../../interface';
 import logger from '../../logger';
 import inquirer from 'inquirer';
 import { SLS } from 'aliyun-sdk';
@@ -87,32 +87,33 @@ export default class Logs {
       ],
       alias: { tail: 't', 'start-time': 's', 'end-time': 'e', 'request-id': 'r', help: 'h' },
     };
-    this.opts = parseArgv(this.inputs.args, apts);
+    this.opts = parseArgv(this.inputs.args, apts) || {};
     this.logger.debug(`opts is: ${JSON.stringify(this.opts)}`);
 
     this.region = this.opts?.region || this.inputs.props?.region;
     if (_.isNil(this.region)) {
-      throw new Error('region does not exist');
+      throw new Error('region not specified, please specify --region');
     }
     this.fcSdk = new FC(this.region, this.inputs.credential as ICredentials, {});
     this.getApiType = GetApiType.simple;
-  }
-
-  async run() {
-    // 参数转化处理，尤其是交互兼容处理
-    const props = await this.getInputs(this.inputs.props || {}, this.opts || {});
-    this.logger.debug(`handler props is: ${JSON.stringify(props)}`);
 
     this.slsClient = new SLS({
       accessKeyId: this.inputs.credential.AccessKeyID,
       secretAccessKey: this.inputs.credential.AccessKeySecret,
       securityToken: this.inputs.credential.SecurityToken,
-      endpoint: `http://${props.region}.log.aliyuncs.com`,
+      endpoint: `http://${this.region}.log.aliyuncs.com`,
       apiVersion: '2015-06-01',
       // httpOptions: {
       //   timeout: 1000  //1sec, 默认没有timeout
       // },
     });
+  }
+
+  async run() {
+    // 参数转化处理，尤其是交互兼容处理
+    const props = await this.getInputs();
+    this.logger.debug(`handler props is: ${JSON.stringify(props)}`);
+
     if (props.tail) {
       await this.realtime(props);
     } else {
@@ -121,20 +122,21 @@ export default class Logs {
     }
   }
 
-  async getInputs(props, comParseData): Promise<IProps> {
-    const functionName = comParseData?.['function-name'] || props?.functionName;
+  async getInputs(): Promise<IProps> {
+    const props: any = this.inputs.props || {};
+    const functionName = this.opts?.['function-name'] || props?.functionName;
     if (_.isNil(functionName)) {
-      throw new Error('functionName does not exist');
+      throw new Error('functionName not specified, please specify --function-name');
     }
     const { logConfig } = await this.getFunction(functionName);
     if (_.isNil(logConfig)) {
       throw new Error(
-        `logConfig does not exist, you can set the config in yaml or on https://fcnext.console.aliyun.com/${region}/functions/${functionName}?tab=logging`,
+        `logConfig does not exist, you can set the config in yaml or on https://fcnext.console.aliyun.com/${this.region}/functions/${functionName}?tab=logging`,
       );
     }
-    this.compareLogconfig(logConfig);
+    this.compareLogConfig(logConfig);
 
-    let logstore = logConfig.logstore;
+    let { logstore } = logConfig;
     if (_.isArray(logstore)) {
       if (logstore.length === 1) {
         logstore = logstore[0].name;
@@ -152,23 +154,26 @@ export default class Logs {
       }
     }
 
-    let topic = `FCLogs:${functionName}`;
+    if (this.opts?.qualifier && this.opts.qualifier === 'LATEST') {
+      _.unset(this.opts, 'qualifier');
+    }
+    const topic = `FCLogs:${functionName}`;
 
     return {
       region: this.region,
       projectName: logConfig.project,
       logStoreName: logstore,
       topic,
-      query: comParseData?.query || props?.query,
-      tail: comParseData?.tail,
-      startTime: comParseData?.['start-time'] || new Date().getTime() - 60 * 60 * 1000,
-      endTime: comParseData?.['end-time'] || new Date().getTime(),
-      search: comParseData?.search || comParseData?.keyword,
-      type: comParseData?.type,
-      qualifier: comParseData?.qualifier,
-      match: comParseData?.match,
-      requestId: comParseData?.['request-id'],
-      instanceId: comParseData?.['instance-id'],
+      query: this.opts?.query || props?.query,
+      tail: this.opts?.tail,
+      startTime: this.opts?.['start-time'] || new Date().getTime() - 60 * 60 * 1000,
+      endTime: this.opts?.['end-time'] || new Date().getTime(),
+      search: this.opts?.search || this.opts?.keyword,
+      type: this.opts?.type,
+      qualifier: this.opts?.qualifier,
+      match: this.opts?.match,
+      requestId: this.opts?.['request-id'],
+      instanceId: this.opts?.['instance-id'],
     };
   }
 
@@ -187,11 +192,30 @@ export default class Logs {
   }
 
   // 判别本地与线上logconfig是否一致，不一致就警告
-  compareLogconfig(logConfig) {
-    if (!_.isNil(this.inputs.props?.logConfig)) {
-      if (JSON.stringify(logConfig) !== JSON.stringify(this.inputs.props.logConfig)) {
-        this.logger.warn('Your local logconfig is different from remote, please check it.');
+  compareLogConfig(logConfig: ILogConfig) {
+    const localLogConfig = this.inputs.props.logConfig;
+    // cli mode
+    if (_.isEmpty(localLogConfig)) {
+      return;
+    }
+    // logConfig is auto
+    if (typeof localLogConfig === 'string' && localLogConfig.toLocaleLowerCase() === 'auto') {
+      if (
+        logConfig.project === `${this.inputs.credential.AccountID}-${this.region}-project` &&
+        logConfig.logstore === 'function-logstore'
+      ) {
+        logger.debug('logConfig auto skip warning message');
+        return;
       }
+    }
+
+    if (JSON.stringify(logConfig) !== JSON.stringify(localLogConfig)) {
+      this.logger.warn('Your local logConfig is different from remote, please check it.');
+      this.logger.debug(
+        `local logConfig=${JSON.stringify(localLogConfig)}, remote logConfig=${JSON.stringify(
+          logConfig,
+        )}`,
+      );
     }
   }
 
@@ -326,13 +350,10 @@ export default class Logs {
     let to = moment().unix();
     if (startTime && endTime) {
       // 支持时间戳和其他时间格式
-      startTime = /^\d+$/g.test(startTime) ? startTime : startTime;
-      endTime = /^\d+$/g.test(endTime) ? endTime : endTime;
-
-      // from = new Date(startTime).getTime() / 1000;
-      // to = new Date(endTime).getTime() / 1000;
-      from = Math.floor(new Date(startTime).getTime() / 1000);
-      to = Math.floor(new Date(endTime).getTime() / 1000);
+      const sTime = /^\d+$/g.test(startTime) ? startTime : startTime;
+      const eTime = /^\d+$/g.test(endTime) ? endTime : endTime;
+      from = Math.floor(new Date(sTime).getTime() / 1000);
+      to = Math.floor(new Date(eTime).getTime() / 1000);
     } else {
       // 20 minutes ago
       this.logger.warn('By default, find logs within 20 minutes...\n');
@@ -488,7 +509,6 @@ export default class Logs {
       }
       return _.filter(logsClone, (value) => !errorRequestIds.includes(value.requestId));
     }
-
     return logsClone;
   }
 }
