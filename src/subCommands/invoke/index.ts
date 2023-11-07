@@ -49,7 +49,7 @@ export default class Invoke {
         sdkTimeout = inputs.props?.timeout + 30; // 考虑冷启动镜像的 pull 时间
       }
     } else {
-      sdkTimeout = parseInt(timeout);
+      sdkTimeout = parseInt(timeout, 10);
     }
     this.fcSdk = new FC(this.region, inputs.credential as ICredentials, {
       timeout: sdkTimeout ? sdkTimeout * 1000 : undefined,
