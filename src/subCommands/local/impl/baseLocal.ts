@@ -18,6 +18,7 @@ import {
 } from '../../../default/image';
 import { runCommand } from '../../../utils';
 import FC from '../../../resources/fc';
+
 const { execSync } = require('child_process');
 
 export class BaseLocal {
@@ -62,7 +63,7 @@ export class BaseLocal {
   }
 
   getHandler(): string {
-    let handler = this.inputs.props.handler;
+    let { handler } = this.inputs.props;
     if (this.getRuntime().startsWith('custom') && handler == undefined) {
       handler = 'index.handler';
     }
@@ -105,10 +106,10 @@ export class BaseLocal {
     if (this.unzippedCodeDir) {
       return this.unzippedCodeDir;
     }
-    const props = this.inputs.props;
+    const { props } = this.inputs;
     const codeUri = props.code as ICodeUri;
     const src: string = typeof codeUri === 'string' ? codeUri : codeUri.src;
-    const runtime = props.runtime;
+    const { runtime } = props;
     if (_.endsWith(src, '.zip') || (_.endsWith(src, '.jar') && runtime.startsWith('java'))) {
       const tmpCodeDir: string = path.join(tmpDir, uuidV4());
       await fs.ensureDir(tmpCodeDir);
@@ -140,7 +141,7 @@ export class BaseLocal {
   }
 
   // jar and war try use unzip command, reminder user install unzip
-  private async tryUnzip(src: string): Promise<string> {
+  async tryUnzip(src: string): Promise<string> {
     const tmpCodeDir: string = path.join(tmpDir, uuidV4());
     await fs.ensureDir(tmpCodeDir);
     logger.log(`code is a jar or war format, will unzipping to ${tmpCodeDir}`);
@@ -222,7 +223,6 @@ export class BaseLocal {
 
     let envStr = '';
     for (const item in sysEnvs) {
-      // console.log(`${item}: ${sysEnvs[item]}`);
       envStr += ` -e "${item}=${sysEnvs[item]}"`;
     }
 
@@ -278,7 +278,7 @@ export class BaseLocal {
   }
 
   getDebugPort(): number {
-    return parseInt(this._argsData['debug-port']);
+    return parseInt(this._argsData['debug-port'], 10);
   }
 
   getDebugIDE(): string {

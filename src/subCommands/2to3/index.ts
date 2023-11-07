@@ -160,7 +160,7 @@ export default class SYaml2To3 {
         _.unset(v.props, 'asyncConfiguration');
         // eslint-disable-next-line prefer-const
         let { asyncInvokeConfig } = v.props;
-        // _.unset(asyncInvokeConfig, 'statefulInvocation');
+        _.unset(asyncInvokeConfig, 'statefulInvocation');
         if (_.get(asyncInvokeConfig, 'destination')) {
           asyncInvokeConfig.destinationConfig = asyncInvokeConfig.destination;
           _.unset(asyncInvokeConfig, 'destination');
