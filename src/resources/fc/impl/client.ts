@@ -1,3 +1,5 @@
+/* eslint-disable no-await-in-loop */
+/* eslint-disable no-constant-condition */
 import FCClient, {
   CreateAliasInput,
   CreateAliasRequest,
@@ -33,6 +35,8 @@ import FCClient, {
   PutAsyncInvokeConfigInput,
   PutAsyncInvokeConfigResponse,
   ListLayersRequest,
+  CreateVpcBindingRequest,
+  CreateVpcBindingInput,
 } from '@alicloud/fc20230330';
 import { ICredentials } from '@serverless-devs/component-interface';
 import { RuntimeOptions } from '@alicloud/tea-util';
@@ -47,6 +51,7 @@ import _ from 'lodash';
 import logger from '../../../logger';
 import { IAlias } from '../../../interface/cli-config/alias';
 import { IProvision } from '../../../interface/cli-config/provision';
+
 const httpx = require('httpx');
 
 interface IOptions {
@@ -225,7 +230,7 @@ export default class FC_Client {
     return body;
   }
 
-  async publishFunctionVersion(functionName: string, description: string = '') {
+  async publishFunctionVersion(functionName: string, description = '') {
     const request = new PublishFunctionVersionRequest({
       body: new PublishVersionInput({ description }),
     });
@@ -351,7 +356,7 @@ export default class FC_Client {
    * list 接口实现模版
    */
   async listFunctions(prefix?: string): Promise<any[]> {
-    let nextToken: string = '';
+    let nextToken = '';
     const limit = 2;
     const functions: any[] = [];
 
@@ -385,6 +390,15 @@ export default class FC_Client {
 
     logger.debug(`putAsyncInvokeConfig config = ${JSON.stringify(request)}`);
     return await this.fc20230330Client.putAsyncInvokeConfig(functionName, request);
+  }
+
+  async createVpcBinding(functionName: string, vpcId: string): Promise<any> {
+    const request = new CreateVpcBindingRequest({ body: new CreateVpcBindingInput({ vpcId }) });
+    return await this.fc20230330Client.createVpcBinding(functionName, request);
+  }
+
+  async deleteVpcBinding(functionName: string, vpcId: string): Promise<any> {
+    return await this.fc20230330Client.deleteVpcBinding(functionName, vpcId);
   }
 
   async listLayers(query: any) {

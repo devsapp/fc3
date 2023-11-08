@@ -17,6 +17,7 @@ export default class Invoke {
   private invokeType: string;
   private statefulAsyncInvocationId: string;
   private region: IRegion;
+  private quiet: boolean;
 
   constructor(inputs: IInputs) {
     const {
@@ -28,12 +29,15 @@ export default class Invoke {
       timeout,
       region,
       'function-name': functionName,
+      quiet,
     } = parseArgv(inputs.args, {
       alias: {
         event: 'e',
         'event-file': 'f',
+        quiet: 'q',
       },
       string: ['event', 'event-file', 'timeout', 'region', 'function-name'],
+      boolean: ['quiet'],
     });
     this.region = region || _.get(inputs, 'props.region');
     logger.debug(`region: ${this.region}`);
@@ -76,6 +80,7 @@ export default class Invoke {
     if (statefulAsyncInvocationId !== undefined) {
       this.statefulAsyncInvocationId = statefulAsyncInvocationId;
     }
+    this.quiet = quiet;
   }
 
   async run() {
@@ -88,8 +93,12 @@ export default class Invoke {
       statefulAsyncInvocationId: this.statefulAsyncInvocationId,
     });
     logger.debug(`invoke function ${this.functionName} result ${JSON.stringify(result)}`);
-
-    this.showLog(result.headers, result.body);
+    if (this.quiet) {
+      // console.log(result.body);
+      return result.body;
+    } else {
+      this.showLog(result.headers, result.body);
+    }
   }
 
   private showLog(headers, body) {

@@ -1,3 +1,5 @@
+/* eslint-disable no-await-in-loop */
+/* eslint no-constant-condition: ["error", { "checkLoops": false }] */
 import OSS from 'ali-oss';
 import axios from 'axios';
 import path from 'path';
@@ -207,7 +209,7 @@ export default class FC extends FC_Client {
     logger.debug(`Deploy trigger use config(${functionName}): ${JSON.stringify(config)}`);
 
     let needUpdate = false;
-    const triggerName = config.triggerName;
+    const { triggerName } = config;
     const id = `${functionName}/${triggerName}`;
     try {
       await this.getTrigger(functionName, triggerName);
@@ -240,7 +242,7 @@ export default class FC extends FC_Client {
         }
 
         logger.debug(`Need update trigger ${id}`);
-        const triggerType = config.triggerType;
+        const { triggerType } = config;
         if (UNSUPPORTED_UPDATE_TRIGGER_LIST.includes(triggerType)) {
           logger.warn(`${id} ${triggerType} trigger is no need update!`);
         } else {
@@ -335,7 +337,7 @@ export default class FC extends FC_Client {
       return result;
     }
 
-    const body = result.toMap().body;
+    const { body } = result.toMap();
     logger.debug(`Get function ${functionName} body: ${JSON.stringify(body)}`);
 
     if (_.isEmpty(body.nasConfig?.mountPoints)) {
@@ -606,20 +608,36 @@ export default class FC extends FC_Client {
   }
 
   /**
+   * 获取 VpcBinding
+   */
+  async getVpcBinding(
+    functionName: string,
+    type: `${GetApiType}` = GetApiType.original,
+  ): Promise<any> {
+    const result = await this.fc20230330Client.listVpcBindings(functionName);
+    if (type === GetApiType.original) {
+      return result;
+    }
+    const { body } = result.toMap();
+    return body;
+  }
+
+  /**
    * list all layers
    */
   async listAllLayers(query: any) {
     // eslint-disable-next-line prefer-const
     let layers = [];
+    const q = _.cloneDeep(query);
     while (true) {
-      const r = await this.listLayers(query);
+      const r = await this.listLayers(q);
       for (const l of r.layers) {
         layers.push(l);
       }
       if (_.isEmpty(r.nextToken)) {
         break;
       }
-      query.nextToken = r.nextToken;
+      q.nextToken = r.nextToken;
     }
     return layers;
   }

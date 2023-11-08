@@ -1,3 +1,6 @@
+/* eslint-disable no-param-reassign */
+/* eslint-disable require-atomic-updates */
+/* eslint-disable no-await-in-loop */
 import _ from 'lodash';
 import { IInputs } from './interface';
 // eslint-disable-next-line @typescript-eslint/no-shadow
@@ -50,9 +53,8 @@ export default class Base {
     }
 
     const triggers = _.cloneDeep(_.get(inputs, 'props.triggers', []));
-    for (const index in triggers) {
-      // eslint-disable-next-line prefer-const
-      let trigger = triggers[index];
+    for (let i = 0; i < triggers.length; i++) {
+      const trigger = triggers[i];
       const invocationRole = _.get(trigger, 'invocationRole');
       let triggerRole = await this.handleRole(invocationRole, needCredential, inputs);
       if (triggerRole === undefined) {
@@ -60,7 +62,7 @@ export default class Base {
       }
       if (triggerRole !== undefined) {
         _.set(trigger, 'invocationRole', triggerRole);
-        inputs.props.triggers[index] = trigger;
+        inputs.props.triggers[i] = trigger;
       }
     }
     logger.debug(`handle pre run config: ${JSON.stringify(inputs.props)}`);
@@ -116,7 +118,7 @@ export default class Base {
         break;
       case TriggerType.eventbridge: {
         // eb 触发器没有 trigger role, get or create slr role
-        const eventSourceType = trigger.triggerConfig.eventSourceConfig.eventSourceType;
+        const { eventSourceType } = trigger.triggerConfig.eventSourceConfig;
         await ramClient.initSlrRole('SENDTOFC');
         await ramClient.initSlrRole(eventSourceType.toUpperCase());
         break;

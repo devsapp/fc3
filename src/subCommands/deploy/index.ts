@@ -3,6 +3,7 @@ import { parseArgv } from '@serverless-devs/utils';
 import Service from './impl/function';
 import Trigger from './impl/trigger';
 import AsyncInvokeConfig from './impl/async_invoke_config';
+import VpcBinding from './impl/vpc_binding';
 import logger from '../../logger';
 import { verify } from '../../utils';
 import { IInputs } from '../../interface';
@@ -15,6 +16,7 @@ export default class Deploy {
   readonly service?: Service;
   readonly trigger?: Trigger;
   readonly asyncInvokeConfig?: AsyncInvokeConfig;
+  readonly vpcBinding?: VpcBinding;
 
   constructor(readonly inputs: IInputs) {
     this.opts = parseArgv(inputs.args, {
@@ -41,6 +43,7 @@ export default class Deploy {
     }
     if (deployAll) {
       this.asyncInvokeConfig = new AsyncInvokeConfig(inputs, { yes });
+      this.vpcBinding = new VpcBinding(inputs, { yes });
     }
   }
 
@@ -49,14 +52,16 @@ export default class Deploy {
     await this.service?.before();
     await this.trigger?.before();
     await this.asyncInvokeConfig?.before();
+    await this.vpcBinding?.before();
 
     // 调用运行
     const run1 = await this.service?.run();
     const run2 = await this.trigger?.run();
     const run3 = await this.asyncInvokeConfig?.run();
+    const run4 = await this.vpcBinding?.run();
 
     // 获取输出
-    if (run1 && run2 && run3) {
+    if (run1 && run2 && run3 && run4) {
       const info = new Info(this.inputs);
       info.setGetApiType(GetApiType.simpleUnsupported);
       const result = await info.run();

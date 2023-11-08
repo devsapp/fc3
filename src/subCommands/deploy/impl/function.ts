@@ -49,6 +49,7 @@ export default class Service extends Base {
     _.unset(this.local, 'region');
     _.unset(this.local, 'triggers');
     _.unset(this.local, 'asyncInvokeConfig');
+    _.unset(this.local, 'vpcBinding');
   }
 
   private getAcr() {
@@ -121,7 +122,7 @@ export default class Service extends Base {
     }
 
     _.unset(this.local, 'endpoint');
-    const code = this.local.code;
+    const { code } = this.local;
     _.unset(this.local, 'code');
     const { diffResult, show } = diffConvertYaml(this.remote, this.local);
     _.set(this.local, 'code', code);
@@ -227,7 +228,7 @@ export default class Service extends Base {
     const needZip = this.assertNeedZip(codeUri);
     logger.debug(`Need zip file: ${needZip}`);
 
-    let generateZipFilePath: string = '';
+    let generateZipFilePath = '';
     if (needZip) {
       const zipConfig = {
         codeUri: zipPath,
@@ -258,9 +259,9 @@ export default class Service extends Base {
    * 生成 auto 资源，非 FC 资源，主要指 vpc、nas、log、role（oss mount 挂载点才有）
    */
   private async deployAuto() {
-    const region = this.inputs.props.region;
-    const credential = this.inputs.credential;
-    const functionName = this.local.functionName;
+    const { region } = this.inputs.props;
+    const { credential } = this.inputs;
+    const { functionName } = this.local;
 
     const { nasAuto, vpcAuto, slsAuto, roleAuto } = FC.computeLocalAuto(this.local);
     logger.debug(
@@ -361,7 +362,7 @@ nasConfig:
     //    custom runtime 并且启动命令包含 java -jar 就需要压缩
     //    官方的 runtime，那么不需要压缩
     if (codeUri.endsWith('.jar')) {
-      const runtime = this.local.runtime;
+      const { runtime } = this.local;
       const command = _.get(this.local, 'customRuntimeConfig.command', []);
       const args = _.get(this.local, 'customRuntimeConfig.args', []);
 
