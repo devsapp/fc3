@@ -157,14 +157,25 @@ export default class Logs {
     if (this.opts?.qualifier && this.opts.qualifier === 'LATEST') {
       _.unset(this.opts, 'qualifier');
     }
-    const topic = `FCLogs:${functionName}`;
+
+    let topic: string;
+    let query: string;
+
+    if (functionName.indexOf('$') >= 0) {
+      topic = functionName.split('$')[0];
+      query = functionName.split('$')[1];
+    } else {
+      topic = `FCLogs:${functionName}`;
+      query = this.opts?.query || props?.query;
+    }
+    logger.debug(topic, query);
 
     return {
       region: this.region,
       projectName: logConfig.project,
       logStoreName: logstore,
       topic,
-      query: this.opts?.query || props?.query,
+      query,
       tail: this.opts?.tail,
       startTime: this.opts?.['start-time'] || new Date().getTime() - 60 * 60 * 1000,
       endTime: this.opts?.['end-time'] || new Date().getTime(),
