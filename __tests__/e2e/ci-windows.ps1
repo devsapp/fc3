@@ -56,5 +56,5 @@ cd ..
 Write-Host " *********  command-api *********"
 cd command-api; ./run-windows.ps1; cd ../
 
-s cli fc3@dev layer list --prefix Python --region ap-southeast-1 -a quanxi
-s cli fc3@dev layer info --layer-name Python39-Gradio --version-id 1 --region ap-southeast-1 -a quanxi 
+s cli fc3 layer list --prefix Python --region ap-southeast-1 -a quanxi
+s cli fc3 layer info --layer-name Python39-Gradio --version-id 1 --region ap-southeast-1 -a quanxi
