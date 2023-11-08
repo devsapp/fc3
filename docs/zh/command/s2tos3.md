@@ -47,3 +47,5 @@ category: 'Yaml规范'
 2. 对于 2.0 yaml 中的 custom container 中的 webServerMode 字段会忽略， 执行`s deploy -t s3.yaml` ， 但不会影响原来的 webServerMode 值
 
 3. 对于 2.0 yaml 异步调用配置中 statefulInvocation 字段会忽略， 执行`s deploy -t s3.yaml`， 但不会影响原来的 statefulInvocation 值
+
+4. 对于 actions 或者 plugin 中有一些自定义行为可能需要进行一些调试调整
