@@ -1,8 +1,6 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable no-template-curly-in-string */
 /* eslint-disable no-useless-escape */
-/* eslint-disable guard-for-in */
-// eslint-disable-next-line prefer-const
 
 import _ from 'lodash';
 import { IInputs, IRegion } from '../../interface';
@@ -71,7 +69,6 @@ export default class SYaml2To3 {
   }
 
   private _transform(parsedYamlData: any) {
-    // eslint-disable-next-line prefer-const
     this._handle_fc(parsedYamlData);
     // TODO: 处理 fc-domain 的转换
 
@@ -81,14 +78,40 @@ export default class SYaml2To3 {
     parsedYamlData.resources = res;
   }
 
+  // 处理 fc 2.0 中 service 属性
+  private _handle_fc_service(serviceProps: any) {
+    // 处理 nas mount config
+    if (_.get(serviceProps, 'nasConfig')) {
+      const { nasConfig } = serviceProps;
+      if (typeof nasConfig === 'string' && nasConfig.toLocaleLowerCase() === 'auto') {
+        serviceProps.nasConfig = 'auto';
+      } else {
+        const { mountPoints } = nasConfig;
+        for (let i = 0; i < mountPoints.length; i++) {
+          const mountPoint = mountPoints[i];
+          mountPoint.serverAddr = `${mountPoint.serverAddr}:${mountPoint.nasDir}`;
+          mountPoint.mountDir = mountPoint.fcDir;
+          _.unset(mountPoint, 'fcDir');
+          _.unset(mountPoint, 'nasDir');
+        }
+      }
+    }
+    // 处理 vpc config
+    if (_.get(serviceProps, 'vpcConfig')) {
+      // 处理 2.0 时代 vswitchIds 和 vSwitchIds 都可以的情况
+      if (_.has(serviceProps, 'vpcConfig.vswitchIds')) {
+        serviceProps.vpcConfig.vSwitchIds = serviceProps.vpcConfig.vswitchIds;
+        _.unset(serviceProps.vpcConfig, 'vswitchIds');
+      }
+    }
+  }
+
   // 处理 fc 组件的转换
   private _handle_fc(parsedYamlData: any) {
     const { resources } = parsedYamlData;
-    // eslint-disable-next-line prefer-const
-    let toDelServiceKeys = [];
-    for (const k in resources) {
-      // eslint-disable-next-line prefer-const
-      let v = resources[k];
+    const toDelServiceKeys = [];
+    for (const k of Object.keys(resources)) {
+      const v = resources[k];
       const cp = v.component as string;
       if (
         !(
@@ -131,6 +154,7 @@ export default class SYaml2To3 {
             parsedYamlData.template = {};
           }
           if (!_.get(parsedYamlData.template, templateName)) {
+            this._handle_fc_service(srv);
             parsedYamlData.template[templateName] = srv;
           }
         }
@@ -158,14 +182,12 @@ export default class SYaml2To3 {
       if (_.get(v.props, 'asyncConfiguration')) {
         v.props.asyncInvokeConfig = v.props.asyncConfiguration;
         _.unset(v.props, 'asyncConfiguration');
-        // eslint-disable-next-line prefer-const
-        let { asyncInvokeConfig } = v.props;
+        const { asyncInvokeConfig } = v.props;
         _.unset(asyncInvokeConfig, 'statefulInvocation');
         if (_.get(asyncInvokeConfig, 'destination')) {
           asyncInvokeConfig.destinationConfig = asyncInvokeConfig.destination;
           _.unset(asyncInvokeConfig, 'destination');
-          // eslint-disable-next-line prefer-const
-          let { destinationConfig } = asyncInvokeConfig;
+          const { destinationConfig } = asyncInvokeConfig;
           if (_.get(destinationConfig, 'onSuccess')) {
             let succ = destinationConfig.onSuccess;
             if (succ.startsWith('acs:fc')) {
@@ -192,25 +214,8 @@ export default class SYaml2To3 {
           }
         }
       }
-      // 处理 nas mount config
-      if (_.get(v.props, 'nasConfig')) {
-        // eslint-disable-next-line prefer-const
-        let { nasConfig } = v.props;
-        if (typeof nasConfig === 'string' && nasConfig.toLocaleLowerCase() === 'auto') {
-          v.props.nasConfig = 'auto';
-        } else {
-          // eslint-disable-next-line prefer-const
-          let { mountPoints } = nasConfig;
-          for (let i = 0; i < mountPoints.length; i++) {
-            // eslint-disable-next-line prefer-const
-            let mountPoint = mountPoints[i];
-            mountPoint.serverAddr = `${mountPoint.serverAddr}:${mountPoint.nasDir}`;
-            mountPoint.mountDir = mountPoint.fcDir;
-            _.unset(mountPoint, 'fcDir');
-            _.unset(mountPoint, 'nasDir');
-          }
-        }
-      }
+
+      this._handle_fc_service(v.props);
 
       // 处理 custom runtime 和 custom-container runtime
       if (_.get(v.props, 'caPort')) {
@@ -280,11 +285,9 @@ export default class SYaml2To3 {
 
       // 处理 triggers
       if (_.get(v.props, 'triggers')) {
-        // eslint-disable-next-line prefer-const
-        let { triggers } = v.props;
+        const { triggers } = v.props;
         for (let i = 0; i < triggers.length; i++) {
-          // eslint-disable-next-line prefer-const
-          let t = triggers[i];
+          const t = triggers[i];
           t.triggerName = t.name;
           _.unset(t, 'name');
           t.triggerType = t.type;
@@ -297,8 +300,7 @@ export default class SYaml2To3 {
           }
           if (t.triggerType === 'oss') {
             // oss trigger trigger Config 特殊处理
-            // eslint-disable-next-line prefer-const
-            let { triggerConfig } = t;
+            const { triggerConfig } = t;
             triggerConfig.filter.key = triggerConfig.filter.Key;
             _.unset(triggerConfig.filter, 'Key');
 
@@ -326,8 +328,7 @@ export default class SYaml2To3 {
       if (_.get(v.props, 'customDomains')) {
         const { customDomains } = v.props;
         for (let i = 0; i < customDomains.length; i++) {
-          // eslint-disable-next-line prefer-const
-          let c = customDomains[i];
+          const c = customDomains[i];
           const domainId = `fc3_domain_${i}`;
           resources[domainId] = {
             component: 'fc3-domain',
@@ -335,14 +336,12 @@ export default class SYaml2To3 {
               region: v.props.region,
             },
           };
-          // eslint-disable-next-line prefer-const
-          let { routeConfigs } = c;
+          const { routeConfigs } = c;
           _.unset(c, 'routeConfigs');
           resources[domainId].props = { ...resources[domainId].props, ...c };
           resources[domainId].props.routeConfig = { routes: [] };
           for (let j = 0; j < routeConfigs.length; j++) {
-            // eslint-disable-next-line prefer-const
-            let routeConfig = routeConfigs[j];
+            const routeConfig = routeConfigs[j];
             _.unset(routeConfig, 'serviceName');
             routeConfig.functionName = routeConfig.functionName || v.props.functionName;
             resources[domainId].props.routeConfig.routes.push(routeConfig);
@@ -353,27 +352,29 @@ export default class SYaml2To3 {
 
       // 处理 actions
       if (_.get(v, 'actions')) {
-        // eslint-disable-next-line prefer-const
-        let { actions } = v;
-        for (const key in actions) {
-          // eslint-disable-next-line prefer-const
-          let action = actions[key];
+        const { actions } = v;
+        for (const key of Object.keys(actions)) {
+          const action = actions[key];
           if (!action) {
             _.unset(actions, key);
             continue;
           }
           console.log(`action: ${key}: ${JSON.stringify(action)}`);
           for (let i = 0; i < action.length; i++) {
-            // eslint-disable-next-line prefer-const
-            let acV = action[i];
+            const acV = action[i];
             if ('component' in acV) {
               let cV = acV.component.split(' ').filter(Boolean).join(' ');
-              if (cV === 'fc build --use-docker' || cV === 'fc build') {
-                cV = 'fc3 build';
+              if (cV.startsWith('fc build --use-docker') || cV.startsWith('fc build')) {
+                cV = cV.replace('fc build --use-docker', 'fc3 build');
+                cV = cV.replace('fc build', 'fc3 build');
               } else if (cV.startsWith('fc invoke')) {
-                cV = 'fc3 invoke';
+                cV = cV.replace('fc invoke', 'fc3 invoke');
                 logger.warn(
-                  `resource ${k} you can use --function-name specify function, for example: fc3 invoke --function-name \${this.props.functionName}`,
+                  `You can use --function-name specify function, for example: fc3 invoke --function-name \${this.props.functionName}, position: ${k} --->  ${cV}`,
+                );
+              } else if (cV.startsWith('fc api') || cV.includes('${vars.service')) {
+                logger.warn(
+                  `You may need to review and make adjustments to this action as it uses the deprecated version of FC API, involving service operations. position: ${k} --->  ${cV}`,
                 );
               }
               acV.component = cV;
