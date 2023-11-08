@@ -81,6 +81,7 @@ export default class Sync {
     );
     const triggers = await this.getTriggers();
     let asyncInvokeConfig = {};
+    let vpcBindingConfig = {};
     try {
       asyncInvokeConfig = await this.fcSdk.getAsyncInvokeConfig(
         this.functionName,
@@ -90,10 +91,19 @@ export default class Sync {
     } catch (ex) {
       // eslint-disable-next-line no-empty
     }
-    return await this.write(functionInfo, triggers, asyncInvokeConfig);
+
+    try {
+      vpcBindingConfig = await this.fcSdk.getVpcBinding(
+        this.functionName,
+        GetApiType.simpleUnsupported,
+      );
+    } catch (ex) {
+      // eslint-disable-next-line no-empty
+    }
+    return await this.write(functionInfo, triggers, asyncInvokeConfig, vpcBindingConfig);
   }
 
-  async write(functionConfig: any, triggers: any, asyncInvokeConfig: any) {
+  async write(functionConfig: any, triggers: any, asyncInvokeConfig: any, vpcBindingConfig: any) {
     const syncFolderName = 'sync-clone';
 
     const baseDir = this.target
@@ -129,6 +139,10 @@ export default class Sync {
     }
     if (!_.isEmpty(asyncInvokeConfig)) {
       props.asyncInvokeConfig = asyncInvokeConfig;
+    }
+
+    if (!_.isEmpty(vpcBindingConfig)) {
+      props.vpcBinding = vpcBindingConfig;
     }
 
     const config = {

@@ -43,6 +43,7 @@ export default class Info {
     const functionConfig = await this.getFunction();
     const triggers = await this.getTriggers();
     const asyncInvokeConfig = await this.getAsyncInvokeConfig();
+    const vpcBindingConfig = await this.getVpcBing();
     let info = {
       region: this.region,
     };
@@ -50,6 +51,7 @@ export default class Info {
     info = Object.assign({}, info, {
       triggers: isEmpty(triggers) ? undefined : triggers,
       asyncInvokeConfig: isEmpty(asyncInvokeConfig) ? undefined : asyncInvokeConfig,
+      vpcBinding: isEmpty(vpcBindingConfig) ? undefined : vpcBindingConfig,
     });
     return info;
   }
@@ -95,6 +97,23 @@ export default class Info {
       return await this.fcSdk.getAsyncInvokeConfig(this.functionName, 'LATEST', this.getApiType);
     } catch (ex) {
       logger.debug(`Get AsyncInvokeConfig ${this.functionName} error: ${ex}`);
+      return {
+        error: {
+          code: ex.code,
+          message: ex.message,
+        },
+      };
+    }
+  }
+
+  async getVpcBing(): Promise<any> {
+    if (!this.inputs.props.vpcBinding) {
+      return {};
+    }
+    try {
+      return await this.fcSdk.getVpcBinding(this.functionName, this.getApiType);
+    } catch (ex) {
+      logger.debug(`Get VpcBinding ${this.functionName} error: ${ex}`);
       return {
         error: {
           code: ex.code,

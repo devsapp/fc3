@@ -36,6 +36,7 @@ export default class Plan {
     const functionConfig = await this.planFunction();
     const triggersConfig = await this.planTriggers();
     const asyncInvokeConfig = await this.planAsyncInvokeConfig();
+    const vpcBindingConfig = await this.planVpcBinding();
 
     let showDiff = `region: ${this.region}\n${functionConfig.show}`;
 
@@ -45,6 +46,10 @@ export default class Plan {
 
     if (_.get(this.inputs.props, 'asyncInvokeConfig')) {
       showDiff += `\nasyncInvokeConfig:\n${asyncInvokeConfig.show}`;
+    }
+
+    if (_.get(this.inputs.props, 'vpcBinding')) {
+      showDiff += `\nvpcBinding:\n${vpcBindingConfig.show}`;
     }
 
     logger.write(showDiff);
@@ -67,6 +72,7 @@ export default class Plan {
     _.unset(local, 'triggers');
     _.unset(local, 'asyncInvokeConfig');
     _.unset(local, 'endpoint');
+    _.unset(local, 'vpcBinding');
     const config = FC.replaceFunctionConfig(local, remote);
     return diffConvertPlanYaml(config.remote, config.local, { deep: 0, complete: true });
   }
@@ -114,6 +120,31 @@ export default class Plan {
 
     // eslint-disable-next-line prefer-const
     let local = _.cloneDeep(_.get(this.inputs.props, 'asyncInvokeConfig', {}));
+    return diffConvertPlanYaml(remote, local, { deep: 1, complete: true });
+  }
+
+  private async planVpcBinding() {
+    let remote: any = {};
+    try {
+      const result = await this.fcSdk.getVpcBinding(
+        this.functionName,
+        GetApiType.simpleUnsupported,
+      );
+      remote = result;
+      if (!_.isEmpty(remote)) {
+        remote?.vpcIds.sort();
+      }
+    } catch (ex) {
+      logger.debug(
+        `planVpcBinding ==> Get remote vpcBinding of  ${this.functionName} error: ${ex.message}`,
+      );
+    }
+
+    // eslint-disable-next-line prefer-const
+    let local = _.cloneDeep(_.get(this.inputs.props, 'vpcBinding', {})) as any;
+    if (!_.isEmpty(local)) {
+      local?.vpcIds.sort();
+    }
     return diffConvertPlanYaml(remote, local, { deep: 1, complete: true });
   }
 }
