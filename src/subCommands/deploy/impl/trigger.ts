@@ -1,3 +1,4 @@
+/* eslint-disable no-await-in-loop */
 import _ from 'lodash';
 import inquirer from 'inquirer';
 import { diffConvertYaml } from '@serverless-devs/diff';
@@ -56,7 +57,7 @@ export default class Trigger extends Base {
   }
 
   async run() {
-    for (const index in this.local) {
+    for (let index = 0; index < this.local.length; index++) {
       const remoteConfig = this.remote[index] || {};
       const localConfig = this.local[index];
 
@@ -107,7 +108,7 @@ export default class Trigger extends Base {
 
   private async plan() {
     const diff: string[] = [];
-    for (const index in this.local) {
+    for (let index = 0; index < this.local.length; index++) {
       const remoteConfig = this.remote[index] || {};
       if (_.isEmpty(remoteConfig)) {
         continue;

@@ -47,7 +47,7 @@ export default class VpcBinding extends Base {
       // 计算 localVpcIds 中 remoteVpcIds 没有的元素
       const toAddVpcIds = localVpcIds.filter((vpcId) => !remoteVpcIds.includes(vpcId));
 
-      console.log(
+      logger.debug(
         `toDelVpcIds=${JSON.stringify(toDelVpcIds)}; toAddVpcIds=${JSON.stringify(toAddVpcIds)}`,
       );
 
@@ -80,6 +80,11 @@ export default class VpcBinding extends Base {
   }
 
   private async plan() {
+    // 远端不存在，或者 get 异常跳过 plan 直接部署
+    if (_.isEmpty(this.remote)) {
+      this.needDeploy = true;
+      return;
+    }
     const { diffResult, show } = diffConvertYaml(this.remote, this.local);
     logger.debug(`diff result: ${JSON.stringify(diffResult)}`);
     logger.debug(`diff show:\n${show}`);
