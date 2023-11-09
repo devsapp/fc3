@@ -52,14 +52,6 @@ export default class Service extends Base {
     _.unset(this.local, 'vpcBinding');
   }
 
-  private getAcr() {
-    if (this.acr) {
-      return this.acr;
-    }
-    this.acr = new Acr(this.inputs.props.region, this.inputs.credential as ICredentials);
-    return this.acr;
-  }
-
   // 准备动作
   async before() {
     try {
@@ -111,6 +103,14 @@ export default class Service extends Base {
     return this.needDeploy;
   }
 
+  private getAcr() {
+    if (this.acr) {
+      return this.acr;
+    }
+    this.acr = new Acr(this.inputs.props.region, this.inputs.credential as ICredentials);
+    return this.acr;
+  }
+
   /**
    * diff 处理
    */
@@ -127,8 +127,8 @@ export default class Service extends Base {
     const { diffResult, show } = diffConvertYaml(this.remote, this.local);
     _.set(this.local, 'code', code);
 
-    logger.debug(`diff result: ${JSON.stringify(diffResult)}`);
-    logger.debug(`diff show:\n${show}`);
+    logger.debug(`function diff result: ${JSON.stringify(diffResult)}`);
+    logger.debug(`function diff show:\n${show}`);
 
     let tipsMsg = `Function ${this.local.functionName} was changed, please confirm before deployment:\n`;
     // 没有差异，直接部署

@@ -68,6 +68,10 @@ export default class AsyncInvokeConfig extends Base {
   }
 
   private async plan() {
+    if (_.isEmpty(this.remote)) {
+      this.needDeploy = true;
+      return;
+    }
     const { diffResult, show } = diffConvertYaml(this.remote, this.local);
     logger.debug(`diff result: ${JSON.stringify(diffResult)}`);
     logger.debug(`diff show:\n${show}`);

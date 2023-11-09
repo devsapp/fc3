@@ -1,8 +1,9 @@
+/* eslint-disable no-await-in-loop */
 import _ from 'lodash';
 import { IInputs, IRegion, checkRegion } from '../../interface';
 import chalk from 'chalk';
 import logger from '../../logger';
-import FC from '../../resources/fc';
+import FC, { GetApiType } from '../../resources/fc';
 import { FC_API_ERROR_CODE } from '../../resources/fc/error-code';
 import { parseArgv } from '@serverless-devs/utils';
 import { promptForConfirmOrDetails, sleep } from '../../utils';
@@ -10,7 +11,7 @@ import { promptForConfirmOrDetails, sleep } from '../../utils';
 export default class Remove {
   private region: IRegion;
   private functionName: string;
-  private yes: boolean = false;
+  private yes = false;
   private resources: Record<string, any> = {};
 
   private fcSdk: FC;
@@ -70,20 +71,6 @@ export default class Remove {
     });
   }
 
-  private async computingRemoveResource() {
-    if (this.resources.function) {
-      logger.spin('getting', 'function resource', this.functionName);
-      await this.getFunctionResource();
-      logger.spin('got', 'function resource', this.functionName);
-    }
-
-    if (this.resources.function || !_.isEmpty(this.resources.triggerNames)) {
-      logger.spin('getting', 'trigger', this.functionName);
-      await this.getTriggerResource();
-      logger.spin('got', 'trigger', this.functionName);
-    }
-  }
-
   async run() {
     await this.computingRemoveResource();
 
@@ -100,6 +87,20 @@ export default class Remove {
     await this.removeFunction();
   }
 
+  private async computingRemoveResource() {
+    if (this.resources.function) {
+      logger.spin('getting', 'function resource', this.functionName);
+      await this.getFunctionResource();
+      logger.spin('got', 'function resource', this.functionName);
+    }
+
+    if (this.resources.function || !_.isEmpty(this.resources.triggerNames)) {
+      logger.spin('getting', 'trigger', this.functionName);
+      await this.getTriggerResource();
+      logger.spin('got', 'trigger', this.functionName);
+    }
+  }
+
   private async getFunctionResource() {
     try {
       await this.fcSdk.getFunction(this.functionName);
@@ -113,6 +114,25 @@ export default class Remove {
         this.resources.function = undefined;
         return;
       }
+    }
+
+    try {
+      const vpcBindingConfigs = await this.fcSdk.getVpcBinding(
+        this.functionName,
+        GetApiType.simpleUnsupported,
+      );
+      if (
+        vpcBindingConfigs &&
+        Array.isArray(vpcBindingConfigs.vpcIds) &&
+        vpcBindingConfigs.vpcIds.length > 0
+      ) {
+        this.resources.vpcBindingConfigs = vpcBindingConfigs;
+        logger.write(`Remove function ${this.functionName} vpcBinding:`);
+        logger.output(this.resources.vpcBindingConfigs, 2);
+        console.log();
+      }
+    } catch (ex) {
+      logger.debug(`List function ${this.functionName} vpcBinding error: ${ex.message}`);
     }
 
     try {
@@ -204,7 +224,7 @@ export default class Remove {
 
     // 认为指定删除 triggerNames
     if (!this.resources.function && !_.isEmpty(this.resources.triggerNames)) {
-      const triggerNames = this.resources.triggerNames;
+      const { triggerNames } = this.resources;
       triggers = _.filter(triggers, (item) => triggerNames.includes(item.triggerName));
     }
 
@@ -241,18 +261,26 @@ export default class Remove {
     }
   }
 
-  async removeFunction() {
-    // 删除资源顺序
-    // {
-    //   asyncInvokeConfig: {}
-    //   provision: [ { qualifier: 'test', current: 2, target: 2 } ], // target / current
-    //   concurrency: 80,
-    //   aliases: [ 'test' ],
-    //   versions: [ '2', '1' ]
-    //   function: 'fc3-event-nodejs14',
-    // }
+  private async removeFunction() {
+    /* 删除资源顺序
+      vpcBinding: {}
+      asyncInvokeConfig: {}
+      provision: [ { qualifier: 'test', current: 2, target: 2 } ], // target / current
+      concurrency: 80,
+      aliases: [ 'test' ],
+      versions: [ '2', '1' ]
+      function: 'fc3-event-nodejs14',
+    */
     if (!this.resources.function) {
       return;
+    }
+
+    if (!_.isEmpty(this.resources.vpcBindingConfigs)) {
+      for (const vpcId of this.resources.vpcBindingConfigs.vpcIds) {
+        logger.spin('removing', 'function vpcBinding', `${this.functionName}/${vpcId}`);
+        await this.fcSdk.deleteVpcBinding(this.functionName, vpcId);
+        logger.spin('removed', 'function vpcBinding', `${this.functionName}/${vpcId}`);
+      }
     }
 
     if (!_.isEmpty(this.resources.asyncInvokeConfigs)) {
