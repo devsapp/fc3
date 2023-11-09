@@ -20,3 +20,9 @@ makefile
 README.md
 docs
 replace-committers.sh
+f2elint.config.js
+commitlint.config.js
+.stylelintrc.js
+.stylelintignore
+.markdownlint.json
+.markdownlintignore

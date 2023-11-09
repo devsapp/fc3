@@ -68,12 +68,14 @@ export default class VpcBinding extends Base {
         GetApiType.simpleUnsupported,
       );
       this.remote = result;
-      if (!_.isEmpty(this.remote)) {
-        this.remote?.vpcIds.sort();
+      if (this.remote && Array.isArray(this.remote.vpcIds) && this.remote.vpcIds.length > 0) {
+        this.remote.vpcIds.sort();
+      } else {
+        this.remote = {};
       }
     } catch (ex) {
       logger.debug(`Get remote vpcBinding of  ${this.functionName} error: ${ex.message}`);
-      this.remote = [];
+      this.remote = {};
     }
   }
 

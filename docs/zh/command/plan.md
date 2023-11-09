@@ -1,6 +1,6 @@
 ---
-title: Plan 命令
-description: 'Plan 命令'
+title: 计划变更 plan
+description: '计划变更 plan'
 position: 4
 category: '构建&部署'
 ---

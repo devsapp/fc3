@@ -1,6 +1,6 @@
 ---
-title: Deploy 命令
-description: 'Deploy 命令'
+title: 部署 deploy
+description: '部署 deploy'
 position: 1
 category: '构建&部署'
 ---
