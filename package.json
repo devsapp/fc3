@@ -6,8 +6,7 @@
   "scripts": {
     "prestart": "npm run generate-schema",
     "prebuild": "npm run generate-schema",
-    "start": "esbuild src/index.ts --bundle --log-level=error --external:proxy-agent  --external:aliyun-sdk --minify --platform=node --format=cjs --target=node10 --outfile=dist/index.js --watch",
-    "build": "esbuild src/index.ts --bundle --log-level=error --external:proxy-agent  --external:aliyun-sdk --minify --platform=node --format=cjs --target=node10 --outfile=dist/index.js",
+    "build": "ncc build src/index.ts -m -o dist",
     "format": "prettier --write src/",
     "generate-schema": "npx typescript-json-schema ./src/interface/index.ts IProps --required -o ./dist/schema.json",
     "prepare": "husky install",
@@ -20,7 +19,7 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-   "dependencies": {
+  "dependencies": {
     "@alicloud/fc2": "^2.6.6",
     "@alicloud/fc20230330": "^3.0.2",
     "@alicloud/pop-core": "^1.7.13",
@@ -51,7 +50,6 @@
     "@types/lodash": "^4.14.200",
     "@types/node": "^20.8.10",
     "@vercel/ncc": "^0.38.1",
-    "esbuild": "^0.19.5",
     "f2elint": "^2.2.1",
     "husky": "^8.0.3",
     "prettier": "^3.0.3",

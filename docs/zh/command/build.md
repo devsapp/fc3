@@ -1,6 +1,6 @@
 ---
-title: Build 命令
-description: 'Build 命令'
+title: 构建 build
+description: '构建 build'
 position: 2
 category: '构建&部署'
 ---

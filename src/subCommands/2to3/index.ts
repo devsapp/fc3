@@ -55,11 +55,63 @@ export default class SYaml2To3 {
     return '';
   }
 
+  /*
+  1. s 内置 env、file 和 config, 比如 ${env(A)} 需要替换成 ${env('A')}
+      ${env("A")} and ${env('B')} and ${env(C)}   ---->  ${env('A')} and ${env('B')} and ${env('C')}
+  2. ${A.output.xx} 需要转成 ${resources.A.output.xx}
+  */
+  variableReplace(fileContents: string) {
+    const regex = /\${env\((["']?)(.*?)\1\)}/g;
+    const r1 = fileContents.replace(regex, (_a, quote, variableName) => {
+      return `\${env('${variableName}')}`;
+    });
+
+    const regex2 = /\${config\((["']?)(.*?)\1\)}/g;
+    const r2 = r1.replace(regex2, (_a, quote, variableName) => {
+      return `\${config('${variableName}')}`;
+    });
+
+    const regex3 = /\${file\((["']?)(.*?)\1\)}/g;
+    const r3 = r2.replace(regex3, (_a, quote, variableName) => {
+      return `\${file('${variableName}')}`;
+    });
+
+    // ${A.output.xx} 需要转成 ${resources.A.output.xx}
+    // ${A.props.xx} 需要转成 ${resources.A.props.xx}
+    const regex4 = /\$\{([^}]+)\}/g;
+    const result = r3.replace(regex4, (_a, variableName) => {
+      if (variableName.includes('.output')) {
+        const parts = variableName.split('.');
+        const resourceIndex = parts.findIndex((part) => part.endsWith('output'));
+        if (resourceIndex !== -1) {
+          const resourceName = parts[resourceIndex - 1];
+          parts.splice(resourceIndex - 1, 2, 'resources', resourceName, 'output');
+          return `\${${parts.join('.')}}`;
+        }
+      }
+      if (variableName.includes('.props')) {
+        const parts = variableName.split('.');
+        const resourceIndex = parts.findIndex((part) => part.endsWith('props'));
+        if (resourceIndex !== -1) {
+          const resourceName = parts[resourceIndex - 1];
+          parts.splice(resourceIndex - 1, 2, 'resources', resourceName, 'props');
+          return `\${${parts.join('.')}}`;
+        }
+      }
+      return _a;
+    });
+
+    logger.debug(`variableReplace ====> \n${result}`);
+
+    return result;
+  }
+
   async run() {
     logger.info(`transform ${this.source}  =====>  ${this.target}`);
     const fileContents = fs.readFileSync(this.source, 'utf8');
+    const refineFileContents = this.variableReplace(fileContents);
     // eslint-disable-next-line prefer-const
-    let parsedYamlData = yaml.load(fileContents);
+    let parsedYamlData = yaml.load(refineFileContents);
     parsedYamlData.edition = '3.0.0';
     parsedYamlData.resources = parsedYamlData.services;
     _.unset(parsedYamlData, 'services');

@@ -1,6 +1,6 @@
 ---
-title: Remove 命令
-description: 'Remove 命令'
+title: 移除 remove
+description: '移除 remove'
 position: 3
 category: '构建&部署'
 ---
