@@ -1,3 +1,4 @@
+/* eslint-disable no-template-curly-in-string */
 import { BaseLocalInvoke } from './baseLocalInvoke';
 import _ from 'lodash';
 

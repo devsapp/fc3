@@ -1,3 +1,4 @@
+/* eslint-disable no-await-in-loop */
 import { parseArgv, getRootHome } from '@serverless-devs/utils';
 import commandsHelp from '../../commands-help/layer';
 import { IInputs, IRegion, checkRegion } from '../../interface';
@@ -104,18 +105,6 @@ export default class Layer {
     }
   }
 
-  private async _getLayer() {
-    const layerName = this.opts['layer-name'];
-    const version = this.opts['version-id'];
-    if (_.isEmpty(layerName)) {
-      throw new Error('layerName not specified, please specify --layer-name');
-    }
-    if (_.isEmpty(version)) {
-      throw new Error('version not specified, please specify --version-id');
-    }
-    return await this.fcSdk.getLayerVersion(layerName, version);
-  }
-
   async info() {
     let ret = await this._getLayer();
     ret = _.omit(ret, ['code', 'createTime', 'license', 'codeChecksum', 'codeSize']);
@@ -127,8 +116,8 @@ export default class Layer {
     if (_.isEmpty(layerName)) {
       throw new Error('layerName not specified, please specify --layer-name');
     }
-    const layers = (await this.fcSdk.listLayerVersions(layerName)).layers;
-    for (const i in layers) {
+    const { layers } = await this.fcSdk.listLayerVersions(layerName);
+    for (let i = 0; i < layers.length; i++) {
       layers[i] = _.omit(layers[i], ['code', 'createTime', 'license', 'codeChecksum', 'codeSize']);
     }
     if (this.opts.table) {
@@ -166,7 +155,7 @@ export default class Layer {
     const toZipDir: string = path.isAbsolute(codeUri) ? codeUri : path.join(this.baseDir, codeUri);
 
     let zipPath = toZipDir;
-    let generateZipFilePath: string = '';
+    let generateZipFilePath = '';
     if (!toZipDir.endsWith('.zip')) {
       const zipConfig = {
         codeUri: toZipDir,
@@ -224,7 +213,7 @@ export default class Layer {
       await this.fcSdk.deleteLayerVersion(layerName, version);
     } else {
       try {
-        const layers = (await this.fcSdk.listLayerVersions(layerName)).layers;
+        const { layers } = await this.fcSdk.listLayerVersions(layerName);
         for (const l of layers) {
           await this.fcSdk.deleteLayerVersion(layerName, l.version);
         }
@@ -265,5 +254,17 @@ export default class Layer {
     }
     const isPublic = this.opts.public;
     await this.fcSdk.putLayerACL(layerName, isPublic.toString());
+  }
+
+  private async _getLayer() {
+    const layerName = this.opts['layer-name'];
+    const version = this.opts['version-id'];
+    if (_.isEmpty(layerName)) {
+      throw new Error('layerName not specified, please specify --layer-name');
+    }
+    if (_.isEmpty(version)) {
+      throw new Error('version not specified, please specify --version-id');
+    }
+    return await this.fcSdk.getLayerVersion(layerName, version);
   }
 }

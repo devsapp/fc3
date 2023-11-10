@@ -45,10 +45,7 @@ export default class Acr {
   }
 
   private instanceID: string;
-  constructor(
-    private region: IRegion,
-    private credential: ICredentials,
-  ) {}
+  constructor(private region: IRegion, private credential: ICredentials) {}
 
   async checkAcr(imageUrl: string): Promise<boolean> {
     const instanceID = await Acr.getAcrEEInstanceID(imageUrl, this.credential);
@@ -59,7 +56,7 @@ export default class Acr {
     return isExist;
   }
   async pushAcr(imageUrl: string): Promise<void> {
-    let instanceID = this.instanceID;
+    let { instanceID } = this;
     if (!instanceID) {
       instanceID = await Acr.getAcrEEInstanceID(imageUrl, this.credential);
     }

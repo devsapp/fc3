@@ -21,17 +21,16 @@ category: '调用&调试'
 
 ### 参数解析
 
-| 参数全称                     | 参数缩写 | Yaml 模式下必填 | Cli 模式下必填 | 参数含义                                                                                                                                                                                                                                                                                                   |
-| ---------------------------- | -------- | --------------- | -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 参数全称                     | 参数缩写 | Yaml 模式下必填 | Cli 模式下必填 | 参数含义                                                                                                               |
+| ---------------------------- | -------- | --------------- | -------------- | ---------------------------------------------------------------------------------------------------------------------- |
 | region                       | -        | 选填            | 必填           | 地域名称，取值范围参见[函数计算开服地域](https://www.alibabacloud.com/help/zh/fc/product-overview/region-availability) |
-| function-name                | -        | 选填            | 必填           | 函数名                                                                                                                                                                                                                                                                                                     |
-| qualifier                    | -        | 选填            | 选填           | 指定调用的版本或者别名, 默认为 LATEST                                                                                                                                                                                                                                                                                    |
-| timeout                      | -        | 选填            | 选填           | 客户端调用时间 [时间设置原理](https://github.com/devsapp/fc/issues/480)                                                                                                                                                                                                                                    |
-| event                        | e        | 选填            | 选填           | 事件                                                                                                                                                                                                                                                                                                       |
-| event-file                   | f        | 选填            | 选填           | 事件文件                                                                                                                                                                                                                                                                                                   |
-| invocation-type              | -        | 选填            | 选填           | 调用类型，取值范围：`async, sync`，默认：`sync`                                                                                                                                                                                                                                                            |
-| stateful-async-invocation-id | -        | 选填            | 选填           | 有状态的异步调用                                                                                                                                                                                                                                                                                           |
-
+| function-name                | -        | 选填            | 必填           | 函数名                                                                                                                 |
+| qualifier                    | -        | 选填            | 选填           | 指定调用的版本或者别名, 默认为 LATEST                                                                                  |
+| timeout                      | -        | 选填            | 选填           | 客户端调用时间 [时间设置原理](https://github.com/devsapp/fc/issues/480)                                                |
+| event                        | e        | 选填            | 选填           | 事件                                                                                                                   |
+| event-file                   | f        | 选填            | 选填           | 事件文件                                                                                                               |
+| invocation-type              | -        | 选填            | 选填           | 调用类型，取值范围：`async, sync`，默认：`sync`                                                                        |
+| stateful-async-invocation-id | -        | 选填            | 选填           | 有状态的异步调用                                                                                                       |
 
 > 当前命令还支持部分全局参数（例如`-a/--access`, `--debug`等），详情可参考 [Serverless Devs 全局参数文档](https://serverless-devs.com/serverless-devs/command/readme#全局参数)
 
@@ -56,7 +55,7 @@ Code Checksum: 6647856715255221341
 Qualifier: undefined
 RequestId: 1-650c0f0d-ae96ae24839e741e3ce1ba72
 
-Invoke Result: 
+Invoke Result:
 test
 ```
 
@@ -75,16 +74,15 @@ test
   ```json
   {
     "Version": "1",
-    "Statement":
-      [
-        {
-          "Action": "fc:InvokeFunction",
-          "Effect": "Allow",
-          "Resource": [
-            "acs:fc:{region}:{uid}:functions/{functionName}",
-            "acs:fc:{region}:{uid}:functions/{functionName}/*"
-          ]
-        }
-      ]
+    "Statement": [
+      {
+        "Action": "fc:InvokeFunction",
+        "Effect": "Allow",
+        "Resource": [
+          "acs:fc:{region}:{uid}:functions/{functionName}",
+          "acs:fc:{region}:{uid}:functions/{functionName}/*"
+        ]
+      }
+    ]
   }
   ```

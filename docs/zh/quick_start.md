@@ -11,24 +11,28 @@ category: '概览'
 - [密钥配置](#密钥配置)
 - [测试项目创建](#测试项目创建)
 - [功能体验](#功能体验)
-    - [部署 deploy](#部署-deploy)
-    - [调用相关](#调用相关)
-      - [本地调用](#本地调用)
-      - [远程调用](#远程调用)
+  - [部署 deploy](#部署-deploy)
+  - [调用相关](#调用相关)
+    - [本地调用](#本地调用)
+    - [远程调用](#远程调用)
     <!-- - [可观测性](#可观测性)
-      - [日志查看](#日志查看) -->
-    - [其他](#其他)
+    - [日志查看](#日志查看) -->
+  - [其他](#其他)
 
 ## 工具安装
-- 第一步：安装 Node.js(14.14.0) 与 NPM 包管理工具；  
-- 第二步：安装 Serverless Devs 开发者工具；   
-    ```shell script
-    $ npm install @serverless-devs/s3 -g
-    ```
+
+- 第一步：安装 Node.js(14.14.0) 与 npm 包管理工具；
+- 第二步：安装 Serverless Devs 开发者工具；
+
+  ```shell script
+  npm install @serverless-devs/s3 -g
+  ```
+
 - 第三步：可以通过`s -v`判断工具是否安装成功，如果安装成功可以看到相对应的版本信息，例如：
-    ```shell script
-    @serverless-devs/s3: 0.0.10, s-home: /Users/xiliu/.s, darwin-x64, node-v16.16.0
-    ```
+
+  ```shell script
+  @serverless-devs/s3: 0.0.10, s-home: /Users/xiliu/.s, darwin-x64, node-v16.16.0
+  ```
 
 ## 密钥配置
 
@@ -37,9 +41,11 @@ category: '概览'
 ## 测试项目创建
 
 通过`s init`命令创建一个 Python 语言的 Hello World 项目，在引导的过程中，可能会出现填写项目名称以及选择密钥的过程：
+
 - 项目名称可以是：`start-fc3-python`
-- 密钥可以选择我们上文中创建过的：`alibaba-access`    
-例如：
+- 密钥可以选择我们上文中创建过的：`alibaba-access`
+  例如：
+
 ```shell script
 $ s init --project start-fc3-python
 
@@ -57,7 +63,8 @@ $ s init --project start-fc3-python
 💞  Document ❤ Star: https://github.com/Serverless-Devs/Serverless-Devs
 🚀  More applications: https://registry.serverless-devs.com
 
-```  
+```
+
 接下来，可以通过`cd`等命令进入项目（例如：`cd start-fc3-python`）。
 
 ## 功能体验
@@ -67,18 +74,18 @@ $ s init --project start-fc3-python
 为了便于后续的体验，可以对默认的`s.yaml`文件进行修改，增加自动化日志配置的能力：`logConfig: auto`，完整的项目 Yaml 如下：
 
 ```yaml
-edition: 3.0.0          #  命令行YAML规范版本，遵循语义化版本（Semantic Versioning）规范
-name: hello-world-app   #  项目名称
-access: "default"       #  秘钥别名
+edition: 3.0.0 #  命令行YAML规范版本，遵循语义化版本（Semantic Versioning）规范
+name: hello-world-app #  项目名称
+access: 'default' #  秘钥别名
 
 resources:
-  hello_world:               #  资源虚拟ID，在 resources 下面全局唯一
-    component: fc3           #  组件名称
-    props:                   #  组件的属性值
+  hello_world: #  资源虚拟ID，在 resources 下面全局唯一
+    component: fc3 #  组件名称
+    props: #  组件的属性值
       region: cn-hangzhou
-      functionName: "start-python-5lyc"
+      functionName: 'start-python-5lyc'
       description: 'hello world by serverless devs'
-      runtime: "python3.9"
+      runtime: 'python3.9'
       code: ./code
       handler: index.handler
       memorySize: 128
@@ -128,7 +135,7 @@ FC Invoke End RequestId: 0918f56e-affc-4911-b4c7-a98f1b9b0e29
 test
 
 
-RequestId: 0918f56e-affc-4911-b4c7-a98f1b9b0e29 	 Billed Duration: 240 ms 	 Memory Size: 128 MB 	 Max Memory Used: 13 MB
+RequestId: 0918f56e-affc-4911-b4c7-a98f1b9b0e29   Billed Duration: 240 ms   Memory Size: 128 MB   Max Memory Used: 13 MB
 
 
 ✔ [hello_world] completed (5.95s)
@@ -139,7 +146,6 @@ hello_world:
 
 A complete log of this run can be found in: /Users/xiliu/.s/logs/0927161111
 ```
-
 
 #### 远程调用
 
@@ -176,11 +182,9 @@ A complete log of this run can be found in: /Users/xiliu/.s/logs/0927161243
 
 在当前项目下，直接使用 `s logs` 命令，可以进行日志查看，也可以通过 `s logs -t` 进入到 `tail` 模式：
 
-
 ```shell script
 
 FunctionCompute python3 runtime inited.
-
 
 FC Invoke Start RequestId: eb9cf022-297e-4a27-b3bf-ad304f6e04c9
 FC Invoke End RequestId: eb9cf022-297e-4a27-b3bf-ad304f6e04c9
@@ -190,10 +194,10 @@ FC Invoke End RequestId: eb9cf022-297e-4a27-b3bf-ad304f6e04c9
 
 更多命令的使用，可以参考命令帮助文档详情：
 
-| 构建&部署 |  可观测性 |  调用&调试 |  发布&配置  |  其他功能 |
-| --- |  --- | --- | --- | --- |
-| [**部署 deploy**](./command/deploy.md)   | [日志查询 logs](./command/logs.md)   | [**本地调用 local**](./command/local.md)      | [**版本 version**](./command/version.md)      | [查看函数 info](./command/info.md) |
-| [**构建 build**](./command/build.md)  |   | [函数触发 invoke](./command/invoke.md)    | [**别名 alias**](./command/alias.md)         | [**资源同步 sync**](./command/sync.md) | 
-| [移除 remove](./command/remove.md)  | |[实例登录 instance](./command/instance.md)  |[预留 provision](./command/provision.md)  |  | 
-| [计划变更 plan](./command/plan.md)| | |[按量资源 concurrency](./command/concurrency.md) | |        
-| | | |[层 layer](./command/layer.md) | |  
+| 构建&部署                              | 可观测性                           | 调用&调试                                  | 发布&配置                                        | 其他功能                               |
+| -------------------------------------- | ---------------------------------- | ------------------------------------------ | ------------------------------------------------ | -------------------------------------- |
+| [**部署 deploy**](./command/deploy.md) | [日志查询 logs](./command/logs.md) | [**本地调用 local**](./command/local.md)   | [**版本 version**](./command/version.md)         | [查看函数 info](./command/info.md)     |
+| [**构建 build**](./command/build.md)   |                                    | [函数触发 invoke](./command/invoke.md)     | [**别名 alias**](./command/alias.md)             | [**资源同步 sync**](./command/sync.md) |
+| [移除 remove](./command/remove.md)     |                                    | [实例登录 instance](./command/instance.md) | [预留 provision](./command/provision.md)         |                                        |
+| [计划变更 plan](./command/plan.md)     |                                    |                                            | [按量资源 concurrency](./command/concurrency.md) |                                        |
+|                                        |                                    |                                            | [层 layer](./command/layer.md)                   |                                        |

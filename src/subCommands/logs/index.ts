@@ -1,3 +1,4 @@
+/* eslint-disable no-await-in-loop */
 import { parseArgv } from '@serverless-devs/utils';
 import { IInputs, ILogConfig } from '../../interface';
 import logger from '../../logger';

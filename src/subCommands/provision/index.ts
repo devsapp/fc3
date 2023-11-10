@@ -1,3 +1,4 @@
+/* eslint-disable no-await-in-loop */
 import { parseArgv } from '@serverless-devs/utils';
 import commandsHelp from '../../commands-help/provision';
 import { IInputs, IRegion, checkRegion } from '../../interface';
@@ -144,6 +145,7 @@ export default class Provision {
 
     logger.spin('removing', 'function provision', `${this.functionName}/${this.qualifier}`);
     await this.fcSdk.removeFunctionProvisionConfig(this.functionName, this.qualifier);
+    // eslint-disable-next-line no-constant-condition
     while (true) {
       await sleep(1.5);
       const { current } = (await this.get()) || {};

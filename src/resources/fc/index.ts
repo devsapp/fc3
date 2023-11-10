@@ -154,12 +154,12 @@ export default class FC extends FC_Client {
 
         logger.debug(`Need update function ${config.functionName}`);
         if (type === 'code') {
-          // @ts-ignore
+          // eslint-disable-next-line no-param-reassign
           config = {
             functionName: config.functionName,
             code: config.code,
             customContainerConfig: config.customContainerConfig,
-          };
+          } as any;
         } else if (type === 'config') {
           _.unset(config, 'code');
           _.unset(config, 'customContainerConfig');
@@ -222,6 +222,7 @@ export default class FC extends FC_Client {
 
     let retry = 0;
     logger.debug(`Deploy ${functionName} trigger:\n${JSON.stringify(config, null, 2)}`);
+    // eslint-disable-next-line no-param-reassign
     config.triggerConfig = JSON.stringify(config.triggerConfig);
 
     while (true) {
@@ -526,7 +527,7 @@ export default class FC extends FC_Client {
       if (!body.nextToken) {
         // eslint-disable-next-line prefer-const
         let filteredTriggers = [];
-        for (const key in triggers) {
+        for (let key = 0; key < triggers.length; key++) {
           const trigger = triggers[key];
           if (
             trigger.triggerType === TriggerType.eventbridge &&

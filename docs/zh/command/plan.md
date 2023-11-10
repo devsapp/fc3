@@ -20,10 +20,10 @@ category: '构建&部署'
 
 ### 参数解析
 
-| 参数全称   | 参数缩写 | Yaml模式下必填 | 参数含义                                                     |
-| ---------- | -------- | -------------- | ------------------------------------------------------------ |
-| region                       | -        | 选填            | 必填           | 地域名称，取值范围参见[函数计算开服地域](https://www.alibabacloud.com/help/zh/fc/product-overview/region-availability) |
-| function-name                | -        | 选填            | 必填           | 函数名 |
+| 参数全称      | 参数缩写 | Yaml 模式下必填 | 参数含义 |
+| ------------- | -------- | --------------- | -------- | ---------------------------------------------------------------------------------------------------------------------- |
+| region        | -        | 选填            | 必填     | 地域名称，取值范围参见[函数计算开服地域](https://www.alibabacloud.com/help/zh/fc/product-overview/region-availability) |
+| function-name | -        | 选填            | 必填     | 函数名                                                                                                                 |
 
 > 当前命令还支持部分全局参数（例如`-a/--access`, `--debug`等），详情可参考 [Serverless Devs 全局参数文档](https://serverless-devs.com/serverless-devs/command/readme#全局参数)
 
@@ -31,7 +31,7 @@ category: '构建&部署'
 
 **有资源描述文件（Yaml）时**，可以直接执行`s plan`进行资源变更感知，效果如下：
 
-```
+```yaml
 region: cn-huhehaote
 function:
    description: hello world by serverless devs
@@ -39,10 +39,10 @@ function:
    handler: index.handler
    internetAccess: true
    ~ memorySize: 128 => 256
-   role: 
+   role:
    runtime: python3.9
    - timeout: 3
-   + cpu: 
+   + cpu:
 ```
 
 > ~: 配置被修改
@@ -50,9 +50,10 @@ function:
 > +: 添加配置
 
 从图可以看出执行 deploy 之后预期：
+
 1. function 的 memorySize 由 '128' 变更为 '256'
 2. 删除了 function 的 timeout 配置
-4. function 新增 cpu 配置 为 1
+3. function 新增 cpu 配置 为 1
 
 ## 权限与策略说明
 

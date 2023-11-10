@@ -42,8 +42,7 @@ resources:
         port: 0
       customDNS:
         dnsOptions:
-          -
-            name: string
+          - name: string
             value: string
         nameServers:
           - string
@@ -72,7 +71,7 @@ resources:
       functionName: string
       gpuConfig:
         gpuMemorySize: 1024
-        gpuType: string  # 可选值: fc.gpu.tesla.1 | fc.gpu.ampere.1
+        gpuType: string # 可选值: fc.gpu.tesla.1 | fc.gpu.ampere.1
       handler: string
       instanceLifecycleConfig:
         initializer:
@@ -95,14 +94,12 @@ resources:
         groupId: 0
         userId: 0
         mountPoints:
-          -
-            enableTLS: true
+          - enableTLS: true
             mountDir: string
             serverAddr: string
       ossMountConfig:
         mountPoints:
-          -
-            bucketName: string
+          - bucketName: string
             bucketPath: string
             endpoint: string
             mountDir: string
@@ -123,7 +120,7 @@ resources:
         vSwitchIds:
           - string
         vpcId: string
-  
+
       asyncInvokeConfig:
         destinationConfig:
           onFailure:
@@ -132,7 +129,7 @@ resources:
             destination: acs:fc:cn-huhehaote::functions/serverless-devs-ci-async-invoke-config-succ
         maxAsyncEventAgeInSeconds: 360
         maxAsyncRetryAttempts: 3
-  
+
       triggers:
         - triggerName: httpTrigger # 触发器名称
           triggerType: http # 触发器类型
@@ -313,7 +310,7 @@ resources:
             eventRuleFilterPattern: '{}'
             eventSinkConfig:
               deliveryOption:
-                eventSchema: CloudEvents  # 支持 CloudEvents 以及 RawData 两种取值
+                eventSchema: CloudEvents # 支持 CloudEvents 以及 RawData 两种取值
             runOptions:
               mode: event-streaming
               maximumTasks: 3
@@ -332,11 +329,11 @@ resources:
               eventSourceParameters:
                 sourceDTSParameters:
                   RegionId: cn-hangzhou
-                  BrokerUrl: dts-cn-shanghai-vpc.aliyuncs.com:18003   # 数据订阅任务的网络连接地址
-                  Topic: cn_shanghai_vpc_rm_uf6398ykj0218rk6t_dts_trigger_upgrade_from_old_version2  # 数据订阅任务的 Topic
+                  BrokerUrl: dts-cn-shanghai-vpc.aliyuncs.com:18003 # 数据订阅任务的网络连接地址
+                  Topic: cn_shanghai_vpc_rm_uf6398ykj0218rk6t_dts_trigger_upgrade_from_old_version2 # 数据订阅任务的 Topic
                   Sid: dtse34j22j025aq26p # 数据订阅消费组 ID
-                  Username: dts_trigger   # 创建消费组时设置的账号
-                  Password: dtsTest123    # 创建消费组时设置的密码
+                  Username: dts_trigger # 创建消费组时设置的账号
+                  Password: dtsTest123 # 创建消费组时设置的密码
                   InitCheckPoint: 1677340805 # 期望消费第一条数据的时间戳。消费位点必须在订阅实例的数据范围之内
                   TaskId: e34z2gm325qp37m # DTSJobId
 ```

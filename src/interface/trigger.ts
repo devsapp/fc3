@@ -1,9 +1,10 @@
+/* eslint-disable @typescript-eslint/no-empty-interface */
 import { TriggerType, Methods, OSSEvents } from './base';
 
 export type ITriggerType = `${TriggerType}`;
 
 export interface IOssTriggerConfig {
-  events: `${OSSEvents}`[];
+  events: Array<`${OSSEvents}`>;
   filter: {
     key: {
       prefix: string;
@@ -38,7 +39,7 @@ export interface ITimerTriggerConfig {
 
 export interface IHttpTriggerConfig {
   authType: 'anonymous' | 'function';
-  methods: `${Methods}`[];
+  methods: Array<`${Methods}`>;
   disableURLInternet?: boolean;
   authConfig?: string;
 }

@@ -9,7 +9,7 @@ export class NodejsLocalInvoke extends BaseLocalInvoke {
     if (!ret) {
       return ret;
     }
-    if (_.isString(this.getDebugIDE()) && this.getDebugIDE() != IDE_VSCODE) {
+    if (_.isString(this.getDebugIDE()) && this.getDebugIDE() !== IDE_VSCODE) {
       logger.error('nodejs runtime debug only support vscode');
       return false;
     }
@@ -32,7 +32,7 @@ export class NodejsLocalInvoke extends BaseLocalInvoke {
     const debugPort = this.getDebugPort();
     const functionName = this.getFunctionName();
 
-    if (this.getRuntime() == 'nodejs6') {
+    if (this.getRuntime() === 'nodejs6') {
       return JSON.stringify(
         {
           version: '0.2.0',

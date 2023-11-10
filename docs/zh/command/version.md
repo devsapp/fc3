@@ -39,10 +39,10 @@ category: '发布&配置'
 
 ### 参数解析
 
-| 参数全称     | 参数缩写 | Yaml 模式下必填 | Cli 模式下必填 | 参数含义                                                                                                                                                                                                                                                                                                   |
-| ------------ | -------- | --------------- | -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| region                       | -        | 选填            | 必填           | 地域名称，取值范围参见[函数计算开服地域](https://www.alibabacloud.com/help/zh/fc/product-overview/region-availability) |
-| function-name                | -        | 选填            | 必填           | 函数名 |
+| 参数全称      | 参数缩写 | Yaml 模式下必填 | Cli 模式下必填 | 参数含义                                                                                                               |
+| ------------- | -------- | --------------- | -------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| region        | -        | 选填            | 必填           | 地域名称，取值范围参见[函数计算开服地域](https://www.alibabacloud.com/help/zh/fc/product-overview/region-availability) |
+| function-name | -        | 选填            | 必填           | 函数名                                                                                                                 |
 
 > 当前命令还支持部分全局参数（例如`-a/--access`, `--debug`等），详情可参考 [Serverless Devs 全局参数文档](https://serverless-devs.com/serverless-devs/command/readme#全局参数)
 
@@ -55,12 +55,12 @@ category: '发布&配置'
 
 ```text
 fc3-deploy-test:
-  - 
+  -
     createdTime:      2023-09-25T06:57:24Z
     description:      test publish version 2
     lastModifiedTime: 2023-09-25T06:57:24Z
     versionId:        2
-  - 
+  -
     createdTime:      2023-09-25T06:46:28Z
     description:      test publish version
     lastModifiedTime: 2023-09-25T06:46:28Z
@@ -75,11 +75,12 @@ fc3-deploy-test:
 
 ### 参数解析
 
-| 参数全称              | 参数缩写 | Yaml 模式下必填 | Cli 模式下必填 | 参数含义                                                                                                                                                                                                                                                                                                   |
-| --------------------- | -------- | --------------- | -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| region                       | -        | 选填            | 必填           | 地域名称，取值范围参见[函数计算开服地域](https://www.alibabacloud.com/help/zh/fc/product-overview/region-availability) |
-| function-name                | -        | 选填            | 必填           | 函数名 |
-| description           | -        | 选填            | 选填           | 版本描述                                                                                                                                                                      
+| 参数全称      | 参数缩写 | Yaml 模式下必填 | Cli 模式下必填 | 参数含义                                                                                                               |
+| ------------- | -------- | --------------- | -------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| region        | -        | 选填            | 必填           | 地域名称，取值范围参见[函数计算开服地域](https://www.alibabacloud.com/help/zh/fc/product-overview/region-availability) |
+| function-name | -        | 选填            | 必填           | 函数名                                                                                                                 |
+| description   | -        | 选填            | 选填           | 版本描述                                                                                                               |
+
 > 当前命令还支持部分全局参数（例如`-a/--access`, `--debug`等），详情可参考 [Serverless Devs 全局参数文档](https://serverless-devs.com/serverless-devs/command/readme#全局参数)
 
 ### 操作案例
@@ -98,18 +99,19 @@ fc3-deploy-test:
 ```
 
 ## version remove 命令
+
 `version remove` 命令，是用户删除指定已发布的版本命令。
 
 当执行命令`version remove -h`/`version remove --help`时，可以获取帮助文档。
 
 ### 参数解析
 
-| 参数全称     | 参数缩写 | Yaml模式下必填 | Cli模式下必填 | 参数含义                                                     |
-| ------------ | -------- | -------------- | ------------- | ------------------------------------------------------------ |
-| region                       | -        | 选填            | 必填           | 地域名称，取值范围参见[函数计算开服地域](https://www.alibabacloud.com/help/zh/fc/product-overview/region-availability) |
-| function-name                | -        | 选填            | 必填           | 函数名 |
-| version-id   | -        | 必填           | 必填          | 版本Id                                                       |
-| assume-yes | y        | 选填           |选填   | 在交互时，默认选择`y`                                        |
+| 参数全称      | 参数缩写 | Yaml 模式下必填 | Cli 模式下必填 | 参数含义                                                                                                               |
+| ------------- | -------- | --------------- | -------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| region        | -        | 选填            | 必填           | 地域名称，取值范围参见[函数计算开服地域](https://www.alibabacloud.com/help/zh/fc/product-overview/region-availability) |
+| function-name | -        | 选填            | 必填           | 函数名                                                                                                                 |
+| version-id    | -        | 必填            | 必填           | 版本 Id                                                                                                                |
+| assume-yes    | y        | 选填            | 选填           | 在交互时，默认选择`y`                                                                                                  |
 
 > 当前命令还支持部分全局参数（例如`-a/--access`, `--debug`等），详情可参考 [Serverless Devs 全局参数文档](https://serverless-devs.com/serverless-devs/command/readme#全局参数)
 
@@ -124,7 +126,6 @@ fc3-deploy-test:
 VersionId [1] deleted successfully.
 ``` -->
 
-
 ## 权限与策略说明
 
 - `version list` 命令所需要的权限策略： `AliyunFCReadOnlyAccess`
@@ -134,28 +135,28 @@ VersionId [1] deleted successfully.
   ```json
   {
     "Version": "1",
-    "Statement":
-      [
-        {
-          "Action": "fc:PublishFunctionVersion",
-          "Effect": "Allow",
-          "Resource": "acs:fc:{region}:{uid}:functions/{functionName}/versions/*"
-        }
-      ]
+    "Statement": [
+      {
+        "Action": "fc:PublishFunctionVersion",
+        "Effect": "Allow",
+        "Resource": "acs:fc:{region}:{uid}:functions/{functionName}/versions/*"
+      }
+    ]
   }
   ```
-- `version remove` 命令所需要的权限策略：
- `AliyunFCReadOnlyAccess`  
 
-    ```json
-    {
-      "Version": "1",
-        "Statement": [
-          {
-            "Action": "fc:DeleteFunctionVersion",
-            "Effect": "Allow",
-            "Resource": "acs:fc:{region}:{uid}:functions/{functionName}/versions/*"
-          }
-        ]
-    }
-    ```
+- `version remove` 命令所需要的权限策略：
+  `AliyunFCReadOnlyAccess`
+
+  ```json
+  {
+    "Version": "1",
+    "Statement": [
+      {
+        "Action": "fc:DeleteFunctionVersion",
+        "Effect": "Allow",
+        "Resource": "acs:fc:{region}:{uid}:functions/{functionName}/versions/*"
+      }
+    ]
+  }
+  ```

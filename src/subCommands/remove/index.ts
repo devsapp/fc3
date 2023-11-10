@@ -308,6 +308,7 @@ export default class Remove {
     if (!_.isEmpty(this.resources.provision)) {
       for (const { qualifier } of this.resources.provision) {
         logger.spin('checking', 'remove function provision', `${this.functionName}/${qualifier}`);
+        // eslint-disable-next-line no-constant-condition
         while (true) {
           await sleep(1.5);
           const { current } =

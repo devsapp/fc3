@@ -9,13 +9,13 @@ import { promptForConfirmOrDetails } from '../../utils';
 const commandsList = Object.keys(commandsHelp.subCommands);
 
 export default class Version {
+  readonly subCommand: string;
   private region: IRegion;
   private functionName: string;
   private description: string;
   private versionId: string;
   private fcSdk: FC;
   private yes: boolean;
-  readonly subCommand: string;
 
   constructor(inputs: IInputs) {
     const {

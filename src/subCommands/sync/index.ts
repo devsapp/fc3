@@ -124,11 +124,13 @@ export default class Sync {
         extract: true,
       });
 
+      // eslint-disable-next-line require-atomic-updates, no-param-reassign
       functionConfig.code = codePath;
     }
 
     if (functionConfig.role) {
       const role = functionConfig.role as string;
+      // eslint-disable-next-line no-param-reassign
       functionConfig.role = role.toLowerCase();
     }
 

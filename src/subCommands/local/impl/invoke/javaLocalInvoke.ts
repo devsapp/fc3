@@ -9,7 +9,7 @@ export class JavaLocalInvoke extends BaseLocalInvoke {
     if (!ret) {
       return ret;
     }
-    if (_.isString(this.getDebugIDE()) && this.getDebugIDE() != IDE_INTELLIJ) {
+    if (_.isString(this.getDebugIDE()) && this.getDebugIDE() !== IDE_INTELLIJ) {
       logger.error('java runtime debug only support intellij');
       return false;
     }

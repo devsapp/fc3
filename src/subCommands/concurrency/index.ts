@@ -9,12 +9,12 @@ import { promptForConfirmOrDetails } from '../../utils';
 const commandsList = Object.keys(commandsHelp.subCommands);
 
 export default class Concurrency {
+  readonly subCommand: string;
   private region: IRegion;
   private functionName: string;
   private reservedConcurrency?: number;
   private fcSdk: FC;
   private yes: boolean;
-  readonly subCommand: string;
 
   constructor(inputs: IInputs) {
     const {
