@@ -1,6 +1,7 @@
+/* eslint-disable no-await-in-loop */
 import { ICredentials } from '@serverless-devs/component-interface';
 import _, { isEmpty } from 'lodash';
-import { IInputs, IRegion, checkRegion } from '../../interface';
+import { IInputs, IRegion, TriggerType, checkRegion } from '../../interface';
 import FC, { GetApiType } from '../../resources/fc';
 import logger from '../../logger';
 import { parseArgv } from '@serverless-devs/utils';
@@ -44,7 +45,7 @@ export default class Info {
     const triggers = await this.getTriggers();
     const asyncInvokeConfig = await this.getAsyncInvokeConfig();
     const vpcBindingConfig = await this.getVpcBing();
-    let info = {
+    let info: any = {
       region: this.region,
     };
     info = Object.assign({}, info, functionConfig);
@@ -53,6 +54,22 @@ export default class Info {
       asyncInvokeConfig: isEmpty(asyncInvokeConfig) ? undefined : asyncInvokeConfig,
       vpcBinding: isEmpty(vpcBindingConfig) ? undefined : vpcBindingConfig,
     });
+    if (!_.isEmpty(triggers)) {
+      for (let i = 0; i < triggers.length; i++) {
+        const t = triggers[i];
+        if (t.triggerType === TriggerType.http && t.qualifier === 'LATEST') {
+          const t2 = await this.fcSdk.getTrigger(
+            this.functionName,
+            t.triggerName,
+            GetApiType.simple,
+          );
+          info.url = {
+            system_url: t2.httpTrigger.urlInternet,
+            system_intranet_url: t2.httpTrigger.urlIntranet,
+          };
+        }
+      }
+    }
     return info;
   }
 

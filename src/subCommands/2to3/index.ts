@@ -89,7 +89,7 @@ export default class SYaml2To3 {
           return `\${${parts.join('.')}}`;
         }
       }
-      if (variableName.includes('.props')) {
+      if (variableName.includes('.props') && !variableName.includes('this.props')) {
         const parts = variableName.split('.');
         const resourceIndex = parts.findIndex((part) => part.endsWith('props'));
         if (resourceIndex !== -1) {
@@ -156,6 +156,12 @@ export default class SYaml2To3 {
         _.unset(serviceProps.vpcConfig, 'vswitchIds');
       }
     }
+
+    // 处理 vpc binding
+    if (_.get(serviceProps, 'vpcBinding')) {
+      const vpcIds = serviceProps.vpcBinding;
+      serviceProps.vpcBinding = { vpcIds };
+    }
   }
 
   // 处理 fc 组件的转换
@@ -181,11 +187,7 @@ export default class SYaml2To3 {
       let srv: any = {};
       if (typeof service === 'string') {
         const key = service.replace('${', '').replace('}', '');
-        const kLi = key.split('.');
-        srv = _.cloneDeep(parsedYamlData);
-        for (let i = 0; i < kLi.length; i++) {
-          srv = srv[kLi[i]];
-        }
+        srv = _.cloneDeep(_.get(parsedYamlData, key));
         toDelServiceKeys.push(key);
       } else {
         srv = _.get(v.props, 'service') || {};
@@ -241,25 +243,25 @@ export default class SYaml2To3 {
           _.unset(asyncInvokeConfig, 'destination');
           const { destinationConfig } = asyncInvokeConfig;
           if (_.get(destinationConfig, 'onSuccess')) {
-            let succ = destinationConfig.onSuccess;
-            if (succ.startsWith('acs:fc')) {
-              succ = `${succ.split('services/')[0]}functions/${succ.split('functions/')[1]}`;
-              if (succ.startsWith('acs:fc:::')) {
-                succ = succ.replace('acs:fc:::', 'acs:fc:${this.props.region}::');
-              }
-            }
+            const succ = destinationConfig.onSuccess;
+            // if (succ.startsWith('acs:fc')) {
+            //   succ = `${succ.split('services/')[0]}functions/${succ.split('functions/')[1]}`;
+            //   if (succ.startsWith('acs:fc:::')) {
+            //     succ = succ.replace('acs:fc:::', 'acs:fc:${this.props.region}::');
+            //   }
+            // }
             destinationConfig.onSuccess = {
               destination: succ,
             };
           }
           if (_.get(destinationConfig, 'onFailure')) {
-            let fail = destinationConfig.onFailure;
-            if (fail.startsWith('acs:fc')) {
-              fail = `${fail.split('services/')[0]}functions/${fail.split('functions/')[1]}`;
-              if (fail.startsWith('acs:fc:::')) {
-                fail = fail.replace('acs:fc:::', 'acs:fc:${this.props.region}::');
-              }
-            }
+            const fail = destinationConfig.onFailure;
+            // if (fail.startsWith('acs:fc')) {
+            //   fail = `${fail.split('services/')[0]}functions/${fail.split('functions/')[1]}`;
+            //   if (fail.startsWith('acs:fc:::')) {
+            //     fail = fail.replace('acs:fc:::', 'acs:fc:${this.props.region}::');
+            //   }
+            // }
             destinationConfig.onFailure = {
               destination: fail,
             };
@@ -315,7 +317,7 @@ export default class SYaml2To3 {
           _.unset(v.props.customRuntimeConfig, 'command');
         }
 
-        if (!_.isEmpty(v.props.customRuntimeConfig.args)) {
+        if (_.isEmpty(v.props.customRuntimeConfig.args)) {
           _.unset(v.props.customRuntimeConfig, 'args');
         }
       }
@@ -421,12 +423,14 @@ export default class SYaml2To3 {
                 cV = cV.replace('fc build', 'fc3 build');
               } else if (cV.startsWith('fc invoke')) {
                 cV = cV.replace('fc invoke', 'fc3 invoke');
-                logger.warn(
-                  `You can use --function-name specify function, for example: fc3 invoke --function-name \${this.props.functionName}, position: ${k} --->  ${cV}`,
-                );
+                if (cV !== 'fc3 invoke') {
+                  logger.warn(
+                    `You can use --function-name specify function, for example: fc3 invoke --function-name \${this.props.functionName}, position:\n${k} --->  ${cV}`,
+                  );
+                }
               } else if (cV.startsWith('fc api') || cV.includes('${vars.service')) {
                 logger.warn(
-                  `You may need to review and make adjustments to this action as it uses the deprecated version of FC API, involving service operations. position: ${k} --->  ${cV}`,
+                  `You may need to review and make adjustments to this action as it uses the deprecated version of FC API, involving service operations. position:\n${k} --->  ${cV}`,
                 );
               }
               acV.component = cV;
@@ -437,7 +441,9 @@ export default class SYaml2To3 {
     }
 
     for (const key of toDelServiceKeys) {
-      _.unset(parsedYamlData, key);
+      const varSrv = _.get(parsedYamlData, key);
+      const { name, description } = varSrv;
+      _.set(parsedYamlData, key, { name, description });
     }
   }
 }
