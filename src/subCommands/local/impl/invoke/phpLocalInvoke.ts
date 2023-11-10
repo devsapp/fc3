@@ -10,7 +10,7 @@ export class PhpLocalInvoke extends BaseLocalInvoke {
     if (!ret) {
       return ret;
     }
-    if (_.isString(this.getDebugIDE()) && this.getDebugIDE() != IDE_VSCODE) {
+    if (_.isString(this.getDebugIDE()) && this.getDebugIDE() !== IDE_VSCODE) {
       logger.error('php runtime debug only support vscode');
       return false;
     }

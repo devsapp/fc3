@@ -35,13 +35,13 @@ category: '调用&调试'
 
 ## 参数解析
 
-| 参数全称      | 参数缩写 | Yaml 模式下必填 | 参数含义|
-| ------------- | -------- | --------------- | --------- |
-| event         | e        | 选填            | 传入 `event` 函数的 `event` 事件数据，可以通过 `s cli fc-event` 指令快速获取事件数据示例，详细操作参考[这里](https://github.com/devsapp/fc/blob/main/docs/zh/command/invoke.md#注意事项)                    |
-| event-file    | f        | 选填            | 以文件形式传入 `event` 事件数据                                                                                                                             |
-| config        | c        | 选填            | 指定断点调试时使用的 IDE，取值范围：`vscode,intellij`                                                                                                                      |
-| debug-port    | d        | 选填            | 指定断点调试端                                                                                                                             
-<!-- | tmp-dir       | -        | 选填            | 自定义函数运行环境中 `/tmp` 路径的本机挂载路径，默认为 `./.s/tmp/invoke/functionName`/                                                                                                          | -->
+| 参数全称   | 参数缩写 | Yaml 模式下必填 | 参数含义                                                                                                                                                                                 |
+| ---------- | -------- | --------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- | --- |
+| event      | e        | 选填            | 传入 `event` 函数的 `event` 事件数据，可以通过 `s cli fc-event` 指令快速获取事件数据示例，详细操作参考[这里](https://github.com/devsapp/fc/blob/main/docs/zh/command/invoke.md#注意事项) |
+| event-file | f        | 选填            | 以文件形式传入 `event` 事件数据                                                                                                                                                          |
+| config     | c        | 选填            | 指定断点调试时使用的 IDE，取值范围：`vscode,intellij`                                                                                                                                    |
+| debug-port | d        | 选填            | 指定断点调试端                                                                                                                                                                           |
+| <!--       | tmp-dir  | -               | 选填                                                                                                                                                                                     | 自定义函数运行环境中 `/tmp` 路径的本机挂载路径，默认为 `./.s/tmp/invoke/functionName`/ | --> |
 
 > 当前命令还支持部分全局参数（例如`-a/--access`, `--debug`, `--help`等），详情可参考 [Serverless Devs 全局参数文档](https://github.com/Serverless-Devs/Serverless-Devs/blob/master/docs/zh/command/readme.md#%E5%85%A8%E5%B1%80%E5%8F%82%E6%95%B0)
 
@@ -51,7 +51,7 @@ category: '调用&调试'
 
 ### 操作案例
 
-**有资源描述文件（Yaml）时**，可以直接执行`s local invoke `进行本地调试，完成的输出示例：
+**有资源描述文件（Yaml）时**，可以直接执行`s local invoke`进行本地调试，完成的输出示例：
 
 ```
 FC Invoke Start RequestId: 0ba8ac3f-abf8-46d4-b61f-8e0f9f265d6a
@@ -59,7 +59,7 @@ FC Invoke Start RequestId: 0ba8ac3f-abf8-46d4-b61f-8e0f9f265d6a
 FC Invoke End RequestId: 0ba8ac3f-abf8-46d4-b61f-8e0f9f265d6a
 hello world
 
-RequestId: 0ba8ac3f-abf8-46d4-b61f-8e0f9f265d6a 	 Billed Duration: 146 ms 	 Memory Size: 128 MB 	 Max Memory Used: 23 MB
+RequestId: 0ba8ac3f-abf8-46d4-b61f-8e0f9f265d6a   Billed Duration: 146 ms   Memory Size: 128 MB   Max Memory Used: 23 MB
 ```
 
 ## local start 命令
@@ -68,7 +68,7 @@ RequestId: 0ba8ac3f-abf8-46d4-b61f-8e0f9f265d6a 	 Billed Duration: 146 ms 	 Memo
 
 ### 操作案例
 
-**有资源描述文件（Yaml）时**，可以直接执行`s local start `进行资源部署，部署完成的输出示例：
+**有资源描述文件（Yaml）时**，可以直接执行`s local start`进行资源部署，部署完成的输出示例：
 
 ```text
 ⌛ Steps for [local] of [hello-world-app]
@@ -77,25 +77,25 @@ RequestId: 0ba8ac3f-abf8-46d4-b61f-8e0f9f265d6a 	 Billed Duration: 146 ms 	 Memo
 You can use curl or Postman to make an HTTP request to 127.0.0.1:9001 to test the function
 ```
 
-此时，可以根据命令行提示的`url`信息，使用curl/Postman/浏览器中查看函数本地调试的具体内容。
+此时，可以根据命令行提示的`url`信息，使用 curl/Postman/浏览器中查看函数本地调试的具体内容。
 
 ## 断点调试
 
-断点调试支持的 runtime 有：python3/python3.9/python3.10、nodejs10/nodejs12/nodejs14/nodejs16, php7.2、java8/java11
+断点调试支持的 runtime 有：`python3/python3.9/python3.10、nodejs10/nodejs12/nodejs14/nodejs16, php7.2、java8/java11`
 
 ### VSCode
 
-使用 VSCode 进行断点调试时，流程十分简单，支持的语言有 python、nodejs 和 php。
+使用 VSCode 进行断点调试时，流程十分简单，支持的语言有 `NodeJS`、`Python` 和 `PHP`。
 
 #### 调试函数
 
-##### step1：打开终端，进入目标项目下(s.yaml文件所在目录)，输入启动指令
+##### step1：打开终端，进入目标项目下(s.yaml 文件所在目录)，输入启动指令
 
 ```
-$ s local invoke --config vscode --debug-port 3000
+s local invoke --config vscode --debug-port 3000
 ```
 
-启动指令执行后，本地的函数计算执行容器会有一定阻塞，我们需要等待调用；与此同时当前项目会自动生成 .vscode/launch.json 文件，该文件是基于 VSCode 进行调试的配置文件，若该文件已经存在，那么启动指令会打印相应配置文本，如下图所示，需要利用这部分内容覆盖已有 .vscode/launch.json 中的内容。
+启动指令执行后，本地的函数计算执行容器会有一定阻塞，我们需要等待调用；与此同时当前项目会自动生成 `.vscode/launch.json` 文件，该文件是基于 VSCode 进行调试的配置文件，若该文件已经存在，那么启动指令会打印相应配置文本，如下图所示，需要利用这部分内容覆盖已有 `.vscode/launch.json` 中的内容。
 ![](https://img.alicdn.com/imgextra/i3/O1CN01DcU4ca1VBiSYwrFh4_!!6000000002615-2-tps-1142-387.png)
 
 ##### step2：启动断点调试器
@@ -105,18 +105,17 @@ $ s local invoke --config vscode --debug-port 3000
 
 启动调试器后，程序便已经启动，此时就可以开始进行我们的断点调试工作了。
 
-
 ### Intellij
 
-基于 Intellij 进行断点调试时，支持 java 语言, 接下来我们将以本地调试 Java 函数为例，对"启动断点调试器"步骤进行详细说明。
+基于 Intellij 进行断点调试时，支持 Java 语言, 接下来我们将以本地调试 Java 函数为例，对"启动断点调试器"步骤进行详细说明。
 
-##### step1：打开终端，进入目标项目下(s.yaml文件所在的目录)，输入启动指令
+##### step1：打开终端，进入目标项目下(s.yaml 文件所在的目录)，输入启动指令
 
 由于 Java 是编译型语言，因此在开始前需要对程序进行打包，本文示例会使用 mvn package 对函数打包
 
 ```
-$ mvn package
-$ s local invoke --config intellij --debug-port 3000
+mvn package
+s local invoke --config intellij --debug-port 3000
 ```
 
 ##### step2：启动断点调试器
@@ -137,10 +136,10 @@ $ s local invoke --config intellij --debug-port 3000
 
 ### 默认断点调试参数
 
-| **Runtime**       | **Default Debug Args**                                                                    |
-| ----------------- | ----------------------------------------------------------------------------------------- |
-| nodejs 10/12/14/16 | `--inspect-brk=0.0.0.0:${debugPort}`                                                      |
-| python 3/3.9/3.10  | `-m ptvsd --host 0.0.0.0 --port ${debugPort} --wait`                                      |
-| java 8            | `-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,quiet=y,address=${debugPort}`      |
-| java 11           | `-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,quiet=y,address=*:${debugPort}`    |
-| php7.2            | `remote_enable=1 remote_autostart=1 remote_port=${debugPort} remote_host=${ip.address()}` |
+| **Runtime**          | **Default Debug Args**                                                                    |
+| -------------------- | ----------------------------------------------------------------------------------------- |
+| `nodejs 10/12/14/16` | `--inspect-brk=0.0.0.0:${debugPort}`                                                      |
+| `python 3/3.9/3.10`  | `-m ptvsd --host 0.0.0.0 --port ${debugPort} --wait`                                      |
+| `java8`              | `-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,quiet=y,address=${debugPort}`      |
+| `java11`             | `-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,quiet=y,address=*:${debugPort}`    |
+| `php7.2`             | `remote_enable=1 remote_autostart=1 remote_port=${debugPort} remote_host=${ip.address()}` |

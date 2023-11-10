@@ -6,6 +6,7 @@ category: '概览'
 ---
 
 ![图片alt](https://serverless-article-picture.oss-cn-hangzhou.aliyuncs.com/1635756716877_20211101085157044368.png)
+
 <p align="center" class="flex justify-center">
   <a href="https://nodejs.org/en/" class="ml-1">
     <img src="https://img.shields.io/badge/node-%3E%3D%2014.14.0-brightgreen" alt="node.js version">
@@ -18,7 +19,7 @@ category: '概览'
   </a>
 </p>
 
-[![Nodejs16 base ci](https://github.com/devsapp/fc3/actions/workflows/ci_node16.yaml/badge.svg)](https://github.com/devsapp/fc3/actions/workflows/ci_node16.yaml) [![Linux docker ci](https://github.com/devsapp/fc3/actions/workflows/ci_with_docker_linux.yaml/badge.svg)](https://github.com/devsapp/fc3/actions/workflows/ci_with_docker_linux.yaml)  [![macos docker ci](https://github.com/devsapp/fc3/actions/workflows/ci_with_docker_macos.yaml/badge.svg)](https://github.com/devsapp/fc3/actions/workflows/ci_with_docker_macos.yaml) 
+[![Nodejs16 base ci](https://github.com/devsapp/fc3/actions/workflows/ci_node16.yaml/badge.svg)](https://github.com/devsapp/fc3/actions/workflows/ci_node16.yaml) [![Linux docker ci](https://github.com/devsapp/fc3/actions/workflows/ci_with_docker_linux.yaml/badge.svg)](https://github.com/devsapp/fc3/actions/workflows/ci_with_docker_linux.yaml) [![macos docker ci](https://github.com/devsapp/fc3/actions/workflows/ci_with_docker_macos.yaml/badge.svg)](https://github.com/devsapp/fc3/actions/workflows/ci_with_docker_macos.yaml)
 
 # 五大亮点
 
@@ -30,15 +31,16 @@ category: '概览'
 
 **注意:**
 
-> 如果您是函数计算老用户，操作存量具有 Service 的函数, 见[fc组件](https://docs.serverless-devs.com/fc/readme)
+> 如果您是函数计算老用户，操作存量具有 Service 的函数, 见[fc 组件](https://docs.serverless-devs.com/fc/readme)
 
 # 快速开始
 
-🙋 三步即可上手 函数计算（fc3）组件的使用：   
-❶ [安装 Serverless Devs 开发者工具](https://github.com/Serverless-Devs/Serverless-Devs/blob/master/docs/install.md) ：`npm install -g @serverless-devs/s3`；   
-> 安装完成还需要配置密钥，可以参考[密钥配置文档](config.md)  
+🙋 三步即可上手 函数计算（fc3）组件的使用：
+❶ [安装 Serverless Devs 开发者工具](https://github.com/Serverless-Devs/Serverless-Devs/blob/master/docs/install.md) ：`npm install -g @serverless-devs/s3`；
 
-❷ 初始化一个函数计算的 `Hello World` 项目：`s init --project start-fc3-python`；      
+> 安装完成还需要配置密钥，可以参考[密钥配置文档](config.md)
+
+❷ 初始化一个函数计算的 `Hello World` 项目：`s init --project start-fc3-python`；
 ❸ 初始化完成之后，系统会提示是否部署项目，只需要输入`y`并按回车按钮即可完成项目的部署；
 
 - [更多入门示例](https://github.com/devsapp/start-fc/tree/V3)
@@ -48,21 +50,21 @@ category: '概览'
 
 函数计算（fc3）组件全部支持的能力列表如下：
 
-| 构建&部署 |  可观测性 |  调用&调试 |  发布&配置  |  其他功能 |
-| --- |  --- | --- | --- | --- |
-| [**部署 deploy**](./command/deploy.md)   | [日志查询 logs](./command/logs.md)   | [**本地调用 local**](./command/local.md)      | [**版本 version**](./command/version.md)      | [查看函数 info](./command/info.md) |
-| [**构建 build**](./command/build.md)  |   | [函数触发 invoke](./command/invoke.md)    | [**别名 alias**](./command/alias.md)         | [**资源同步 sync**](./command/sync.md) | 
-| [移除 remove](./command/remove.md)  | |[实例登录 instance](./command/instance.md)  |[预留 provision](./command/provision.md)  |  | 
-| [计划变更 plan](./command/plan.md)| | |[按量资源 concurrency](./command/concurrency.md) | |        
-| | | |[层 layer](./command/layer.md) | |               
+| 构建&部署                              | 可观测性                           | 调用&调试                                  | 发布&配置                                        | 其他功能                               |
+| -------------------------------------- | ---------------------------------- | ------------------------------------------ | ------------------------------------------------ | -------------------------------------- |
+| [**部署 deploy**](./command/deploy.md) | [日志查询 logs](./command/logs.md) | [**本地调用 local**](./command/local.md)   | [**版本 version**](./command/version.md)         | [查看函数 info](./command/info.md)     |
+| [**构建 build**](./command/build.md)   |                                    | [函数触发 invoke](./command/invoke.md)     | [**别名 alias**](./command/alias.md)             | [**资源同步 sync**](./command/sync.md) |
+| [移除 remove](./command/remove.md)     |                                    | [实例登录 instance](./command/instance.md) | [预留 provision](./command/provision.md)         |                                        |
+| [计划变更 plan](./command/plan.md)     |                                    |                                            | [按量资源 concurrency](./command/concurrency.md) |                                        |
+|                                        |                                    |                                            | [层 layer](./command/layer.md)                   |                                        |
 
 在使用函数计算（fc3）组件时，还会涉及到资源描述文件的编写，关于函数计算（fc3）组件的 Yaml 规范可以参考[**函数计算（fc3）Yaml 规范文档**](./yaml/readme.md)
 
 # 项目贡献
 
-我们非常希望您可以和我们一起贡献这个项目。贡献内容包括不限于代码的维护、应用/组件的贡献、文档的完善等，更多详情可以参考[ 🏆 贡献指南](./../../CONTRIBUTING.md)。
+我们非常希望您可以和我们一起贡献这个项目。贡献内容包括不限于代码的维护、应用/组件的贡献、文档的完善等，更多详情可以参考[🏆 贡献指南](./../../CONTRIBUTING.md)。
 
-与此同时，我们也非常感谢所有[ 👬 参与贡献的小伙伴](https://github.com/devsapp/fc3/graphs/contributors) ，为 Serverless Devs fc3 组件项目贡献的努力和汗水。
+与此同时，我们也非常感谢所有[👬 参与贡献的小伙伴](https://github.com/devsapp/fc3/graphs/contributors) ，为 Serverless Devs fc3 组件项目贡献的努力和汗水。
 
 # 开源许可
 
@@ -77,7 +79,7 @@ Serverless Devs fc3 组件遵循 [MIT License](./../../LICENSE) 开源许可。
 <p align="center">
 
 | <img src="https://serverless-article-picture.oss-cn-hangzhou.aliyuncs.com/1635407298906_20211028074819117230.png" width="200px" > | <img src="https://serverless-article-picture.oss-cn-hangzhou.aliyuncs.com/1635407044136_20211028074404326599.png" width="200px" > | <img src="https://serverless-article-picture.oss-cn-hangzhou.aliyuncs.com/1635407252200_20211028074732517533.png" width="200px" > |
-|--- | --- | --- |
-| <center>关注微信公众号：`serverless`</center> | <center>联系微信小助手：`xiaojiangwh`</center> | <center>加入钉钉交流群：`33947367`</center> | 
+| --------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| <center>关注微信公众号：`serverless`</center>                                                                                     | <center>联系微信小助手：`xiaojiangwh`</center>                                                                                    | <center>加入钉钉交流群：`33947367`</center>                                                                                       |
 
 </p>

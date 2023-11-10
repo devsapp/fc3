@@ -43,11 +43,10 @@ category: '发布&配置'
 
 ### 参数解析
 
-| 参数全称     | 参数缩写 | Yaml 模式下必填 | Cli 模式下必填 | 参数含义                                                                                                                                                                                                                                                                                                   |
-| ------------ | -------- | --------------- | -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| region                       | -        | 选填            | 必填           | 地域名称，取值范围参见[函数计算开服地域](https://www.alibabacloud.com/help/zh/fc/product-overview/region-availability) |
-| function-name                | -        | 选填            | 必填           | 函数名 |
-
+| 参数全称      | 参数缩写 | Yaml 模式下必填 | Cli 模式下必填 | 参数含义                                                                                                               |
+| ------------- | -------- | --------------- | -------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| region        | -        | 选填            | 必填           | 地域名称，取值范围参见[函数计算开服地域](https://www.alibabacloud.com/help/zh/fc/product-overview/region-availability) |
+| function-name | -        | 选填            | 必填           | 函数名                                                                                                                 |
 
 > 当前命令还支持部分全局参数（例如`-a/--access`, `--debug`等），详情可参考 [Serverless Devs 全局参数文档](https://serverless-devs.com/serverless-devs/command/readme#全局参数)
 
@@ -60,10 +59,10 @@ category: '发布&配置'
 
 ```text
 fc3-deploy-test:
-  - 
+  -
     alwaysAllocateCPU:      false
     current:                10
-    currentError:           
+    currentError:
     functionArn:            acs:fc:cn-hangzhou:143**********149:functions/start-python-9fqu
     scheduledActions:       []
     target:                 10
@@ -78,15 +77,15 @@ fc3-deploy-test:
 
 ### 参数解析
 
-| 参数全称            | 参数缩写 | Yaml 模式下必填 | Cli 模式下必填 | 参数含义                                                                                                                                                                                                                                                                                                   |
-| ------------------- | -------- | --------------- | -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| region                       | -        | 选填            | 必填           | 地域名称，取值范围参见[函数计算开服地域](https://www.alibabacloud.com/help/zh/fc/product-overview/region-availability) |
-| function-name                | -        | 选填            | 必填           | 函数名 |
-| qualifier           |  -       | 必填            | 必填           | 配置预留的版本，仅支持 LATEST 和别名                                               |
-| target              |  -       | 必填            | 必填              | 预留实例数量，target 如果大于 0，配置函数预留，**预留资源会持续产生费用，如果不需要请及时释放资源**；target 如果等于 0，释放预留资源  |
-| always-allocate-cpu           |   ac     | 选填            | 选填           | 一直给预留实例分配CPU资源                                               |
-| scheduled-actions           |   -     | 选填            | 选填           | 配置预留模式的定时修改限制                |
-| target-tracking-policies           |   -    | 选填            | 选填           | 配置预留模式的根据指标修改限制                |
+| 参数全称                 | 参数缩写 | Yaml 模式下必填 | Cli 模式下必填 | 参数含义                                                                                                                             |
+| ------------------------ | -------- | --------------- | -------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| region                   | -        | 选填            | 必填           | 地域名称，取值范围参见[函数计算开服地域](https://www.alibabacloud.com/help/zh/fc/product-overview/region-availability)               |
+| function-name            | -        | 选填            | 必填           | 函数名                                                                                                                               |
+| qualifier                | -        | 必填            | 必填           | 配置预留的版本，仅支持 LATEST 和别名                                                                                                 |
+| target                   | -        | 必填            | 必填           | 预留实例数量，target 如果大于 0，配置函数预留，**预留资源会持续产生费用，如果不需要请及时释放资源**；target 如果等于 0，释放预留资源 |
+| always-allocate-cpu      | ac       | 选填            | 选填           | 一直给预留实例分配 CPU 资源                                                                                                          |
+| scheduled-actions        | -        | 选填            | 选填           | 配置预留模式的定时修改限制                                                                                                           |
+| target-tracking-policies | -        | 选填            | 选填           | 配置预留模式的根据指标修改限制                                                                                                       |
 
 > 当前命令还支持部分全局参数（例如`-a/--access`, `--debug`等），详情可参考 [Serverless Devs 全局参数文档](https://serverless-devs.com/serverless-devs/command/readme#全局参数)
 
@@ -102,16 +101,15 @@ fc3-deploy-test:
 
 其中`targetTrackingPolicies`参数的数据结构为：
 
-| 参数名       | 类型           | 是否必填 | 示例                              | 描述                     |
-| ------------ | -------------- | -------- | --------------------------------- | ------------------------ |
-| name         | string         | 是       | demoScheduler                     | 定时任务的名称。         |
-| startTime    | string         | 是       | 2020-10-10T10:10:10Z              | 定时伸缩的起始生效时间。 |
-| endTime      | string         | 是       | 2020-12-10T10:10:10Z              | 定时伸缩的结束生效时间。 |
-| metricType   | string         | 是       | ProvisionedConcurrencyUtilization | 追踪的指标类型。<br> -ProvisionedConcurrencyUtilization：预留模式实例并发度利用率。<br> - CPUUtilization：CPU利用率。<br> - GPUMemUtilization：GPU利用率。 <br>      |
-| metricTarget | number(double) | 是       | 0.6                               | 指标的追踪值。           |
-| minCapacity  | number         | 是       | 10                                | 缩容的最小值。           |
-| maxCapacity  | number         | 是       | 100                               | 扩容的最大值。           |
-
+| 参数名       | 类型           | 是否必填 | 示例                              | 描述                                                                                                                                                              |
+| ------------ | -------------- | -------- | --------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| name         | string         | 是       | demoScheduler                     | 定时任务的名称。                                                                                                                                                  |
+| startTime    | string         | 是       | 2020-10-10T10:10:10Z              | 定时伸缩的起始生效时间。                                                                                                                                          |
+| endTime      | string         | 是       | 2020-12-10T10:10:10Z              | 定时伸缩的结束生效时间。                                                                                                                                          |
+| metricType   | string         | 是       | ProvisionedConcurrencyUtilization | 追踪的指标类型。<br> -ProvisionedConcurrencyUtilization：预留模式实例并发度利用率。<br> - CPUUtilization：CPU 利用率。<br> - GPUMemUtilization：GPU 利用率。 <br> |
+| metricTarget | number(double) | 是       | 0.6                               | 指标的追踪值。                                                                                                                                                    |
+| minCapacity  | number         | 是       | 10                                | 缩容的最小值。                                                                                                                                                    |
+| maxCapacity  | number         | 是       | 100                               | 扩容的最大值。                                                                                                                                                    |
 
 ### 操作案例
 
@@ -136,11 +134,11 @@ fc3-deploy-test:
 
 ### 参数解析
 
-| 参数全称      | 参数缩写 | Yaml 模式下必填 | Cli 模式下必填 | 参数含义                                                                                                                                                                                                                                                                                                   |
-| ------------- | -------- | --------------- | -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| region                       | -        | 选填            | 必填           | 地域名称，取值范围参见[函数计算开服地域](https://www.alibabacloud.com/help/zh/fc/product-overview/region-availability) |
-| function-name                | -        | 选填            | 必填           | 函数名 |
-| qualifier     |    -    | 必填            | 必填           | 配置预留的版本，仅支持 LATEST 和别名                                                                                                                                                                                                                                                                 |
+| 参数全称      | 参数缩写 | Yaml 模式下必填 | Cli 模式下必填 | 参数含义                                                                                                               |
+| ------------- | -------- | --------------- | -------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| region        | -        | 选填            | 必填           | 地域名称，取值范围参见[函数计算开服地域](https://www.alibabacloud.com/help/zh/fc/product-overview/region-availability) |
+| function-name | -        | 选填            | 必填           | 函数名                                                                                                                 |
+| qualifier     | -        | 必填            | 必填           | 配置预留的版本，仅支持 LATEST 和别名                                                                                   |
 
 > 当前命令还支持部分全局参数（例如`-a/--access`, `--debug`等），详情可参考 [Serverless Devs 全局参数文档](https://serverless-devs.com/serverless-devs/command/readme#全局参数)
 
@@ -155,26 +153,28 @@ fc3-deploy-test:
 fc3-deploy-test:
   alwaysAllocateCPU:      false
   current:                10
-  currentError:           
+  currentError:
   functionArn:            acs:fc:cn-hangzhou:143**********149:functions/test-function
   scheduledActions:       []
   target:                 10
   targetTrackingPolicies: []
 
 ```
+
 ## provision remove 命令
+
 `provision remove` 命令，是用户删除指定预留资源的命令。
 
 当执行命令`provision remove -h`/`provision remove --help`时，可以获取帮助文档。
 
 ### 参数解析
 
-| 参数全称     | 参数缩写 | Yaml模式下必填 | Cli模式下必填 | 参数含义                                                     |
-| ------------ | -------- | -------------- | ------------- | ------------------------------------------------------------ |
-| region                       | -        | 选填            | 必填           | 地域名称，取值范围参见[函数计算开服地域](https://www.alibabacloud.com/help/zh/fc/product-overview/region-availability) |
-| function-name                | -        | 选填            | 必填           | 函数名 |
-| qualifier           |  -       | 必填            | 必填           | 配置预留的版本，仅支持 LATEST 和别名                                               |
-| assume-yes | y        | 选填           |选填   | 在交互时，默认选择`y`                                        |
+| 参数全称      | 参数缩写 | Yaml 模式下必填 | Cli 模式下必填 | 参数含义                                                                                                               |
+| ------------- | -------- | --------------- | -------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| region        | -        | 选填            | 必填           | 地域名称，取值范围参见[函数计算开服地域](https://www.alibabacloud.com/help/zh/fc/product-overview/region-availability) |
+| function-name | -        | 选填            | 必填           | 函数名                                                                                                                 |
+| qualifier     | -        | 必填            | 必填           | 配置预留的版本，仅支持 LATEST 和别名                                                                                   |
+| assume-yes    | y        | 选填            | 选填           | 在交互时，默认选择`y`                                                                                                  |
 
 > 当前命令还支持部分全局参数（例如`-a/--access`, `--debug`等），详情可参考 [Serverless Devs 全局参数文档](https://serverless-devs.com/serverless-devs/command/readme#全局参数)
 
@@ -198,33 +198,34 @@ VersionId [1] deleted successfully.
   ```json
   {
     "Version": "1",
-    "Statement":
-      [
-        {
-          "Action": "fc:PutProvisionConfig",
-          "Effect": "Allow",
-          "Resource": [
-            "acs:fc:{region}:{uid}:functions/{functionName}",
-            "acs:fc:{region}:{uid}:functions/{functionName}/*"
-          ]
-        }
-      ]
+    "Statement": [
+      {
+        "Action": "fc:PutProvisionConfig",
+        "Effect": "Allow",
+        "Resource": [
+          "acs:fc:{region}:{uid}:functions/{functionName}",
+          "acs:fc:{region}:{uid}:functions/{functionName}/*"
+        ]
+      }
+    ]
   }
   ```
+
 - `provision remove` 命令所需要的权限策略：
-  `AliyunFCReadOnlyAccess`   
-    ```json
-    {
-        "Version": "1",
-        "Statement": [
-            {
-                "Action": "fc:DeleteProvisionConfig",
-                "Effect": "Allow",
-                "Resource": [
-                  "acs:fc:{region}:{uid}:functions/{functionName}",
-                  "acs:fc:{region}:{uid}:functions/{functionName}/*"
-                ]
-            }
+  `AliyunFCReadOnlyAccess`
+
+  ```json
+  {
+    "Version": "1",
+    "Statement": [
+      {
+        "Action": "fc:DeleteProvisionConfig",
+        "Effect": "Allow",
+        "Resource": [
+          "acs:fc:{region}:{uid}:functions/{functionName}",
+          "acs:fc:{region}:{uid}:functions/{functionName}/*"
         ]
-    }
-    ```
+      }
+    ]
+  }
+  ```

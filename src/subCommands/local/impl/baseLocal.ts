@@ -1,3 +1,4 @@
+/* eslint-disable guard-for-in */
 import path from 'path';
 import _ from 'lodash';
 import { v4 as uuidV4 } from 'uuid';
@@ -18,8 +19,7 @@ import {
 } from '../../../default/image';
 import { runCommand } from '../../../utils';
 import FC from '../../../resources/fc';
-
-const { execSync } = require('child_process');
+import { execSync } from 'child_process';
 
 export class BaseLocal {
   protected defaultDebugArgs: string;
@@ -64,7 +64,7 @@ export class BaseLocal {
 
   getHandler(): string {
     let { handler } = this.inputs.props;
-    if (this.getRuntime().startsWith('custom') && handler == undefined) {
+    if (this.getRuntime().startsWith('custom') && handler === undefined) {
       handler = 'index.handler';
     }
     return handler;
@@ -286,7 +286,7 @@ export class BaseLocal {
   }
 
   debugIDEIsVsCode(): boolean {
-    return this.getDebugIDE() == IDE_VSCODE;
+    return this.getDebugIDE() === IDE_VSCODE;
   }
 
   before(): boolean {

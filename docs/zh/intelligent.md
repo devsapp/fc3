@@ -2,7 +2,7 @@
 
 serverless devs s.yaml 在 VSCode 的智能提示和补全
 
-### 智能检测:
+### 智能检测
 
 ![](https://img.alicdn.com/imgextra/i4/O1CN019mTUQl1evp0dAZusk_!!6000000003934-2-tps-986-365.png)
 
@@ -23,7 +23,7 @@ serverless devs s.yaml 在 VSCode 的智能提示和补全
 
   ![](https://img.alicdn.com/imgextra/i3/O1CN01MpDohK1dCBvuxAdCV_!!6000000003699-2-tps-742-438.png)
 
-- 打开 Visual Studio Code 的 "首选项" --> "设置"， 输入`yaml.schema`, 如下图, 进行 settings.json 文件的编辑
+- 打开 Visual Studio Code 的 "首选项" --> "设置"， 输入`yaml.schema`, 如下图, 进行 `settings.json` 文件的编辑
 
   ![](https://img.alicdn.com/imgextra/i1/O1CN01dEdgcS1tSi4OyYRsY_!!6000000005901-2-tps-1206-413.png)
 
@@ -38,7 +38,7 @@ serverless devs s.yaml 在 VSCode 的智能提示和补全
   }
   ```
 
-> Tips: 如果您想离线使用， 可以将 https://images.devsapp.cn/json-schema/s-schema.json 下载到本地(假设本地路径是 `/Users/xiliu/json-schema/s-schema.json`)， 然后修改:
+> Tips: 如果您想离线使用， 可以将 <https://images.devsapp.cn/json-schema/s-schema.json> 下载到本地(假设本地路径是 `/Users/xiliu/json-schema/s-schema.json`)， 然后修改:
 
 ```
 "yaml.schemas": {

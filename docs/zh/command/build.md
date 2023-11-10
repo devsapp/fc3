@@ -15,7 +15,7 @@ category: '构建&部署'
     - [操作案例](#操作案例)
       - [基础操作](#基础操作-use-docker)
       - [高阶自定义操作 use-sandbox](#高阶自定义操作-use-sandbox)
-  - [apt-get.list文件](#apt-get.list)
+  - [apt-get.list 文件](#apt-get.list)
 
 ## 命令解析
 
@@ -23,15 +23,15 @@ category: '构建&部署'
 
 ### 参数解析
 
-| 参数全称     | 参数缩写 | 参数含义                                                                                                                  |
-| ------------ | -------- | ------------------------------------------------------------------------------------------------------------------------- |
-| use-sandbox  | 无       | 进入对应 runtime 的 sandbox 容器                                                                                          |                      |
-| custom-env   | 无       | build 时注入的自定义环境变量                                                                                              |
-| custom-args  | 无       | 使用默认 build 行为时的附加参数， 比如指定 pypi 或者 npm 源, 需要配合 use-docker 或 use-buildkit 使用， 默认是 use-docker |
-| command      | 无       | 使用自定义命令                                            |
-| script-file  | 无       | 使用自定义脚本 
-| dockerfile   | f        | 指定构建自定义镜像的文件, 构建 custom-container runtime 的镜像时使用                |
-| context      | 无       | custom-container 构建镜像时上下文                                         |
+| 参数全称    | 参数缩写 | 参数含义                                                                                                                  |
+| ----------- | -------- | ------------------------------------------------------------------------------------------------------------------------- | --- |
+| use-sandbox | 无       | 进入对应 runtime 的 sandbox 容器                                                                                          |     |
+| custom-env  | 无       | build 时注入的自定义环境变量                                                                                              |
+| custom-args | 无       | 使用默认 build 行为时的附加参数， 比如指定 pypi 或者 npm 源, 需要配合 use-docker 或 use-buildkit 使用， 默认是 use-docker |
+| command     | 无       | 使用自定义命令                                                                                                            |
+| script-file | 无       | 使用自定义脚本                                                                                                            |
+| dockerfile  | f        | 指定构建自定义镜像的文件, 构建 custom-container runtime 的镜像时使用                                                      |
+| context     | 无       | custom-container 构建镜像时上下文                                                                                         |
 
 > 当前命令还支持部分全局参数（例如`-a/--access`, `--debug`, `--help`等），详情可参考 [Serverless Devs 全局参数文档](https://github.com/Serverless-Devs/Serverless-Devs/blob/master/docs/zh/command/readme.md#%E5%85%A8%E5%B1%80%E5%8F%82%E6%95%B0)
 
@@ -39,25 +39,25 @@ category: '构建&部署'
 
 #### 基础操作
 
-由于函数计算的运行环境(linux debian9)与本地的开发环境可能存在比较大的不同，这就导致一部分本地安装/构建的依赖，代码包等，在线上无法正常运行，所以，Serverless Devs 开发者工具在 `build` 命令中，通过本地的启动 Docker 容器的能力，在容器中进行项目的构建，以尽可能地保证构建出来的依赖/产物，在线上可以得到良好的使用，
+由于函数计算的运行环境(Linux debian9)与本地的开发环境可能存在比较大的不同，这就导致一部分本地安装/构建的依赖，代码包等，在线上无法正常运行，所以，Serverless Devs 开发者工具在 `build` 命令中，通过本地的启动 Docker 容器的能力，在容器中进行项目的构建，以尽可能地保证构建出来的依赖/产物，在线上可以得到良好的使用，
 
 不同的运行时，在进行依赖安装/项目构建的时候，可能会有不同的依赖描述文件，其系统默认的对应关系如下：
 
-- Python: requirements.txt
+- Python: `requirements.txt`
 
-- Nodejs: package.json
+- NodeJS: `package.json`
 
-- Php: composer.json
+- PHP: `composer.json`
 
-- Custom: requirements.txt package.json composer.json
+- Custom: `requirements.txt package.json composer.json`
 
-- Custom Container: dockerfile
+- Custom Container: `dockerfile`
 
 > ⚠️ 注意：在部分语言完成项目构建之后，部署的时候可能会出现交互式操作，提醒用户是否要将安装的依赖路径加入到环境变量中，以便线上可以正确的加载到这些依赖内容。此时可以通过交互式的方法，根据提醒输入`y`，也可以在部署时通过`-y`命令，默认进行环境变量等内容的添加。
 
-> apt-get.list 是非 Custom Container 的 runtime 均可以使用，详情见 [apt-get.list文件](#apt-get.list), 是一个可选项，绝大部分场景不需要。
+> apt-get.list 是非 Custom Container 的 runtime 均可以使用，详情见 [apt-get.list 文件](#apt-get.list), 是一个可选项，绝大部分场景不需要。
 
-以 [Python 应用](../../../__tests__/e2e/python)为例：在具有 `requirements.txt` 的 Python 项目下，可以通过`s build`命令实现依赖安装：
+以 [Python 应用](https://github.com/devsapp/fc3/tree/master/__tests__/e2e/python)为例：在具有 `requirements.txt` 的 Python 项目下，可以通过`s build`命令实现依赖安装：
 
 1. 开发编辑源代码
 
@@ -102,7 +102,7 @@ environmentVariables:
 ✔ [fcDemo] completed (27.54s)
 ```
 
-3. 按照提示在 s.yaml 中完成依赖包的环境变量配置 [s.yaml#L19-L22](../../../__tests__/e2e/python/s.yaml#L19-L22)， 然后执行 `s deploy` 将整个交付物 zip 打包， 创建函数
+3. 按照提示在 s.yaml 中完成依赖包的环境变量配置 [s.yaml#L19-L22](https://github.com/devsapp/fc3/tree/master/__tests__/e2e/python/s.yaml#L19-L22)， 然后执行 `s deploy` 将整个交付物 zip 打包， 创建函数
 
 > **Tips:**
 >
@@ -113,11 +113,11 @@ environmentVariables:
 
 **Node.js 项目**、**PHP 项目**与 Python 项目类似，都是在开发代码之后，可以通过`s build`进行依赖安装，此时工具将会自动根据相关依赖文件（例如 Node.js 是 `package.json` ，PHP 是`composer.json` ）下载对应的依赖到本地， 并且和源码一起组成交付物,同时会提示完成依赖包的环境变量配置; 按照提示完成配置，接下来可以通过`s deploy`进行项目部署，此时工具会将整个交付物 ZIP 打包， 创建函数，让函数可以直接 `require` 对应的代码依赖包。
 
-**Custom Container**，则是需要先[开通 ACR/CR 容器镜像服务](https://cr.console.aliyun.com/)，然后在`s.yaml`的`image`字段处填写好`acr`镜像地址，通过`s build --dockerfile ./Dockerfile`进行项目构建；接下来可以通过`s deploy -y`将项目部署到线上，此时工具会自动先将构建完成的镜像推送到 ACR 服务，然后再进行函数的创建, 示例可参考 [custom-container example](../../../__tests__/e2e/custom-container/run#L7,8)
+**Custom Container**，则是需要先[开通 ACR/CR 容器镜像服务](https://cr.console.aliyun.com/)，然后在`s.yaml`的`image`字段处填写好`acr`镜像地址，通过`s build --dockerfile ./Dockerfile`进行项目构建；接下来可以通过`s deploy -y`将项目部署到线上，此时工具会自动先将构建完成的镜像推送到 ACR 服务，然后再进行函数的创建, 示例可参考 [custom-container example](https://github.com/devsapp/fc3/tree/master/__tests__/e2e/custom-container/run#L7,8)
 
-> 💡 在使用`build`命令时，可以通过环境变量 `FC_DOCKER_VERSION` 控制镜像的版本，例如 export FC_DOCKER_VERSION=3.0.0（所有可用版本可查看 https://hub.docker.com/u/aliyunfc ）
+> 💡 在使用`build`命令时，可以通过环境变量 `FC_DOCKER_VERSION` 控制镜像的版本，例如 export FC_DOCKER_VERSION=3.0.0（所有可用版本可查看 <https://hub.docker.com/u/aliyunfc> ）
 
-> 💡 在代码包的场景中， 除了各自语言的库以外， 其实还有更加复杂的情况，例如，在函数计算的 Python Runtime 想使用 jq 这个工具， 此时还需要 [apt-get.list](../../../__tests__/e2e/python/code/apt-get.list) 的支持。
+> 💡 在代码包的场景中， 除了各自语言的库以外， 其实还有更加复杂的情况，例如，在函数计算的 Python Runtime 想使用 jq 这个工具， 此时还需要 [apt-get.list](https://github.com/devsapp/fc3/tree/master/__tests__/e2e/python/code/apt-get.list) 的支持。
 
 #### 高阶自定义操作 use-sandbox
 
@@ -182,6 +182,7 @@ PATH=/code/apt-archives/usr/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bi
 此文件顾名思义，就是声明可以使用 apt-get 命令安装但是函数计算没有系统包。
 
 使用方式是在 code 目录的根目录下，创建一个 apt-get.list 的文件，文件内容如下所示。然后部署之前执行 `s build` 即可。
+
 ```
 zip
 unzip

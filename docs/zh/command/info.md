@@ -20,10 +20,10 @@ category: '其他功能'
 
 ### 参数解析
 
-| 参数全称      | 参数缩写 | Yaml模式下必填 | Cli模式下必填 | 参数含义                                                     |
-| ------------- | -------- | -------------- | ------------- | ------------------------------------------------------------ |
-| region                       | -        | 选填            | 必填           | 地域名称，取值范围参见[函数计算开服地域](https://www.alibabacloud.com/help/zh/fc/product-overview/region-availability) |
-| function-name                | -        | 选填            | 必填           | 函数名 |
+| 参数全称      | 参数缩写 | Yaml 模式下必填 | Cli 模式下必填 | 参数含义                                                                                                               |
+| ------------- | -------- | --------------- | -------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| region        | -        | 选填            | 必填           | 地域名称，取值范围参见[函数计算开服地域](https://www.alibabacloud.com/help/zh/fc/product-overview/region-availability) |
+| function-name | -        | 选填            | 必填           | 函数名                                                                                                                 |
 
 > 当前命令还支持部分全局参数（例如`-a/--access`, `--debug`等），详情可参考 [Serverless Devs 全局参数文档](https://serverless-devs.com/serverless-devs/command/readme#全局参数)
 
@@ -37,7 +37,7 @@ category: '其他功能'
 ```text
 fc3-deploy-test:
   region:   cn-huhehaote
-  function: 
+  function:
     codeChecksum:     6647856715255221341
     codeSize:         230
     createdTime:      2023-09-25T03:24:28Z
@@ -49,7 +49,7 @@ fc3-deploy-test:
     internetAccess:   true
     lastModifiedTime: 2023-09-25T03:40:27Z
     memorySize:       128
-    role:             
+    role:
     runtime:          python3.9
     timeout:          3
 ```

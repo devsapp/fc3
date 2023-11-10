@@ -34,7 +34,7 @@ export interface ICustomRuntimeConfig {
 export interface ICustomDNS {
   searches?: string[];
   nameServers?: string[];
-  dnsOptions?: { name: string; value: string }[];
+  dnsOptions?: Array<{ name: string; value: string }>;
 }
 
 export interface IGpuConfig {
@@ -53,21 +53,21 @@ export interface ILogConfig {
 export interface INasConfig {
   userId?: number;
   groupId?: number;
-  mountPoints: {
+  mountPoints: Array<{
     enableTLS?: boolean;
     serverAddr: string;
     mountDir: string;
-  }[];
+  }>;
 }
 
 export interface IOssMountConfig {
-  mountPoints: {
+  mountPoints: Array<{
     bucketName: string;
     bucketPath?: string;
     endpoint: string;
     mountDir: string;
     readOnly?: boolean;
-  }[];
+  }>;
 }
 
 export interface ITracingConfig {

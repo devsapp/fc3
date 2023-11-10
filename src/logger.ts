@@ -1,3 +1,4 @@
+/* eslint-disable prefer-spread */
 class Logger {
   instance: any;
 

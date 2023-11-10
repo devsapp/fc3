@@ -20,12 +20,12 @@ category: '其他功能'
 
 ### 参数解析
 
-| 参数全称      | 参数缩写 | Yaml模式下必填 | Cli模式下必填 | 参数含义                                                     |
-| ------------- | -------- | -------------- | ------------- | ------------------------------------------------------------ |
-| region                       | -        | 选填            | 必填           | 地域名称，取值范围参见[函数计算开服地域](https://www.alibabacloud.com/help/zh/fc/product-overview/region-availability) |
-| function-name                | -        | 选填            | 必填           | 函数名 |
-| target-dir    | -        | 选填           | 选填          | 目标路径, 默认是当前目录                                                     |
-| qualifier    | -        | 选填           | 选填          | 版本或者别名                                                   |
+| 参数全称      | 参数缩写 | Yaml 模式下必填 | Cli 模式下必填 | 参数含义                                                                                                               |
+| ------------- | -------- | --------------- | -------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| region        | -        | 选填            | 必填           | 地域名称，取值范围参见[函数计算开服地域](https://www.alibabacloud.com/help/zh/fc/product-overview/region-availability) |
+| function-name | -        | 选填            | 必填           | 函数名                                                                                                                 |
+| target-dir    | -        | 选填            | 选填           | 目标路径, 默认是当前目录                                                                                               |
+| qualifier     | -        | 选填            | 选填           | 版本或者别名                                                                                                           |
 
 > 当前命令还支持部分全局参数（例如`-a/--access`, `--debug`等），详情可参考 [Serverless Devs 全局参数文档](https://serverless-devs.com/serverless-devs/command/readme#全局参数)
 
@@ -37,7 +37,7 @@ category: '其他功能'
 上述命令的执行结果示例：
 
 ```text
-fc3-deploy-test: 
+fc3-deploy-test:
   ymlPath:  /Users/youyi/fc-deploy/sync-clone/cn-hangzhou_test-function.yaml
   codePath: /Users/youyi/fc-deploy/sync-clone/cn-hangzhou_test-function
 ```

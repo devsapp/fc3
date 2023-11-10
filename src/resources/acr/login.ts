@@ -1,3 +1,4 @@
+/* eslint-disable no-param-reassign */
 import _ from 'lodash';
 import fse from 'fs-extra';
 import * as os from 'os';
@@ -8,6 +9,7 @@ import logger from '../../logger';
 import { ICredentials } from '@serverless-devs/component-interface';
 import { IRegion } from '../../interface';
 
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const { ROAClient } = require('@alicloud/pop-core');
 
 interface IDockerTmpConfig {
@@ -25,17 +27,13 @@ function getAcrClient(region: IRegion, credentials: ICredentials) {
   });
   return acrClient;
 }
-async function getPopClient(
-  credentials: ICredentials,
-  endpoint: string,
-  apiVersion: string,
-): Promise<Pop> {
+
+function getPopClient(credentials: ICredentials, endpoint: string, apiVersion: string): Pop {
   return new Pop({
     endpoint,
     apiVersion,
     accessKeyId: credentials?.AccessKeyID,
     accessKeySecret: credentials?.AccessKeySecret,
-    // @ts-ignore
     securityToken: credentials?.SecurityToken,
   });
 }
@@ -122,7 +120,7 @@ async function getAuthorizationTokenForAcrEE(
   credentials: ICredentials,
   instanceID: string,
 ): Promise<IDockerTmpConfig> {
-  const client = await getPopClient(credentials, `https://cr.${region}.aliyuncs.com`, '2018-12-01');
+  const client = getPopClient(credentials, `https://cr.${region}.aliyuncs.com`, '2018-12-01');
   const requestOption = {
     method: 'POST',
     formatParams: false,
@@ -221,13 +219,14 @@ export async function getAcrEEInstanceID(
     return;
   }
   const defaultPageSize = 30;
-  const client = await getPopClient(credentials, `https://cr.${region}.aliyuncs.com`, '2018-12-01');
+  const client = getPopClient(credentials, `https://cr.${region}.aliyuncs.com`, '2018-12-01');
   const requestOption = {
     method: 'GET',
     formatParams: false,
   };
 
   for (let i = 1; i < 100; i++) {
+    // eslint-disable-next-line no-await-in-loop
     const result: any = await client.request('ListInstance', { PageNo: i }, requestOption);
     logger.debug(`getAcrEEInstanceID result: ${JSON.stringify(result)}`);
     const totalCount = result.TotalCount;

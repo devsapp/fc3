@@ -1,3 +1,4 @@
+/* eslint-disable no-await-in-loop */
 import _ from 'lodash';
 import { IInputs, IRegion, ITrigger } from '../../interface';
 import { diffConvertPlanYaml } from '@serverless-devs/diff';

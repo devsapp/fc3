@@ -6,5 +6,5 @@ module.exports = {
   trailingComma: 'all',
   bracketSpacing: true,
   arrowParens: 'always',
-  parser: 'typescript',
+  //parser: 'typescript',
 };

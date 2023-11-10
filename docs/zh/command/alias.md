@@ -45,11 +45,11 @@ category: '发布&配置'
 
 ### 参数解析
 
-| 参数全称     | 参数缩写 | Yaml 模式下必填 | Cli 模式下必填 | 参数含义                                                                                                                                                                                                                                                                                                   |
-| ------------ | -------- | --------------- | -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| region                       | -        | 选填            | 必填           | 地域名称，取值范围参见[函数计算开服地域](https://www.alibabacloud.com/help/zh/fc/product-overview/region-availability) |
-| function-name                | -        | 选填            | 必填           | 函数名 |
-| alias-name   | -        | 必填            | 必填           | 别名                                                                                                                                                                                                                                                                                                       |
+| 参数全称      | 参数缩写 | Yaml 模式下必填 | Cli 模式下必填 | 参数含义                                                                                                               |
+| ------------- | -------- | --------------- | -------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| region        | -        | 选填            | 必填           | 地域名称，取值范围参见[函数计算开服地域](https://www.alibabacloud.com/help/zh/fc/product-overview/region-availability) |
+| function-name | -        | 选填            | 必填           | 函数名                                                                                                                 |
+| alias-name    | -        | 必填            | 必填           | 别名                                                                                                                   |
 
 > 当前命令还支持部分全局参数（例如`-a/--access`, `--debug`等），详情可参考 [Serverless Devs 全局参数文档](https://serverless-devs.com/serverless-devs/command/readme#全局参数)
 
@@ -64,7 +64,7 @@ category: '发布&配置'
 fc3-deploy-test:
   aliasName:        pre
   createdTime:      2023-09-25T08:00:29Z
-  description:      
+  description:
   lastModifiedTime: 2023-09-25T08:00:29Z
   versionId:        1
 ```
@@ -77,11 +77,11 @@ fc3-deploy-test:
 
 ### 参数解析
 
-| 参数全称     | 参数缩写 | Yaml 模式下必填 | Cli 模式下必填 | 参数含义                                                                                                                                                                                                                                                                                                   |
-| ------------ | -------- | --------------- | -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| region                       | -        | 选填            | 必填           | 地域名称，取值范围参见[函数计算开服地域](https://www.alibabacloud.com/help/zh/fc/product-overview/region-availability) |
-| function-name                | -        | 选填            | 必填           | 函数名 |
-| table        | -        | 选填            | 选填           | 以表格形式输出                                                                                                                                                                                                                                                                                         |
+| 参数全称      | 参数缩写 | Yaml 模式下必填 | Cli 模式下必填 | 参数含义                                                                                                               |
+| ------------- | -------- | --------------- | -------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| region        | -        | 选填            | 必填           | 地域名称，取值范围参见[函数计算开服地域](https://www.alibabacloud.com/help/zh/fc/product-overview/region-availability) |
+| function-name | -        | 选填            | 必填           | 函数名                                                                                                                 |
+| table         | -        | 选填            | 选填           | 以表格形式输出                                                                                                         |
 
 > 当前命令还支持部分全局参数（例如`-a/--access`, `--debug`等），详情可参考 [Serverless Devs 全局参数文档](https://serverless-devs.com/serverless-devs/command/readme#全局参数)
 
@@ -94,19 +94,18 @@ fc3-deploy-test:
 
 ```text
 fc3-deploy-test:
-  - 
+  -
     aliasName:        pre
     createdTime:      2023-09-25T08:00:29Z
-    description:      
+    description:
     lastModifiedTime: 2023-09-25T08:00:29Z
     versionId:        1
 ```
 
 如果指定了`--table`参数，输出示例：
-| aliasName       | versionId | description | additionalVersionWeight |    
-| -------------- | -------- | --------------- | -------------- | 
+| aliasName | versionId | description | additionalVersionWeight |
+| -------------- | -------- | --------------- | -------------- |
 |pre|1|||
-
 
 ## alias publish 命令
 
@@ -116,20 +115,21 @@ fc3-deploy-test:
 
 ### 参数解析
 
-| 参数全称       | 参数缩写 | Yaml 模式下必填 | Cli 模式下必填 | 参数含义                                                                                                                                                                                                                                                                                                   |
-| -------------- | -------- | --------------- | -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| region                       | -        | 选填            | 必填           | 地域名称，取值范围参见[函数计算开服地域](https://www.alibabacloud.com/help/zh/fc/product-overview/region-availability) |
-| function-name                | -        | 选填            | 必填           | 函数名 |
-| description    | -        | 选填            | 选填           | 别名描述                                                                                                                                                                                                                                                                                                   |
-| alias-name     | -        | 必填            | 必填           | 别名                                                                                                                                                                                                                                                                                                       |
-| version-id     | -        | 选填            | 选填           | 版本 Id,   可以使用 latest 使用最新的 version                                                                                                                                                                                                                                                                                   |
-| additional-version-weight         | -        | 选填            | 选填           | 灰度版本权重。灰度版本 Id 填写时必填, 示例 "{\\"2\\":0.2}"                                                                                                                                                                                                                                                              |
+| 参数全称                  | 参数缩写 | Yaml 模式下必填 | Cli 模式下必填 | 参数含义                                                                                                               |
+| ------------------------- | -------- | --------------- | -------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| region                    | -        | 选填            | 必填           | 地域名称，取值范围参见[函数计算开服地域](https://www.alibabacloud.com/help/zh/fc/product-overview/region-availability) |
+| function-name             | -        | 选填            | 必填           | 函数名                                                                                                                 |
+| description               | -        | 选填            | 选填           | 别名描述                                                                                                               |
+| alias-name                | -        | 必填            | 必填           | 别名                                                                                                                   |
+| version-id                | -        | 选填            | 选填           | 版本 Id, 可以使用 latest 使用最新的 version                                                                            |
+| additional-version-weight | -        | 选填            | 选填           | 灰度版本权重。灰度版本 Id 填写时必填, 示例 "{\\"2\\":0.2}"                                                             |
+
 > 当前命令还支持部分全局参数（例如`-a/--access`, `--debug`等），详情可参考 [Serverless Devs 全局参数文档](https://serverless-devs.com/serverless-devs/command/readme#全局参数)
 
 ### 操作案例
 
 - **有资源描述文件（Yaml）时**，可以直接执行`s alias publish`进行版本的发布或者更新；
-- **纯命令行形式（在没有资源描述 Yaml 文件时）**，需要指定函数所在地区以及函数名称，例如` s cli fc3 alias publish --region cn-hangzhou --function-name test-function --alias-name pre --version-id 1`；
+- **纯命令行形式（在没有资源描述 Yaml 文件时）**，需要指定函数所在地区以及函数名称，例如`s cli fc3 alias publish --region cn-hangzhou --function-name test-function --alias-name pre --version-id 1`；
 
 上述命令的执行结果示例：
 
@@ -166,12 +166,12 @@ fc3-deploy-test:
 
 ### 参数解析
 
-| 参数全称     | 参数缩写 | Yaml模式下必填 | Cli模式下必填 | 参数含义                                                     |
-| ------------ | -------- | -------------- | ------------- | ------------------------------------------------------------ |
-| region                       | -        | 选填            | 必填           | 地域名称，取值范围参见[函数计算开服地域](https://www.alibabacloud.com/help/zh/fc/product-overview/region-availability) |
-| function-name                | -        | 选填            | 必填           | 函数名 |
-| alias-name   | -        | 必填           | 必填          | 别名                                                       |
-| assume-yes | y        | 选填           |选填   | 在交互时，默认选择`y`                                        |
+| 参数全称      | 参数缩写 | Yaml 模式下必填 | Cli 模式下必填 | 参数含义                                                                                                               |
+| ------------- | -------- | --------------- | -------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| region        | -        | 选填            | 必填           | 地域名称，取值范围参见[函数计算开服地域](https://www.alibabacloud.com/help/zh/fc/product-overview/region-availability) |
+| function-name | -        | 选填            | 必填           | 函数名                                                                                                                 |
+| alias-name    | -        | 必填            | 必填           | 别名                                                                                                                   |
+| assume-yes    | y        | 选填            | 选填           | 在交互时，默认选择`y`                                                                                                  |
 
 > 当前命令还支持部分全局参数（例如`-a/--access`, `--debug`等），详情可参考 [Serverless Devs 全局参数文档](https://serverless-devs.com/serverless-devs/command/readme#全局参数)
 
@@ -186,7 +186,6 @@ fc3-deploy-test:
 VersionId [1] deleted successfully.
 ``` -->
 
-
 ## 权限与策略说明
 
 - `alias list` 与 `alias get` 命令所需要的权限策略： `AliyunFCReadOnlyAccess`
@@ -196,29 +195,28 @@ VersionId [1] deleted successfully.
   ```json
   {
     "Version": "1",
-    "Statement":
-      [
-        {
-          "Action": ["fc:CreateAlias", "fc:UpdateAlias"],
-          "Effect": "Allow",
-          "Resource": "acs:fc:{region}:{uid}:functions/{functionName}/aliases/*"
-        }
-      ]
+    "Statement": [
+      {
+        "Action": ["fc:CreateAlias", "fc:UpdateAlias"],
+        "Effect": "Allow",
+        "Resource": "acs:fc:{region}:{uid}:functions/{functionName}/aliases/*"
+      }
+    ]
   }
   ```
 
 - `alias remove` 命令所需要的权限策略：
- `AliyunFCReadOnlyAccess`   
+  `AliyunFCReadOnlyAccess`
 
-    ```json
-    {
-        "Version": "1",
-        "Statement": [
-            {
-                "Action": "fc:DeleteFunctionAlias",
-                "Effect": "Allow",
-                "Resource": "acs:fc:{region}:{uid}:functions/{functionName}/aliases/*"
-            }
-        ]
-    }
-    ```
+  ```json
+  {
+    "Version": "1",
+    "Statement": [
+      {
+        "Action": "fc:DeleteFunctionAlias",
+        "Effect": "Allow",
+        "Resource": "acs:fc:{region}:{uid}:functions/{functionName}/aliases/*"
+      }
+    ]
+  }
+  ```

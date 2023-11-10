@@ -74,6 +74,7 @@ export default class Info {
     const result: any[] = [];
     for (const triggerName of this.triggersName) {
       try {
+        // eslint-disable-next-line no-await-in-loop
         const config = await this.fcSdk.getTrigger(this.functionName, triggerName, this.getApiType);
         result.push(config);
       } catch (ex) {

@@ -52,6 +52,7 @@ import logger from '../../../logger';
 import { IAlias } from '../../../interface/cli-config/alias';
 import { IProvision } from '../../../interface/cli-config/provision';
 
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const httpx = require('httpx');
 
 interface IOptions {
@@ -77,11 +78,7 @@ export default class FC_Client {
   readonly fc20230330Client: FCClient;
   customEndpoint: string;
 
-  constructor(
-    readonly region: IRegion,
-    readonly credentials: ICredentials,
-    options: IOptions,
-  ) {
+  constructor(readonly region: IRegion, readonly credentials: ICredentials, options: IOptions) {
     const {
       AccountID: accountID,
       AccessKeyID: accessKeyId,

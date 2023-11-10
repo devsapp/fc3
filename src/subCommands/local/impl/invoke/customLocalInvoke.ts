@@ -14,16 +14,16 @@ export class CustomLocalInvoke extends BaseLocalInvoke {
     let envStr = await super.getEnvString();
     //  AGENT_SCRIPT
     let agent_script = '';
-    const customRuntimeConfig = this.inputs.props.customRuntimeConfig;
+    const { customRuntimeConfig } = this.inputs.props;
     if (!_.isEmpty(customRuntimeConfig)) {
-      const command = customRuntimeConfig.command;
-      const args = customRuntimeConfig.args;
+      const { command } = customRuntimeConfig;
+      const { args } = customRuntimeConfig;
       if (!_.isEmpty(command)) {
         agent_script += command.join(' ');
       }
 
       if (!_.isEmpty(args)) {
-        agent_script += ' ' + args.join(' ');
+        agent_script += ` ${args.join(' ')}`;
       }
 
       if (!_.isEmpty(agent_script)) {

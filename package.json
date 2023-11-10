@@ -6,14 +6,17 @@
   "scripts": {
     "prestart": "npm run generate-schema",
     "prebuild": "npm run generate-schema",
+    "watch": "npx tsc -w -p tsconfig.json",
+    "start": "npm run watch",
     "build": "ncc build src/index.ts -m -o dist",
-    "format": "prettier --write src/",
+    "format": "prettier --write src",
     "generate-schema": "npx typescript-json-schema ./src/interface/index.ts IProps --required -o ./dist/schema.json",
     "prepare": "husky install",
-    "postinstall": "curl -sS https://images.devsapp.cn/pop-sdk/fix-sdk.sh | bash",
-    "watch": "tsc -w",
-    "publish": "npm i && npm run build && s registry publish",
-    "f2elint-scan": "f2elint scan -i src/  --quiet"
+    "postinstall": "curl -sS https://images.devsapp.cn/pop-sdk/fix-sdk.sh | bash 2>/dev/null",
+    "publish": "rimraf dist && npm i && npm run build && s registry publish",
+    "lint": "f2elint scan",
+    "fix": "f2elint fix"
+
   },
   "repository": "git@gitlab.alibaba-inc.com:serverless-devs/fc.git",
   "keywords": [],

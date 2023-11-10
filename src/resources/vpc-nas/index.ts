@@ -10,10 +10,7 @@ import logger from '../../logger';
 export default class Sls {
   private client: PopClient;
 
-  constructor(
-    private region: IRegion,
-    credentials: ICredentials,
-  ) {
+  constructor(private region: IRegion, credentials: ICredentials) {
     this.client = new PopClient(
       {
         accessKeyId: credentials.AccessKeyID,

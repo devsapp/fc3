@@ -10,6 +10,7 @@ export default (props: IProps) => {
   logger.debug(`Validating file path: ${SCHEMA_FILE_PATH}`);
 
   try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const schema = require(SCHEMA_FILE_PATH);
     const ajv = new Ajv({
       allErrors: true,
@@ -22,7 +23,7 @@ export default (props: IProps) => {
     if (!valid) {
       logger.debug(`validate error: ${JSON.stringify(ajv.errors, null, 2)}`);
       logger.write(yellow(`Valid function props error:`));
-      for (const error of ajv.errors as ErrorObject<string, Record<string, any>, unknown>[]) {
+      for (const error of ajv.errors as Array<ErrorObject<string, Record<string, any>, unknown>>) {
         logger.write(yellow(`  ${error.instancePath}: ${error.message}`));
       }
       logger.write(' \n ');

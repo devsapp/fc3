@@ -9,6 +9,7 @@ import { promptForConfirmOrDetails, tableShow } from '../../utils';
 const commandsList = Object.keys(commandsHelp.subCommands);
 
 export default class Alias {
+  readonly subCommand: string;
   private region: IRegion;
   private functionName: string;
   private description: string;
@@ -18,7 +19,6 @@ export default class Alias {
   private fcSdk: FC;
   private yes: boolean;
   private table: boolean;
-  readonly subCommand: string;
 
   constructor(inputs: IInputs) {
     const {

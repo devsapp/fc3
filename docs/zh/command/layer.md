@@ -52,19 +52,19 @@ category: '发布&配置'
 
 ### 参数解析
 
-| 参数全称           | 参数缩写 | Yaml 模式下必填 | Cli 模式下必填 | 参数含义                                                                                                                                                                                                                                                                                                   |
-| ------------------ | -------- | --------------- | -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| region             | -        | 选填            | 必填           | 地域名称，取值范围参见[函数计算开服地域](https://www.alibabacloud.com/help/zh/fc/product-overview/region-availability) |
-| code               | -        | 必填            | 必填           | 层的代码                                                                                                                                                                                                                                                                                                   |
-| compatible-runtime | -        | 必填            | 必填           | 支持的运行时，取值范围参见[函数计算运行时介绍](https://www.alibabacloud.com/help/zh/fc/user-guide/overview-of-runtimes)                                                                                                                                                                                                                      |
-| description        |          | 选填            | 选填           | 发布层的描述                                                                                                                                                                                                                                                                                               |
-| layer-name         |          | 必填            | 必填           | 层的名字                                                                                                                                                                                                                                                                                                   |
+| 参数全称           | 参数缩写 | Yaml 模式下必填 | Cli 模式下必填 | 参数含义                                                                                                                |
+| ------------------ | -------- | --------------- | -------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| region             | -        | 选填            | 必填           | 地域名称，取值范围参见[函数计算开服地域](https://www.alibabacloud.com/help/zh/fc/product-overview/region-availability)  |
+| code               | -        | 必填            | 必填           | 层的代码                                                                                                                |
+| compatible-runtime | -        | 必填            | 必填           | 支持的运行时，取值范围参见[函数计算运行时介绍](https://www.alibabacloud.com/help/zh/fc/user-guide/overview-of-runtimes) |
+| description        |          | 选填            | 选填           | 发布层的描述                                                                                                            |
+| layer-name         |          | 必填            | 必填           | 层的名字                                                                                                                |
 
 > 当前命令还支持部分全局参数（例如`-a/--access`, `--debug`等），详情可参考 [Serverless Devs 全局参数文档](https://serverless-devs.com/serverless-devs/command/readme#全局参数)
 
 ### 操作案例
 
-- **有资源描述文件（Yaml）时**，可以直接执行`s layer publish`进行层的发布，例如` s layer publish --layer-name demo --code ./code`；
+- **有资源描述文件（Yaml）时**，可以直接执行`s layer publish`进行层的发布，例如`s layer publish --layer-name demo --code ./code`；
 - **纯命令行形式（在没有资源描述 Yaml 文件时）**，需要指定函数所在地区，例如`s cli fc3 layer publish --region cn-hangzhou --layer-name demo --code ./code` ；
 
 Python 项目的依赖库需要放在`./code/python`路径下，比如`./code/python/flask`。
@@ -72,21 +72,21 @@ Python 项目的依赖库需要放在`./code/python`路径下，比如`./code/py
 上述命令的执行结果示例：
 
 ```text
-fc3-deploy-test: 
+fc3-deploy-test:
   acl:               0
-  code: 
+  code:
     location:       fc-hhht-hasuhai-func-code/143**********149/demo/2d85431f-a449-4e1e-a87f-4ddc3dad01a5
     repositoryType: oss
   codeChecksum:      6647856715255221341
   codeSize:          230
-  compatibleRuntime: 
+  compatibleRuntime:
     - python3.9
     - python3.10
   createTime:        2023-09-26T03:02:01Z
-  description:       
+  description:
   layerName:         demo
   layerVersionArn:   acs:fc:cn-hangzhou:143**********149:layers/demo/versions/1
-  license:           
+  license:
   version:           1
 ```
 
@@ -98,13 +98,13 @@ fc3-deploy-test:
 
 ### 参数解析
 
-| 参数全称 | 参数缩写 | Yaml 模式下必填 | Cli 模式下必填 | 参数含义                                                                                                                                                                                                                                                                                                   |
-| -------- | -------- | --------------- | -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| region                       | -        | 选填            | 必填           | 地域名称，取值范围参见[函数计算开服地域](https://www.alibabacloud.com/help/zh/fc/product-overview/region-availability) |
-| prefix   | -        | 选填            | 选填           |                                                                         层名称的前缀。限定返回的资源名称，假设Prefix为a，则返回的资源名必须以a开头。       |
-| public   | -        | 选填            | 选填           |                                                                       展示个人的公共层         |
-| official   | -        | 选填            | 选填           |                                                                        展示官方的公共层。设置official=true后，public自动设为true，设置为false无效。        |
-| table    | -        | 选填            | 选填           |  以表格形式输出                                                                                                                                                                                                                                                                                   |
+| 参数全称 | 参数缩写 | Yaml 模式下必填 | Cli 模式下必填 | 参数含义                                                                                                               |
+| -------- | -------- | --------------- | -------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| region   | -        | 选填            | 必填           | 地域名称，取值范围参见[函数计算开服地域](https://www.alibabacloud.com/help/zh/fc/product-overview/region-availability) |
+| prefix   | -        | 选填            | 选填           | 层名称的前缀。限定返回的资源名称，假设 Prefix 为 a，则返回的资源名必须以 a 开头。                                      |
+| public   | -        | 选填            | 选填           | 展示个人的公共层                                                                                                       |
+| official | -        | 选填            | 选填           | 展示官方的公共层。设置 official=true 后，public 自动设为 true，设置为 false 无效。                                     |
+| table    | -        | 选填            | 选填           | 以表格形式输出                                                                                                         |
 
 > 当前命令还支持部分全局参数（例如`-a/--access`, `--debug`等），详情可参考 [Serverless Devs 全局参数文档](https://serverless-devs.com/serverless-devs/command/readme#全局参数)
 
@@ -117,13 +117,13 @@ fc3-deploy-test:
 
 ```text
 fc3-deploy-test:
-   - 
+   -
     layerName:         demo
     layerVersionArn:   acs:fc:cn-hangzhou:143**********149:layers/demo/versions/1
     version:           1
     acl:               0
-    description:       
-    compatibleRuntime: 
+    description:
+    compatibleRuntime:
       - python3.9
       - python3.10
 ```
@@ -136,11 +136,11 @@ fc3-deploy-test:
 
 ### 参数解析
 
-| 参数全称   | 参数缩写 | Yaml 模式下必填 | Cli 模式下必填 | 参数含义                                                                                                                                                                                                                                                                                                   |
-| ---------- | -------- | --------------- | -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| region                       | -        | 选填            | 必填           | 地域名称，取值范围参见[函数计算开服地域](https://www.alibabacloud.com/help/zh/fc/product-overview/region-availability) |
-| layer-name | -        | 必填            | 必填           | 层名称                                                                                                                                                                                                                                                                                                     |
-| version-id | -        | 必填            | 必填           | 层版本                                                                                                                                                                                                                                                                                                     |
+| 参数全称   | 参数缩写 | Yaml 模式下必填 | Cli 模式下必填 | 参数含义                                                                                                               |
+| ---------- | -------- | --------------- | -------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| region     | -        | 选填            | 必填           | 地域名称，取值范围参见[函数计算开服地域](https://www.alibabacloud.com/help/zh/fc/product-overview/region-availability) |
+| layer-name | -        | 必填            | 必填           | 层名称                                                                                                                 |
+| version-id | -        | 必填            | 必填           | 层版本                                                                                                                 |
 
 > 当前命令还支持部分全局参数（例如`-a/--access`, `--debug`等），详情可参考 [Serverless Devs 全局参数文档](https://serverless-devs.com/serverless-devs/command/readme#全局参数)
 
@@ -154,10 +154,10 @@ fc3-deploy-test:
 ```text
 fc3-deploy-test:
   acl:               0
-  compatibleRuntime: 
+  compatibleRuntime:
     - python3.9
     - python3.10
-  description:       
+  description:
   layerName:         demo
   layerVersionArn:   acs:fc:cn-hangzhou:143**********149:layers/demo/versions/1
   version:           1
@@ -171,11 +171,11 @@ fc3-deploy-test:
 
 ### 参数解析
 
-| 参数全称   | 参数缩写 | Yaml 模式下必填 | Cli 模式下必填 | 参数含义                                                                                                                                                                                                                                                                                                   |
-| ---------- | -------- | --------------- | -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| region             | -        | 选填            | 必填           | 地域名称，取值范围参见[函数计算开服地域](https://www.alibabacloud.com/help/zh/fc/product-overview/region-availability) |
-| layer-name | -        | 必填            | 必填           | 层名称                                                                                                                                                                                                                                                                                                     |
-| table      | -        | 选填            | 选填            | 以表格形式输出                                                                                                                                                                                                                                                                                         |
+| 参数全称   | 参数缩写 | Yaml 模式下必填 | Cli 模式下必填 | 参数含义                                                                                                               |
+| ---------- | -------- | --------------- | -------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| region     | -        | 选填            | 必填           | 地域名称，取值范围参见[函数计算开服地域](https://www.alibabacloud.com/help/zh/fc/product-overview/region-availability) |
+| layer-name | -        | 必填            | 必填           | 层名称                                                                                                                 |
+| table      | -        | 选填            | 选填           | 以表格形式输出                                                                                                         |
 
 > 当前命令还支持部分全局参数（例如`-a/--access`, `--debug`等），详情可参考 [Serverless Devs 全局参数文档](https://serverless-devs.com/serverless-devs/command/readme#全局参数)
 
@@ -188,12 +188,12 @@ fc3-deploy-test:
 
 ```text
 fc3-deploy-test:
-  - 
+  -
     acl:               0
-    compatibleRuntime: 
+    compatibleRuntime:
       - python3.9
       - python3.10
-    description:       
+    description:
     layerName:         demo
     layerVersionArn:   acs:fc:cn-hangzhou:143**********149:layers/demo/versions/1
     version:           1
@@ -207,11 +207,11 @@ fc3-deploy-test:
 
 ### 参数解析
 
-| 参数全称   | 参数缩写 | Yaml 模式下必填 | Cli 模式下必填 | 参数含义                                                                                                                                                                                                                                                                                                   |
-| ---------- | -------- | --------------- | -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| region             | -        | 选填            | 必填           | 地域名称，取值范围参见[函数计算开服地域](https://www.alibabacloud.com/help/zh/fc/product-overview/region-availability) |
-| layer-name | -        | 必填            | 必填           | 层名称                                                                                                                                        |
-| version-id | -        | 必填            |必填           | 版本                                                                                                                                         |
+| 参数全称   | 参数缩写 | Yaml 模式下必填 | Cli 模式下必填 | 参数含义                                                                                                               |
+| ---------- | -------- | --------------- | -------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| region     | -        | 选填            | 必填           | 地域名称，取值范围参见[函数计算开服地域](https://www.alibabacloud.com/help/zh/fc/product-overview/region-availability) |
+| layer-name | -        | 必填            | 必填           | 层名称                                                                                                                 |
+| version-id | -        | 必填            | 必填           | 版本                                                                                                                   |
 
 > 当前命令还支持部分全局参数（例如`-a/--access`, `--debug`等），详情可参考 [Serverless Devs 全局参数文档](https://serverless-devs.com/serverless-devs/command/readme#全局参数)
 
@@ -242,11 +242,11 @@ hello_world: /Users/youyi/.s/cache/layers/143**********149-cn-hangzhou-demo/1.zi
 
 ### 参数解析
 
-| 参数全称   | 参数缩写 | Yaml 模式下必填 | Cli 模式下必填 | 参数含义                                                                                                                                                                                                                                                                                                   |
-| ---------- | -------- | --------------- | -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| region             | -        | 选填            | 必填           | 地域名称，取值范围参见[函数计算开服地域](https://www.alibabacloud.com/help/zh/fc/product-overview/region-availability) |
-| layer-name | -        | 必填            | 必填           | 层名称 |
-| public | -        | 选填            | 选填           | 个人层设置公开 |
+| 参数全称   | 参数缩写 | Yaml 模式下必填 | Cli 模式下必填 | 参数含义                                                                                                               |
+| ---------- | -------- | --------------- | -------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| region     | -        | 选填            | 必填           | 地域名称，取值范围参见[函数计算开服地域](https://www.alibabacloud.com/help/zh/fc/product-overview/region-availability) |
+| layer-name | -        | 必填            | 必填           | 层名称                                                                                                                 |
+| public     | -        | 选填            | 选填           | 个人层设置公开                                                                                                         |
 
 > 当前命令还支持部分全局参数（例如`-a/--access`, `--debug`等），详情可参考 [Serverless Devs 全局参数文档](https://serverless-devs.com/serverless-devs/command/readme#全局参数)
 
@@ -257,18 +257,19 @@ hello_world: /Users/youyi/.s/cache/layers/143**********149-cn-hangzhou-demo/1.zi
 - **纯命令行形式（在没有资源描述 Yaml 文件时）**，需要指定函数所在地区，例如`s cli fc3 layer acl --region cn-hangzhuo --layer-name demo --public`；
 
 ## layer remove 命令
+
 `layer remove` 命令，是用户删除指定已发布的版本命令。
 
 当执行命令`layer remove -h`/`layer remove --help`时，可以获取帮助文档。
 
 ### 参数解析
 
-| 参数全称     | 参数缩写 | Yaml模式下必填 | Cli模式下必填 | 参数含义                                                     |
-| ------------ | -------- | -------------- | ------------- | ------------------------------------------------------------ |
-| region                       | -        | 选填            | 必填           | 地域名称，取值范围参见[函数计算开服地域](https://www.alibabacloud.com/help/zh/fc/product-overview/region-availability) |
-| layer-name | -        | 必填           | 必填          | 层名称                                                       |
-| version-id | -        | 选填           | 选填          | 指定层版本。如果指定--version-id，仅删除指定的版本；否则删除层的所有的版本 |  
-| assume-yes | y        | 选填           |选填   | 在交互时，默认选择`y`                                        |
+| 参数全称   | 参数缩写 | Yaml 模式下必填 | Cli 模式下必填 | 参数含义                                                                                                               |
+| ---------- | -------- | --------------- | -------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| region     | -        | 选填            | 必填           | 地域名称，取值范围参见[函数计算开服地域](https://www.alibabacloud.com/help/zh/fc/product-overview/region-availability) |
+| layer-name | -        | 必填            | 必填           | 层名称                                                                                                                 |
+| version-id | -        | 选填            | 选填           | 指定层版本。如果指定--version-id，仅删除指定的版本；否则删除层的所有的版本                                             |
+| assume-yes | y        | 选填            | 选填           | 在交互时，默认选择`y`                                                                                                  |
 
 > 当前命令还支持部分全局参数（例如`-a/--access`, `--debug`等），详情可参考 [Serverless Devs 全局参数文档](https://serverless-devs.com/serverless-devs/command/readme#全局参数)
 
@@ -283,7 +284,6 @@ hello_world: /Users/youyi/.s/cache/layers/143**********149-cn-hangzhou-demo/1.zi
 Layer [demo] deleted successfully.
 ``` -->
 
-
 ## 权限与策略说明
 
 - `layer list`、`layer version`与`layer info` 命令所需要的权限策略： `AliyunFCReadOnlyAccess`
@@ -293,21 +293,20 @@ Layer [demo] deleted successfully.
   ```json
   {
     "Version": "1",
-    "Statement":
-      [
-        {
-          "Action": "fc:CreateLayerVersion",
-          "Effect": "Allow",
-          "Resource": "acs:fc:{region}:{uid}:layers/{layerName}/versions/*"
-        }
-      ]
+    "Statement": [
+      {
+        "Action": "fc:CreateLayerVersion",
+        "Effect": "Allow",
+        "Resource": "acs:fc:{region}:{uid}:layers/{layerName}/versions/*"
+      }
+    ]
   }
   ```
 
 - `layer remove` 命令所需要的权限策略：
   `AliyunFCReadOnlyAccess`
 
-  ````json
+  ```json
   {
     "Version": "1",
     "Statement": [
@@ -318,4 +317,4 @@ Layer [demo] deleted successfully.
       }
     ]
   }
-  ````
+  ```
