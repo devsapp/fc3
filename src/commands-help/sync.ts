@@ -18,7 +18,7 @@ Examples with CLI:
       ['--function-name <functionName>', '[C-Required] Specify function name'],
       [
         '--target-dir <target-dir>',
-        '[Optional] [Optional] Specify storage directory, default is current directory',
+        '[Optional] [Optional] Specify storage directory, default directory is ./sync-clone',
       ],
       ['--qualifier <qualifier>', '[Optional] Specify version or alias, default is LATEST'],
     ],

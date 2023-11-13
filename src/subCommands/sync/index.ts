@@ -134,6 +134,17 @@ export default class Sync {
       functionConfig.role = role.toLowerCase();
     }
 
+    if (functionConfig.layers) {
+      logger.debug(functionConfig.layers);
+      const newLayers = [];
+      for (let i = 0; i < functionConfig.layers.length; i++) {
+        const l = functionConfig.layers[i];
+        newLayers.push(l.arn);
+      }
+      // eslint-disable-next-line no-param-reassign
+      functionConfig.layers = newLayers;
+    }
+
     let props: any = { region: this.region };
     props = Object.assign(props, functionConfig);
     if (!_.isEmpty(triggers)) {

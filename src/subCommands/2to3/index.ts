@@ -243,25 +243,19 @@ export default class SYaml2To3 {
           _.unset(asyncInvokeConfig, 'destination');
           const { destinationConfig } = asyncInvokeConfig;
           if (_.get(destinationConfig, 'onSuccess')) {
-            const succ = destinationConfig.onSuccess;
-            // if (succ.startsWith('acs:fc')) {
-            //   succ = `${succ.split('services/')[0]}functions/${succ.split('functions/')[1]}`;
-            //   if (succ.startsWith('acs:fc:::')) {
-            //     succ = succ.replace('acs:fc:::', 'acs:fc:${this.props.region}::');
-            //   }
-            // }
+            let succ = destinationConfig.onSuccess;
+            if (succ.startsWith('acs:fc:::')) {
+              succ = succ.replace('acs:fc:::', 'acs:fc:${this.props.region}::');
+            }
             destinationConfig.onSuccess = {
               destination: succ,
             };
           }
           if (_.get(destinationConfig, 'onFailure')) {
-            const fail = destinationConfig.onFailure;
-            // if (fail.startsWith('acs:fc')) {
-            //   fail = `${fail.split('services/')[0]}functions/${fail.split('functions/')[1]}`;
-            //   if (fail.startsWith('acs:fc:::')) {
-            //     fail = fail.replace('acs:fc:::', 'acs:fc:${this.props.region}::');
-            //   }
-            // }
+            let fail = destinationConfig.onFailure;
+            if (fail.startsWith('acs:fc:::')) {
+              fail = fail.replace('acs:fc:::', 'acs:fc:${this.props.region}::');
+            }
             destinationConfig.onFailure = {
               destination: fail,
             };
