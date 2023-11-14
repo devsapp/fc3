@@ -4,7 +4,7 @@ export default {
 
 Examples with Yaml:
   $ s sync
-  $ s sync --target ./test --qualifier testAlias
+  $ s sync --target-dir ./test --qualifier testAlias
 
 Examples with CLI:
   $ s cli fc3 sync --region cn-hangzhou --function-name test -a default
