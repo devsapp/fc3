@@ -24,7 +24,7 @@ category: '其他功能'
 | ------------- | -------- | --------------- | -------------- | ---------------------------------------------------------------------------------------------------------------------- |
 | region        | -        | 选填            | 必填           | 地域名称，取值范围参见[函数计算开服地域](https://www.alibabacloud.com/help/zh/fc/product-overview/region-availability) |
 | function-name | -        | 选填            | 必填           | 函数名                                                                                                                 |
-| target-dir    | -        | 选填            | 选填           | 目标路径, 默认是当前目录                                                                                               |
+| target-dir    | -        | 选填            | 选填           | 目标路径, 默认是目录是 ./sync-clone                                                                                    |
 | qualifier     | -        | 选填            | 选填           | 版本或者别名                                                                                                           |
 
 > 当前命令还支持部分全局参数（例如`-a/--access`, `--debug`等），详情可参考 [Serverless Devs 全局参数文档](https://serverless-devs.com/serverless-devs/command/readme#全局参数)
