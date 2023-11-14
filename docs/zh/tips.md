@@ -10,6 +10,7 @@ category: '概览'
 - [ServerlessDevs 和 fc3 组件的关系](#serverless-devs和fc3组件的关系)
 - [如何声明/部署多个函数](#如何声明部署多个函数)
 - [如何配置函数的自定义域名](#如何配置函数的自定义域名)
+- [如何实现函数多 region 部署](#如何实现函数多region部署)
 - [如何给`VSCode`做智能提示和检测](#智能提示和检测)
 - [关于`.fcignore`使用方法](#关于fcignore使用方法)
 - [关于`.env`使用方法](#关于env使用方法)
@@ -38,11 +39,46 @@ category: '概览'
 
 有关 fc3-domain 组件请参考 [fc3-domain](https://github.com/devsapp/fc3-domain)
 
+## 如何实现函数多 region 部署
+
+**shell 脚本**
+
+```bash
+#! /bin/bash
+# deploy pre
+regions=("cn-hangzhou" "ap-southeast-1")
+for r in ${regions[@]}
+do
+  export REGION=$r
+  s deploy -y
+done
+```
+
+**s.yaml 示例**
+
+```yaml
+edition: 3.0.0
+name: hello-world-app
+access: 'default'
+resources:
+  hello_world:
+    component: fc3
+    props:
+      region: ${env('REGION')}
+      functionName: 'start-nodejs-im1g'
+      description: 'hello world by serverless devs'
+      runtime: 'nodejs14'
+      code: ./code
+      handler: index.handler
+      memorySize: 128
+      timeout: 30
+```
+
 ## 智能提示和检测
 
 给`VSCode`插件做智能提示和检测, 详情参考[intelligent](./intelligent.md)
 
-## 关于 fcignore 使用方法
+## 关于`.fcignore`使用方法
 
 **.fcignore 的内容如下**：
 
@@ -100,8 +136,8 @@ resources:
       code: ./code
       handler: index.handler
       environmentVariables:
-        AccessKeyID: ${env.AccessKeyID}
-        AccessKeySecret: ${env.AccessKeySecret}
+        AccessKeyID: ${env('AccessKeyID')}
+        AccessKeySecret: ${env('AccessKeySecret')}
 ```
 
 3. 在项目代码中读取环境变量
@@ -117,10 +153,10 @@ Serverless Devs 的 Yaml 规范本身支持全局变量、环境变量以及外�
 - 获取外部文档的变量：`${file('路径')}`，例如`${file('./path')}`
 - 获取全局变量：`${vars.*}`
 - 获取其他项目的变量：`${projectName.props.*}`
-- 获取 Yaml 中其他项目的结果变量：`${projectName.output.*}`
+- 获取 Yaml 中其他项目的结果变量：`${resources.projectName.output.*}`
 - 获取当前配置的 config 变量：`${config('AccountID')}`
   本质是获取 `s config get`中变量值
-- 获取当前模块的信息：`${this.xx}`
+- 获取当前模块的信息：`${this.xx}`, 比如 `${this.props.name}`
 
 > 详情可以参考：[Serverless Devs Yaml 规范文档](https://github.com/Serverless-Devs/Serverless-Devs/blob/master/docs/zh/yaml.md)
 
@@ -135,4 +171,6 @@ Serverless Devs 的 Yaml 规范本身支持全局变量、环境变量以及外�
 
 ## 项目实践案例
 
-[start-fc](https://github.com/devsapp/start-fc/tree/V3)
+- [start-fc](https://github.com/devsapp/start-fc/tree/V3)
+
+- [Serverless 开发平台应用中心](https://devs.console.aliyun.com/applications)
