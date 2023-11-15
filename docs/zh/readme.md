@@ -8,18 +8,28 @@ category: '概览'
 ![图片alt](https://serverless-article-picture.oss-cn-hangzhou.aliyuncs.com/1635756716877_20211101085157044368.png)
 
 <p align="center" class="flex justify-center">
-  <a href="https://nodejs.org/en/" class="ml-1">
+  <a href="https://nodejs.org/en/" class="ml-1" target="_blank">
     <img src="https://img.shields.io/badge/node-%3E%3D%2014.14.0-brightgreen" alt="node.js version">
   </a>
-  <a href="https://github.com/devsapp/fc3/blob/master/LICENSE" class="ml-1">
+  <a href="https://github.com/devsapp/fc3/blob/master/LICENSE" class="ml-1" target="_blank">
     <img src="https://img.shields.io/badge/License-MIT-green" alt="license">
   </a>
-  <a href="https://github.com/devsapp/fc3/issues" class="ml-1">
+  <a href="https://github.com/devsapp/fc3/issues" class="ml-1" target="_blank">
     <img src="https://img.shields.io/github/issues/devsapp/fc3" alt="issues">
   </a>
 </p>
 
-[![Nodejs16 base ci](https://github.com/devsapp/fc3/actions/workflows/ci_node16.yaml/badge.svg)](https://github.com/devsapp/fc3/actions/workflows/ci_node16.yaml) [![Linux docker ci](https://github.com/devsapp/fc3/actions/workflows/ci_with_docker_linux.yaml/badge.svg)](https://github.com/devsapp/fc3/actions/workflows/ci_with_docker_linux.yaml) [![macos docker ci](https://github.com/devsapp/fc3/actions/workflows/ci_with_docker_macos.yaml/badge.svg)](https://github.com/devsapp/fc3/actions/workflows/ci_with_docker_macos.yaml)
+<p align="center" class="flex justify-center">
+  <a href="https://github.com/devsapp/fc3/actions/workflows/ci_node16.yaml" class="ml-1" target="_blank">
+    <img src="https://github.com/devsapp/fc3/actions/workflows/ci_node16.yaml/badge.svg" alt="Nodejs16 base ci">
+  </a>
+  <a href="https://github.com/devsapp/fc3/actions/workflows/ci_with_docker_linux.yaml" class="ml-1" target="_blank">
+    <img src="https://github.com/devsapp/fc3/actions/workflows/ci_with_docker_linux.yaml/badge.svg" alt="Linux docker ci">
+  </a>
+  <a href="https://github.com/devsapp/fc3/actions/workflows/ci_with_docker_macos.yaml" class="ml-1" target="_blank">
+    <img src="https://github.com/devsapp/fc3/actions/workflows/ci_with_docker_macos.yaml/badge.svg" alt="macos docker ci">
+  </a>
+</p>
 
 # 五大亮点
 
@@ -50,13 +60,13 @@ category: '概览'
 
 函数计算（fc3）组件全部支持的能力列表如下：
 
-| 构建&部署                              | 可观测性                           | 调用&调试                                  | 发布&配置                                        | 其他功能                               |
-| -------------------------------------- | ---------------------------------- | ------------------------------------------ | ------------------------------------------------ | -------------------------------------- |
-| [**部署 deploy**](./command/deploy.md) | [日志查询 logs](./command/logs.md) | [**本地调用 local**](./command/local.md)   | [**版本 version**](./command/version.md)         | [查看函数 info](./command/info.md)     |
-| [**构建 build**](./command/build.md)   |                                    | [函数触发 invoke](./command/invoke.md)     | [**别名 alias**](./command/alias.md)             | [**资源同步 sync**](./command/sync.md) |
-| [移除 remove](./command/remove.md)     |                                    | [实例登录 instance](./command/instance.md) | [预留 provision](./command/provision.md)         |                                        |
-| [计划变更 plan](./command/plan.md)     |                                    |                                            | [按量资源 concurrency](./command/concurrency.md) |                                        |
-|                                        |                                    |                                            | [层 layer](./command/layer.md)                   |                                        |
+| 构建&部署                              | 可观测性                           | 调用&调试                                  | 发布&配置                                        | 其他功能                                    |
+| -------------------------------------- | ---------------------------------- | ------------------------------------------ | ------------------------------------------------ | ------------------------------------------- |
+| [**部署 deploy**](./command/deploy.md) | [日志查询 logs](./command/logs.md) | [**本地调用 local**](./command/local.md)   | [**版本 version**](./command/version.md)         | [查看函数 info](./command/info.md)          |
+| [**构建 build**](./command/build.md)   |                                    | [函数触发 invoke](./command/invoke.md)     | [**别名 alias**](./command/alias.md)             | [**资源同步 sync**](./command/sync.md)      |
+| [移除 remove](./command/remove.md)     |                                    | [实例登录 instance](./command/instance.md) | [预留 provision](./command/provision.md)         | [**YAML 转换 s2tos3**](./command/s2tos3.md) |
+| [计划变更 plan](./command/plan.md)     |                                    |                                            | [按量资源 concurrency](./command/concurrency.md) |                                             |
+|                                        |                                    |                                            | [层 layer](./command/layer.md)                   |                                             |
 
 在使用函数计算（fc3）组件时，还会涉及到资源描述文件的编写，关于函数计算（fc3）组件的 Yaml 规范可以参考[**函数计算（fc3）Yaml 规范文档**](./yaml/readme.md)
 

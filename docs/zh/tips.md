@@ -45,7 +45,6 @@ category: '概览'
 
 ```bash
 #! /bin/bash
-# deploy pre
 regions=("cn-hangzhou" "ap-southeast-1")
 for r in ${regions[@]}
 do

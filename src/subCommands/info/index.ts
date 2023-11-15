@@ -32,6 +32,10 @@ export default class Info {
     this.triggersName = _.get(inputs, 'props.triggers', []).map((item) => item.triggerName);
     this.fcSdk = new FC(this.region, this.inputs.credential as ICredentials, {
       endpoint: inputs.props.endpoint,
+      userAgent: `${
+        inputs.userAgent ||
+        `serverless-devs;Nodejs:${process.version};OS:${process.platform}-${process.arch}`
+      };command:info`,
     });
     this.getApiType = GetApiType.simple;
   }

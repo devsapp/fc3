@@ -30,6 +30,10 @@ export default class Plan {
     );
     this.fcSdk = new FC(inputs.props.region, inputs.credential, {
       endpoint: inputs.props.endpoint,
+      userAgent: `${
+        inputs.userAgent ||
+        `serverless-devs;Nodejs:${process.version};OS:${process.platform}-${process.arch}`
+      };command:plan`,
     });
   }
 

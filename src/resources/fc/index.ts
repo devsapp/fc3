@@ -10,14 +10,8 @@ import {
   ListFunctionVersionsRequest,
   ListTriggersRequest,
   GetAsyncInvokeConfigRequest,
-  ListLayerVersionsRequest,
-  CreateLayerVersionRequest,
-  CreateLayerVersionInput,
-  InputCodeLocation,
-  PutLayerACLRequest,
   ListInstancesRequest,
   ListAsyncInvokeConfigsRequest,
-  DeleteAsyncInvokeConfigRequest,
 } from '@alicloud/fc20230330';
 import { RuntimeOptions } from '@alicloud/tea-util';
 
@@ -598,16 +592,6 @@ export default class FC extends FC_Client {
     return configs;
   }
 
-  async removeAsyncInvokeConfig(functionName: string, qualifier: string) {
-    const request = new DeleteAsyncInvokeConfigRequest({ qualifier });
-    const result = await this.fc20230330Client.deleteAsyncInvokeConfig(functionName, request);
-    const { body } = result.toMap();
-    logger.debug(
-      `Delete ${functionName}(${qualifier}) asyncInvokeConfig result body: ${JSON.stringify(body)}`,
-    );
-    return body;
-  }
-
   /**
    * 获取 VpcBinding
    */
@@ -623,9 +607,6 @@ export default class FC extends FC_Client {
     return body;
   }
 
-  /**
-   * list all layers
-   */
   async listAllLayers(query: any) {
     // eslint-disable-next-line prefer-const
     let layers = [];
@@ -641,56 +622,6 @@ export default class FC extends FC_Client {
       q.nextToken = r.nextToken;
     }
     return layers;
-  }
-
-  async getLayerVersion(layerName: string, version: string) {
-    const result = await this.fc20230330Client.getLayerVersion(layerName, version);
-    const { body } = result.toMap();
-    logger.debug(`getLayerVersion response  body: ${JSON.stringify(body)}`);
-    return body;
-  }
-
-  async listLayerVersions(layerName: string) {
-    const req = new ListLayerVersionsRequest({ limit: 100 });
-    const result = await this.fc20230330Client.listLayerVersions(layerName, req);
-    const { body } = result.toMap();
-    logger.debug(`listLayerVersions response  body: ${JSON.stringify(body)}`);
-    return body;
-  }
-
-  async createLayerVersion(
-    layerName: string,
-    ossBucketName: string,
-    ossObjectName: string,
-    compatibleRuntime?: string[],
-    description?: string,
-  ) {
-    const req = new CreateLayerVersionRequest({
-      body: new CreateLayerVersionInput({
-        code: new InputCodeLocation({
-          ossBucketName,
-          ossObjectName,
-        }),
-        compatibleRuntime,
-        description,
-      }),
-    });
-    const result = await this.fc20230330Client.createLayerVersion(layerName, req);
-    const { body } = result.toMap();
-    logger.debug(`createLayerVersion response  body: ${JSON.stringify(body)}`);
-    return body;
-  }
-
-  async deleteLayerVersion(layerName: string, version: string) {
-    await this.fc20230330Client.deleteLayerVersion(layerName, version);
-  }
-
-  async putLayerACL(layerName: string, isPublic: string) {
-    logger.debug(`isPublic=${isPublic}`);
-    await this.fc20230330Client.putLayerACL(
-      layerName,
-      new PutLayerACLRequest({ public: isPublic }),
-    );
   }
 
   async listInstances(functionName: string, qualifier: string) {

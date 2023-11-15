@@ -10,6 +10,10 @@ export default abstract class Base {
     this.needDeploy = needDeploy;
     this.fcSdk = new FC(inputs.props.region, inputs.credential as ICredentials, {
       endpoint: inputs.props.endpoint,
+      userAgent: `${
+        inputs.userAgent ||
+        `serverless-devs;Nodejs:${process.version};OS:${process.platform}-${process.arch}`
+      };command:deploy`,
     });
   }
 

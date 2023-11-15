@@ -34,6 +34,12 @@ import FCClient, {
   PutAsyncInvokeConfigRequest,
   PutAsyncInvokeConfigInput,
   PutAsyncInvokeConfigResponse,
+  DeleteAsyncInvokeConfigRequest,
+  ListLayerVersionsRequest,
+  CreateLayerVersionRequest,
+  CreateLayerVersionInput,
+  InputCodeLocation,
+  PutLayerACLRequest,
   ListLayersRequest,
   CreateVpcBindingRequest,
   CreateVpcBindingInput,
@@ -58,6 +64,7 @@ const httpx = require('httpx');
 interface IOptions {
   timeout?: number;
   endpoint?: string;
+  userAgent?: string;
 }
 
 export const fc2Client = (region: IRegion, credentials: ICredentials, customEndpoint: string) => {
@@ -86,7 +93,7 @@ export default class FC_Client {
       SecurityToken: securityToken,
     } = credentials;
     this.customEndpoint = options.endpoint;
-    const { timeout } = options || {};
+    const { timeout, userAgent } = options || {};
 
     const { host: endpoint = `${accountID}.${region}.fc.aliyuncs.com`, protocol = 'http' } =
       getCustomEndpoint(options.endpoint);
@@ -99,7 +106,7 @@ export default class FC_Client {
       endpoint,
       readTimeout: timeout || FC_CLIENT_READ_TIMEOUT,
       connectTimeout: timeout || FC_CLIENT_CONNECT_TIMEOUT,
-      userAgent: 'serverless-devs',
+      userAgent,
     });
 
     this.fc20230330Client = new FCClient(config);
@@ -389,6 +396,16 @@ export default class FC_Client {
     return await this.fc20230330Client.putAsyncInvokeConfig(functionName, request);
   }
 
+  async removeAsyncInvokeConfig(functionName: string, qualifier: string) {
+    const request = new DeleteAsyncInvokeConfigRequest({ qualifier });
+    const result = await this.fc20230330Client.deleteAsyncInvokeConfig(functionName, request);
+    const { body } = result.toMap();
+    logger.debug(
+      `Delete ${functionName}(${qualifier}) asyncInvokeConfig result body: ${JSON.stringify(body)}`,
+    );
+    return body;
+  }
+
   async createVpcBinding(functionName: string, vpcId: string): Promise<any> {
     const request = new CreateVpcBindingRequest({ body: new CreateVpcBindingInput({ vpcId }) });
     return await this.fc20230330Client.createVpcBinding(functionName, request);
@@ -404,5 +421,55 @@ export default class FC_Client {
     const { body } = result.toMap();
     logger.debug(`listLayers response  body: ${JSON.stringify(body)}`);
     return body;
+  }
+
+  async getLayerVersion(layerName: string, version: string) {
+    const result = await this.fc20230330Client.getLayerVersion(layerName, version);
+    const { body } = result.toMap();
+    logger.debug(`getLayerVersion response  body: ${JSON.stringify(body)}`);
+    return body;
+  }
+
+  async listLayerVersions(layerName: string) {
+    const req = new ListLayerVersionsRequest({ limit: 100 });
+    const result = await this.fc20230330Client.listLayerVersions(layerName, req);
+    const { body } = result.toMap();
+    logger.debug(`listLayerVersions response  body: ${JSON.stringify(body)}`);
+    return body;
+  }
+
+  async createLayerVersion(
+    layerName: string,
+    ossBucketName: string,
+    ossObjectName: string,
+    compatibleRuntime?: string[],
+    description?: string,
+  ) {
+    const req = new CreateLayerVersionRequest({
+      body: new CreateLayerVersionInput({
+        code: new InputCodeLocation({
+          ossBucketName,
+          ossObjectName,
+        }),
+        compatibleRuntime,
+        description,
+      }),
+    });
+    const result = await this.fc20230330Client.createLayerVersion(layerName, req);
+    const { body } = result.toMap();
+    logger.debug(`createLayerVersion response  body: ${JSON.stringify(body)}`);
+    return body;
+  }
+
+  async deleteLayerVersion(layerName: string, version: string) {
+    await this.fc20230330Client.deleteLayerVersion(layerName, version);
+  }
+
+  async putLayerACL(layerName: string, isPublic: string) {
+    logger.debug(`isPublic=${isPublic}`);
+    await this.fc20230330Client.putLayerACL(
+      layerName,
+      new PutLayerACLRequest({ public: isPublic }),
+    );
   }
 }

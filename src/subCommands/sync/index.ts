@@ -46,6 +46,10 @@ export default class Sync {
     }
     this.fcSdk = new FC(this.region, inputs.credential, {
       endpoint: inputs.props.endpoint,
+      userAgent: `${
+        inputs.userAgent ||
+        `serverless-devs;Nodejs:${process.version};OS:${process.platform}-${process.arch}`
+      };command:sync`,
     });
   }
 

@@ -57,6 +57,10 @@ export default class Invoke {
     this.fcSdk = new FC(this.region, inputs.credential as ICredentials, {
       timeout: sdkTimeout ? sdkTimeout * 1000 : undefined,
       endpoint: inputs.props.endpoint,
+      userAgent: `${
+        inputs.userAgent ||
+        `serverless-devs;Nodejs:${process.version};OS:${process.platform}-${process.arch}`
+      };command:invoke`,
     });
 
     if (_.isString(payload)) {

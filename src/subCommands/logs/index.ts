@@ -95,7 +95,13 @@ export default class Logs {
     if (_.isNil(this.region)) {
       throw new Error('region not specified, please specify --region');
     }
-    this.fcSdk = new FC(this.region, this.inputs.credential as ICredentials, {});
+    this.fcSdk = new FC(this.region, this.inputs.credential as ICredentials, {
+      endpoint: inputs.props.endpoint,
+      userAgent: `${
+        inputs.userAgent ||
+        `serverless-devs;Nodejs:${process.version};OS:${process.platform}-${process.arch}`
+      };command:logs`,
+    });
     this.getApiType = GetApiType.simple;
 
     this.slsClient = new SLS({

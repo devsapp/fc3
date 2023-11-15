@@ -21,4 +21,5 @@ export interface IInputs extends _IInputs {
   props: IProps;
   baseDir: string;
   credential?: ICredentials;
+  userAgent?: string;
 }
