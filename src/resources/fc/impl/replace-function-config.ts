@@ -43,16 +43,6 @@ export default function (_local: any, _remote: any) {
       }
     }
 
-    if (remote.layers) {
-      const layers: any[] = [];
-      for (let i = 0; i < remote.layers.length; i++) {
-        const layer = remote.layers[i];
-        layers.push(layer.arn);
-      }
-      _.unset(remote, 'layers');
-      _.set(remote, 'layers', layers);
-    }
-
     if (remote.customContainerConfig) {
       _.unset(remote.customContainerConfig, 'resolvedImageUri');
     }

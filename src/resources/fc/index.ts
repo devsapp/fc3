@@ -359,6 +359,17 @@ export default class FC extends FC_Client {
       _.unset(body, 'environmentVariables');
     }
 
+    if (body.layers) {
+      logger.debug(body.layers);
+      const newLayers = [];
+      for (let i = 0; i < body.layers.length; i++) {
+        const l = body.layers[i];
+        newLayers.push(l.arn);
+      }
+      // eslint-disable-next-line no-param-reassign
+      body.layers = newLayers;
+    }
+
     if (type === GetApiType.simpleUnsupported) {
       const r = _.omit(body, [
         'lastModifiedTime',

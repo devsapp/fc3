@@ -35,6 +35,7 @@ export const FC_RESOURCES_EMPTY_CONFIG = {
     project: '',
   },
   environmentVariables: {},
+  layers: [],
 };
 
 export const FC_TRIGGER_DEFAULT_CONFIG = {

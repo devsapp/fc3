@@ -194,10 +194,10 @@ FC Invoke End RequestId: eb9cf022-297e-4a27-b3bf-ad304f6e04c9
 
 更多命令的使用，可以参考命令帮助文档详情：
 
-| 构建&部署                              | 可观测性                           | 调用&调试                                  | 发布&配置                                        | 其他功能                               |
-| -------------------------------------- | ---------------------------------- | ------------------------------------------ | ------------------------------------------------ | -------------------------------------- |
-| [**部署 deploy**](./command/deploy.md) | [日志查询 logs](./command/logs.md) | [**本地调用 local**](./command/local.md)   | [**版本 version**](./command/version.md)         | [查看函数 info](./command/info.md)     |
-| [**构建 build**](./command/build.md)   |                                    | [函数触发 invoke](./command/invoke.md)     | [**别名 alias**](./command/alias.md)             | [**资源同步 sync**](./command/sync.md) |
-| [移除 remove](./command/remove.md)     |                                    | [实例登录 instance](./command/instance.md) | [预留 provision](./command/provision.md)         |                                        |
-| [计划变更 plan](./command/plan.md)     |                                    |                                            | [按量资源 concurrency](./command/concurrency.md) |                                        |
-|                                        |                                    |                                            | [层 layer](./command/layer.md)                   |                                        |
+| 构建&部署                              | 可观测性                           | 调用&调试                                  | 发布&配置                                        | 其他功能                                    |
+| -------------------------------------- | ---------------------------------- | ------------------------------------------ | ------------------------------------------------ | ------------------------------------------- |
+| [**部署 deploy**](./command/deploy.md) | [日志查询 logs](./command/logs.md) | [**本地调用 local**](./command/local.md)   | [**版本 version**](./command/version.md)         | [查看函数 info](./command/info.md)          |
+| [**构建 build**](./command/build.md)   |                                    | [函数触发 invoke](./command/invoke.md)     | [**别名 alias**](./command/alias.md)             | [**资源同步 sync**](./command/sync.md)      |
+| [移除 remove](./command/remove.md)     |                                    | [实例登录 instance](./command/instance.md) | [预留 provision](./command/provision.md)         | [**YAML 转换 s2tos3**](./command/s2tos3.md) |
+| [计划变更 plan](./command/plan.md)     |                                    |                                            | [按量资源 concurrency](./command/concurrency.md) |                                             |
+|                                        |                                    |                                            | [层 layer](./command/layer.md)                   |                                             |
