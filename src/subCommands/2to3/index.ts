@@ -215,6 +215,7 @@ export default class SYaml2To3 {
         v.props = { ...v.props, ...func };
       } else {
         v.props = { ...v.props, ...func, ...srv };
+        this._handle_fc_service(v.props);
       }
 
       v.props.functionName = `${serviceName}\$${v.props.name}`;
@@ -232,6 +233,12 @@ export default class SYaml2To3 {
       }
 
       _.unset(v.props, 'instanceType');
+      if (_.get(v.props, 'gpuMemorySize')) {
+        v.props.gpuConfig = {
+          gpuMemorySize: _.get(v.props, 'gpuMemorySize'),
+          gpuType: 'fc.gpu.tesla.1',
+        };
+      }
 
       if (_.get(v.props, 'asyncConfiguration')) {
         v.props.asyncInvokeConfig = v.props.asyncConfiguration;
@@ -262,8 +269,6 @@ export default class SYaml2To3 {
           }
         }
       }
-
-      this._handle_fc_service(v.props);
 
       // 处理 custom runtime 和 custom-container runtime
       if (_.get(v.props, 'caPort')) {
