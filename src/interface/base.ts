@@ -1,4 +1,6 @@
-export type IKV = Record<string, string>;
+export interface IKV {
+  [key: string]: string;
+}
 
 export type ICodeUri =
   | string
