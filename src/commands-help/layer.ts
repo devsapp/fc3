@@ -13,7 +13,7 @@ Examples with Yaml:
   $ s layer publish --code ./layer --layer-name testName --compatible-runtime nodejs12,nodejs10,python3 --description "this is description"
 
 Examples with CLI:
-  $ s cli fc3 layerpublish --code layer.zip --layer-name testName --compatible-runtime nodejs12,nodejs14 --region cn-hangzhou -a default`,
+  $ s cli fc3 layer publish --code layer.zip --layer-name testName --compatible-runtime nodejs12,nodejs14 --region cn-hangzhou -a default`,
         summary: 'Publish new layer version',
         option: [
           [
