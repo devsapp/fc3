@@ -7,4 +7,5 @@ Examples:
     summary: 'Perceive resource change',
     option: [],
   },
+  verify: false,
 };
