@@ -33,7 +33,7 @@ export default class Plan {
       userAgent: `${
         inputs.userAgent ||
         `serverless-devs;Nodejs:${process.version};OS:${process.platform}-${process.arch}`
-      };command:plan`,
+      }command:plan`,
     });
   }
 

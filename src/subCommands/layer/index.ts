@@ -60,7 +60,7 @@ export default class Layer {
       userAgent: `${
         inputs.userAgent ||
         `serverless-devs;Nodejs:${process.version};OS:${process.platform}-${process.arch}`
-      };command:layer`,
+      }command:layer`,
     });
 
     this.opts = opts;

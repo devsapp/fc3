@@ -13,7 +13,7 @@ export default abstract class Base {
       userAgent: `${
         inputs.userAgent ||
         `serverless-devs;Nodejs:${process.version};OS:${process.platform}-${process.arch}`
-      };command:deploy`,
+      }command:deploy`,
     });
   }
 

@@ -58,7 +58,7 @@ export default class Concurrency {
       userAgent: `${
         inputs.userAgent ||
         `serverless-devs;Nodejs:${process.version};OS:${process.platform}-${process.arch}`
-      };command:concurrency`,
+      }command:concurrency`,
     });
   }
 

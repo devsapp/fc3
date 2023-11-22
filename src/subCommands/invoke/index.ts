@@ -60,7 +60,7 @@ export default class Invoke {
       userAgent: `${
         inputs.userAgent ||
         `serverless-devs;Nodejs:${process.version};OS:${process.platform}-${process.arch}`
-      };command:invoke`,
+      }command:invoke`,
     });
 
     if (_.isString(payload)) {

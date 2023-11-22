@@ -49,7 +49,7 @@ export default class Sync {
       userAgent: `${
         inputs.userAgent ||
         `serverless-devs;Nodejs:${process.version};OS:${process.platform}-${process.arch}`
-      };command:sync`,
+      }command:sync`,
     });
   }
 

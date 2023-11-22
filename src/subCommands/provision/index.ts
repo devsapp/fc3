@@ -81,7 +81,7 @@ export default class Provision {
       userAgent: `${
         inputs.userAgent ||
         `serverless-devs;Nodejs:${process.version};OS:${process.platform}-${process.arch}`
-      };command:provision`,
+      }command:provision`,
     });
   }
 

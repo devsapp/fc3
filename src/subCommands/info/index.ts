@@ -35,7 +35,7 @@ export default class Info {
       userAgent: `${
         inputs.userAgent ||
         `serverless-devs;Nodejs:${process.version};OS:${process.platform}-${process.arch}`
-      };command:info`,
+      }command:info`,
     });
     this.getApiType = GetApiType.simple;
   }

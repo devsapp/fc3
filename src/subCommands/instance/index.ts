@@ -40,7 +40,7 @@ export default class Instance {
       userAgent: `${
         inputs.userAgent ||
         `serverless-devs;Nodejs:${process.version};OS:${process.platform}-${process.arch}`
-      };command:instance`,
+      }command:instance`,
     });
 
     this.opts = opts;

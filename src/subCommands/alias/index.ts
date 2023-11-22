@@ -75,7 +75,7 @@ export default class Alias {
       userAgent: `${
         inputs.userAgent ||
         `serverless-devs;Nodejs:${process.version};OS:${process.platform}-${process.arch}`
-      };command:alias`,
+      }command:alias`,
     });
   }
 
