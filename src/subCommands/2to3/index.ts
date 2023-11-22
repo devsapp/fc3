@@ -293,11 +293,18 @@ export default class SYaml2To3 {
 
       if (_.get(v.props, 'customContainerConfig')) {
         if (!_.isEmpty(v.props.customContainerConfig.command)) {
-          v.props.customContainerConfig.entrypoint = v.props.customContainerConfig.command;
+          const command = JSON.parse(v.props.customContainerConfig.command);
+          if (command.length > 0) {
+            v.props.customContainerConfig.entrypoint = command;
+          }
         }
         _.unset(v.props.customContainerConfig, 'command');
+
         if (!_.isEmpty(v.props.customContainerConfig.args)) {
-          v.props.customContainerConfig.command = v.props.customContainerConfig.args;
+          const args = JSON.parse(v.props.customContainerConfig.args);
+          if (args.length > 0) {
+            v.props.customContainerConfig.command = args;
+          }
         }
         _.unset(v.props.customContainerConfig, 'args');
 

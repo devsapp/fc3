@@ -47,7 +47,7 @@ category: '概览'
   例如：
 
 ```shell script
-$ s init --project start-fc3-python
+$ s init start-fc3-python
 
 ? 🚀 More applications: https://registry.serverless-devs.com
 

@@ -50,7 +50,7 @@ category: '概览'
 
 > 安装完成还需要配置密钥，可以参考[密钥配置文档](config.md)
 
-❷ 初始化一个函数计算的 `Hello World` 项目：`s init --project start-fc3-python`；
+❷ 初始化一个函数计算的 `Hello World` 项目：`s init start-fc3-python`；
 ❸ 初始化完成之后，系统会提示是否部署项目，只需要输入`y`并按回车按钮即可完成项目的部署；
 
 - [更多入门示例](https://github.com/devsapp/start-fc/tree/V3)

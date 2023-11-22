@@ -4,7 +4,7 @@
 import _ from 'lodash';
 import { IInputs } from './interface';
 // eslint-disable-next-line @typescript-eslint/no-shadow
-import logger from './logger';
+import log from './logger';
 import { FUNCTION_CUSTOM_DEFAULT_CONFIG, FUNCTION_DEFAULT_CONFIG } from './default/config';
 import path from 'path';
 import commandsHelp from './commands-help';
@@ -15,17 +15,15 @@ import { TriggerType } from './interface/base';
 
 export default class Base {
   commands: any;
-  // eslint-disable-next-line @typescript-eslint/no-shadow
-  constructor({ logger: log }: any) {
-    // eslint-disable-next-line @typescript-eslint/no-shadow
-    logger._set(log);
+  constructor({ logger }: any) {
+    log._set(logger);
 
     this.commands = commandsHelp;
   }
 
   // 在运行方法之前运行
   async handlePreRun(inputs: IInputs, needCredential: boolean) {
-    logger.debug(`input: ${JSON.stringify(inputs)}`);
+    log.debug(`input: ${JSON.stringify(inputs)}`);
     // fc组件镜像 trim 左右空格
     const image = _.get(inputs, 'props.customContainerConfig.image');
     if (!_.isEmpty(image)) {
@@ -41,7 +39,7 @@ export default class Base {
     } else {
       inputs.baseDir = process.cwd();
     }
-    logger.debug(`baseDir is: ${inputs.baseDir}`);
+    log.debug(`baseDir is: ${inputs.baseDir}`);
 
     if (
       FC.isCustomContainerRuntime(inputs.props.runtime) ||
@@ -65,7 +63,7 @@ export default class Base {
         inputs.props.triggers[i] = trigger;
       }
     }
-    logger.debug(`handle pre run config: ${JSON.stringify(inputs.props)}`);
+    log.debug(`handle pre run config: ${JSON.stringify(inputs.props)}`);
   }
 
   private async handleRole(
@@ -124,13 +122,13 @@ export default class Base {
         break;
       }
       default:
-        logger.debug(`${triggerType} don't have default trigger role`);
+        log.debug(`${triggerType} don't have default trigger role`);
     }
     if (triggerRole === undefined) {
       return triggerRole;
     }
     triggerRole = triggerRole.toLowerCase();
-    logger.info(`triggerName = ${trigger.triggerName} use default triggerRole = ${triggerRole}`);
+    log.info(`triggerName = ${trigger.triggerName} use default triggerRole = ${triggerRole}`);
     return triggerRole;
   }
 }

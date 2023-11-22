@@ -3,6 +3,7 @@ import _ from 'lodash';
 import logger from '../../../../logger';
 import * as portFinder from 'portfinder';
 import { execSync } from 'child_process';
+import { runCommand } from '../../../../utils';
 
 export class CustomContainerLocalStart extends BaseLocalStart {
   getDebugArgs(): string {
@@ -55,6 +56,7 @@ export class CustomContainerLocalStart extends BaseLocalStart {
       logger.debug(`stdout: ${out}`);
       process.exit();
     });
-    super.runStart();
+    const cmdStr = await this.getLocalStartCmdStr();
+    await runCommand(cmdStr, runCommand.showStdout.inherit);
   }
 }
