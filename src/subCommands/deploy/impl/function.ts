@@ -17,6 +17,7 @@ import FC, { GetApiType } from '../../../resources/fc';
 import VPC_NAS from '../../../resources/vpc-nas';
 import Base from './base';
 import { ICredentials } from '@serverless-devs/component-interface';
+import { calculateCRC64 } from '../../../utils/index';
 
 type IType = 'code' | 'config' | boolean;
 interface IOpts {
@@ -33,6 +34,7 @@ export default class Service extends Base {
   local: IFunction;
   createResource: Record<string, any> = {};
   acr: Acr;
+  codeChecksum: string;
 
   constructor(inputs: IInputs, opts: IOpts) {
     super(inputs, opts.yes);
@@ -55,10 +57,16 @@ export default class Service extends Base {
   // 准备动作
   async before() {
     try {
-      const remote = await this.fcSdk.getFunction(
-        this.local.functionName,
-        GetApiType.simpleUnsupported,
-      );
+      const r = await this.fcSdk.getFunction(this.local.functionName, GetApiType.simple);
+      this.codeChecksum = _.get(r, 'codeChecksum', '');
+      const remote = _.omit(r, [
+        'lastModifiedTime',
+        'functionId',
+        'createdTime',
+        'codeSize',
+        'codeChecksum',
+        'functionArn',
+      ]);
       this.remote = remote;
     } catch (ex) {
       logger.debug(`Get remote function config error: ${ex.message}`);
@@ -67,6 +75,7 @@ export default class Service extends Base {
     const { local, remote } = await FC.replaceFunctionConfig(this.local, this.remote);
     this.local = local;
     this.remote = remote;
+
     await this.plan();
   }
 
@@ -87,7 +96,10 @@ export default class Service extends Base {
     // 如果不是仅仅部署配置，就需要处理代码
     if (this.type !== 'config') {
       if (!FC.isCustomContainerRuntime(this.local?.runtime)) {
-        await this.uploadCode();
+        const ret = await this.uploadCode();
+        if (!ret) {
+          _.unset(this.local, 'code');
+        }
       } else if (!this.skipPush) {
         await this.pushImage();
       }
@@ -205,7 +217,7 @@ export default class Service extends Base {
   /**
    * 压缩和上传代码包
    */
-  private async uploadCode() {
+  private async uploadCode(): Promise<boolean> {
     const codeUri = this.local.code;
     if (_.isNil(codeUri)) {
       throw new Error('Code config is empty');
@@ -217,7 +229,7 @@ export default class Service extends Base {
           'Code config must be a string or an object containing ossBucketName and ossObject Name',
         );
       }
-      return;
+      return true;
     }
 
     let zipPath: string = path.isAbsolute(codeUri)
@@ -237,11 +249,23 @@ export default class Service extends Base {
         ignoreFiles: ['.fcignore'],
         logger: logger.instance,
       };
+      // console.time('压缩执行时间');
       generateZipFilePath = (await zip(zipConfig)).outputFile;
+      // console.timeEnd('压缩执行时间');
       zipPath = generateZipFilePath;
     }
     logger.debug(`Zip file: ${zipPath}`);
 
+    const crc64Value = await calculateCRC64(zipPath);
+    logger.debug(`code zip crc64=${crc64Value}; codeChecksum=${this.codeChecksum}`);
+    if (this.codeChecksum) {
+      if (this.codeChecksum === crc64Value) {
+        logger.debug(
+          `\x1b[33mskip uploadCode because code is no changed, codeChecksum=${crc64Value}\x1b[0m`,
+        );
+        return false;
+      }
+    }
     const ossConfig = await this.fcSdk.uploadCodeToTmpOss(zipPath);
     logger.debug('ossConfig: ', ossConfig);
     _.set(this.local, 'code', ossConfig);
@@ -253,6 +277,8 @@ export default class Service extends Base {
         logger.debug(`Unable to remove zip file: ${zipPath}`);
       }
     }
+
+    return true;
   }
 
   /**
@@ -271,7 +297,7 @@ export default class Service extends Base {
     if (slsAuto) {
       const sls = new Sls(region, credential as ICredentials);
       const { project, logstore } = await sls.deploy();
-      logger.info(
+      logger.write(
         yellow(`Created log resource succeeded, please replace logConfig: auto in yaml with:
 logConfig:
   enableInstanceMetrics: true
@@ -293,7 +319,7 @@ logConfig:
     if (roleAuto) {
       const client = new RamClient(credential as ICredentials);
       const arn = await client.initFcDefaultServiceRole();
-      logger.info(yellow(`Using role: ${arn}\n`));
+      logger.write(yellow(`Using role: ${arn}\n`));
       this.createResource.role = { arn };
 
       _.set(this.local, 'role', arn);
@@ -315,7 +341,7 @@ logConfig:
       });
 
       if (vpcAuto) {
-        logger.info(
+        logger.write(
           yellow(`Created vpc resource succeeded, please manually write vpcConfig to the yaml file:
 vpcConfig:
   vpcId: ${vpcConfig.vpcId}
@@ -328,7 +354,7 @@ vpcConfig:
       }
 
       if (nasAuto) {
-        logger.info(
+        logger.write(
           yellow(`Created nas resource succeeded, please replace nasConfig: auto in yaml with:
 nasConfig:
   groupId: 0

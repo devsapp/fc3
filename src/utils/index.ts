@@ -1,6 +1,8 @@
 import _ from 'lodash';
 import inquirer from 'inquirer';
 import Table from 'tty-table';
+import crc from 'crc64-ecma182';
+import { promisify } from 'util';
 
 export { default as verify } from './verify';
 export { default as runCommand } from './run-command';
@@ -64,4 +66,9 @@ export function tableShow(data: any, showKey: string[]) {
   }));
 
   console.log(Table(header, data, options).render());
+}
+
+export async function calculateCRC64(filePath) {
+  const crc64Value = await promisify(crc.crc64File)(filePath);
+  return crc64Value.toString(16);
 }
