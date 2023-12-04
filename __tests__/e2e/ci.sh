@@ -6,6 +6,10 @@
 set -e
 set -v
 
+echo " *********  command-api *********"
+cd command-api && bash ./run && cd -
+cd command-api && bash ./run_cli_mode && cd -
+
 echo "test go runtime"
 cd go
 export fc_component_function_name=go1-$(uname)-$(uname -m)-$RANDSTR
@@ -48,7 +52,3 @@ s invoke -e '{"hello":"fc nodejs with auto"}' -t ./s_auto.yaml
 s info -y -t ./s_auto.yaml
 s remove -y -t ./s_auto.yaml
 cd ..
-
-echo " *********  command-api *********"
-cd command-api && ./run && cd -
-cd command-api && ./run_cli_mode && cd -

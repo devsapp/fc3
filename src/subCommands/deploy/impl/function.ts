@@ -17,7 +17,7 @@ import FC, { GetApiType } from '../../../resources/fc';
 import VPC_NAS from '../../../resources/vpc-nas';
 import Base from './base';
 import { ICredentials } from '@serverless-devs/component-interface';
-import { calculateCRC64 } from '../../../utils/index';
+import { calculateCRC64, getFileSize } from '../../../utils/index';
 
 type IType = 'code' | 'config' | boolean;
 interface IOpts {
@@ -249,12 +249,16 @@ export default class Service extends Base {
         ignoreFiles: ['.fcignore'],
         logger: logger.instance,
       };
-      // console.time('压缩执行时间');
+      const start = new Date();
       generateZipFilePath = (await zip(zipConfig)).outputFile;
-      // console.timeEnd('压缩执行时间');
+      const end = new Date();
+      const milliseconds = end.getTime() - start.getTime();
+      logger.debug(`压缩程序执行时间: ${milliseconds / 1000}s`);
       zipPath = generateZipFilePath;
     }
-    logger.debug(`Zip file: ${zipPath}`);
+    // logger.debug(`Zip file: ${zipPath}`);
+    // debug show zip file size
+    getFileSize(zipPath);
 
     const crc64Value = await calculateCRC64(zipPath);
     logger.debug(`code zip crc64=${crc64Value}; codeChecksum=${this.codeChecksum}`);
@@ -264,6 +268,8 @@ export default class Service extends Base {
           `\x1b[33mskip uploadCode because code is no changed, codeChecksum=${crc64Value}\x1b[0m`,
         );
         return false;
+      } else {
+        logger.debug(`\x1b[33mcodeChecksum from ${this.codeChecksum} to ${crc64Value}\x1b[0m`);
       }
     }
     const ossConfig = await this.fcSdk.uploadCodeToTmpOss(zipPath);

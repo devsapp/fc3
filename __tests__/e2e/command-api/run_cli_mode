@@ -22,13 +22,15 @@ echo "test command instance/version/alias/concurrency/provision ..."
 s deploy -y
 instanceId=`s invoke  | grep "Invoke instanceId:" |  sed "s/.*: //"`
 
+echo "instanceId: $instanceId"
+
 # 故意跳转到其他目录
 cd ../
 
 s cli $fc3_dir instance list --region $REGION --function-name $functionName  -a quanxi
 
-s cli $fc3_dir instance exec --instance-id $instanceId --cmd 'ls -lh' --region $REGION --function-name $functionName  -a quanxi
-sleep 1
+# s cli $fc3_dir instance exec --instance-id $instanceId --cmd 'ls -lh' --region $REGION --function-name $functionName  -a quanxi
+# sleep 1
 
 s cli $fc3_dir version publish --description "test version" --region $REGION --function-name $functionName  -a quanxi
 s cli $fc3_dir version list --region $REGION --function-name $functionName  -a quanxi

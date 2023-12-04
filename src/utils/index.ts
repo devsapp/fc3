@@ -1,8 +1,10 @@
 import _ from 'lodash';
 import inquirer from 'inquirer';
 import Table from 'tty-table';
-import crc from 'crc64-ecma182';
+import * as crc64 from 'crc64-ecma182.js';
 import { promisify } from 'util';
+import * as fs from 'fs';
+import logger from '../logger';
 
 export { default as verify } from './verify';
 export { default as runCommand } from './run-command';
@@ -68,7 +70,27 @@ export function tableShow(data: any, showKey: string[]) {
   console.log(Table(header, data, options).render());
 }
 
-export async function calculateCRC64(filePath) {
-  const crc64Value = await promisify(crc.crc64File)(filePath);
-  return crc64Value.toString(16);
+export async function calculateCRC64(filePath: string) {
+  const crc64Value = await promisify(crc64.crc64File)(filePath);
+  return crc64Value;
+}
+
+export function getFileSize(filePath: string) {
+  const fileSize = fs.statSync(filePath).size;
+  const size = fileSize;
+  const sizeInKB = Math.floor(size / 1024);
+  const sizeInMB = Math.floor(size / (1024 * 1024));
+  const sizeInGB = Math.floor(size / (1024 * 1024 * 1024));
+
+  // 根据大小选择输出的单位
+  if (sizeInGB > 0) {
+    logger.debug(`Zip file: ${filePath} size = ${sizeInGB}GB`);
+    return sizeInGB;
+  } else if (sizeInMB > 0) {
+    logger.debug(`Zip file: ${filePath} size = ${sizeInMB}MB`);
+    return sizeInMB;
+  } else {
+    logger.debug(`Zip file: ${filePath} size = ${sizeInKB}KB`);
+    return sizeInKB;
+  }
 }

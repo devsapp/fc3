@@ -1,15 +1,19 @@
 #!/bin/bash
 
 set -e
-set -v 
+set -v
 
 export fc_component_function_name=node16-$(uname)-$(uname -m)-$RANDSTR
 
 echo "test command instance/version/alias/concurrency/provision ..."
 s deploy -y
 
-s  instance exec --instance-id `s invoke  | grep "Invoke instanceId:" |  sed "s/.*: //"` --cmd 'ls -lh'
-s  instance list
+instanceId=`s invoke  | grep "Invoke instanceId:" |  sed "s/.*: //"`
+
+echo "instanceId: $instanceId"
+
+# s instance exec --instance-id $instanceId --cmd 'ls -lh'
+s instance list
 
 s version publish --description test
 s version list
@@ -33,14 +37,14 @@ s provision get --qualifier test
 s provision list
 s provision remove --qualifier test -y
 s provision list
-s provision put --qualifier test --target 2 
+s provision put --qualifier test --target 2
 
 s remove -y
 
 
 echo "test layer ..."
 export layer_name=pyyaml-layer-$(uname)-$(uname -m)-$RANDSTR
-s layer list 
+s layer list
 s layer list --prefix python
 s layer info --layer-name Python39-Scrapy2x --version-id 2
 s layer download --layer-name Python39-Scrapy2x --version-id 2

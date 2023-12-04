@@ -2,7 +2,7 @@ edition: 3.0.0 #  命令行YAML规范版本，遵循语义化版本（Semantic V
 name: test-node-app #  项目名称
 access: quanxi
 
-vars: 
+vars:
   region: ${env('REGION', 'cn-huhehaote')}
 
 resources:
@@ -12,13 +12,13 @@ resources:
       region: ${vars.region}
       functionName: fc3-event-${env('fc_component_function_name', 'nodejs14')}
       runtime: ${env('fc_component_runtime', 'nodejs14')}
-      code: ./code
-      handler: event.handler
+      code: ./test-auto-code
+      handler: index.handler
       memorySize: 128
       timeout: 30
       instanceLifecycleConfig:
         initializer:
-          handler: event.initializer
+          handler: index.initializer
           timeout: 10
 
       vpcConfig: auto
