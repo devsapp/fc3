@@ -39,7 +39,7 @@ export interface ICustomDNS {
 
 export interface IGpuConfig {
   gpuMemorySize?: number;
-  gpuType?: string;
+  gpuType?: 'fc.gpu.tesla.1' | 'fc.gpu.ampere.1';
 }
 
 export interface ILogConfig {
@@ -80,7 +80,7 @@ export interface ITracingConfig {
 
 export interface IVpcConfig {
   securityGroupId: string;
-  vSwitchIds: string[];
+  vSwitchIds: string[] | 'auto';
   vpcId: string;
 }
 

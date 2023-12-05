@@ -61,8 +61,12 @@ export default class SYaml2To3 {
   2. ${A.output.xx} 需要转成 ${resources.A.output.xx}
   */
   variableReplace(fileContents: string) {
-    const regex = /\${env\((["']?)(.*?)\1\)}/g;
-    const r1 = fileContents.replace(regex, (_a, quote, variableName) => {
+    let regex = /\${env\((["']?)(.*?)\1\)}/g;
+    let r1 = fileContents.replace(regex, (_a, quote, variableName) => {
+      return `\${env('${variableName}')}`;
+    });
+    regex = /\${env\.(\w+)}/g;
+    r1 = r1.replace(regex, (_a, variableName) => {
       return `\${env('${variableName}')}`;
     });
 

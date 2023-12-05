@@ -20,6 +20,18 @@ export const isAuto = (config: unknown): boolean => {
   return _.toUpper(config) === 'AUTO';
 };
 
+export const isAutoVpcConfig = (config: unknown): boolean => {
+  logger.debug(`isAutoVpcConfig, vpcConfig = ${JSON.stringify(config)}`);
+  if (_.isString(config)) {
+    return _.toUpper(config) === 'AUTO';
+  }
+  return (
+    _.has(config, 'vpcId') &&
+    (_.toUpper(_.get(config, 'vSwitchIds')) === 'AUTO' ||
+      _.toUpper(_.get(config, 'securityGroupId')) === 'AUTO')
+  );
+};
+
 export const getTimeZone = (): string => {
   const timeZone = `UTC+${0 - new Date().getTimezoneOffset() / 60}`;
   return timeZone;

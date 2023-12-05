@@ -2,6 +2,7 @@ import _ from 'lodash';
 import { diffConvertYaml } from '@serverless-devs/diff';
 import inquirer from 'inquirer';
 import fs from 'fs';
+import assert from 'assert';
 import path from 'path';
 import { yellow } from 'chalk';
 import zip from '@serverless-devs/zip';
@@ -347,18 +348,20 @@ logConfig:
       });
 
       if (vpcAuto) {
+        const { vSwitchIds } = vpcConfig;
+        this.assertArrayOfStrings(vSwitchIds);
+        const vSwitchIdsArray: string[] = vSwitchIds as string[];
         logger.write(
           yellow(`Created vpc resource succeeded, please manually write vpcConfig to the yaml file:
 vpcConfig:
   vpcId: ${vpcConfig.vpcId}
   securityGroupId: ${vpcConfig.securityGroupId}
   vSwitchIds:
-    - ${vpcConfig.vSwitchIds.join('   - \n')}\n`),
+    - ${vSwitchIdsArray.join('   - \n')}\n`),
         );
         this.createResource.vpc = vpcConfig;
         _.set(this.local, 'vpcConfig', vpcConfig);
       }
-
       if (nasAuto) {
         logger.write(
           yellow(`Created nas resource succeeded, please replace nasConfig: auto in yaml with:
@@ -406,5 +409,13 @@ nasConfig:
     }
 
     return !(codeUri.endsWith('.zip') || codeUri.endsWith('.war'));
+  }
+
+  private assertArrayOfStrings(variable: any) {
+    assert(Array.isArray(variable), 'Variable must be an array');
+    assert(
+      variable.every((item) => typeof item === 'string'),
+      'Variable must contain only strings',
+    );
   }
 }

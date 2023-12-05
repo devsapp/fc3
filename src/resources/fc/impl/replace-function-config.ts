@@ -27,8 +27,46 @@ export default function (_local: any, _remote: any) {
       _.set(local, 'nasConfig', remoteNasConfig);
     }
 
-    if (vpcAuto && remoteVpcConfig?.vpcId) {
-      _.set(local, 'vpcConfig', remoteVpcConfig);
+    if (vpcAuto) {
+      if (
+        _.isString(local.vpcConfig) &&
+        _.toUpper(local.vpcConfig) === 'AUTO' &&
+        remoteVpcConfig?.vpcId
+      ) {
+        // vpcConfig: auto
+        _.set(local, 'vpcConfig', remoteVpcConfig);
+      } else if (
+        _.isObject(local.vpcConfig) &&
+        local.vpcConfig?.vpcId &&
+        remoteVpcConfig?.vpcId &&
+        local.vpcConfig.vpcId === remoteVpcConfig.vpcId
+      ) {
+        if (
+          _.isString(local.vpcConfig.vSwitchIds) &&
+          _.toUpper(local.vpcConfig.vSwitchIds) === 'AUTO'
+        ) {
+          /*
+            vpcConfig:
+              vpcId: myVpcId
+              vSwitchIds: auto
+              securityGroupId:  auto | mysg
+          */
+          _.set(local, 'vpcConfig.vSwitchIds', remoteVpcConfig.vSwitchIds);
+        }
+        if (
+          _.isString(local.vpcConfig.securityGroupId) &&
+          _.toUpper(local.vpcConfig.securityGroupId) === 'AUTO'
+        ) {
+          /*
+            vpcConfig:
+              vpcId: myVpcId
+              vSwitchIds: auto | [myvSwitchId]
+              securityGroupId:  auto
+          */
+          _.set(local, 'vpcConfig.securityGroupId', remoteVpcConfig.securityGroupId);
+        }
+      }
+      logger.debug(`replace function config: local vpcConfig = ${JSON.stringify(local.vpcConfig)}`);
     }
 
     if (slsAuto && !_.isEmpty(remoteLogConfig?.project)) {
