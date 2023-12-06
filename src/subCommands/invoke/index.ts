@@ -59,7 +59,7 @@ export default class Invoke {
       endpoint: inputs.props.endpoint,
       userAgent: `${
         inputs.userAgent ||
-        `serverless-devs;Nodejs:${process.version};OS:${process.platform}-${process.arch}`
+        `Component:fc3;Nodejs:${process.version};OS:${process.platform}-${process.arch}`
       }command:invoke`,
     });
 

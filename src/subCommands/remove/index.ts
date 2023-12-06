@@ -70,7 +70,7 @@ export default class Remove {
       endpoint: inputs.props.endpoint,
       userAgent: `${
         inputs.userAgent ||
-        `serverless-devs;Nodejs:${process.version};OS:${process.platform}-${process.arch}`
+        `Component:fc3;Nodejs:${process.version};OS:${process.platform}-${process.arch}`
       }command:remove`,
     });
   }
@@ -93,25 +93,27 @@ export default class Remove {
 
   private async computingRemoveResource() {
     if (this.resources.function) {
-      logger.spin('getting', 'function resource', this.functionName);
+      logger.spin('getting', 'function resource', `${this.region}/${this.functionName}`);
       await this.getFunctionResource();
-      logger.spin('got', 'function resource', this.functionName);
+      logger.spin('got', 'function resource', `${this.region}/${this.functionName}`);
     }
 
     if (this.resources.function || !_.isEmpty(this.resources.triggerNames)) {
-      logger.spin('getting', 'trigger', this.functionName);
+      logger.spin('getting', 'trigger', `${this.region}/${this.functionName}`);
       await this.getTriggerResource();
-      logger.spin('got', 'trigger', this.functionName);
+      logger.spin('got', 'trigger', `${this.region}/${this.functionName}`);
     }
   }
 
   private async getFunctionResource() {
     try {
       await this.fcSdk.getFunction(this.functionName);
-      logger.write(`Remove function: ${this.functionName}`);
+      logger.write(`Remove function: ${this.region}/${this.functionName}`);
       console.log();
     } catch (ex) {
-      logger.debug(`Remove function check error: ${ex.message}`);
+      logger.debug(
+        `Remove function ${this.region}/${this.functionName} check error: ${ex.message}`,
+      );
       if (ex.code === FC_API_ERROR_CODE.FunctionNotFound) {
         logger.debug('Function not found, skipping remove.');
         // 如果是 404，跳过删除
@@ -131,12 +133,14 @@ export default class Remove {
         vpcBindingConfigs.vpcIds.length > 0
       ) {
         this.resources.vpcBindingConfigs = vpcBindingConfigs;
-        logger.write(`Remove function ${this.functionName} vpcBinding:`);
+        logger.write(`Remove function ${this.region}/${this.functionName} vpcBinding:`);
         logger.output(this.resources.vpcBindingConfigs, 2);
         console.log();
       }
     } catch (ex) {
-      logger.debug(`List function ${this.functionName} vpcBinding error: ${ex.message}`);
+      logger.debug(
+        `List function ${this.region}/${this.functionName} vpcBinding error: ${ex.message}`,
+      );
     }
 
     try {
@@ -149,12 +153,14 @@ export default class Remove {
           qualifier: item.functionArn.split('/')[2] || 'LATEST',
           destinationConfig: item.destinationConfig,
         }));
-        logger.write(`Remove function ${this.functionName} asyncInvokeConfigs:`);
+        logger.write(`Remove function ${this.region}/${this.functionName} asyncInvokeConfigs:`);
         logger.output(this.resources.asyncInvokeConfigs, 2);
         console.log();
       }
     } catch (ex) {
-      logger.debug(`List function ${this.functionName} asyncInvokeConfigs error: ${ex.message}`);
+      logger.debug(
+        `List function ${this.region}/${this.functionName} asyncInvokeConfigs error: ${ex.message}`,
+      );
     }
 
     try {
@@ -167,34 +173,40 @@ export default class Remove {
           target: item.target,
         };
       });
-      logger.write(`Remove function ${this.functionName} provision:`);
+      logger.write(`Remove function ${this.region}/${this.functionName} provision:`);
       logger.output(this.resources.provision, 2);
       console.log();
     } catch (ex) {
-      logger.debug(`List function ${this.functionName} provision error: ${ex.message}`);
+      logger.debug(
+        `List function ${this.region}/${this.functionName}provision error: ${ex.message}`,
+      );
     }
 
     try {
       const concurrency = await this.fcSdk.getFunctionConcurrency(this.functionName);
       this.resources.concurrency = concurrency.reservedConcurrency;
       logger.write(
-        `Remove function ${this.functionName} concurrency: ${this.resources.concurrency}`,
+        `Remove function ${this.region}/${this.functionName} concurrency: ${this.resources.concurrency}`,
       );
       console.log();
     } catch (ex) {
-      logger.debug(`Get function ${this.functionName} concurrency error: ${ex.message}`);
+      logger.debug(
+        `Get function ${this.region}/${this.functionName} concurrency error: ${ex.message}`,
+      );
     }
 
     try {
       const aliases = await this.fcSdk.listAlias(this.functionName);
       if (!_.isEmpty(aliases)) {
         this.resources.aliases = aliases.map((item) => item.aliasName);
-        logger.write(`Remove function ${this.functionName} aliases:`);
+        logger.write(`Remove function ${this.region}/${this.functionName} aliases:`);
         logger.output(this.resources.aliases, 2);
         console.log();
       }
     } catch (ex) {
-      logger.debug(`List function ${this.functionName} aliases error: ${ex.message}`);
+      logger.debug(
+        `List function ${this.region}/${this.functionName} aliases error: ${ex.message}`,
+      );
     }
 
     try {
@@ -208,13 +220,15 @@ export default class Remove {
             } need to be deleted`,
           );
         } else {
-          logger.write(`Remove function ${this.functionName} versions:`);
+          logger.write(`Remove function ${this.region}/${this.functionName} versions:`);
           logger.output(this.resources.versions, 2);
         }
         console.log();
       }
     } catch (ex) {
-      logger.debug(`List function ${this.functionName} versions error: ${ex.message}`);
+      logger.debug(
+        `List function ${this.region}/${this.functionName} versions error: ${ex.message}`,
+      );
     }
   }
 
@@ -223,7 +237,9 @@ export default class Remove {
     try {
       triggers = await this.fcSdk.listTriggers(this.functionName);
     } catch (ex) {
-      logger.debug(`List function ${this.functionName} triggers error: ${ex.message}`);
+      logger.debug(
+        `List function ${this.region}/${this.functionName} triggers error: ${ex.message}`,
+      );
     }
 
     // 认为指定删除 triggerNames
@@ -235,7 +251,7 @@ export default class Remove {
     if (_.isEmpty(triggers)) {
       this.resources.triggerNames = [];
     } else {
-      logger.write(`Remove function ${this.functionName} triggers:`);
+      logger.write(`Remove function ${this.region}/${this.functionName} triggers:`);
       logger.output(
         triggers.map((item) => ({
           triggerName: item.triggerName,
@@ -255,13 +271,13 @@ export default class Remove {
       return;
     }
     for (const triggerName of this.resources.triggerNames) {
-      logger.spin('removing', 'trigger', `${this.functionName}/${triggerName}`);
+      logger.spin('removing', 'trigger', `${this.region}/${this.functionName}/${triggerName}`);
       try {
         await this.fcSdk.removeTrigger(this.functionName, triggerName);
       } catch (ex) {
         logger.error(`${ex}`);
       }
-      logger.spin('removed', 'trigger', `${this.functionName}/${triggerName}`);
+      logger.spin('removed', 'trigger', `${this.region}/${this.functionName}/${triggerName}`);
     }
   }
 
@@ -281,37 +297,59 @@ export default class Remove {
 
     if (!_.isEmpty(this.resources.vpcBindingConfigs)) {
       for (const vpcId of this.resources.vpcBindingConfigs.vpcIds) {
-        logger.spin('removing', 'function vpcBinding', `${this.functionName}/${vpcId}`);
+        logger.spin(
+          'removing',
+          'function vpcBinding',
+          `${this.region}/${this.functionName}/${vpcId}`,
+        );
         await this.fcSdk.deleteVpcBinding(this.functionName, vpcId);
-        logger.spin('removed', 'function vpcBinding', `${this.functionName}/${vpcId}`);
+        logger.spin(
+          'removed',
+          'function vpcBinding',
+          `${this.region}/${this.functionName}/${vpcId}`,
+        );
       }
     }
 
     if (!_.isEmpty(this.resources.asyncInvokeConfigs)) {
       for (const { qualifier } of this.resources.asyncInvokeConfigs) {
-        logger.spin('removing', 'function asyncInvokeConfigs', `${this.functionName}/${qualifier}`);
+        logger.spin(
+          'removing',
+          'function asyncInvokeConfigs',
+          `${this.region}/${this.functionName}/${qualifier}`,
+        );
         await this.fcSdk.removeAsyncInvokeConfig(this.functionName, qualifier);
-        logger.spin('removed', 'function asyncInvokeConfigs', `${this.functionName}/${qualifier}`);
+        logger.spin(
+          'removed',
+          'function asyncInvokeConfigs',
+          `${this.region}/${this.functionName}/${qualifier}`,
+        );
       }
     }
 
     if (!_.isEmpty(this.resources.provision)) {
       for (const { qualifier } of this.resources.provision) {
-        logger.spin('removing', 'function provision', `${this.functionName}/${qualifier}`);
+        logger.spin(
+          'removing',
+          'function provision',
+          `${this.region}/${this.functionName}/${qualifier}`,
+        );
         await this.fcSdk.removeFunctionProvisionConfig(this.functionName, qualifier);
-        logger.spin('removed', 'function provision', `${this.functionName}/${qualifier}`);
+        logger.spin(
+          'removed',
+          'function provision',
+          `${this.region}/${this.functionName}/${qualifier}`,
+        );
       }
-    }
-
-    if (this.resources.concurrency) {
-      logger.spin('removing', 'function concurrency', this.functionName);
-      await this.fcSdk.removeFunctionConcurrency(this.functionName);
-      logger.spin('removed', 'function concurrency', this.functionName);
     }
 
     if (!_.isEmpty(this.resources.provision)) {
       for (const { qualifier } of this.resources.provision) {
-        logger.spin('checking', 'remove function provision', `${this.functionName}/${qualifier}`);
+        logger.spin(
+          'checking',
+          'remove function provision',
+          `${this.region}/${this.functionName}/${qualifier}`,
+        );
         // eslint-disable-next-line no-constant-condition
         while (true) {
           await sleep(1.5);
@@ -321,7 +359,7 @@ export default class Remove {
             logger.spin(
               'checked',
               'remove function provision',
-              `${this.functionName}/${qualifier}`,
+              `${this.region}/${this.functionName}/${qualifier}`,
             );
             break;
           }
@@ -329,24 +367,38 @@ export default class Remove {
       }
     }
 
+    if (this.resources.concurrency) {
+      logger.spin('removing', 'function concurrency', `${this.region}/${this.functionName}`);
+      await this.fcSdk.removeFunctionConcurrency(this.functionName);
+      logger.spin('removed', 'function concurrency', `${this.region}/${this.functionName}`);
+    }
+
     if (!_.isEmpty(this.resources.aliases)) {
       for (const alias of this.resources.aliases) {
-        logger.spin('removing', 'function alias', `${this.functionName}/${alias}`);
+        logger.spin('removing', 'function alias', `${this.region}/${this.functionName}/${alias}`);
         await this.fcSdk.removeAlias(this.functionName, alias);
-        logger.spin('removed', 'function alias', `${this.functionName}/${alias}`);
+        logger.spin('removed', 'function alias', `${this.region}/${this.functionName}/${alias}`);
       }
     }
 
     if (!_.isEmpty(this.resources.versions)) {
       for (const version of this.resources.versions) {
-        logger.spin('removing', 'function version', `${this.functionName}/${version}`);
+        logger.spin(
+          'removing',
+          'function version',
+          `${this.region}/${this.functionName}/${version}`,
+        );
         await this.fcSdk.removeFunctionVersion(this.functionName, version);
-        logger.spin('removed', 'function version', `${this.functionName}/${version}`);
+        logger.spin(
+          'removed',
+          'function version',
+          `${this.region}/${this.functionName}/${version}`,
+        );
       }
     }
 
-    logger.spin('removing', 'function', this.functionName);
+    logger.spin('removing', 'function', `${this.region}/${this.functionName}`);
     await this.fcSdk.fc20230330Client.deleteFunction(this.functionName);
-    logger.spin('removed', 'function', this.functionName);
+    logger.spin('removed', 'function', `${this.region}/${this.functionName}`);
   }
 }

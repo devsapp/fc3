@@ -56,7 +56,7 @@ export default class SYaml2To3 {
   }
 
   /*
-  1. s 内置 env、file 和 config, 比如 ${env(A)} 需要替换成 ${env('A')}
+  1. s 内置 env、file 和 config, 比如 ${env(A)} 需要替换成 ${env('A')}, ${env.A} 需要替换成 ${env('A')}
       ${env("A")} and ${env('B')} and ${env(C)}   ---->  ${env('A')} and ${env('B')} and ${env('C')}
   2. ${A.output.xx} 需要转成 ${resources.A.output.xx}
   */

@@ -80,7 +80,7 @@ export default class Provision {
       endpoint: inputs.props.endpoint,
       userAgent: `${
         inputs.userAgent ||
-        `serverless-devs;Nodejs:${process.version};OS:${process.platform}-${process.arch}`
+        `Component:fc3;Nodejs:${process.version};OS:${process.platform}-${process.arch}`
       }command:provision`,
     });
   }
@@ -147,7 +147,11 @@ export default class Provision {
       }
     }
 
-    logger.spin('removing', 'function provision', `${this.functionName}/${this.qualifier}`);
+    logger.spin(
+      'removing',
+      'function provision',
+      `${this.region}/${this.functionName}/${this.qualifier}`,
+    );
     await this.fcSdk.removeFunctionProvisionConfig(this.functionName, this.qualifier);
     // eslint-disable-next-line no-constant-condition
     while (true) {
@@ -157,6 +161,10 @@ export default class Provision {
         break;
       }
     }
-    logger.spin('removed', 'function provision', `${this.functionName}/${this.qualifier}`);
+    logger.spin(
+      'removed',
+      'function provision',
+      `${this.region}/${this.functionName}/${this.qualifier}`,
+    );
   }
 }
