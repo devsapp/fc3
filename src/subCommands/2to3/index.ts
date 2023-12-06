@@ -126,8 +126,7 @@ export default class SYaml2To3 {
 
   private _transform(parsedYamlData: any) {
     this._handle_fc(parsedYamlData);
-    // TODO: 处理 fc-domain 的转换
-
+    this._handle_fc_domain(parsedYamlData);
     // resources key 放在最后
     const res = _.cloneDeep(parsedYamlData.resources);
     _.unset(parsedYamlData, 'resources');
@@ -454,6 +453,40 @@ export default class SYaml2To3 {
       const varSrv = _.get(parsedYamlData, key);
       const { name, description } = varSrv;
       _.set(parsedYamlData, key, { name, description });
+    }
+  }
+
+  // 处理 fc-domain 组件的转换
+  private _handle_fc_domain(parsedYamlData: any) {
+    const { resources } = parsedYamlData;
+    for (const k of Object.keys(resources)) {
+      const v = resources[k];
+      const cp = v.component as string;
+      if (
+        !(
+          cp === 'fc-domain' ||
+          cp === 'devsapp/fc-domain' ||
+          cp.startsWith('fc-domain@') ||
+          cp.startsWith('devsapp/fc-domain@')
+        )
+      ) {
+        continue;
+      }
+      // 只处理 fc-domain 组件的内容
+      v.component = 'fc3-domain';
+      if (_.get(v.props, 'customDomain')) {
+        const { customDomain } = v.props;
+        _.unset(v.props, 'customDomain');
+        v.props = { ...v.props, ...customDomain };
+        v.props.routeConfig = { routes: [] };
+        for (let i = 0; i < customDomain.routeConfigs.length; i++) {
+          const routeConfig = customDomain.routeConfigs[i];
+          routeConfig.functionName = `${routeConfig.serviceName}$${routeConfig.functionName}`;
+          _.unset(routeConfig, 'serviceName');
+          v.props.routeConfig.routes.push(routeConfig);
+        }
+        _.unset(v.props, 'routeConfigs');
+      }
     }
   }
 }
