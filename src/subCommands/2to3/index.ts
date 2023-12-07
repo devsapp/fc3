@@ -149,6 +149,9 @@ export default class SYaml2To3 {
           _.unset(mountPoint, 'fcDir');
           _.unset(mountPoint, 'nasDir');
         }
+        if (_.isEmpty(serviceProps.nasConfig?.mountPoints)) {
+          _.unset(serviceProps, 'nasConfig');
+        }
       }
     }
     // 处理 vpc config
@@ -158,6 +161,9 @@ export default class SYaml2To3 {
         serviceProps.vpcConfig.vSwitchIds = serviceProps.vpcConfig.vswitchIds;
         _.unset(serviceProps.vpcConfig, 'vswitchIds');
       }
+      if (!serviceProps.vpcConfig?.vpcId) {
+        _.unset(serviceProps, 'vpcConfig');
+      }
     }
 
     // 处理 vpc binding
@@ -165,6 +171,21 @@ export default class SYaml2To3 {
       const vpcIds = serviceProps.vpcBinding;
       serviceProps.vpcBinding = { vpcIds };
     }
+
+    // 去掉空的 logConfig、ossMountConfig、tracingConfig
+    if (!serviceProps.logConfig?.project) {
+      _.unset(serviceProps, 'logConfig');
+    }
+
+    if (_.isEmpty(serviceProps.ossMountConfig?.mountPoints)) {
+      _.unset(serviceProps, 'ossMountConfig');
+    }
+
+    if (_.isEmpty(serviceProps.tracingConfig)) {
+      _.unset(serviceProps, 'tracingConfig');
+    }
+
+    _.unset(serviceProps, 'useSLRAuthentication');
   }
 
   // 处理 fc 组件的转换
@@ -235,6 +256,11 @@ export default class SYaml2To3 {
         _.unset(v.props, 'ossKey');
       }
 
+      // 处理空的 environmentVariables
+      if (_.isEmpty(v.props.environmentVariables)) {
+        _.unset(v.props, 'environmentVariables');
+      }
+
       _.unset(v.props, 'instanceType');
       if (_.get(v.props, 'gpuMemorySize')) {
         v.props.gpuConfig = {
@@ -270,6 +296,9 @@ export default class SYaml2To3 {
               destination: fail,
             };
           }
+        }
+        if (_.isEmpty(v.props.asyncInvokeConfig)) {
+          _.unset(v.props, 'asyncInvokeConfig');
         }
       }
 
@@ -346,6 +375,15 @@ export default class SYaml2To3 {
         _.unset(v.props, 'instanceLifecycleConfig.preFreeze');
       }
 
+      // 处理 instanceConcurrency, 非 custom/custom-container runtime 不支持，去掉这个配置
+      const runtime = _.get(v.props, 'runtime') as string;
+      if (!runtime.startsWith('custom')) {
+        logger.info(
+          `${runtime} instanceConcurrency is not supported in fc3.0, detail: https://docs.serverless-devs.com/fc3/command/s2tos3#%E6%B3%A8%E6%84%8F`,
+        );
+        _.unset(v.props, 'instanceConcurrency');
+      }
+
       // 处理 triggers
       if (_.get(v.props, 'triggers')) {
         const { triggers } = v.props;
@@ -384,7 +422,9 @@ export default class SYaml2To3 {
         // triggers key 放在最后
         const ts = _.cloneDeep(v.props.triggers);
         _.unset(v.props, 'triggers');
-        v.props.triggers = ts;
+        if (!_.isEmpty(ts)) {
+          v.props.triggers = ts;
+        }
       }
 
       // 处理 custom domain

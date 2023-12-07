@@ -67,6 +67,7 @@ export default class Service extends Base {
         'codeSize',
         'codeChecksum',
         'functionArn',
+        'useSLRAuthentication',
       ]);
       this.remote = remote;
     } catch (ex) {

@@ -2,6 +2,8 @@
 export const FUNCTION_DEFAULT_CONFIG = {
   internetAccess: true,
   description: '',
+  memorySize: 512,
+  timeout: 3,
 };
 
 // custom* 的默认配置
@@ -9,6 +11,8 @@ export const FUNCTION_CUSTOM_DEFAULT_CONFIG = {
   internetAccess: true,
   description: '',
   instanceConcurrency: 1,
+  memorySize: 512,
+  timeout: 3,
 };
 
 // 如果函数资源为空时使用默认配置，为了覆盖线上的配置

@@ -2,7 +2,7 @@
 /* eslint-disable require-atomic-updates */
 /* eslint-disable no-await-in-loop */
 import _ from 'lodash';
-import { IInputs } from './interface';
+import { IInputs, INasConfig } from './interface';
 // eslint-disable-next-line @typescript-eslint/no-shadow
 import log from './logger';
 import { FUNCTION_CUSTOM_DEFAULT_CONFIG, FUNCTION_DEFAULT_CONFIG } from './default/config';
@@ -12,6 +12,7 @@ import FC from './resources/fc';
 import { ICredentials } from '@serverless-devs/component-interface';
 import Role, { RamClient } from './resources/ram';
 import { TriggerType } from './interface/base';
+import { isAuto } from './utils';
 
 export default class Base {
   commands: any;
@@ -48,6 +49,18 @@ export default class Base {
       inputs.props = _.defaults(inputs.props, FUNCTION_CUSTOM_DEFAULT_CONFIG);
     } else {
       inputs.props = _.defaults(inputs.props, FUNCTION_DEFAULT_CONFIG);
+    }
+
+    // 如果有 nasConfig， 每个挂载点的enableTLS 默认为 false
+    const nasConfig = _.get(inputs, 'props.nasConfig');
+    if (nasConfig && !isAuto(nasConfig)) {
+      const nasConf = nasConfig as INasConfig;
+      const { mountPoints } = nasConf;
+      for (let i = 0; i < mountPoints.length; i++) {
+        if (_.get(mountPoints[i], 'enableTLS') === undefined) {
+          _.set(mountPoints[i], 'enableTLS', false);
+        }
+      }
     }
 
     const triggers = _.cloneDeep(_.get(inputs, 'props.triggers', []));

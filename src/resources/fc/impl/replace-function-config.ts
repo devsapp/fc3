@@ -127,6 +127,20 @@ export default function (_local: any, _remote: any) {
     }
   }
 
+  // 如果 local 和 remote 都是 handler 为 '', 则从 props 中删除
+  if (local?.instanceLifecycleConfig && remote?.instanceLifecycleConfig) {
+    const { initializer: initializerL, preStop: preStopL } = local.instanceLifecycleConfig || {};
+    const { initializer: initializerR, preStop: preStopR } = remote.instanceLifecycleConfig || {};
+    if (initializerL?.handler === initializerR?.handler && initializerL?.handler === '') {
+      _.unset(local, 'instanceLifecycleConfig.initializer');
+      _.unset(remote, 'instanceLifecycleConfig.initializer');
+    }
+    if (preStopL?.handler === preStopR?.handler && preStopL?.handler === '') {
+      _.unset(local, 'instanceLifecycleConfig.preStop');
+      _.unset(remote, 'instanceLifecycleConfig.preStop');
+    }
+  }
+
   if (isCustomContainerRuntime(local.runtime)) {
     // 传入 code：InvalidArgument: code: 400, Either ossBucketName/ossObjectName or zipFile must be set
     _.unset(local, 'code');

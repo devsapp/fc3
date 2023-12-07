@@ -57,7 +57,9 @@ export default class Plan {
       showDiff += `\nvpcBinding:\n${vpcBindingConfig.show}`;
     }
 
-    logger.write(showDiff);
+    showDiff = showDiff.replace(/^/gm, '    ');
+
+    logger.write(`${this.inputs.resource.name}:\n${showDiff}`);
   }
 
   private async planFunction() {

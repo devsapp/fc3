@@ -378,6 +378,7 @@ export default class FC extends FC_Client {
         'codeSize',
         'codeChecksum',
         'functionArn',
+        'useSLRAuthentication',
       ]);
       logger.debug(`Result body: ${JSON.stringify(r)}`);
       return r;
