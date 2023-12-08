@@ -51,5 +51,5 @@ update-version:
 	gsed -i "s/^Version: .*/Version: $$new_version/" publish.yaml; \
 	git diff --exit-code
 
-release-prod: update-version
+release-prod:
 	npm run publish

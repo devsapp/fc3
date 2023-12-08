@@ -1,3 +1,4 @@
+import * as fs from 'fs';
 import { parseArgv } from '@serverless-devs/utils';
 import { IInputs } from './interface';
 import _ from 'lodash';
@@ -22,6 +23,7 @@ import Alias from './subCommands/alias';
 import Concurrency from './subCommands/concurrency';
 import SYaml2To3 from './subCommands/2to3';
 import Logs from './subCommands/logs';
+import { SCHEMA_FILE_PATH } from './constant';
 
 export default class Fc extends Base {
   // 部署函数
@@ -149,5 +151,10 @@ export default class Fc extends Base {
     await super.handlePreRun(inputs, true);
     const logs = new Logs(inputs);
     return await logs.run();
+  }
+
+  public async getSchema(inputs: IInputs) {
+    logger.debug(`getSchema: ${JSON.stringify(inputs)}`);
+    return fs.readFileSync(SCHEMA_FILE_PATH, 'utf-8');
   }
 }

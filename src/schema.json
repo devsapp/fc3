@@ -1,0 +1,972 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "definitions": {
+        "IAsyncInvokeConfig": {
+            "properties": {
+                "destinationConfig": {
+                    "$ref": "#/definitions/IDestinationConfig"
+                },
+                "maxAsyncEventAgeInSeconds": {
+                    "type": "number",
+                    "default": 18000,
+                    "minimum": 1,
+                    "maximum": 2592000
+                },
+                "maxAsyncRetryAttempts": {
+                    "type": "number",
+                    "default": 3,
+                    "minimum": 1,
+                    "maximum": 8
+                }
+            },
+            "type": "object"
+        },
+        "ICdnTriggerConfig": {
+            "properties": {
+                "eventName": {
+                    "type": "string"
+                },
+                "eventVersion": {
+                    "type": "string"
+                },
+                "filter": {
+                    "properties": {
+                        "domain": {
+                            "items": {
+                                "type": "string"
+                            },
+                            "type": "array"
+                        }
+                    },
+                    "required": [
+                        "domain"
+                    ],
+                    "type": "object"
+                },
+                "notes": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "eventName",
+                "eventVersion",
+                "filter",
+                "notes"
+            ],
+            "type": "object"
+        },
+        "ICodeUri": {
+            "anyOf": [
+                {
+                    "properties": {
+                        "ossBucketName": {
+                            "type": "string"
+                        },
+                        "ossObjectName": {
+                            "type": "string"
+                        },
+                        "src": {
+                            "type": "string"
+                        }
+                    },
+                    "required": [
+                        "ossBucketName",
+                        "ossObjectName",
+                        "src"
+                    ],
+                    "type": "object"
+                },
+                {
+                    "type": "string"
+                }
+            ]
+        },
+        "ICustomContainerConfig": {
+            "properties": {
+                "command": {
+                    "items": {
+                        "type": "string"
+                    },
+                    "type": "array"
+                },
+                "entrypoint": {
+                    "items": {
+                        "type": "string"
+                    },
+                    "type": "array"
+                },
+                "healthCheckConfig": {
+                    "$ref": "#/definitions/IHealthCheckConfig"
+                },
+                "image": {
+                    "type": "string"
+                },
+                "port": {
+                    "type": "number"
+                }
+            },
+            "type": "object"
+        },
+        "ICustomDNS": {
+            "properties": {
+                "dnsOptions": {
+                    "items": {
+                        "properties": {
+                            "name": {
+                                "type": "string"
+                            },
+                            "value": {
+                                "type": "string"
+                            }
+                        },
+                        "required": [
+                            "name",
+                            "value"
+                        ],
+                        "type": "object"
+                    },
+                    "type": "array"
+                },
+                "nameServers": {
+                    "items": {
+                        "type": "string"
+                    },
+                    "type": "array"
+                },
+                "searches": {
+                    "items": {
+                        "type": "string"
+                    },
+                    "type": "array"
+                }
+            },
+            "type": "object"
+        },
+        "ICustomRuntimeConfig": {
+            "properties": {
+                "args": {
+                    "items": {
+                        "type": "string"
+                    },
+                    "type": "array"
+                },
+                "command": {
+                    "items": {
+                        "type": "string"
+                    },
+                    "type": "array"
+                },
+                "healthCheckConfig": {
+                    "$ref": "#/definitions/IHealthCheckConfig"
+                },
+                "port": {
+                    "type": "number"
+                }
+            },
+            "type": "object"
+        },
+        "IDestination": {
+            "properties": {
+                "destination": {
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "IDestinationConfig": {
+            "properties": {
+                "onFailure": {
+                    "$ref": "#/definitions/IDestination"
+                },
+                "onSuccess": {
+                    "$ref": "#/definitions/IDestination"
+                }
+            },
+            "type": "object"
+        },
+        "IEventBridge": {
+            "properties": {
+                "asyncInvocationType": {
+                    "type": "boolean"
+                },
+                "eventRuleFilterPattern": {
+                    "type": "string"
+                },
+                "eventSinkConfig": {
+                    "properties": {
+                        "deliveryOption": {
+                            "additionalProperties": true,
+                            "properties": {},
+                            "type": "object"
+                        }
+                    },
+                    "required": [
+                        "deliveryOption"
+                    ],
+                    "type": "object"
+                },
+                "eventSourceConfig": {
+                    "properties": {
+                        "eventSourceParameters": {
+                            "additionalProperties": true,
+                            "properties": {},
+                            "type": "object"
+                        },
+                        "eventSourceType": {
+                            "type": "string"
+                        }
+                    },
+                    "required": [
+                        "eventSourceParameters",
+                        "eventSourceType"
+                    ],
+                    "type": "object"
+                },
+                "runOptions": {
+                    "additionalProperties": true,
+                    "properties": {},
+                    "type": "object"
+                },
+                "triggerEnable": {
+                    "type": "boolean"
+                }
+            },
+            "required": [
+                "asyncInvocationType",
+                "eventRuleFilterPattern",
+                "eventSinkConfig",
+                "eventSourceConfig",
+                "runOptions",
+                "triggerEnable"
+            ],
+            "type": "object"
+        },
+        "IGpuConfig": {
+            "properties": {
+                "gpuMemorySize": {
+                    "type": "number",
+                    "default": 1024,
+                    "minimum": 1024,
+                    "maximum": 24576,
+                    "multipleOf": 1024
+                },
+                "gpuType": {
+                    "enum": [
+                        "fc.gpu.ampere.1",
+                        "fc.gpu.tesla.1"
+                    ],
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "IHealthCheckConfig": {
+            "properties": {
+                "failureThreshold": {
+                    "type": "number"
+                },
+                "httpGetUrl": {
+                    "type": "string"
+                },
+                "initialDelaySeconds": {
+                    "type": "number"
+                },
+                "periodSeconds": {
+                    "type": "number"
+                },
+                "successThreshold": {
+                    "type": "number"
+                },
+                "timeoutSeconds": {
+                    "type": "number"
+                }
+            },
+            "type": "object"
+        },
+        "IHttpTriggerConfig": {
+            "properties": {
+                "authConfig": {
+                    "type": "string"
+                },
+                "authType": {
+                    "enum": [
+                        "anonymous",
+                        "function"
+                    ],
+                    "type": "string"
+                },
+                "disableURLInternet": {
+                    "type": "boolean"
+                },
+                "methods": {
+                    "items": {
+                        "enum": [
+                            "DELETE",
+                            "GET",
+                            "HEAD",
+                            "OPTIONS",
+                            "PATCH",
+                            "POST",
+                            "PUT"
+                        ],
+                        "type": "string"
+                    },
+                    "type": "array"
+                }
+            },
+            "required": [
+                "authType",
+                "methods"
+            ],
+            "type": "object"
+        },
+        "IKV": {
+            "additionalProperties": {
+                "type": "string"
+            },
+            "type": "object"
+        },
+        "ILifecycleHook": {
+            "properties": {
+                "handler": {
+                    "type": "string"
+                },
+                "timeout": {
+                    "type": "number",
+                    "minimum": 1
+                }
+            },
+            "type": "object"
+        },
+        "ILogConfig": {
+            "properties": {
+                "enableInstanceMetrics": {
+                    "type": "boolean"
+                },
+                "enableRequestMetrics": {
+                    "type": "boolean"
+                },
+                "logBeginRule": {
+                    "enum": [
+                        "DefaultRegex",
+                        "None"
+                    ],
+                    "type": "string"
+                },
+                "logstore": {
+                    "type": "string"
+                },
+                "project": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "logstore",
+                "project"
+            ],
+            "type": "object"
+        },
+        "ILogTriggerConfig": {
+            "properties": {
+                "enable": {
+                    "type": "boolean"
+                },
+                "functionParameter": {
+                    "additionalProperties": {},
+                    "type": "object"
+                },
+                "jobConfig": {
+                    "properties": {
+                        "maxRetryTime": {
+                            "type": "string"
+                        },
+                        "triggerInterval": {
+                            "type": "string"
+                        }
+                    },
+                    "type": "object"
+                },
+                "logConfig": {
+                    "properties": {
+                        "logstore": {
+                            "type": "string"
+                        },
+                        "project": {
+                            "type": "string"
+                        }
+                    },
+                    "required": [
+                        "logstore",
+                        "project"
+                    ],
+                    "type": "object"
+                },
+                "sourceConfig": {
+                    "properties": {
+                        "logstore": {
+                            "type": "string"
+                        }
+                    },
+                    "required": [
+                        "logstore"
+                    ],
+                    "type": "object"
+                }
+            },
+            "required": [
+                "enable",
+                "jobConfig",
+                "logConfig",
+                "sourceConfig"
+            ],
+            "type": "object"
+        },
+        "IMnsTriggerConfig": {
+            "properties": {
+                "filterTag": {
+                    "type": "string"
+                },
+                "notifyContentFormat": {
+                    "enum": [
+                        "JSON",
+                        "STREAM"
+                    ],
+                    "type": "string"
+                },
+                "notifyStrategy": {
+                    "enum": [
+                        "BACKOFF_RETRY",
+                        "EXPONENTIAL_DECAY_RETRY"
+                    ],
+                    "type": "string"
+                }
+            },
+            "required": [
+                "notifyContentFormat",
+                "notifyStrategy"
+            ],
+            "type": "object"
+        },
+        "INasConfig": {
+            "properties": {
+                "groupId": {
+                    "type": "number"
+                },
+                "mountPoints": {
+                    "items": {
+                        "properties": {
+                            "enableTLS": {
+                                "type": "boolean"
+                            },
+                            "mountDir": {
+                                "type": "string"
+                            },
+                            "serverAddr": {
+                                "type": "string"
+                            }
+                        },
+                        "required": [
+                            "mountDir",
+                            "serverAddr"
+                        ],
+                        "type": "object"
+                    },
+                    "type": "array"
+                },
+                "userId": {
+                    "type": "number"
+                }
+            },
+            "required": [
+              "userId",
+              "groupId",
+              "mountPoints"
+            ],
+            "type": "object"
+        },
+        "IOssMountConfig": {
+            "properties": {
+                "mountPoints": {
+                    "items": {
+                        "properties": {
+                            "bucketName": {
+                                "type": "string"
+                            },
+                            "bucketPath": {
+                                "type": "string"
+                            },
+                            "endpoint": {
+                                "type": "string"
+                            },
+                            "mountDir": {
+                                "type": "string"
+                            },
+                            "readOnly": {
+                                "type": "boolean"
+                            }
+                        },
+                        "required": [
+                            "bucketName",
+                            "endpoint",
+                            "mountDir"
+                        ],
+                        "type": "object"
+                    },
+                    "type": "array"
+                }
+            },
+            "required": [
+                "mountPoints"
+            ],
+            "type": "object"
+        },
+        "IOssTriggerConfig": {
+            "properties": {
+                "events": {
+                    "items": {
+                        "enum": [
+                            "oss:ObjectCreated:*",
+                            "oss:ObjectCreated:AppendObject",
+                            "oss:ObjectCreated:CompleteMultipartUpload",
+                            "oss:ObjectCreated:CopyObject",
+                            "oss:ObjectCreated:InitiateMultipartUpload",
+                            "oss:ObjectCreated:PostObject",
+                            "oss:ObjectCreated:PutObject",
+                            "oss:ObjectCreated:PutSymlink",
+                            "oss:ObjectCreated:UploadPart",
+                            "oss:ObjectCreated:UploadPartCopy",
+                            "oss:ObjectModified:UpdateObjectMeta",
+                            "oss:ObjectRemoved:AbortMultipartUpload",
+                            "oss:ObjectRemoved:DeleteObject",
+                            "oss:ObjectRemoved:DeleteObjects"
+                        ],
+                        "type": "string"
+                    },
+                    "type": "array"
+                },
+                "filter": {
+                    "properties": {
+                        "key": {
+                            "properties": {
+                                "prefix": {
+                                    "type": "string"
+                                },
+                                "suffix": {
+                                    "type": "string"
+                                }
+                            },
+                            "required": [
+                                "prefix",
+                                "suffix"
+                            ],
+                            "type": "object"
+                        }
+                    },
+                    "required": [
+                        "key"
+                    ],
+                    "type": "object"
+                }
+            },
+            "required": [
+                "events",
+                "filter"
+            ],
+            "type": "object"
+        },
+        "IOtsConfig": {
+            "type": "object"
+        },
+        "IRegion": {
+            "enum": [
+                "ap-northeast-1",
+                "ap-northeast-2",
+                "ap-south-1",
+                "ap-southeast-1",
+                "ap-southeast-2",
+                "ap-southeast-3",
+                "ap-southeast-5",
+                "ap-southeast-7",
+                "cn-beijing",
+                "cn-chengdu",
+                "cn-hangzhou",
+                "cn-hongkong",
+                "cn-huhehaote",
+                "cn-qingdao",
+                "cn-shanghai",
+                "cn-shenzhen",
+                "cn-zhangjiakou",
+                "eu-central-1",
+                "eu-west-1",
+                "us-east-1",
+                "us-west-1"
+            ],
+            "type": "string"
+        },
+        "IRuntime": {
+            "enum": [
+                "custom",
+                "custom-container",
+                "custom.debian10",
+                "dotnetcore2.1",
+                "dotnetcore3.1",
+                "go1",
+                "java11",
+                "java8",
+                "nodejs10",
+                "nodejs12",
+                "nodejs14",
+                "nodejs16",
+                "php7.2",
+                "python2.7",
+                "python3",
+                "python3.10",
+                "python3.9"
+            ],
+            "type": "string"
+        },
+        "ITimerTriggerConfig": {
+            "properties": {
+                "cronExpression": {
+                    "type": "string"
+                },
+                "enable": {
+                    "type": "boolean"
+                },
+                "payload": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "cronExpression",
+                "enable"
+            ],
+            "type": "object"
+        },
+        "ITracingConfig": {
+            "properties": {
+                "jaegerConfig": {
+                    "properties": {
+                        "endpoint": {
+                            "type": "string"
+                        }
+                    },
+                    "required": [
+                        "endpoint"
+                    ],
+                    "type": "object"
+                },
+                "params": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "ITrigger": {
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "invocationRole": {
+                    "type": "string"
+                },
+                "qualifier": {
+                    "type": "string"
+                },
+                "sourceArn": {
+                    "type": "string"
+                },
+                "triggerConfig": {
+                    "anyOf": [
+                        {
+                            "$ref": "#/definitions/IOssTriggerConfig"
+                        },
+                        {
+                            "$ref": "#/definitions/ILogTriggerConfig"
+                        },
+                        {
+                            "$ref": "#/definitions/ITimerTriggerConfig"
+                        },
+                        {
+                            "$ref": "#/definitions/IHttpTriggerConfig"
+                        },
+                        {
+                            "$ref": "#/definitions/IMnsTriggerConfig"
+                        },
+                        {
+                            "$ref": "#/definitions/ICdnTriggerConfig"
+                        },
+                        {
+                            "$ref": "#/definitions/IOtsConfig"
+                        },
+                        {
+                            "$ref": "#/definitions/IEventBridge"
+                        }
+                    ]
+                },
+                "triggerName": {
+                    "type": "string"
+                },
+                "triggerType": {
+                    "$ref": "#/definitions/ITriggerType"
+                }
+            },
+            "required": [
+                "triggerConfig",
+                "triggerName",
+                "triggerType"
+            ],
+            "type": "object"
+        },
+        "ITriggerType": {
+            "enum": [
+                "cdn_events",
+                "eventbridge",
+                "http",
+                "log",
+                "mns_topic",
+                "oss",
+                "tablestore",
+                "timer"
+            ],
+            "type": "string"
+        },
+        "IVpcConfig": {
+            "properties": {
+                "securityGroupId": {
+                    "type": "string"
+                },
+                "vSwitchIds": {
+                    "anyOf": [
+                        {
+                            "items": {
+                                "type": "string"
+                            },
+                            "type": "array"
+                        },
+                        {
+                            "const": "auto",
+                            "type": "string"
+                        }
+                    ]
+                },
+                "vpcId": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "securityGroupId",
+                "vSwitchIds",
+                "vpcId"
+            ],
+            "type": "object"
+        }
+    },
+    "properties": {
+        "asyncInvokeConfig": {
+            "$ref": "#/definitions/IAsyncInvokeConfig"
+        },
+        "code": {
+            "$ref": "#/definitions/ICodeUri"
+        },
+        "cpu": {
+            "type": "number",
+            "default": 0.35,
+            "minimum": 0.05,
+            "maximum": 16
+        },
+        "customContainerConfig": {
+            "$ref": "#/definitions/ICustomContainerConfig"
+        },
+        "customDNS": {
+            "$ref": "#/definitions/ICustomDNS"
+        },
+        "customRuntimeConfig": {
+            "$ref": "#/definitions/ICustomRuntimeConfig"
+        },
+        "description": {
+            "type": "string"
+        },
+        "diskSize": {
+            "enum": [
+                10240,
+                512
+            ],
+            "type": "number"
+        },
+        "endpoint": {
+            "type": "string"
+        },
+        "environmentVariables": {
+            "$ref": "#/definitions/IKV"
+        },
+        "functionName": {
+            "type": "string"
+        },
+        "gpuConfig": {
+            "$ref": "#/definitions/IGpuConfig"
+        },
+        "handler": {
+            "type": "string"
+        },
+        "instanceLifecycleConfig": {
+            "properties": {
+                "initializer": {
+                    "$ref": "#/definitions/ILifecycleHook"
+                },
+                "preStop": {
+                    "$ref": "#/definitions/ILifecycleHook"
+                }
+            },
+            "type": "object"
+        },
+        "internetAccess": {
+            "type": "boolean"
+        },
+        "layers": {
+            "items": {
+                "type": "string"
+            },
+            "type": "array"
+        },
+        "logConfig": {
+            "anyOf": [
+                {
+                    "$ref": "#/definitions/ILogConfig"
+                },
+                {
+                    "const": "auto",
+                    "type": "string"
+                }
+            ]
+        },
+        "memorySize": {
+          "type": "integer",
+          "default": 512,
+          "multipleOf": 64,
+          "minimum": 128,
+          "maximum": 32768
+        },
+        "nasConfig": {
+            "anyOf": [
+                {
+                    "$ref": "#/definitions/INasConfig"
+                },
+                {
+                    "const": "auto",
+                    "type": "string"
+                }
+            ]
+        },
+        "ossMountConfig": {
+            "$ref": "#/definitions/IOssMountConfig"
+        },
+        "region": {
+            "$ref": "#/definitions/IRegion"
+        },
+        "role": {
+            "type": "string"
+        },
+        "runtime": {
+            "$ref": "#/definitions/IRuntime"
+        },
+        "timeout": {
+          "type": "integer",
+          "default": 3,
+          "minimum": 1,
+          "maximum": 86400
+        },
+         "instanceConcurrency": {
+          "type": "integer",
+          "default": 1,
+          "minimum": 1,
+          "maximum": 100
+        },
+        "tracingConfig": {
+            "$ref": "#/definitions/ITracingConfig"
+        },
+        "triggers": {
+            "items": {
+                "$ref": "#/definitions/ITrigger"
+            },
+            "type": "array"
+        },
+        "vpcBinding": {
+            "properties": {
+                "vpcIds": {
+                    "items": {
+                        "type": "string"
+                    },
+                    "type": "array"
+                }
+            },
+            "required": [
+                "vpcIds"
+            ],
+            "type": "object"
+        },
+        "vpcConfig": {
+            "anyOf": [
+                {
+                    "$ref": "#/definitions/IVpcConfig"
+                },
+                {
+                    "const": "auto",
+                    "type": "string"
+                }
+            ]
+        }
+    },
+    "required": [
+        "functionName",
+        "region",
+        "runtime"
+    ],
+    "if": {
+      "properties": {
+        "runtime": {
+          "type": "string",
+          "const": "custom-container"
+        }
+      }
+    },
+    "then": {
+      "required": [
+        "region",
+        "functionName",
+        "runtime",
+        "customContainerConfig"
+      ]
+    },
+    "else": {
+      "if": {
+        "properties": {
+          "runtime": {
+            "type": "string",
+            "pattern": "^custom"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "region",
+          "functionName",
+          "runtime",
+          "code"
+        ]
+      },
+      "else": {
+        "required": [
+          "region",
+          "functionName",
+          "runtime",
+          "code",
+          "handler"
+        ]
+      }
+    },
+    "type": "object"
+}

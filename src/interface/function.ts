@@ -51,8 +51,8 @@ export interface ILogConfig {
 }
 
 export interface INasConfig {
-  userId?: number;
-  groupId?: number;
+  userId: number;
+  groupId: number;
   mountPoints: Array<{
     enableTLS?: boolean;
     serverAddr: string;
