@@ -29,12 +29,6 @@ test-apt:
 test: test-nodejs test-python test-java test-go test-php test-custom  test-custom-container test-apt
 	echo "all test done!"
 
-install:
-	npm install --registry=https://registry.npmmirror.com && curl -sS http://images.devsapp.cn/pop-sdk/fix-sdk.sh | bash
-
-install-official:
-	npm install --registry=https://registry.npmjs.org && curl -sS http://images.devsapp.cn/pop-sdk/fix-sdk.sh | bash
-
 release-dev:
 	gsed -i "s/^Version: .*/Version: dev/" publish.yaml; \
 	git diff --exit-code; \
