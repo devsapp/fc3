@@ -296,6 +296,9 @@ export default class SYaml2To3 {
               destination: fail,
             };
           }
+          if (_.isEmpty(destinationConfig)) {
+            _.unset(asyncInvokeConfig, 'destinationConfig');
+          }
         }
         if (_.isEmpty(v.props.asyncInvokeConfig)) {
           _.unset(v.props, 'asyncInvokeConfig');

@@ -31,7 +31,6 @@ test: test-nodejs test-python test-java test-go test-php test-custom  test-custo
 
 release-dev:
 	gsed -i "s/^Version: .*/Version: dev/" publish.yaml; \
-	git diff --exit-code; \
 	npm run publish
 
 update-version:

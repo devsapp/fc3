@@ -54,7 +54,7 @@ export default class VpcNas {
           requestOption,
         );
         logger.debug(JSON.stringify(result));
-        return result.VpcName;
+        return result.VpcName || vpcId;
       } catch (ex) {
         console.log(ex);
       }

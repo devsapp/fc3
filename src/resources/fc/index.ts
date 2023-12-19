@@ -1,3 +1,4 @@
+/* eslint-disable no-param-reassign */
 /* eslint-disable no-await-in-loop */
 /* eslint no-constant-condition: ["error", { "checkLoops": false }] */
 import OSS from 'ali-oss';
@@ -144,6 +145,19 @@ export default class FC extends FC_Client {
             logger.debug('Create functions already exists, retry update');
             needUpdate = true;
           }
+        }
+
+        if (config?.customRuntimeConfig) {
+          config.customRuntimeConfig = _.defaults(config.customRuntimeConfig, {
+            command: [],
+            args: [],
+          });
+        }
+        if (config?.customContainerConfig) {
+          config.customContainerConfig = _.defaults(config.customContainerConfig, {
+            command: [],
+            entrypoint: [],
+          });
         }
 
         logger.debug(`Need update function ${config.functionName}`);
@@ -357,6 +371,22 @@ export default class FC extends FC_Client {
 
     if (_.isEmpty(body.environmentVariables)) {
       _.unset(body, 'environmentVariables');
+    }
+
+    if (_.isEmpty(body.customRuntimeConfig?.command)) {
+      _.unset(body.customRuntimeConfig, 'command');
+    }
+
+    if (_.isEmpty(body.customRuntimeConfig?.args)) {
+      _.unset(body.customRuntimeConfig, 'args');
+    }
+
+    if (_.isEmpty(body.customContainerConfig?.command)) {
+      _.unset(body.customContainerConfig, 'command');
+    }
+
+    if (_.isEmpty(body.customContainerConfig?.entrypoint)) {
+      _.unset(body.customContainerConfig, 'entrypoint');
     }
 
     if (body.layers) {
@@ -574,18 +604,14 @@ export default class FC extends FC_Client {
     if (type === GetApiType.simpleUnsupported) {
       // eslint-disable-next-line prefer-const
       let r = _.omit(body, ['createdTime', 'functionArn', 'lastModifiedTime']);
+      if (_.isEmpty(r?.destinationConfig)) {
+        _.unset(r, 'destinationConfig');
+      }
       removeNullValues(r);
       logger.debug(`getAsyncInvokeConfig simpleUnsupported Result body: ${JSON.stringify(r)}`);
       return r;
     }
     logger.debug(`getAsyncInvokeConfig simple Result body: ${JSON.stringify(body)}`);
-    if (
-      _.isEmpty(body.destinationConfig) &&
-      _.isEmpty(body.maxAsyncEventAgeInSeconds) &&
-      _.isEmpty(body.maxAsyncRetryAttempts)
-    ) {
-      return {};
-    }
     return body;
   }
 

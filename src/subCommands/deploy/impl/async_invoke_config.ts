@@ -36,6 +36,7 @@ export default class AsyncInvokeConfig extends Base {
 
     const id = `${this.functionName}/asyncInvokeConfig`;
     if (!_.isEmpty(localConfig)) {
+      localConfig.destinationConfig = localConfig.destinationConfig || {};
       if (this.needDeploy) {
         await this.fcSdk.putAsyncInvokeConfig(this.functionName, 'LATEST', localConfig);
       } else if (_.isEmpty(remoteConfig)) {
