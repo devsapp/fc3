@@ -29,11 +29,11 @@ export default class VpcBinding extends Base {
   }
 
   async before() {
-    await this.getRemote();
+    await this._getRemote();
     logger.debug(
       `vpcBinding ==> remote=${JSON.stringify(this.remote)}, local=${JSON.stringify(this.local)}`,
     );
-    await this.plan();
+    await this._plan();
   }
 
   async run() {
@@ -61,7 +61,7 @@ export default class VpcBinding extends Base {
     return this.needDeploy;
   }
 
-  private async getRemote() {
+  private async _getRemote() {
     try {
       const result = await this.fcSdk.getVpcBinding(
         this.functionName,
@@ -79,7 +79,7 @@ export default class VpcBinding extends Base {
     }
   }
 
-  private async plan() {
+  private async _plan() {
     // 远端不存在，或者 get 异常跳过 plan 直接部署
     if (_.isEmpty(this.remote)) {
       this.needDeploy = true;

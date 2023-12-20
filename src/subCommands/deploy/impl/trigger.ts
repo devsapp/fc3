@@ -51,9 +51,9 @@ export default class Trigger extends Base {
   }
 
   async before() {
-    await this.getRemote();
+    await this._getRemote();
 
-    await this.plan();
+    await this._plan();
   }
 
   async run() {
@@ -86,7 +86,7 @@ export default class Trigger extends Base {
     return this.needDeploy;
   }
 
-  private async getRemote() {
+  private async _getRemote() {
     for (const config of this.local) {
       const { triggerName } = config;
       try {
@@ -106,7 +106,7 @@ export default class Trigger extends Base {
     }
   }
 
-  private async plan() {
+  private async _plan() {
     const diff: string[] = [];
     for (let index = 0; index < this.local.length; index++) {
       const remoteConfig = this.remote[index] || {};

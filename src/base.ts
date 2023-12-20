@@ -32,7 +32,7 @@ export default class Base {
     }
 
     const role = _.get(inputs, 'props.role');
-    const functionRole = await this.handleRole(role, needCredential, inputs);
+    const functionRole = await this._handleRole(role, needCredential, inputs);
     _.set(inputs, 'props.role', functionRole);
 
     if (inputs.yaml?.path) {
@@ -67,9 +67,9 @@ export default class Base {
     for (let i = 0; i < triggers.length; i++) {
       const trigger = triggers[i];
       const invocationRole = _.get(trigger, 'invocationRole');
-      let triggerRole = await this.handleRole(invocationRole, needCredential, inputs);
+      let triggerRole = await this._handleRole(invocationRole, needCredential, inputs);
       if (triggerRole === undefined) {
-        triggerRole = await this.handleDefaultTriggerRole(inputs, trigger);
+        triggerRole = await this._handleDefaultTriggerRole(inputs, trigger);
       }
       if (triggerRole !== undefined) {
         _.set(trigger, 'invocationRole', triggerRole);
@@ -79,7 +79,7 @@ export default class Base {
     log.debug(`handle pre run config: ${JSON.stringify(inputs.props)}`);
   }
 
-  private async handleRole(
+  private async _handleRole(
     role: string,
     needCredential: boolean,
     inputs: IInputs,
@@ -104,7 +104,7 @@ export default class Base {
     1. OSS、SLS、CDN、TableStore、MNS_TOPIC 触发器, GetOrCreate 和控制台一样的 default trigger role
     2. 针对 EB 触发器，GetOrCreate 和控制台一样的 service linked role
   */
-  private async handleDefaultTriggerRole(inputs: IInputs, trigger: any): Promise<string> {
+  private async _handleDefaultTriggerRole(inputs: IInputs, trigger: any): Promise<string> {
     let triggerRole;
     const triggerType = _.get(trigger, 'triggerType');
     if (_.isEmpty(inputs.credential)) {

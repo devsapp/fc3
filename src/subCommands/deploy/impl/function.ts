@@ -78,7 +78,7 @@ export default class Service extends Base {
     this.local = local;
     this.remote = remote;
 
-    await this.plan();
+    await this._plan();
   }
 
   async run() {
@@ -89,7 +89,7 @@ export default class Service extends Base {
 
     // 如果不是仅仅部署代码包，就需要处理一些资源配置
     if (this.type !== 'code') {
-      await this.deployAuto();
+      await this._deployAuto();
       logger.debug(`Deploy auto result: ${JSON.stringify(this.local)}`);
       // TODO check nas mount target
       // https://github.com/devsapp/fc-core/blob/master/src/nas/index.ts#L23C23-L23C49
@@ -98,12 +98,12 @@ export default class Service extends Base {
     // 如果不是仅仅部署配置，就需要处理代码
     if (this.type !== 'config') {
       if (!FC.isCustomContainerRuntime(this.local?.runtime)) {
-        const ret = await this.uploadCode();
+        const ret = await this._uploadCode();
         if (!ret) {
           _.unset(this.local, 'code');
         }
       } else if (!this.skipPush) {
-        await this.pushImage();
+        await this._pushImage();
       }
     }
 
@@ -117,7 +117,7 @@ export default class Service extends Base {
     return this.needDeploy;
   }
 
-  private getAcr() {
+  private _getAcr() {
     if (this.acr) {
       return this.acr;
     }
@@ -128,7 +128,7 @@ export default class Service extends Base {
   /**
    * diff 处理
    */
-  private async plan(): Promise<void> {
+  private async _plan(): Promise<void> {
     // 远端不存在，或者 get 异常跳过 plan 直接部署
     if (!this.remote || this.type === 'code') {
       this.needDeploy = true;
@@ -160,7 +160,7 @@ export default class Service extends Base {
       if (_.isNil(image)) {
         throw new Error('CustomContainerRuntime must have a valid image URL');
       }
-      const isExist = await this.getAcr().checkAcr(image);
+      const isExist = await this._getAcr().checkAcr(image);
       if (!isExist) {
         if (_.isEmpty(diffResult)) {
           this.needDeploy = true;
@@ -204,7 +204,7 @@ export default class Service extends Base {
   /**
    * 上传镜像
    */
-  private async pushImage() {
+  private async _pushImage() {
     if (this.skipPush) {
       logger.debug(`skip push is ${this.skipPush}`);
       return;
@@ -213,13 +213,13 @@ export default class Service extends Base {
     if (_.isNil(image)) {
       throw new Error('CustomContainerRuntime must have a valid image URL');
     }
-    await this.getAcr().pushAcr(image);
+    await this._getAcr().pushAcr(image);
   }
 
   /**
    * 压缩和上传代码包
    */
-  private async uploadCode(): Promise<boolean> {
+  private async _uploadCode(): Promise<boolean> {
     const codeUri = this.local.code;
     if (_.isNil(codeUri)) {
       throw new Error('Code config is empty');
@@ -239,7 +239,7 @@ export default class Service extends Base {
       : path.join(this.inputs.baseDir, codeUri);
     logger.debug(`Code path absolute path: ${zipPath}`);
 
-    const needZip = this.assertNeedZip(codeUri);
+    const needZip = this._assertNeedZip(codeUri);
     logger.debug(`Need zip file: ${needZip}`);
 
     let generateZipFilePath = '';
@@ -292,7 +292,7 @@ export default class Service extends Base {
   /**
    * 生成 auto 资源，非 FC 资源，主要指 vpc、nas、log、role（oss mount 挂载点才有）
    */
-  private async deployAuto() {
+  private async _deployAuto() {
     const { region } = this.inputs.props;
     const { credential } = this.inputs;
     const { functionName } = this.local;
@@ -350,7 +350,7 @@ logConfig:
 
       if (vpcAuto) {
         const { vSwitchIds } = vpcConfig;
-        this.assertArrayOfStrings(vSwitchIds);
+        this._assertArrayOfStrings(vSwitchIds);
         const vSwitchIdsArray: string[] = vSwitchIds as string[];
         logger.write(
           yellow(`Created vpc resource succeeded, please manually write vpcConfig to the yaml file:
@@ -393,7 +393,7 @@ nasConfig:
   /**
    * 判断是否需要压缩代码
    */
-  private assertNeedZip(codeUri: string): boolean {
+  private _assertNeedZip(codeUri: string): boolean {
     // 如果 .jar 结尾
     //    custom runtime 并且启动命令包含 java -jar 就需要压缩
     //    官方的 runtime，那么不需要压缩
@@ -412,7 +412,7 @@ nasConfig:
     return !(codeUri.endsWith('.zip') || codeUri.endsWith('.war'));
   }
 
-  private assertArrayOfStrings(variable: any) {
+  private _assertArrayOfStrings(variable: any) {
     assert(Array.isArray(variable), 'Variable must be an array');
     assert(
       variable.every((item) => typeof item === 'string'),

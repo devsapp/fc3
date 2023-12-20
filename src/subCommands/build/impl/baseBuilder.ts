@@ -114,17 +114,17 @@ export abstract class Builder {
     logger.debug('afterBuild ...');
     const tipEnvs: string[] = [];
 
-    const libPath = this.afterTipLibPath();
+    const libPath = this._afterTipLibPath();
     if (libPath) {
       tipEnvs.push(libPath);
     }
 
-    const pythonPath = this.afterTipPython();
+    const pythonPath = this._afterTipPython();
     if (pythonPath) {
       tipEnvs.push(pythonPath);
     }
 
-    const p = this.afterTipPath();
+    const p = this._afterTipPath();
     if (p) {
       tipEnvs.push(p);
     }
@@ -150,20 +150,11 @@ export abstract class Builder {
     this.afterBuild();
   }
 
-  private checkAcreeInstanceID(imageName: string, instanceID: string) {
-    // 如果是企业镜像，并且非正常 build 验证，企业镜像配置
-    if (Acr.isAcreeRegistry(imageName) && !instanceID) {
-      throw new Error(
-        'When an enterprise version instance is selected for the container image, you need to add an instanceID to the enterprise version of the container image service. Refer to: https://docs.serverless-devs.com/fc/yaml/function#customcontainerconfig',
-      );
-    }
-  }
-
   async mockDockerLogin() {
     let imageName = await this.getRuntimeBuildImage();
     const acrInstanceID = await Acr.getAcrEEInstanceID(imageName, await this.getCredentials());
     logger.info(`acrInstanceID: ${acrInstanceID}`);
-    this.checkAcreeInstanceID(imageName, acrInstanceID);
+    this._checkAcreeInstanceID(imageName, acrInstanceID);
     const credential = await this.getCredentials();
     await mockDockerConfigFile(this.getRegion(), imageName, credential, acrInstanceID);
     logger.info('docker login successed with cr_tmp user!');
@@ -178,9 +169,22 @@ export abstract class Builder {
     return false;
   }
 
+  protected isAppCenter(): boolean {
+    return process.env.BUILD_IMAGE_ENV === 'fc-backend';
+  }
+
+  private _checkAcreeInstanceID(imageName: string, instanceID: string) {
+    // 如果是企业镜像，并且非正常 build 验证，企业镜像配置
+    if (Acr.isAcreeRegistry(imageName) && !instanceID) {
+      throw new Error(
+        'When an enterprise version instance is selected for the container image, you need to add an instanceID to the enterprise version of the container image service. Refer to: https://docs.serverless-devs.com/fc/yaml/function#customcontainerconfig',
+      );
+    }
+  }
+
   // 针对 python 友好提示
-  private afterTipPython(): string | undefined {
-    if (!this.isPythonLanguage()) {
+  private _afterTipPython(): string | undefined {
+    if (!this._isPythonLanguage()) {
       return;
     }
     const { PYTHONPATH } = this.getEnv();
@@ -193,12 +197,12 @@ export abstract class Builder {
     return `PYTHONPATH: /code/${buildPythonLocalPath}`;
   }
 
-  private afterTipPath(): string | undefined {
+  private _afterTipPath(): string | undefined {
     let needTipPath = false;
     let defaultPath =
       '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/code:/code/bin:/opt:/opt/bin';
     let PATH = this.getEnv().PATH || defaultPath;
-    const isPython = this.isPythonLanguage();
+    const isPython = this._isPythonLanguage();
     const codeUri = this.getCodeUri();
 
     if (isPython) {
@@ -220,7 +224,7 @@ export abstract class Builder {
     return needTipPath ? `PATH: ${PATH}` : undefined;
   }
 
-  private afterTipLibPath(): string | undefined {
+  private _afterTipLibPath(): string | undefined {
     const { LD_LIBRARY_PATH } = this.getEnv();
     if (this.existManifest('apt-get.list')) {
       if (!LD_LIBRARY_PATH) {
@@ -239,7 +243,7 @@ export abstract class Builder {
     return '';
   }
 
-  private isPythonLanguage() {
+  private _isPythonLanguage() {
     // 验证是不是 python
     let isPython = this.getRuntime().startsWith('python');
     const codeUri = this.getCodeUri();
@@ -256,9 +260,5 @@ export abstract class Builder {
 
     logger.debug(`isPython ${isPython}`);
     return isPython;
-  }
-
-  protected isAppCenter(): boolean {
-    return process.env.BUILD_IMAGE_ENV === 'fc-backend';
   }
 }
