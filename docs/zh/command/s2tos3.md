@@ -1,7 +1,7 @@
 ---
 title: fc yaml to fc 3.0 yaml
 description: 'fc组件yaml转为fc3组件的yaml'
-position: 2
+position: 4
 category: 'Yaml规范'
 ---
 
