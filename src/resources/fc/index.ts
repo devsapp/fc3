@@ -22,6 +22,7 @@ import { FC_DEPLOY_RETRY_COUNT, FC_INSTANCE_EXEC_TIMEOUT } from '../../default/c
 
 import FC_Client, { fc2Client } from './impl/client';
 import { IFunction, ILogConfig, ITrigger } from '../../interface';
+import * as iTrigger from '../../interface/trigger';
 import {
   FC_API_ERROR_CODE,
   isAccessDenied,
@@ -228,11 +229,14 @@ export default class FC extends FC_Client {
       }
     }
 
-    let retry = 0;
-    logger.debug(`Deploy ${functionName} trigger:\n${JSON.stringify(config, null, 2)}`);
+    if (iTrigger.instanceOfIHttpTriggerConfig(config.triggerConfig)) {
+      config.triggerConfig = iTrigger.convertIHttTriggerConfig(config.triggerConfig);
+    }
+
     // eslint-disable-next-line no-param-reassign
     config.triggerConfig = JSON.stringify(config.triggerConfig);
 
+    let retry = 0;
     while (true) {
       try {
         if (!needUpdate) {

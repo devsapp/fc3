@@ -6,6 +6,7 @@ import FC, { GetApiType } from '../../resources/fc';
 import { FC_API_ERROR_CODE } from '../../resources/fc/error-code';
 import logger from '../../logger';
 import { FC_TRIGGER_DEFAULT_CONFIG } from '../../default/config';
+import * as iTrigger from '../../interface/trigger';
 
 export default class Plan {
   readonly region: IRegion;
@@ -34,6 +35,14 @@ export default class Plan {
         inputs.userAgent ||
         `Component:fc3;Nodejs:${process.version};OS:${process.platform}-${process.arch}`
       }command:plan`,
+    });
+
+    this.triggers = this.triggers.map((item) => {
+      if (iTrigger.instanceOfIHttpTriggerConfig(item.triggerConfig)) {
+        // eslint-disable-next-line no-param-reassign
+        item.triggerConfig = iTrigger.convertIHttTriggerConfig(item.triggerConfig);
+      }
+      return item;
     });
   }
 

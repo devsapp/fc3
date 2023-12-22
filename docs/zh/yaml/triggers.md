@@ -20,11 +20,55 @@ type 目前支持：`http`, `timer`, `oss`, `log`, `mns_topic`, `cdn_events`, `t
 
 ### Http 触发器
 
-| 参数名             | 必填  | 类型           | 参数描述                                                               |
-| ------------------ | ----- | -------------- | ---------------------------------------------------------------------- |
-| authType           | True  | String         | 鉴权类型，可选值：anonymous、function                                  |
-| disableURLInternet | False | Boolean        | 是否禁用公网访问 URL，默认为 false                                     |
-| methods            | True  | List\<String\> | HTTP 触发器支持的访问方法，可选值：GET、POST、PUT、DELETE、PATCH、HEAD |
+| 参数名                    | 必填  | 类型                  | 参数描述                                                               |
+| ------------------------- | ----- | --------------------- | ---------------------------------------------------------------------- |
+| authType                  | True  | String                | 鉴权类型，可选值：anonymous、function、jwt                             |
+| disableURLInternet        | False | Boolean               | 是否禁用公网访问 URL，默认为 false                                     |
+| methods                   | True  | List\<String\>        | HTTP 触发器支持的访问方法，可选值：GET、POST、PUT、DELETE、PATCH、HEAD |
+| [authConfig](#authConfig) | False | [Struct](#authConfig) | 鉴权配置，authType 为 jwt 时必填                                       |
+
+#### authConfig
+
+| 参数名                      | 必填  | 类型                   | 参数描述                                                                                    |
+| --------------------------- | ----- | ---------------------- | ------------------------------------------------------------------------------------------- |
+| [jwks](#jwks)               | True  | [Struct](#jwks)        | Json Web Key Set，JSON 格式的 JWT 公钥列表                                                  |
+| [tokenLookup](#tokenLookup) | True  | [Struct](#tokenLookup) | 配置 JWT Token 在请求中的位置和具体参数名称，从而使函数计算 FC 可以找到您请求中的 JWT Token |
+| [claimPassBy](#claimPassBy) | False | [Struct](#claimPassBy) | 配置后可以将 JWT Claim 映射到 HTTP 请求中                                                   |
+| whitelist                   | False | List\<String>          | 请求路径白名单                                                                              |
+| blacklist                   | False | List\<String>          | 请求路径黑名单，如填写了白名单则以白名单为准                                                |
+
+#### jwks
+
+| 参数名        | 必填 | 类型                  | 参数描述                 |
+| ------------- | ---- | --------------------- | ------------------------ |
+| [keys](#keys) | True | List<[Struct](#keys)> | JSON 格式的 JWT 公钥列表 |
+
+#### keys
+
+| 参数名 | 必填  | 类型   | 参数描述                                                               |
+| ------ | ----- | ------ | ---------------------------------------------------------------------- |
+| e      | True  | String | 公钥的指数，例如 AQAB                                                  |
+| kid    | False | String | Key ID，kid 是可选的，如果 JWT 包含了 kid，函数计算会校验 kid 的一致性 |
+| key    | True  | String | 使用的加密算法的家族，例如 RSA，必填，大小写敏感                       |
+| alg    | True  | String | 使用的具体的加密算法，例如 RS256，必填，大小写敏感                     |
+| use    | True  | String | 密钥的用途，例如 sig，用于签名                                         |
+| n      | True  | String | 公钥的模值                                                             |
+
+#### tokenLookup
+
+| 参数名 | 必填  | 类型   | 参数描述                                                                                    |
+| ------ | ----- | ------ | ------------------------------------------------------------------------------------------- |
+| type   | True  | String | 读取位置，header、cookie、query、form                                                       |
+| name   | True  | String | 配置 JWT Token 在请求中的位置和具体参数名称，从而使函数计算 FC 可以找到您请求中的 JWT Token |
+| prefix | False | String | 去除前缀，仅当 type 为 header 时生效                                                        |
+
+#### claimPassBy
+
+| 参数名    | 必填  | 类型   | 参数描述                       |
+| --------- | ----- | ------ | ------------------------------ |
+| type      | True  | String | 读取位置，header、cookie、form |
+| name      | True  | String | Claim 名称                     |
+| mapedName | False | String | 映射参数名称                   |
 
 #### 权限配置相关
 
