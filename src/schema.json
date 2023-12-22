@@ -7,16 +7,10 @@
                     "$ref": "#/definitions/IDestinationConfig"
                 },
                 "maxAsyncEventAgeInSeconds": {
-                    "type": "number",
-                    "default": 18000,
-                    "minimum": 1,
-                    "maximum": 2592000
+                    "type": "number"
                 },
                 "maxAsyncRetryAttempts": {
-                    "type": "number",
-                    "default": 3,
-                    "minimum": 0,
-                    "maximum": 8
+                    "type": "number"
                 }
             },
             "type": "object"
@@ -244,11 +238,7 @@
         "IGpuConfig": {
             "properties": {
                 "gpuMemorySize": {
-                    "type": "number",
-                    "default": 1024,
-                    "minimum": 1024,
-                    "maximum": 24576,
-                    "multipleOf": 1024
+                    "type": "number"
                 },
                 "gpuType": {
                     "enum": [
@@ -286,12 +276,151 @@
         "IHttpTriggerConfig": {
             "properties": {
                 "authConfig": {
-                    "type": "string"
+                    "properties": {
+                        "blacklist": {
+                            "items": {
+                                "type": "string"
+                            },
+                            "type": "array"
+                        },
+                        "claimPassBy": {
+                            "anyOf": [
+                                {
+                                    "items": [
+                                        {
+                                            "properties": {
+                                                "mapedName": {
+                                                    "type": "string"
+                                                },
+                                                "name": {
+                                                    "type": "string"
+                                                },
+                                                "type": {
+                                                    "enum": [
+                                                        "cookie",
+                                                        "form",
+                                                        "header"
+                                                    ],
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "required": [
+                                                "mapedName",
+                                                "name",
+                                                "type"
+                                            ],
+                                            "type": "object"
+                                        }
+                                    ],
+                                    "maxItems": 1,
+                                    "minItems": 1,
+                                    "type": "array"
+                                },
+                                {
+                                    "type": "string"
+                                }
+                            ]
+                        },
+                        "jwks": {
+                            "properties": {
+                                "keys": {
+                                    "items": [
+                                        {
+                                            "properties": {
+                                                "alg": {
+                                                    "type": "string"
+                                                },
+                                                "e": {
+                                                    "type": "string"
+                                                },
+                                                "kid": {
+                                                    "type": "string"
+                                                },
+                                                "kty": {
+                                                    "type": "string"
+                                                },
+                                                "n": {
+                                                    "type": "string"
+                                                },
+                                                "use": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "required": [
+                                                "alg",
+                                                "e",
+                                                "kty",
+                                                "n",
+                                                "use"
+                                            ],
+                                            "type": "object"
+                                        }
+                                    ],
+                                    "maxItems": 1,
+                                    "minItems": 1,
+                                    "type": "array"
+                                }
+                            },
+                            "required": [
+                                "keys"
+                            ],
+                            "type": "object"
+                        },
+                        "tokenLookup": {
+                            "anyOf": [
+                                {
+                                    "items": [
+                                        {
+                                            "properties": {
+                                                "name": {
+                                                    "type": "string"
+                                                },
+                                                "prefix": {
+                                                    "type": "string"
+                                                },
+                                                "type": {
+                                                    "enum": [
+                                                        "cookie",
+                                                        "form",
+                                                        "header",
+                                                        "query"
+                                                    ],
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "required": [
+                                                "name",
+                                                "type"
+                                            ],
+                                            "type": "object"
+                                        }
+                                    ],
+                                    "maxItems": 1,
+                                    "minItems": 1,
+                                    "type": "array"
+                                },
+                                {
+                                    "type": "string"
+                                }
+                            ]
+                        },
+                        "whitelist": {
+                            "items": {
+                                "type": "string"
+                            },
+                            "type": "array"
+                        }
+                    },
+                    "required": [
+                        "jwks"
+                    ],
+                    "type": "object"
                 },
                 "authType": {
                     "enum": [
                         "anonymous",
-                        "function"
+                        "function",
+                        "jwt"
                     ],
                     "type": "string"
                 },
@@ -332,8 +461,7 @@
                     "type": "string"
                 },
                 "timeout": {
-                    "type": "number",
-                    "minimum": 1
+                    "type": "number"
                 }
             },
             "type": "object"
@@ -478,9 +606,9 @@
                 }
             },
             "required": [
-              "userId",
-              "groupId",
-              "mountPoints"
+                "groupId",
+                "mountPoints",
+                "userId"
             ],
             "type": "object"
         },
@@ -773,10 +901,7 @@
             "$ref": "#/definitions/ICodeUri"
         },
         "cpu": {
-            "type": "number",
-            "default": 0.35,
-            "minimum": 0.05,
-            "maximum": 16
+            "type": "number"
         },
         "customContainerConfig": {
             "$ref": "#/definitions/ICustomContainerConfig"
@@ -844,11 +969,7 @@
             ]
         },
         "memorySize": {
-          "type": "integer",
-          "default": 512,
-          "multipleOf": 64,
-          "minimum": 128,
-          "maximum": 32768
+            "type": "number"
         },
         "nasConfig": {
             "anyOf": [
@@ -874,16 +995,7 @@
             "$ref": "#/definitions/IRuntime"
         },
         "timeout": {
-          "type": "integer",
-          "default": 3,
-          "minimum": 1,
-          "maximum": 86400
-        },
-         "instanceConcurrency": {
-          "type": "integer",
-          "default": 1,
-          "minimum": 1,
-          "maximum": 100
+            "type": "number"
         },
         "tracingConfig": {
             "$ref": "#/definitions/ITracingConfig"
@@ -925,48 +1037,6 @@
         "region",
         "runtime"
     ],
-    "if": {
-      "properties": {
-        "runtime": {
-          "type": "string",
-          "const": "custom-container"
-        }
-      }
-    },
-    "then": {
-      "required": [
-        "region",
-        "functionName",
-        "runtime",
-        "customContainerConfig"
-      ]
-    },
-    "else": {
-      "if": {
-        "properties": {
-          "runtime": {
-            "type": "string",
-            "pattern": "^custom"
-          }
-        }
-      },
-      "then": {
-        "required": [
-          "region",
-          "functionName",
-          "runtime",
-          "code"
-        ]
-      },
-      "else": {
-        "required": [
-          "region",
-          "functionName",
-          "runtime",
-          "code",
-          "handler"
-        ]
-      }
-    },
     "type": "object"
 }
+

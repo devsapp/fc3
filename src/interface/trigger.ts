@@ -38,10 +38,92 @@ export interface ITimerTriggerConfig {
 }
 
 export interface IHttpTriggerConfig {
-  authType: 'anonymous' | 'function';
+  authType: 'anonymous' | 'function' | 'jwt';
   methods: Array<`${Methods}`>;
   disableURLInternet?: boolean;
-  authConfig?: string;
+  authConfig?: {
+    jwks: {
+      keys: [
+        {
+          e: string;
+          kid?: string;
+          kty: string;
+          alg: string;
+          use: string;
+          n: string;
+        },
+      ];
+    };
+    tokenLookup?:
+      | [
+          {
+            type: 'header' | 'cookie' | 'query' | 'form';
+            name: string;
+            prefix?: string;
+          },
+        ]
+      | string;
+    claimPassBy?:
+      | [
+          {
+            type: 'header' | 'cookie' | 'form';
+            name: string;
+            mapedName: string;
+          },
+        ]
+      | string;
+    whitelist?: string[];
+    blacklist?: string[];
+  };
+}
+
+export function instanceOfIHttpTriggerConfig(data: any): data is IHttpTriggerConfig {
+  return 'authType' in data && 'methods' in data;
+}
+
+export function convertIHttTriggerConfig(
+  httpTriggerConfig: IHttpTriggerConfig,
+): IHttpTriggerConfig {
+  if (httpTriggerConfig.authType !== 'jwt') {
+    return httpTriggerConfig;
+  }
+  if (
+    httpTriggerConfig.authConfig.tokenLookup &&
+    typeof httpTriggerConfig.authConfig.tokenLookup !== 'string'
+  ) {
+    // eslint-disable-next-line no-param-reassign
+    httpTriggerConfig.authConfig.tokenLookup = httpTriggerConfig.authConfig.tokenLookup
+      .map((item) => {
+        if (typeof item === 'string') {
+          return item;
+        }
+        if (item.type === 'header') {
+          return `${item.type}:${item.name}${item.prefix ? `:${item.prefix}` : ''}`;
+        }
+        return `${item.type}:${item.name}`;
+      })
+      .join(',');
+  }
+  if (
+    httpTriggerConfig.authConfig.claimPassBy &&
+    typeof httpTriggerConfig.authConfig.claimPassBy !== 'string'
+  ) {
+    // eslint-disable-next-line no-param-reassign
+    httpTriggerConfig.authConfig.claimPassBy = httpTriggerConfig.authConfig.claimPassBy
+      .map((item) => {
+        return `${item.type}:${item.name}:${item.mapedName}`;
+      })
+      .join(',');
+  }
+  if (!httpTriggerConfig.authConfig.claimPassBy) {
+    // eslint-disable-next-line no-param-reassign
+    httpTriggerConfig.authConfig.claimPassBy = 'query::';
+  }
+  if (httpTriggerConfig.authConfig.whitelist) {
+    // eslint-disable-next-line no-param-reassign
+    httpTriggerConfig.authConfig.blacklist = null;
+  }
+  return httpTriggerConfig;
 }
 
 export interface IMnsTriggerConfig {

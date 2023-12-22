@@ -6,6 +6,7 @@ import { diffConvertYaml } from '@serverless-devs/diff';
 import { IInputs, ITrigger } from '../../../interface';
 import logger from '../../../logger';
 import Base from './base';
+import { instanceOfIHttpTriggerConfig, convertIHttTriggerConfig } from '../../../interface/trigger';
 import { GetApiType } from '../../../resources/fc';
 import { FC_API_ERROR_CODE } from '../../../resources/fc/error-code';
 import { FC_TRIGGER_DEFAULT_CONFIG } from '../../../default/config';
@@ -114,6 +115,11 @@ export default class Trigger extends Base {
         continue;
       }
       const localConfig = this.local[index];
+
+      if (instanceOfIHttpTriggerConfig(localConfig.triggerConfig)) {
+        localConfig.triggerConfig = convertIHttTriggerConfig(localConfig.triggerConfig);
+      }
+
       const { diffResult, show } = diffConvertYaml(remoteConfig, localConfig);
       logger.debug(`${this.functionName}/${localConfig.triggerName} diff show:\n${show}`);
       if (!_.isEmpty(diffResult)) {
