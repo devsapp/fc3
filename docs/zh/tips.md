@@ -89,18 +89,25 @@ aaa
 bcd/fc
 ```
 
-> 文件解读：
+> **文件解读：**
+>
 > aaa：忽略**根目录**的 aaa 的文件夹或文件
+>
 > \*\*/abc：忽略所有 abc 的文件夹或者文件
+>
 > !abc：不忽略根目录下的 abc 文件夹或者文件
+>
 > .abc/\*\*：忽略根目录下 .abc 的所有内容，但 .abc 的空文件夹不被忽略
+>
 > bcd/fc：忽略根目录 bcd 下 fc 的文件夹或者文件
 
 **解析预期结果**
-<img src="https://img.alicdn.com/imgextra/i3/O1CN013lTzB320pnDxSs2f2_!!6000000006899-2-tps-1474-802.png"/>
+
+<img src="https://img.alicdn.com/imgextra/i3/O1CN013lTzB320pnDxSs2f2_!!6000000006899-2-tps-1474-802.png" style="width: 75%; height: auto;"/>
 
 **deploy 到线上的目录结构**
-<img src="https://img.alicdn.com/imgextra/i1/O1CN01kWLiJf1yxv18HKimw_!!6000000006646-2-tps-852-760.png"/>
+
+<img src="https://img.alicdn.com/imgextra/i1/O1CN01kWLiJf1yxv18HKimw_!!6000000006646-2-tps-852-760.png" style="width: 75%; height: auto;"/>
 
 ## 关于`.env`使用方法
 

@@ -9,11 +9,71 @@ import zip from '@serverless-devs/zip';
 import downloads from '@serverless-devs/downloads';
 import path from 'path';
 import fs from 'fs';
-import { promptForConfirmOrDetails, tableShow } from '../../utils';
+import { promptForConfirmOrDetails, tableShow, calculateCRC64, getFileSize } from '../../utils';
+import chalk from 'chalk';
 
 const commandsList = Object.keys(commandsHelp.subCommands);
 
 export default class Layer {
+  static async safe_publish_layer(
+    fcSdk: FC,
+    toZipDir: string,
+    region: string,
+    layerName: string,
+    compatibleRuntimeList: string[],
+    description: string,
+  ): Promise<any> {
+    let zipPath = toZipDir;
+    let generateZipFilePath = '';
+    if (!toZipDir.endsWith('.zip')) {
+      const zipConfig = {
+        codeUri: toZipDir,
+        outputFileName: `${region}_${layerName}_${Date.now()}.zip`,
+        outputFilePath: path.join(getRootHome(), '.s', 'fc', 'zip'),
+        ignoreFiles: ['.fcignore'],
+        logger: logger.instance,
+      };
+      generateZipFilePath = (await zip(zipConfig)).outputFile;
+      zipPath = generateZipFilePath;
+    }
+    const latestLayer = await fcSdk.getLayerLatestVersion(layerName);
+    if (latestLayer) {
+      const crc64Value = await calculateCRC64(zipPath);
+      logger.debug(`layer zip crc64=${crc64Value}; codeChecksum=${latestLayer.codeChecksum}`);
+
+      if (latestLayer.codeChecksum === crc64Value) {
+        logger.write(
+          chalk.yellow(
+            `Skip uploadCode because code is no changed, codeChecksum=${crc64Value}; Laster layerArn=${latestLayer.layerVersionArn}`,
+          ),
+        );
+        return latestLayer;
+      }
+    }
+    logger.debug(`Zip file: ${zipPath}`);
+    getFileSize(zipPath);
+    const ossConfig = await fcSdk.uploadCodeToTmpOss(zipPath);
+    logger.debug('ossConfig: ', ossConfig);
+
+    const result = await fcSdk.createLayerVersion(
+      layerName,
+      ossConfig.ossBucketName,
+      ossConfig.ossObjectName,
+      compatibleRuntimeList,
+      description || '',
+    );
+
+    if (generateZipFilePath) {
+      try {
+        fs.rmSync(generateZipFilePath);
+      } catch (ex) {
+        logger.debug(`Unable to remove zip file: ${zipPath}`);
+      }
+    }
+    console.log(JSON.stringify(result));
+    return result;
+  }
+
   readonly subCommand: string;
   private region: IRegion;
   private fcSdk: FC;
@@ -83,7 +143,7 @@ export default class Layer {
         query.public = 'true';
       }
     }
-    const list = await this.fcSdk.listAllLayers(query);
+    const list = await this.fcSdk.listLayers(query);
 
     if (this.opts.table) {
       const showKey = [
@@ -120,7 +180,7 @@ export default class Layer {
     if (_.isEmpty(layerName)) {
       throw new Error('layerName not specified, please specify --layer-name');
     }
-    const { layers } = await this.fcSdk.listLayerVersions(layerName);
+    const layers = await this.fcSdk.listLayerVersions(layerName);
     for (let i = 0; i < layers.length; i++) {
       layers[i] = _.omit(layers[i], ['code', 'createTime', 'license', 'codeChecksum', 'codeSize']);
     }
@@ -157,43 +217,15 @@ export default class Layer {
     }
 
     const toZipDir: string = path.isAbsolute(codeUri) ? codeUri : path.join(this.baseDir, codeUri);
-
-    let zipPath = toZipDir;
-    let generateZipFilePath = '';
-    if (!toZipDir.endsWith('.zip')) {
-      const zipConfig = {
-        codeUri: toZipDir,
-        outputFileName: `${this.region}_${layerName}_${Date.now()}.zip`,
-        outputFilePath: path.join(getRootHome(), '.s', 'fc', 'zip'),
-        ignoreFiles: ['.fcignore'],
-        logger: logger.instance,
-      };
-      generateZipFilePath = (await zip(zipConfig)).outputFile;
-      zipPath = generateZipFilePath;
-    }
-
-    logger.debug(`Zip file: ${zipPath}`);
-    const ossConfig = await this.fcSdk.uploadCodeToTmpOss(zipPath);
-    logger.debug('ossConfig: ', ossConfig);
-
     const compatibleRuntimeList = compatibleRuntime.split(',');
-
-    const result = await this.fcSdk.createLayerVersion(
+    return Layer.safe_publish_layer(
+      this.fcSdk,
+      toZipDir,
+      this.region,
       layerName,
-      ossConfig.ossBucketName,
-      ossConfig.ossObjectName,
       compatibleRuntimeList,
       this.opts.description || '',
     );
-
-    if (generateZipFilePath) {
-      try {
-        fs.rmSync(generateZipFilePath);
-      } catch (ex) {
-        logger.debug(`Unable to remove zip file: ${zipPath}`);
-      }
-    }
-    return result;
   }
 
   async remove() {
@@ -217,7 +249,7 @@ export default class Layer {
       await this.fcSdk.deleteLayerVersion(layerName, version);
     } else {
       try {
-        const { layers } = await this.fcSdk.listLayerVersions(layerName);
+        const layers = await this.fcSdk.listLayerVersions(layerName);
         for (const l of layers) {
           await this.fcSdk.deleteLayerVersion(layerName, l.version);
         }

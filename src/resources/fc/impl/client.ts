@@ -417,10 +417,22 @@ export default class FC_Client {
 
   async listLayers(query: any) {
     const request = new ListLayersRequest(query);
-    const result = await this.fc20230330Client.listLayers(request);
-    const { body } = result.toMap();
-    logger.debug(`listLayers response  body: ${JSON.stringify(body)}`);
-    return body;
+    let nextToken = null;
+    const layers = [];
+    while (true) {
+      if (nextToken) {
+        request.nextToken = nextToken;
+      }
+      const result = await this.fc20230330Client.listLayers(request);
+      const { body } = result.toMap();
+      logger.debug(`listLayers response  body: ${JSON.stringify(body)}`);
+      layers.push(...body.layers);
+      nextToken = body.nextToken;
+      if (_.isNil(nextToken)) {
+        break;
+      }
+    }
+    return layers;
   }
 
   async getLayerVersion(layerName: string, version: string) {
@@ -431,11 +443,50 @@ export default class FC_Client {
   }
 
   async listLayerVersions(layerName: string) {
-    const req = new ListLayerVersionsRequest({ limit: 100 });
-    const result = await this.fc20230330Client.listLayerVersions(layerName, req);
-    const { body } = result.toMap();
-    logger.debug(`listLayerVersions response  body: ${JSON.stringify(body)}`);
-    return body;
+    const layers = [];
+    let nextVersion = 1;
+    while (true) {
+      const req = new ListLayerVersionsRequest({ limit: 100, startVersion: nextVersion });
+      const result = await this.fc20230330Client.listLayerVersions(layerName, req);
+      const { body } = result.toMap();
+      logger.debug(`listLayerVersions response  body: ${JSON.stringify(body)}`);
+      layers.push(...body.layers);
+      nextVersion = body.nextVersion;
+      if (_.isNil(nextVersion)) {
+        break;
+      }
+    }
+    return layers;
+  }
+
+  async getLayerLatestVersion(layerName: string) {
+    const layers = [];
+    let nextVersion = 1;
+    try {
+      while (true) {
+        const req = new ListLayerVersionsRequest({ limit: 100, startVersion: nextVersion });
+        const result = await this.fc20230330Client.listLayerVersions(layerName, req);
+        const { body } = result.toMap();
+        logger.debug(`listLayerVersions response  body: ${JSON.stringify(body)}`);
+        layers.push(...body.layers);
+        nextVersion = body.nextVersion;
+        if (_.isNil(nextVersion)) {
+          break;
+        }
+      }
+    } catch (err) {
+      logger.debug(err.message);
+    }
+    let maxVersion = 0;
+    let maxVersionLayer;
+    for (let i = 0; i < layers.length; i++) {
+      const l = layers[i];
+      if (l.version > maxVersion) {
+        maxVersion = l.version;
+        maxVersionLayer = l;
+      }
+    }
+    return maxVersionLayer;
   }
 
   async createLayerVersion(

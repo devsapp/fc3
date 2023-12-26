@@ -645,23 +645,6 @@ export default class FC extends FC_Client {
     return body;
   }
 
-  async listAllLayers(query: any) {
-    // eslint-disable-next-line prefer-const
-    let layers = [];
-    const q = _.cloneDeep(query);
-    while (true) {
-      const r = await this.listLayers(q);
-      for (const l of r.layers) {
-        layers.push(l);
-      }
-      if (_.isEmpty(r.nextToken)) {
-        break;
-      }
-      q.nextToken = r.nextToken;
-    }
-    return layers;
-  }
-
   async listInstances(functionName: string, qualifier: string) {
     const result = await this.fc20230330Client.listInstances(
       functionName,

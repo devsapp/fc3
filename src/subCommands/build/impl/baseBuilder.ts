@@ -11,11 +11,9 @@ import {
   fcDockerNameSpace,
   fcDockerVersionRegistry,
   fcDockerUseImage,
-  buildPythonLocalPath,
 } from '../../../default/image';
 import { runCommand } from '../../../utils';
 import FC from '../../../resources/fc';
-import chalk from 'chalk';
 
 export abstract class Builder {
   protected baseDir: string;
@@ -36,6 +34,10 @@ export abstract class Builder {
 
   getRegion(): IRegion {
     return this.getProps().region;
+  }
+
+  getFunctionName(): string {
+    return this.getProps().functionName;
   }
 
   async getCredentials(): Promise<ICredentials> {
@@ -112,33 +114,6 @@ export abstract class Builder {
 
   afterBuild() {
     logger.debug('afterBuild ...');
-    const tipEnvs: string[] = [];
-
-    const libPath = this._afterTipLibPath();
-    if (libPath) {
-      tipEnvs.push(libPath);
-    }
-
-    const pythonPath = this._afterTipPython();
-    if (pythonPath) {
-      tipEnvs.push(pythonPath);
-    }
-
-    const p = this._afterTipPath();
-    if (p) {
-      tipEnvs.push(p);
-    }
-
-    if (!_.isEmpty(tipEnvs)) {
-      logger.info(
-        'You need to add a new configuration env configuration dependency in yaml to take effect. The configuration is as follows:',
-      );
-      logger.write(
-        chalk.yellow(`environmentVariables:
-  ${tipEnvs.join('\n  ')}
-`),
-      );
-    }
   }
 
   public async build() {
@@ -173,77 +148,7 @@ export abstract class Builder {
     return process.env.BUILD_IMAGE_ENV === 'fc-backend';
   }
 
-  private _checkAcreeInstanceID(imageName: string, instanceID: string) {
-    // 如果是企业镜像，并且非正常 build 验证，企业镜像配置
-    if (Acr.isAcreeRegistry(imageName) && !instanceID) {
-      throw new Error(
-        'When an enterprise version instance is selected for the container image, you need to add an instanceID to the enterprise version of the container image service. Refer to: https://docs.serverless-devs.com/fc/yaml/function#customcontainerconfig',
-      );
-    }
-  }
-
-  // 针对 python 友好提示
-  private _afterTipPython(): string | undefined {
-    if (!this._isPythonLanguage()) {
-      return;
-    }
-    const { PYTHONPATH } = this.getEnv();
-
-    logger.debug(`PYTHONPATH ${PYTHONPATH}`);
-    if (PYTHONPATH === `/code/${buildPythonLocalPath}`) {
-      return;
-    }
-
-    return `PYTHONPATH: /code/${buildPythonLocalPath}`;
-  }
-
-  private _afterTipPath(): string | undefined {
-    let needTipPath = false;
-    let defaultPath =
-      '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/code:/code/bin:/opt:/opt/bin';
-    let PATH = this.getEnv().PATH || defaultPath;
-    const isPython = this._isPythonLanguage();
-    const codeUri = this.getCodeUri();
-
-    if (isPython) {
-      const packagesBin = path.join(codeUri, buildPythonLocalPath, 'bin');
-      const hasBin = fs.existsSync(packagesBin) && fs.lstatSync(packagesBin).isDirectory();
-      const pathNotFoundBin = !PATH.includes(`/code/${buildPythonLocalPath}/bin`);
-      logger.debug(`hasBin ${hasBin}; !PATH.includes = ${pathNotFoundBin}`);
-      if (hasBin && pathNotFoundBin) {
-        PATH = `/code/${buildPythonLocalPath}/bin:${PATH}`;
-        needTipPath = true;
-      }
-    }
-
-    if (this.existManifest('apt-get.list') && !PATH.includes('/code/apt-archives/usr/bin')) {
-      PATH = `/code/apt-archives/usr/bin:${PATH}`;
-      needTipPath = true;
-    }
-
-    return needTipPath ? `PATH: ${PATH}` : undefined;
-  }
-
-  private _afterTipLibPath(): string | undefined {
-    const { LD_LIBRARY_PATH } = this.getEnv();
-    if (this.existManifest('apt-get.list')) {
-      if (!LD_LIBRARY_PATH) {
-        const libPaths = [
-          '/code/apt-archives/usr/local/lib',
-          '/code/apt-archives/usr/lib',
-          '/code/apt-archives/usr/lib/x86_64-linux-gnu',
-          '/code/apt-archives/usr/lib64',
-          '/code/apt-archives/lib',
-          '/code/apt-archives/lib/x86_64-linux-gnu',
-          '/code',
-        ];
-        return `LD_LIBRARY_PATH: ${libPaths.join(':')}`;
-      }
-    }
-    return '';
-  }
-
-  private _isPythonLanguage() {
+  protected isPythonLanguage() {
     // 验证是不是 python
     let isPython = this.getRuntime().startsWith('python');
     const codeUri = this.getCodeUri();
@@ -252,7 +157,7 @@ export abstract class Builder {
     if (isCustom) {
       const requirementsPath = path.join(codeUri, 'requirements.txt');
       const hasRequirements = fs.existsSync(requirementsPath);
-      logger.debug(`custom runtime has requirements file: ${hasRequirements}`);
+      logger.debug(`custom runtime has requirements.txt: ${hasRequirements}`);
       if (hasRequirements) {
         isPython = true;
       }
@@ -260,5 +165,50 @@ export abstract class Builder {
 
     logger.debug(`isPython ${isPython}`);
     return isPython;
+  }
+
+  protected isNodejsLanguage() {
+    // 验证是不是 nodejs
+    let isNodejs = this.getRuntime().startsWith('nodejs');
+    const codeUri = this.getCodeUri();
+    const isCustom = FC.isCustomRuntime(this.getRuntime());
+    logger.debug(`isNodejs ${isNodejs}; is custom ${isCustom}`);
+    if (isCustom) {
+      const packagePath = path.join(codeUri, 'package.json');
+      const hasPackage = fs.existsSync(packagePath);
+      logger.debug(`custom runtime has package.json: ${hasPackage}`);
+      if (hasPackage) {
+        isNodejs = true;
+      }
+    }
+    logger.debug(`isNodejs ${isNodejs}`);
+    return isNodejs;
+  }
+
+  protected isPhpLanguage() {
+    // 验证是不是 php
+    let isPhp = this.getRuntime().startsWith('php');
+    const codeUri = this.getCodeUri();
+    const isCustom = FC.isCustomRuntime(this.getRuntime());
+    logger.debug(`isNodejs ${isPhp}; is custom ${isCustom}`);
+    if (isCustom) {
+      const composerPath = path.join(codeUri, 'composer.json');
+      const hasComposer = fs.existsSync(composerPath);
+      logger.debug(`custom runtime has composer.json: ${hasComposer}`);
+      if (hasComposer) {
+        isPhp = true;
+      }
+    }
+    logger.debug(`isPhp ${isPhp}`);
+    return isPhp;
+  }
+
+  private _checkAcreeInstanceID(imageName: string, instanceID: string) {
+    // 如果是企业镜像，并且非正常 build 验证，企业镜像配置
+    if (Acr.isAcreeRegistry(imageName) && !instanceID) {
+      throw new Error(
+        'When an enterprise version instance is selected for the container image, you need to add an instanceID to the enterprise version of the container image service. Refer to: https://docs.serverless-devs.com/fc/yaml/function#customcontainerconfig',
+      );
+    }
   }
 }

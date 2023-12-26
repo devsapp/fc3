@@ -20,4 +20,4 @@ export const fcDockerNameSpace = 'aliyunfc';
 
 export const fcDockerUseImage = process.env.FC_DOCKER_IMAGE_URL;
 
-export const buildPythonLocalPath = process.env.FC_BUILD_PYTHON_DIR || '3rd-packages';
+export const buildPythonLocalPath = process.env.FC_BUILD_PYTHON_DIR || 'python';

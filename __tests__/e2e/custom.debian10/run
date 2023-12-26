@@ -13,7 +13,7 @@ s remove -y -t ./go/s.yaml
 rm -rf ./go/code/target
 
 echo "test custom.debian10 python runtime ..."
-rm -rf ./python/code/3rd-packages
+rm -rf ./python/code/python
 rm -rf ./python/code/__pycache__
 export fc_component_function_name=python310-$(uname)-$(uname -m)
 s build -t ./python/s.yaml

@@ -23,15 +23,16 @@ category: '构建&部署'
 
 ### 参数解析
 
-| 参数全称    | 参数缩写 | 参数含义                                                                                                                  |
-| ----------- | -------- | ------------------------------------------------------------------------------------------------------------------------- |
-| use-sandbox | 无       | 进入对应 runtime 的 sandbox 容器                                                                                          |
-| custom-env  | 无       | build 时注入的自定义环境变量                                                                                              |
-| custom-args | 无       | 使用默认 build 行为时的附加参数， 比如指定 pypi 或者 npm 源, 需要配合 use-docker 或 use-buildkit 使用， 默认是 use-docker |
-| command     | 无       | 使用自定义命令                                                                                                            |
-| script-file | 无       | 使用自定义脚本                                                                                                            |
-| dockerfile  | f        | 指定构建自定义镜像的文件, 构建 custom-container runtime 的镜像时使用                                                      |
-| context     | 无       | custom-container 构建镜像时上下文                                                                                         |
+| 参数全称      | 参数缩写 | 参数含义                                                                                                                  |
+| ------------- | -------- | ------------------------------------------------------------------------------------------------------------------------- |
+| publish-layer | 无       | 将构建后的产物发布成一个 layer                                                                                            |
+| use-sandbox   | 无       | 进入对应 runtime 的 sandbox 容器                                                                                          |
+| custom-env    | 无       | build 时注入的自定义环境变量                                                                                              |
+| custom-args   | 无       | 使用默认 build 行为时的附加参数， 比如指定 pypi 或者 npm 源, 需要配合 use-docker 或 use-buildkit 使用， 默认是 use-docker |
+| command       | 无       | 使用自定义命令                                                                                                            |
+| script-file   | 无       | 使用自定义脚本                                                                                                            |
+| dockerfile    | f        | 指定构建自定义镜像的文件, 构建 custom-container runtime 的镜像时使用                                                      |
+| context       | 无       | custom-container 构建镜像时上下文                                                                                         |
 
 > 当前命令还支持部分全局参数（例如`-a/--access`, `--debug`, `--help`等），详情可参考 [Serverless Devs 全局参数文档](https://github.com/Serverless-Devs/Serverless-Devs/blob/master/docs/zh/command/readme.md#%E5%85%A8%E5%B1%80%E5%8F%82%E6%95%B0)
 
@@ -63,46 +64,61 @@ category: '构建&部署'
 
 2. `s build`之后， 自动根据 `requirements.txt` 和 `apt-get.list` 下载对应的依赖到本地， 并且和源码一起组成交付物，同时会提示完成依赖包的环境变量配置
 
-```bash
-⌛ Steps for [build] of [test-py-app]
-====================
+   ```bash
+   ⌛ Steps for [build] of [test-py-app]
+   ====================
 
-build-3.0.0: Pulling from aliyunfc/runtime-python3.10
-Digest: sha256:55b362eb353734ee290d6142b60e62f32fb1da32e8ff5a2e0b888ada403a0efd
-Status: Image is up to date for registry.cn-beijing.aliyuncs.com/aliyunfc/runtime-python3.10:build-3.0.0
-registry.cn-beijing.aliyuncs.com/aliyunfc/runtime-python3.10:build-3.0.0
+   build-3.0.0: Pulling from aliyunfc/runtime-python3.10
+   Digest: sha256:55b362eb353734ee290d6142b60e62f32fb1da32e8ff5a2e0b888ada403a0efd
+   Status: Image is up to date for registry.cn-beijing.aliyuncs.com/aliyunfc/runtime-python3.10:build-3.0.0
+   registry.cn-beijing.aliyuncs.com/aliyunfc/runtime-python3.10:build-3.0.0
 
 
-Ign:1 http://mirrors.aliyun.com/debian-archive/debian stretch InRelease
-Get:2 http://mirrors.aliyun.com/debian-archive/debian stretch-backports InRelease [78.5 kB]
-...
+   Ign:1 http://mirrors.aliyun.com/debian-archive/debian stretch InRelease
+   Get:2 http://mirrors.aliyun.com/debian-archive/debian stretch-backports InRelease [78.5 kB]
+   ...
 
-Fetched 329 kB in 0s (1487 kB/s)
-Download complete and in download only mode
-Preparing to unpack jq_1.5+dfsg-1.3_amd64.deb
-Preparing to unpack libjq1_1.5+dfsg-1.3_amd64.deb
-Preparing to unpack libonig4_6.1.3-2+deb9u2_amd64.deb
-Looking in indexes: https://mirrors.aliyun.com/pypi/simple/
-Collecting beautifulsoup4
-  Downloading https://mirrors.aliyun.com/pypi/packages/57/f4/a69c20ee4f660081a7dedb1ac57f29be9378e04edfcb90c526b923d4bebc/beautifulsoup4-4.12.2-py3-none-any.whl (142 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 143.0/143.0 kB 1.7 MB/s eta 0:00:00
-Collecting flask
-  Downloading https://mirrors.aliyun.com/pypi/packages/fd/56/26f0be8adc2b4257df20c1c4260ddd0aa396cf8e75d90ab2f7ff99bc34f9/flask-2.3.3-py3-none-any.whl (96 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 96.1/96.1 kB 1.8 MB/s eta 0:00:00
-...
-Installing collected packages: soupsieve, MarkupSafe, itsdangerous, click, blinker, Werkzeug, Jinja2, beautifulsoup4, flask
-Successfully installed Jinja2-3.1.2 MarkupSafe-2.1.3 Werkzeug-2.3.7 beautifulsoup4-4.12.2 blinker-1.6.2 click-8.1.7 flask-2.3.3 itsdangerous-2.1.2 soupsieve-2.5
+   Fetched 329 kB in 0s (1487 kB/s)
+   Download complete and in download only mode
+   Preparing to unpack jq_1.5+dfsg-1.3_amd64.deb
+   Preparing to unpack libjq1_1.5+dfsg-1.3_amd64.deb
+   Preparing to unpack libonig4_6.1.3-2+deb9u2_amd64.deb
+   Looking in indexes: https://mirrors.aliyun.com/pypi/simple/
+   Collecting beautifulsoup4
+     Downloading https://mirrors.aliyun.com/pypi/packages/57/f4/a69c20ee4f660081a7dedb1ac57f29be9378e04edfcb90c526b923d4bebc/beautifulsoup4-4.12.2-py3-none-any.whl (142 kB)
+       ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 143.0/143.0 kB 1.7 MB/s eta 0:00:00
+   Collecting flask
+     Downloading https://mirrors.aliyun.com/pypi/packages/fd/56/26f0be8adc2b4257df20c1c4260ddd0aa396cf8e75d90ab2f7ff99bc34f9/flask-2.3.3-py3-none-any.whl (96 kB)
+       ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 96.1/96.1 kB 1.8 MB/s eta 0:00:00
+   ...
+   Installing collected packages: soupsieve, MarkupSafe, itsdangerous, click, blinker, Werkzeug, Jinja2, beautifulsoup4, flask
+   Successfully installed Jinja2-3.1.2 MarkupSafe-2.1.3 Werkzeug-2.3.7 beautifulsoup4-4.12.2 blinker-1.6.2 click-8.1.7 flask-2.3.3 itsdangerous-2.1.2 soupsieve-2.5
 
-[2023-09-20 17:16:19][INFO][fcDemo] You need to add a new configuration env configuration dependency in yaml to take effect. The configuration is as follows:
-environmentVariables:
-  LD_LIBRARY_PATH: /code/apt-archives/usr/local/lib:/code/apt-archives/usr/lib:/code/apt-archives/usr/lib/x86_64-linux-gnu:/code/apt-archives/usr/lib64:/code/apt-archives/lib:/code/apt-archives/lib/x86_64-linux-gnu:/code
-  PYTHONPATH: /code/3rd-packages
-  PATH: /code/apt-archives/usr/bin:/code/3rd-packages/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/code:/code/bin:/opt:/opt/bin
+   [2023-09-20 17:16:19][INFO][fcDemo] You need to add a new configuration env configuration dependency in yaml to take effect. The configuration is as follows:
+   environmentVariables:
+     LD_LIBRARY_PATH: /code/apt-archives/usr/local/lib:/code/apt-archives/usr/lib:/code/apt-archives/usr/lib/x86_64-linux-gnu:/code/apt-archives/usr/lib64:/code/apt-archives/lib:/code/apt-archives/lib/x86_64-linux-gnu:/code
+     PYTHONPATH: /code/python
+     PATH: /code/apt-archives/usr/bin:/code/python/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/code:/code/bin:/opt:/opt/bin
 
-✔ [fcDemo] completed (27.54s)
-```
+   ✔ [fcDemo] completed (27.54s)
+   ```
 
 3. 按照提示在 s.yaml 中完成依赖包的环境变量配置 [s.yaml#L19-L22](https://github.com/devsapp/fc3/tree/master/__tests__/e2e/python/s.yaml#L19-L22)， 然后执行 `s deploy` 将整个交付物 zip 打包， 创建函数
+
+4. 如果您觉的函数代码包过大， 影响您的部署效率， 您可以将您的构建的第三方包直接发布成一个层， 然后在 s.yaml 中引入这个层即可
+
+   只需执行 `s build --publish-layer`, 您可以在输出日志看到如下提示:
+
+   ```
+   environmentVariables:
+     LD_LIBRARY_PATH: /opt/apt-archives/usr/local/lib:/opt/apt-archives/usr/lib:/opt/apt-archives/usr/lib/x86_64-linux-gnu:/opt/apt-archives/usr/lib64:/opt/apt-archives/lib:/opt/apt-archives/lib/x86_64-linux-gnu:/opt
+     PYTHONPATH: /opt/python
+     PATH: /opt/apt-archives/usr/bin:/opt/python/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/code:/code/bin:/opt:/opt/bin
+   layers:
+     - acs:fc:cn-huhehaote:1431999136518149:layers/fc3-event-python310-layer/versions/1
+   ```
+
+   同时在您 yaml 指定的 code 目录下面增加了 .fcignore 文件，这样您的函数代码包就可以大大减小，提高部署效率，毕竟第三方依赖的构建变动是不频繁的。
 
 > **Tips:**
 >

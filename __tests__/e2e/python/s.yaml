@@ -2,7 +2,7 @@ edition: 3.0.0 #  命令行YAML规范版本，遵循语义化版本（Semantic V
 name: test-py-app #  项目名称
 access: quanxi
 
-vars: 
+vars:
   region: ${env('REGION', 'cn-huhehaote')}
 
 resources:
@@ -18,5 +18,5 @@ resources:
       timeout: 30
       environmentVariables:
         LD_LIBRARY_PATH: /code/apt-archives/usr/local/lib:/code/apt-archives/usr/lib:/code/apt-archives/usr/lib/x86_64-linux-gnu:/code/apt-archives/usr/lib64:/code/apt-archives/lib:/code/apt-archives/lib/x86_64-linux-gnu:/code
-        PYTHONPATH: /code/3rd-packages
-        PATH: /code/apt-archives/usr/bin:/code/3rd-packages/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/code:/code/bin:/opt:/opt/bin
+        PYTHONPATH: /code/python
+        PATH: /code/apt-archives/usr/bin:/code/python/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/code:/code/bin:/opt:/opt/bin

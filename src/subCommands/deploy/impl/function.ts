@@ -18,7 +18,7 @@ import FC, { GetApiType } from '../../../resources/fc';
 import VPC_NAS from '../../../resources/vpc-nas';
 import Base from './base';
 import { ICredentials } from '@serverless-devs/component-interface';
-import { calculateCRC64, getFileSize } from '../../../utils/index';
+import { calculateCRC64, getFileSize } from '../../../utils';
 
 type IType = 'code' | 'config' | boolean;
 interface IOpts {

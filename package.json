@@ -11,7 +11,6 @@
     "start": "npm run watch",
     "build": "ncc build src/index.ts -m -o dist",
     "format": "prettier --write src",
-    "prepare": "husky install",
     "publish": "rimraf dist && npm i && npm run build && s registry publish",
     "lint": "f2elint scan",
     "fix": "f2elint fix"
@@ -53,16 +52,9 @@
     "@types/node": "^20.8.10",
     "@vercel/ncc": "^0.38.1",
     "f2elint": "^2.2.1",
-    "husky": "^8.0.3",
     "prettier": "^3.0.3",
     "ts-node": "^10.9.1",
     "typescript": "^4.4.2",
     "typescript-json-schema": "^0.62.0"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "f2elint commit-file-scan",
-      "commit-msg": "f2elint commit-msg-scan"
-    }
   }
 }

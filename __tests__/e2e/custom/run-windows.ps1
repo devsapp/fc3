@@ -21,7 +21,7 @@ s deploy -y -t ./python/s.yaml
 s invoke -e '{"hello":"fc custom python"}' -t ./python/s.yaml
 s info -y -t ./python/s.yaml
 s remove -y -t ./python/s.yaml
-Remove-Item -Recurse -Force ./python/code/3rd-packages -ErrorAction SilentlyContinue
+Remove-Item -Recurse -Force ./python/code/python -ErrorAction SilentlyContinue
 Remove-Item -Recurse -Force ./python/code/__pycache__ -ErrorAction SilentlyContinue
 
 Write-Host "test custom java(springboot) runtime ..."
