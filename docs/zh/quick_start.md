@@ -25,13 +25,13 @@ category: '概览'
 - 第二步：安装 Serverless Devs 开发者工具；
 
   ```shell script
-  npm install @serverless-devs/s3 -g
+  npm install @serverless-devs/s -g
   ```
 
 - 第三步：可以通过`s -v`判断工具是否安装成功，如果安装成功可以看到相对应的版本信息，例如：
 
   ```shell script
-  @serverless-devs/s3: 0.0.10, s-home: /Users/xiliu/.s, darwin-x64, node-v16.16.0
+  @serverless-devs/s: 3.0.0, s-home: /root/.s, linux-x64, node-v16.13.1
   ```
 
 ## 密钥配置

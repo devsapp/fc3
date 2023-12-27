@@ -52,3 +52,7 @@ __tests__/e2e/custom/go/code/target
 __tests__/e2e/dotnetcore/HelloFcApp/bin/Release/netcoreapp3.1
 __tests__/e2e/dotnetcore/HelloFcApp/obj
 __tests__/e2e/dotnetcore/HelloFcApp/target
+__tests__/e2e/custom.debian10/python/code/python
+__tests__/e2e/custom/python/code/python
+__tests__/e2e/python/code/python
+__tests__/e2e/python/code/apt-archives
