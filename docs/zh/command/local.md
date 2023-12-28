@@ -22,7 +22,7 @@ category: '调用&调试'
   - [附录](#附录)
     - [默认断点调试参数](#默认断点调试参数)
 
-> ⚠️ 注意：该命令对 Docker 有所依赖，所以在使用该命令时，需要先进行 [Docker 安装](https://docs.docker.com/get-started/#download-and-install-docker)。
+> ⚠️ 注意：该命令对 Docker 有所依赖，所以在使用该命令时，需要先进行 [Docker 安装](https://docs.docker.com/get-docker/)。
 
 ## 命令解析
 
