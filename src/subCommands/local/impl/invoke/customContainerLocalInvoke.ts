@@ -55,7 +55,9 @@ export class CustomContainerLocalInvoke extends BaseLocalInvoke {
 
     const image = await this.getRuntimeRunImage();
     // const envStr = await this.getEnvString();
-    let dockerCmdStr = `docker run --name ${this._dockerName} -d --platform linux/amd64 --rm -p ${port}:${this.getCaPort()} --memory=${this.getMemorySize()}m ${image}`;
+    let dockerCmdStr = `docker run --name ${
+      this._dockerName
+    } -d --platform linux/amd64 --rm -p ${port}:${this.getCaPort()} --memory=${this.getMemorySize()}m ${image}`;
     if (!_.isEmpty(this.getBootStrap())) {
       dockerCmdStr += ` ${this.getBootStrap()}`;
     }
@@ -77,7 +79,8 @@ export class CustomContainerLocalInvoke extends BaseLocalInvoke {
     //   logger.debug(`stdout: ${out}`);
     //   process.exit();
     // });
-    await super.runInvoke();
+    const cmdStr = await this.getLocalInvokeCmdStr();
+    await runCommand(cmdStr, runCommand.showStdout.ignore);
     await this.checkServerReady(1000, 20);
 
     const startTimeStamp = new Date().getTime();
@@ -111,25 +114,40 @@ export class CustomContainerLocalInvoke extends BaseLocalInvoke {
     );
     const endTimeStamp = new Date().getTime();
     const billedDuration = endTimeStamp - startTimeStamp;
-    
-    await runCommand(`docker logs ${this._dockerName}`, runCommand.showStdout.append);
+
+    await runCommand(`docker logs ${this._dockerName}`, runCommand.showStdout.pipe);
     console.log(result.toString());
 
     let maxMemoryUsed = this.getMemorySize();
-    try{
-      await runCommand(`docker exec ${this._dockerName} cat /sys/fs/cgroup/cgroup.controllers`, runCommand.showStdout.return);
-      maxMemoryUsed = Number(await runCommand(`docker exec ${this._dockerName} cat /sys/fs/cgroup/memory.current`, runCommand.showStdout.return))/1024/1024;
-    }catch(e){
-      maxMemoryUsed = Number(await runCommand(`docker exec ${this._dockerName} cat /sys/fs/cgroup/memory/memory.usage_in_bytes`, runCommand.showStdout.return))/1024/1024;
+    try {
+      maxMemoryUsed =
+        parseInt(
+          execSync(`docker exec ${this._dockerName} cat /sys/fs/cgroup/memory.current`).toString(),
+          10,
+        ) /
+        1024 /
+        1024;
+    } catch (e) {
+      maxMemoryUsed =
+        parseInt(
+          execSync(
+            `docker exec ${this._dockerName} cat /sys/fs/cgroup/memory/memory.usage_in_bytes`,
+          ).toString(),
+          10,
+        ) /
+        1024 /
+        1024;
     }
     maxMemoryUsed = Math.ceil(maxMemoryUsed);
 
-    // todo 目前无法获取到max memory used信息，暂不打印，以后可以补上
     const abstract = `RequestId: ${requestId}   Billed Duration: ${billedDuration} ms    Memory Size: ${this.getMemorySize()} MB    Max Memory Used: ${maxMemoryUsed} MB`;
     console.log(`${chalk.green(abstract)}\n`);
     // kill container
-    const out = execSync(`docker kill ${this._dockerName}`);
-    logger.debug(`stdout: ${out}`);
+    try {
+      execSync(`docker kill ${this._dockerName}`);
+    } catch (e) {
+      logger.error(`fail to docker kill ${this._dockerName}, error=${e}`);
+    }
     process.exit();
   }
 

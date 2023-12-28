@@ -26,7 +26,7 @@ export class BaseLocalStart extends BaseLocal {
 
   async runStart() {
     const cmdStr = await this.getLocalStartCmdStr();
-    await runCommand(cmdStr, runCommand.showStdout.append);
+    await runCommand(cmdStr, runCommand.showStdout.pipe);
   }
 
   async getLocalStartCmdStr(): Promise<string> {

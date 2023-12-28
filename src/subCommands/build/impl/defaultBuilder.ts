@@ -89,7 +89,7 @@ export class DefaultBuilder extends Builder {
       if (this.opts['script-file']) {
         cmdStr = `bash ${this.opts['script-file']}`;
       }
-      await runCommand(cmdStr, runCommand.showStdout.append, shellScript, buildDir);
+      await runCommand(cmdStr, runCommand.showStdout.pipe, shellScript, buildDir);
     } else {
       let dockerCmdStr = `docker run --platform linux/amd64 --rm ${this.getCustomEnvStr()} -v ${buildDir}:/code ${await this.getRuntimeBuildImage()} bash -c`;
       if (this.opts['script-file']) {
@@ -98,7 +98,7 @@ export class DefaultBuilder extends Builder {
         }`;
       }
       logger.debug(`shellScript = ${shellScript}`);
-      await runCommand(dockerCmdStr, runCommand.showStdout.append, shellScript, buildDir);
+      await runCommand(dockerCmdStr, runCommand.showStdout.pipe, shellScript, buildDir);
     }
 
     if (this.opts['publish-layer']) {

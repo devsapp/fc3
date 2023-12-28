@@ -3,9 +3,8 @@ import logger from '../logger';
 
 enum COMMAND_STDIO {
   inherit = 'inherit',
-  append = 'append',
-  return = 'return'
-  // null = 'null',
+  pipe = 'pipe',
+  ignore = 'ignore',
 }
 
 async function runCommand(
@@ -29,45 +28,35 @@ async function runCommand(
   }
   logger.debug(`runCommand args = ${JSON.stringify(args)}`);
 
-  if(showStdout !== COMMAND_STDIO.return){
-    console.log(''); // 独立出来一个空行，是日志看起来有一点结构行
-  }
+  console.log(''); // 独立出来一个空行，是日志看起来有一点结构行
 
-  const isInherit = showStdout === COMMAND_STDIO.inherit;
-  return new Promise<any>((resolve, reject) => {
+  return new Promise<void>((resolve, reject) => {
     const options = {
       shell: true,
-      stdio: (isInherit ? 'inherit' : 'pipe') as StdioOptions,
+      stdio: showStdout as StdioOptions,
       cwd,
     };
     const dProcess = spawn(cmd, args, options);
 
-    let result = '';
-
-    if (!isInherit) {
+    if (showStdout === COMMAND_STDIO.pipe) {
       dProcess.stdout.on('data', (data) => {
-        if (showStdout === COMMAND_STDIO.append) {
+        if (showStdout === COMMAND_STDIO.pipe) {
           logger.append(data.toString());
-        }
-        if(showStdout === COMMAND_STDIO.return){
-          result = data.toString();
         }
       });
 
       dProcess.stderr.on('data', (data) => {
         const warnErrorMsg = data.toString();
-        if (showStdout === COMMAND_STDIO.append) {
+        if (showStdout === COMMAND_STDIO.pipe) {
           logger.append(warnErrorMsg);
         }
       });
     }
 
     dProcess.on('close', (code) => {
-      if(showStdout !== COMMAND_STDIO.return){
-        console.log(''); // 独立出来一个空行，是日志看起来有一点结构行
-      }
+      console.log(''); // 独立出来一个空行，是日志看起来有一点结构行
       if (code === 0) {
-        resolve(result);
+        resolve();
       } else {
         reject(new Error(`command failed with code ${code}`));
       }

@@ -27,7 +27,7 @@ export class BaseLocalInvoke extends BaseLocal {
 
   async runInvoke() {
     const cmdStr = await this.getLocalInvokeCmdStr();
-    await runCommand(cmdStr, runCommand.showStdout.append);
+    await runCommand(cmdStr, runCommand.showStdout.pipe);
   }
 
   getEventString(): string {
