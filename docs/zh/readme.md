@@ -46,7 +46,7 @@ category: '概览'
 # 快速开始
 
 🙋 三步即可上手 函数计算（fc3）组件的使用：
-❶ [安装 Serverless Devs 开发者工具](https://github.com/Serverless-Devs/Serverless-Devs/blob/master/docs/zh/install.md) ：`npm install -g @serverless-devs/s`；
+❶ [安装 Serverless Devs 开发者工具](https://docs.serverless-devs.com/serverless-devs/quick_start#%E5%B7%A5%E5%85%B7%E5%AE%89%E8%A3%85) ：`npm install -g @serverless-devs/s`；
 
 > 安装完成还需要配置密钥，可以参考[密钥配置文档](config.md)
 
