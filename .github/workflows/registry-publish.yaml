@@ -1,0 +1,28 @@
+name: publish package to registry
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: 16
+          registry-url: https://registry.npmjs.org/
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y git make jq curl wget
+      - name: install s
+        run: |
+          npm i @serverless-devs/s@v3 -g
+      - name: s registry login
+        run: |
+          s registry login --token ${{ secrets.alibaba_registry_v3_publish_token }}
+      - name: release prod
+        run: |
+          make release-prod
