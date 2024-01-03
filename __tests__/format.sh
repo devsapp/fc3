@@ -15,7 +15,7 @@ function read_dir(){
     else
       gofile=$1"/"$file
       if [[ "$gofile" == *go ]]; then
-          echo "$gofile std formating .."
+          echo "$gofile std formatting .."
           go fmt $gofile
           golint $gofile
           goimports -w $gofile

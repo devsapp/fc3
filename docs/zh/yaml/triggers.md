@@ -648,7 +648,7 @@ resource "alicloud_event_bridge_service_linked_role" "service_linked_role" {
 | ConsumerGroup   | True  | String | 消息队列 Kafka 版的资源组 ID                                                                       |
 | InstanceId      | True  | String | 消息队列 Kafka 版的实例 ID                                                                         |
 | Network         | False | String | 所用网络类型，可选值有 PublicNetwork 以及 Default，前者表示使用自建 vpc 网络，后者表示使用默认公网 |
-| OffsetReset     | True  | String | 消息的消费位点，可选值有 lastest 和 earliest，分别表示最新位点以及最早位点                         |
+| OffsetReset     | True  | String | 消息的消费位点，可选值有 latest 和 earliest，分别表示最新位点以及最早位点                          |
 | RegionId        | False | String | 消息队列 Kafka 版的实例所属地域                                                                    |
 | SecurityGroupId | False | String | 所用 vpc 网络的安全组 ID，网络类型为 PublicNetwork 时配置                                          |
 | Topic           | True  | String | 消息队列 Kafka 版的 Topic 名称                                                                     |

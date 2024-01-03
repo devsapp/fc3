@@ -132,7 +132,7 @@ export abstract class Builder {
     this._checkAcreeInstanceID(imageName, acrInstanceID);
     const credential = await this.getCredentials();
     await mockDockerConfigFile(this.getRegion(), imageName, credential, acrInstanceID);
-    logger.info('docker login successed with cr_tmp user!');
+    logger.info('docker login succeeded with cr_tmp user!');
   }
 
   existManifest(fileName: string): boolean {
