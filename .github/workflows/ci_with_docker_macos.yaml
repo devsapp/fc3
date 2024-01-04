@@ -71,6 +71,6 @@ jobs:
       - name: test custom
         run: |
           cd __tests__/e2e/custom && ./run && cd -
-      # - name: test custom container
-      #   run: |
-      #     cd custom-container && ./run && cd -
+      - name: test custom container
+        run: |
+          cd custom-container && ./run && cd -

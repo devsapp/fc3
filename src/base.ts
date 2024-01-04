@@ -5,7 +5,11 @@ import _ from 'lodash';
 import { IInputs, INasConfig } from './interface';
 // eslint-disable-next-line @typescript-eslint/no-shadow
 import log from './logger';
-import { FUNCTION_CUSTOM_DEFAULT_CONFIG, FUNCTION_DEFAULT_CONFIG } from './default/config';
+import {
+  FUNCTION_CUSTOM_DEFAULT_CONFIG,
+  FUNCTION_DEFAULT_CONFIG,
+  IMAGE_ACCELERATION_REGION,
+} from './default/config';
 import path from 'path';
 import commandsHelp from './commands-help';
 import FC from './resources/fc';
@@ -51,6 +55,14 @@ export default class Base {
       inputs.props = _.defaults(inputs.props, FUNCTION_DEFAULT_CONFIG);
     }
 
+    if (
+      FC.isCustomContainerRuntime(inputs.props.runtime) &&
+      !IMAGE_ACCELERATION_REGION.includes(inputs.props.region)
+    ) {
+      throw new Error(
+        `The region ${inputs.props.region} does not support custom container image acceleration, please use another region, details: https://help.aliyun.com/zh/fc/product-overview/region-availability`,
+      );
+    }
     // 如果有 nasConfig， 每个挂载点的enableTLS 默认为 false
     const nasConfig = _.get(inputs, 'props.nasConfig');
     if (nasConfig && !isAuto(nasConfig)) {

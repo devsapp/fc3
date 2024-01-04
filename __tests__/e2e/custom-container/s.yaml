@@ -2,8 +2,8 @@ edition: 3.0.0 #  命令行YAML规范版本，遵循语义化版本（Semantic V
 name: framework #  项目名称
 access: quanxi
 
-vars: 
-  region: ${env('REGION', 'cn-huhehaote')}
+vars:
+  region: ${env('REGION', 'cn-hangzhou')}
 
 resources:
   fcDemo: # 业务名称/模块名称
@@ -18,7 +18,7 @@ resources:
       code: ./code
       instanceConcurrency: 4
       customContainerConfig:
-        image: 'registry.${vars.region}.aliyuncs.com/fc-demo2/node-express:ciV1'
+        image: 'registry.${vars.region}.aliyuncs.com/fc-demo2/test-xiliu:ciExpressV1'
         entrypoint:
           - node
         command:

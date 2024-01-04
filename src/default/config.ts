@@ -47,6 +47,19 @@ export const FC_TRIGGER_DEFAULT_CONFIG = {
   description: '',
 };
 
+export const IMAGE_ACCELERATION_REGION = [
+  'cn-hangzhou',
+  'cn-shanghai',
+  'cn-beijing',
+  'cn-zhangjiakou',
+  'cn-shenzhen',
+  'cn-hongkong',
+  'ap-southeast-1',
+  'ap-northeast-1',
+  'us-east-1',
+  'us-west-1',
+];
+
 export const FC_CLIENT_CONNECT_TIMEOUT: number =
   parseInt(process.env.FC_CLIENT_CONNECT_TIMEOUT || '5', 10) * 1000;
 

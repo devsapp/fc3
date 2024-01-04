@@ -138,6 +138,13 @@ export default class Sync {
       functionConfig.role = role.toLowerCase();
     }
 
+    if (functionConfig.customContainerConfig) {
+      _.unset(functionConfig.customContainerConfig, 'resolvedImageUri');
+    }
+
+    _.unset(functionConfig, 'lastUpdateStatus');
+    _.unset(functionConfig, 'state');
+
     let props: any = { region: this.region };
     props = Object.assign(props, functionConfig);
     if (!_.isEmpty(triggers)) {
