@@ -31,7 +31,7 @@ category: '概览'
 
 ## 如何声明/部署多个函数
 
-请参考[s.yaml 中 next-function](https://github.com/devsapp/start-fc/blob/V3/fc-node/src/s.yaml#L52-L66)
+请参考[s.yaml 中 next-function](https://github.com/devsapp/start-fc/blob/V3/fc-node/hello-world/src/s.yaml#L52-L66)
 
 ## 如何配置函数的自定义域名
 
