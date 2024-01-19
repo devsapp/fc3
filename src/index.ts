@@ -114,8 +114,14 @@ export default class Fc extends Base {
 
     const runtime = _.get(inputs, 'props.runtime');
     if (FC.isCustomContainerRuntime(runtime)) {
-      const dockerBuilder = BuilderFactory.getBuilder(BuildType.ImageDocker, inputs);
-      await dockerBuilder.build();
+      if (_.isEqual(process.env.enableBuildkitServer, '1')) {
+        // buildKit only YunXiao
+        const buildKitBuilder = BuilderFactory.getBuilder(BuildType.ImageBuildKit, inputs);
+        await buildKitBuilder.build();
+      } else {
+        const dockerBuilder = BuilderFactory.getBuilder(BuildType.ImageDocker, inputs);
+        await dockerBuilder.build();
+      }
     } else {
       const defaultBuilder = BuilderFactory.getBuilder(BuildType.Default, inputs);
       await defaultBuilder.build();

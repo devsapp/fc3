@@ -197,7 +197,7 @@ PATH=/code/apt-archives/usr/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bi
 
 ## apt-get.list
 
-此文件顾名思义，就是声明可以使用 apt-get 命令安装但是函数计算没有系统包。
+此文件顾名思义，就是声明可以使用 apt-get 命令安装函数计算 runtime 环境没有的系统包。
 
 使用方式是在 code 目录的根目录下，创建一个 apt-get.list 的文件，文件内容如下所示。然后部署之前执行 `s build` 即可。
 

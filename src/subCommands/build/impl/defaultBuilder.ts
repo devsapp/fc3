@@ -84,7 +84,7 @@ export class DefaultBuilder extends Builder {
       shellScript = `"${tasks.join(' && ')}"`;
     }
 
-    if (this.isAppCenter()) {
+    if (this.isAppCenter() || this.isYunXiao()) {
       let cmdStr = `bash -c`;
       if (this.opts['script-file']) {
         cmdStr = `bash ${this.opts['script-file']}`;
@@ -199,7 +199,7 @@ vendor`;
 
     const toZipDir = tmpCodeDir;
 
-    const layerName = `${this.getFunctionName()}-layer`;
+    const layerName = `${this.getFunctionName()}-layer`.replace(/\$/g, '-');
     const compatibleRuntimeList: string[] = [];
     compatibleRuntimeList.push(this.getRuntime());
 
@@ -301,7 +301,7 @@ vendor`;
 
   afterBuild() {
     logger.debug('afterBuild ...');
-    const tipEnvs: string[] = [];
+    let tipEnvs: string[] = [];
 
     const libPath = this._afterTipLibPath();
     if (libPath) {
@@ -338,6 +338,13 @@ vendor`;
         'You need to add a new configuration env configuration dependency in yaml to take effect. The configuration is as follows:',
       );
       if (!_.isEmpty(tipEnvs)) {
+        const envs = this.getEnv();
+        for (let [key, value] of Object.entries(envs)) {
+          if (key in tipEnvs) {
+            continue;
+          }
+          tipEnvs.push(`${key}: ${value}`);
+        }
         logger.write(
           chalk.yellow(`environmentVariables:
   ${tipEnvs.join('\n  ')}
@@ -345,9 +352,20 @@ vendor`;
         );
       }
       if (tLayer) {
+        const genLayerArnWithoutVersion = this.layer.layerVersionArn.split('/versions/')[0];
+        const layers = [];
+        const ls = this.getProps()?.layers || [];
+        for (let i = 0; i < ls.length; i++) {
+          const layerArnWithoutVersion = ls[i].split('/versions/')[0];
+          if (genLayerArnWithoutVersion == layerArnWithoutVersion) {
+            continue;
+          }
+          layers.push(ls[i]);
+        }
+        layers.push(this.layer.layerVersionArn);
         logger.write(
           chalk.yellow(`layers:
-  - ${this.layer.layerVersionArn}
+  - ${layers.join('\n  - ')}
 `),
         );
       }
@@ -464,7 +482,10 @@ vendor`;
             '/opt',
           ];
         }
-        return `LD_LIBRARY_PATH: ${libPaths.join(':')}`;
+        const libPathsStr = `${libPaths.join(':')}`;
+        if (!LD_LIBRARY_PATH.includes(libPathsStr)) {
+          return `LD_LIBRARY_PATH: ${libPathsStr}`;
+        }
       }
     }
     return '';

@@ -68,13 +68,14 @@ export default class Base {
     if (nasConfig && !isAuto(nasConfig)) {
       const nasConf = nasConfig as INasConfig;
       const { mountPoints } = nasConf;
-      for (let i = 0; i < mountPoints.length; i++) {
-        if (_.get(mountPoints[i], 'enableTLS') === undefined) {
-          _.set(mountPoints[i], 'enableTLS', false);
+      if (!_.isEmpty(mountPoints)) {
+        for (let i = 0; i < mountPoints.length; i++) {
+          if (_.get(mountPoints[i], 'enableTLS') === undefined) {
+            _.set(mountPoints[i], 'enableTLS', false);
+          }
         }
       }
     }
-
     const triggers = _.cloneDeep(_.get(inputs, 'props.triggers', []));
     for (let i = 0; i < triggers.length; i++) {
       const trigger = triggers[i];

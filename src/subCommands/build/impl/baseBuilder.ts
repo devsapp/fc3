@@ -148,6 +148,10 @@ export abstract class Builder {
     return process.env.BUILD_IMAGE_ENV === 'fc-backend';
   }
 
+  protected isYunXiao(): boolean {
+    return process.env.ENGINE_PIPELINE_PORTAL_URL === 'https://flow.aliyun.com';
+  }
+
   protected isPythonLanguage() {
     // 验证是不是 python
     let isPython = this.getRuntime().startsWith('python');
