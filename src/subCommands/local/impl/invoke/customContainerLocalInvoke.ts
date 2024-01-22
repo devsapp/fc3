@@ -7,13 +7,10 @@ import { execSync } from 'child_process';
 import chalk from 'chalk';
 import { runCommand } from '../../../../utils';
 
-const httpx = require('httpx');
-// import axios from 'axios'
+import httpx from 'httpx';
 
 export class CustomContainerLocalInvoke extends BaseLocalInvoke {
   private _port: Number;
-  private _requestID: string;
-  private _dockerName: string;
   getDebugArgs(): string {
     if (_.isFinite(this.getDebugPort())) {
       // TODO 参数支持自定义调试参数实现断点调试
@@ -50,14 +47,9 @@ export class CustomContainerLocalInvoke extends BaseLocalInvoke {
     // const msg = `You can use curl or Postman to make an HTTP request to 127.0.0.1:${port} to test the function.for example:`;
     // console.log('\x1b[33m%s\x1b[0m', msg);
     this._port = port;
-    this._requestID = uuidV4();
-    this._dockerName = `fc-docker-${this._requestID}`;
-
     const image = await this.getRuntimeRunImage();
     // const envStr = await this.getEnvString();
-    let dockerCmdStr = `docker run --name ${
-      this._dockerName
-    } -d --platform linux/amd64 --rm -p ${port}:${this.getCaPort()} --memory=${this.getMemorySize()}m ${image}`;
+    let dockerCmdStr = `docker run --name ${this.getContainerName()} -d --platform linux/amd64 --rm -p ${port}:${this.getCaPort()} --memory=${this.getMemorySize()}m ${image}`;
     if (!_.isEmpty(this.getBootStrap())) {
       dockerCmdStr += ` ${this.getBootStrap()}`;
     }
@@ -72,13 +64,16 @@ export class CustomContainerLocalInvoke extends BaseLocalInvoke {
   }
 
   async runInvoke() {
-    // const image = await this.getRuntimeRunImage();
-    // process.on('DEVS:SIGINT', () => {
-    //   console.log('\nDEVS:SIGINT, stop container');
-    //   const out = execSync(`docker ps -a | grep ${image} | awk '{print $1}' | xargs docker kill`);
-    //   logger.debug(`stdout: ${out}`);
-    //   process.exit();
-    // });
+    process.on('DEVS:SIGINT', () => {
+      console.log('\nDEVS:SIGINT, stop container');
+      // kill container
+      try {
+        execSync(`docker kill ${this.getContainerName()}`);
+      } catch (e) {
+        logger.error(`fail to docker kill ${this.getContainerName()}, error=${e}`);
+      }
+      process.exit();
+    });
     const cmdStr = await this.getLocalInvokeCmdStr();
     await runCommand(cmdStr, runCommand.showStdout.ignore);
     await this.checkServerReady(1000, 20);
@@ -115,14 +110,16 @@ export class CustomContainerLocalInvoke extends BaseLocalInvoke {
     const endTimeStamp = new Date().getTime();
     const billedDuration = endTimeStamp - startTimeStamp;
 
-    await runCommand(`docker logs ${this._dockerName}`, runCommand.showStdout.pipe);
+    await runCommand(`docker logs ${this.getContainerName()}`, runCommand.showStdout.pipe);
     console.log(result.toString());
 
     let maxMemoryUsed = this.getMemorySize();
     try {
       maxMemoryUsed =
         parseInt(
-          execSync(`docker exec ${this._dockerName} cat /sys/fs/cgroup/memory.current`).toString(),
+          execSync(
+            `docker exec ${this.getContainerName()} cat /sys/fs/cgroup/memory.current`,
+          ).toString(),
           10,
         ) /
         1024 /
@@ -131,7 +128,7 @@ export class CustomContainerLocalInvoke extends BaseLocalInvoke {
       maxMemoryUsed =
         parseInt(
           execSync(
-            `docker exec ${this._dockerName} cat /sys/fs/cgroup/memory/memory.usage_in_bytes`,
+            `docker exec ${this.getContainerName()} cat /sys/fs/cgroup/memory/memory.usage_in_bytes`,
           ).toString(),
           10,
         ) /
@@ -144,9 +141,9 @@ export class CustomContainerLocalInvoke extends BaseLocalInvoke {
     console.log(`${chalk.green(abstract)}\n`);
     // kill container
     try {
-      execSync(`docker kill ${this._dockerName}`);
+      execSync(`docker kill ${this.getContainerName()}`);
     } catch (e) {
-      logger.error(`fail to docker kill ${this._dockerName}, error=${e}`);
+      logger.error(`fail to docker kill ${this.getContainerName()}, error=${e}`);
     }
     process.exit();
   }
@@ -158,7 +155,7 @@ export class CustomContainerLocalInvoke extends BaseLocalInvoke {
       headers,
       data: writeData,
     });
-    const responseBody = await httpx.read(response);
+    const responseBody = await httpx.read(response, 'utf8');
     return responseBody;
   }
 

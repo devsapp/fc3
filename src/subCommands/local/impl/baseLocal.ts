@@ -25,6 +25,7 @@ export class BaseLocal {
   protected defaultDebugArgs: string;
   protected _argsData: any;
   protected unzippedCodeDir?: string;
+  private _dockerName: string;
   private baseDir: string;
 
   constructor(readonly inputs: IInputs) {
@@ -36,6 +37,7 @@ export class BaseLocal {
     });
     logger.debug(`argsData ====> ${JSON.stringify(argsData)}`);
     this._argsData = argsData;
+    this._dockerName = uuidV4();
   }
 
   getFunctionTriggers(): any {
@@ -88,6 +90,10 @@ export class BaseLocal {
 
   getRegion(): string {
     return this.inputs.props.region;
+  }
+
+  getContainerName(): string {
+    return this._dockerName;
   }
 
   async getCredentials(): Promise<ICredentials> {
