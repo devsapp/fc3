@@ -21,6 +21,8 @@ import { runCommand } from '../../../utils';
 import FC from '../../../resources/fc';
 import { execSync } from 'child_process';
 
+const httpx = require('httpx');
+
 export class BaseLocal {
   protected defaultDebugArgs: string;
   protected _argsData: any;
@@ -38,6 +40,17 @@ export class BaseLocal {
     logger.debug(`argsData ====> ${JSON.stringify(argsData)}`);
     this._argsData = argsData;
     this._dockerName = uuidV4();
+
+    process.on('DEVS:SIGINT', () => {
+      console.log('\nDEVS:SIGINT, stop container');
+      // kill container
+      try {
+        execSync(`docker kill ${this.getContainerName()}`);
+      } catch (e) {
+        logger.warn(`fail to docker kill ${this.getContainerName()}, error=${e}`);
+      }
+      process.exit();
+    });
   }
 
   getFunctionTriggers(): any {
@@ -106,6 +119,11 @@ export class BaseLocal {
 
   isCustomContainerRuntime(): boolean {
     return this.inputs.props.runtime === 'custom-container';
+  }
+
+  // 判断是否开启rie的debug，只要使用了--debug或断点调试就开启。此时，不再打印result header中的日志。
+  isDebug(): boolean {
+    return !_.isEmpty(this.getDebugArgs());
   }
 
   async getCodeUri(): Promise<string> {
@@ -209,21 +227,25 @@ export class BaseLocal {
 
   async getEnvString(): Promise<string> {
     const credentials = await this.getCredentials();
-    // eslint-disable-next-line prefer-const
-    let sysEnvs: any = {
-      FC_ACCOUNT_ID: credentials.AccountID || '',
-      FC_ACCESS_KEY_ID: credentials.AccessKeyID || '',
-      FC_ACCESS_KEY_SECRET: credentials.AccessKeySecret || '',
-      FC_SECURITY_TOKEN: credentials.SecurityToken || '',
-      FC_HANDLER: this.getHandler(),
+
+    const sysEnvs: any = {
+      FC_RUNTIME: this.getRuntime(),
+      FC_RIE_DEBUG: 'false',
       FC_TIMEOUT: this.getTimeout(),
-      FC_MEMORY_SIZE: this.getMemorySize(),
+      FC_FUNC_CODE_PATH: '/code/',
+      ALIBABA_CLOUD_ACCESS_KEY_ID: credentials.AccessKeyID || '',
+      ALIBABA_CLOUD_ACCESS_KEY_SECRET: credentials.AccessKeySecret || '',
+      ALIBABA_CLOUD_SECURITY_TOKEN: credentials.SecurityToken || '',
+      FC_ACCOUNT_ID: credentials.AccountID || '',
+      FC_FUNCTION_HANDLER: this.getHandler(),
+      FC_FUNCTION_MEMORY_SIZE: this.getMemorySize(),
       FC_FUNCTION_NAME: this.getFunctionName(),
       FC_REGION: this.getRegion(),
-      FC_SERVER_PORT: this.getCaPort(),
+      FC_CUSTOM_LISTEN_PORT: this.getCaPort(),
+      FC_INSTANCE_ID: uuidV4(),
     };
     if (!_.isEmpty(this.getInitializer())) {
-      sysEnvs.FC_INITIALIZER = this.getInitializer();
+      sysEnvs.FC_INITIALIZER_HANDLER = this.getInitializer();
       sysEnvs.FC_INITIALIZATION_TIMEOUT = this.getInitializerTimeout();
     }
 
@@ -247,6 +269,7 @@ export class BaseLocal {
       if (!this.getRuntime().startsWith('php')) {
         envStr += ` -p ${this.getDebugPort()}:${this.getDebugPort()}`;
       }
+      envStr += ` -e "FC_MODE=Debug"`;
     }
 
     return envStr;
@@ -274,7 +297,114 @@ export class BaseLocal {
   }
 
   async generateVscodeDebugConfig(): Promise<string> {
-    return Promise.resolve('');
+    const codePath = await this.getCodeUri();
+    const debugPort = this.getDebugPort();
+    const functionName = this.getFunctionName();
+
+    switch (this.getRuntime()) {
+      case 'nodejs6': {
+        return JSON.stringify(
+          {
+            version: '0.2.0',
+            configurations: [
+              {
+                name: `fc/${functionName}`,
+                type: 'node',
+                request: 'attach',
+                address: 'localhost',
+                port: debugPort,
+                localRoot: `${codePath}`,
+                remoteRoot: '/code',
+                protocol: 'legacy',
+                stopOnEntry: false,
+              },
+            ],
+          },
+          null,
+          4,
+        );
+      }
+      case 'nodejs10':
+      case 'nodejs12':
+      case 'nodejs14':
+      case 'nodejs16': {
+        return JSON.stringify(
+          {
+            version: '0.2.0',
+            configurations: [
+              {
+                name: `fc/${functionName}`,
+                type: 'node',
+                request: 'attach',
+                address: 'localhost',
+                port: debugPort,
+                localRoot: `${codePath}`,
+                remoteRoot: '/code',
+                protocol: 'inspector',
+                stopOnEntry: false,
+              },
+            ],
+          },
+          null,
+          4,
+        );
+      }
+      case 'python2.7':
+      case 'python3':
+      case 'python3.9':
+      case 'python3.10': {
+        return JSON.stringify(
+          {
+            version: '0.2.0',
+            configurations: [
+              {
+                name: `fc/${functionName}`,
+                type: 'python',
+                request: 'attach',
+                host: 'localhost',
+                port: debugPort,
+                pathMappings: [
+                  {
+                    localRoot: `${codePath}`,
+                    remoteRoot: '/code',
+                  },
+                ],
+              },
+            ],
+          },
+          null,
+          4,
+        );
+      }
+      case 'java8':
+      case 'java11': {
+        return '';
+      }
+      case 'php7.2': {
+        return JSON.stringify(
+          {
+            version: '0.2.0',
+            configurations: [
+              {
+                name: `fc/${functionName}`,
+                type: 'php',
+                request: 'launch',
+                port: debugPort,
+                stopOnEntry: false,
+                pathMappings: {
+                  '/code': `${codePath}`,
+                },
+                ignore: ['/var/fc/runtime/**'],
+              },
+            ],
+          },
+          null,
+          4,
+        );
+      }
+      default:
+        return '';
+    }
   }
 
   isFastRuntime = (): boolean => ['python3.10', 'go1'].includes(this.getRuntime());
@@ -310,10 +440,11 @@ export class BaseLocal {
       logger.error('Args config and debug-port must exist simultaneously');
       return false;
     }
-    if (this.isFastRuntime() && _.isFinite(this.getDebugPort())) {
-      logger.error(`breakpoint debugging is not support in ${this.getRuntime()} runtime`);
-      return false;
-    }
+    // TODO check if runtime support breakpoint debugging
+    // if (this.canSupportDebug() && _.isFinite(this.getDebugPort())) {
+    //   logger.error(`breakpoint debugging is not support in ${this.getRuntime()} runtime`);
+    //   return false;
+    // }
     return true;
   }
 
@@ -324,5 +455,27 @@ export class BaseLocal {
       console.log(`clean tmp code dir ${this.unzippedCodeDir} successfully`);
       this.unzippedCodeDir = undefined;
     }
+  }
+
+  async checkServerReady(port: number, delay: number, maxRetries: number) {
+    let retries = 0;
+    while (retries < maxRetries) {
+      try {
+        // eslint-disable-next-line no-await-in-loop
+        await httpx.request(`http://localhost:${port}`, { timeout: 5000 });
+        logger.log(`Server running on port ${port} is ready!`);
+        return;
+      } catch (error) {
+        retries++;
+        logger.log(
+          `Server running on port ${port} is not yet ready. Retrying in ${delay}ms (${retries}/${maxRetries})`,
+        );
+        // eslint-disable-next-line no-await-in-loop
+        await new Promise((resolve) => setTimeout(resolve, delay));
+      }
+    }
+    logger.error(
+      `Server running on port ${port} is not ready after ${maxRetries} retries. Exiting...`,
+    );
   }
 }

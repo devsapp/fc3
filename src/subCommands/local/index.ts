@@ -12,6 +12,9 @@ import { CustomContainerLocalStart } from './impl/start/customContainerLocalStar
 import { IInputs } from '../../interface';
 import logger from '../../logger';
 
+import { NodejsLocalStart } from './impl/start/nodejsLocalStart';
+import { PythonLocalStart } from './impl/start/pythonLocalStart';
+
 export default class ComponentBuild {
   /**
    * @param inputs
@@ -20,13 +23,20 @@ export default class ComponentBuild {
   public async invoke(inputs: IInputs) {
     logger.debug(`invoke input: ${JSON.stringify(inputs.props)}`);
 
+    // check if has http trigger; if has, advise use local start
+    if (this.hasHttpTrigger(inputs.props.triggers)) {
+      logger.warn('The function has an HTTP trigger. You had better use ‘s local start‘ instead. ');
+    }
+
     switch (inputs.props.runtime) {
       // case 'nodejs6':
       // case 'nodejs8':
       case 'nodejs10':
       case 'nodejs12':
       case 'nodejs14':
-      case 'nodejs16': {
+      case 'nodejs16':
+      case 'nodejs18':
+      case 'nodejs20': {
         const nodeLocalInvoker = new NodejsLocalInvoke(inputs);
         await nodeLocalInvoker.invoke();
         break;
@@ -80,7 +90,32 @@ export default class ComponentBuild {
   public async start(inputs: IInputs) {
     logger.debug(`start input: ${JSON.stringify(inputs.props)}`);
 
+    // check if has http trigger; if not has, advise use local start
+    if (!this.hasHttpTrigger(inputs.props.triggers)) {
+      logger.error(
+        'The function does not have an HTTP trigger and cannot use ‘s local start’. You should use ‘s local invoke’ instead.',
+      );
+      return {};
+    }
+
     switch (inputs.props.runtime) {
+      case 'nodejs10':
+      case 'nodejs12':
+      case 'nodejs14':
+      case 'nodejs16':
+      case 'nodejs18':
+      case 'nodejs20': {
+        const nodejsLocalStart = new NodejsLocalStart(inputs);
+        await nodejsLocalStart.start();
+        break;
+      }
+      case 'python3':
+      case 'python3.9':
+      case 'python3.10': {
+        const pythonLocalStart = new PythonLocalStart(inputs);
+        await pythonLocalStart.start();
+        break;
+      }
       case 'custom':
       case 'custom.debian10': {
         const customLocalInvoker = new CustomLocalStart(inputs);
@@ -93,9 +128,18 @@ export default class ComponentBuild {
         break;
       }
       default:
-        logger.error(
-          `start command ${inputs.props.runtime} is not supported, only custom/custom.debian10/custom-container supported!`,
-        );
+        logger.error(`start command ${inputs.props.runtime} is not supported!`);
     }
+  }
+
+  hasHttpTrigger(triggers: any): boolean {
+    if (Array.isArray(triggers)) {
+      for (const trigger of triggers) {
+        if (trigger.triggerType === 'http') {
+          return true;
+        }
+      }
+    }
+    return false;
   }
 }

@@ -4,6 +4,7 @@ import logger from '../../../../logger';
 import * as portFinder from 'portfinder';
 import { execSync } from 'child_process';
 import { runCommand } from '../../../../utils';
+import chalk from 'chalk';
 
 export class CustomContainerLocalStart extends BaseLocalStart {
   getDebugArgs(): string {
@@ -31,8 +32,8 @@ export class CustomContainerLocalStart extends BaseLocalStart {
 
   async getLocalStartCmdStr(): Promise<string> {
     const port = await portFinder.getPortPromise({ port: this.getCaPort() });
-    const msg = `You can use curl or Postman to make an HTTP request to 127.0.0.1:${port} to test the function.`;
-    console.log('\x1b[33m%s\x1b[0m', msg);
+    const msg = `You can use curl or Postman to make an HTTP request to localhost:${port} to test the function.`;
+    console.log(chalk.green(msg));
     const mntStr = await this.getMountString();
     const envStr = await this.getEnvString();
     const image = await this.getRuntimeRunImage();

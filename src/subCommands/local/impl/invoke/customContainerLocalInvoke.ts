@@ -7,10 +7,9 @@ import { execSync } from 'child_process';
 import chalk from 'chalk';
 import { runCommand } from '../../../../utils';
 
-import httpx from 'httpx';
-
 export class CustomContainerLocalInvoke extends BaseLocalInvoke {
-  private _port: Number;
+  private _port: number;
+
   getDebugArgs(): string {
     if (_.isFinite(this.getDebugPort())) {
       // TODO 参数支持自定义调试参数实现断点调试
@@ -20,39 +19,53 @@ export class CustomContainerLocalInvoke extends BaseLocalInvoke {
   }
 
   async getEnvString(): Promise<string> {
-    let envStr = await super.getEnvString();
-    if (!_.isEmpty(this.getBootStrap())) {
-      envStr += ` -e "AGENT_SCRIPT=${this.getBootStrap()}"`;
-    }
-    return envStr;
-  }
+    const credentials = await this.getCredentials();
 
-  getBootStrap(): string {
-    if (!this.isCustomContainerRuntime()) {
-      throw new Error('only custom container get command and args');
+    const sysEnvs: any = {
+      FC_FUNC_CODE_PATH: '/code/',
+      ALIBABA_CLOUD_ACCESS_KEY_ID: credentials.AccessKeyID || '',
+      ALIBABA_CLOUD_ACCESS_KEY_SECRET: credentials.AccessKeySecret || '',
+      ALIBABA_CLOUD_SECURITY_TOKEN: credentials.SecurityToken || '',
+      FC_ACCOUNT_ID: credentials.AccountID || '',
+      FC_FUNCTION_HANDLER: this.getHandler(),
+      FC_FUNCTION_MEMORY_SIZE: this.getMemorySize(),
+      FC_HANDLER: this.getHandler(),
+      FC_MEMORY_SIZE: this.getMemorySize(),
+      FC_FUNCTION_NAME: this.getFunctionName(),
+      FC_REGION: this.getRegion(),
+      FC_CUSTOM_LISTEN_PORT: this.getCaPort(),
+      FC_INSTANCE_ID: uuidV4(),
+    };
+    if (!_.isEmpty(this.getInitializer())) {
+      sysEnvs.FC_INITIALIZER_HANDLER = this.getInitializer();
+      sysEnvs.FC_INITIALIZATION_TIMEOUT = this.getInitializerTimeout();
     }
-    let bootStrap = '';
-    const { customContainerConfig } = this.inputs.props;
-    if (_.has(customContainerConfig, 'entrypoint')) {
-      bootStrap += customContainerConfig.entrypoint.join(' ');
+
+    let envStr = '';
+    for (const item in sysEnvs) {
+      envStr += ` -e "${item}=${sysEnvs[item]}"`;
     }
-    if (_.has(customContainerConfig, 'command')) {
-      bootStrap += ` ${customContainerConfig.command.join(' ')}`;
+
+    // function envs
+    if ('environmentVariables' in this.inputs.props) {
+      const envs = this.inputs.props.environmentVariables;
+      for (const item in envs) {
+        envStr += ` -e "${item}=${envs[item]}"`;
+      }
     }
-    return bootStrap;
+
+    return envStr;
   }
 
   async getLocalInvokeCmdStr(): Promise<string> {
     const port = await portFinder.getPortPromise({ port: this.getCaPort() });
-    // const msg = `You can use curl or Postman to make an HTTP request to 127.0.0.1:${port} to test the function.for example:`;
+    // const msg = `You can use curl or Postman to make an HTTP request to localhost:${port} to test the function.for example:`;
     // console.log('\x1b[33m%s\x1b[0m', msg);
     this._port = port;
     const image = await this.getRuntimeRunImage();
-    // const envStr = await this.getEnvString();
-    let dockerCmdStr = `docker run --name ${this.getContainerName()} -d --platform linux/amd64 --rm -p ${port}:${this.getCaPort()} --memory=${this.getMemorySize()}m ${image}`;
-    if (!_.isEmpty(this.getBootStrap())) {
-      dockerCmdStr += ` ${this.getBootStrap()}`;
-    }
+    const envStr = await this.getEnvString();
+    const dockerCmdStr = `docker run --name ${this.getContainerName()} -d --platform linux/amd64 --rm -p ${port}:${this.getCaPort()} --memory=${this.getMemorySize()}m ${envStr} ${image}`;
+
     if (!_.isEmpty(this.getDebugArgs())) {
       if (this.debugIDEIsVsCode()) {
         await this.writeVscodeDebugConfig();
@@ -64,19 +77,9 @@ export class CustomContainerLocalInvoke extends BaseLocalInvoke {
   }
 
   async runInvoke() {
-    process.on('DEVS:SIGINT', () => {
-      console.log('\nDEVS:SIGINT, stop container');
-      // kill container
-      try {
-        execSync(`docker kill ${this.getContainerName()}`);
-      } catch (e) {
-        logger.error(`fail to docker kill ${this.getContainerName()}, error=${e}`);
-      }
-      process.exit();
-    });
     const cmdStr = await this.getLocalInvokeCmdStr();
     await runCommand(cmdStr, runCommand.showStdout.ignore);
-    await this.checkServerReady(1000, 20);
+    await this.checkServerReady(this._port, 1000, 20);
 
     const startTimeStamp = new Date().getTime();
     const credentials = await this.getCredentials();
@@ -100,8 +103,8 @@ export class CustomContainerLocalInvoke extends BaseLocalInvoke {
     };
     const postData = Buffer.from(this.getEventString(), 'binary');
     const timeout = (this.getTimeout() + 3) * 1000;
-    const result = await this.request(
-      `http://127.0.0.1:${this._port}/invoke`,
+    const { result } = await this.request(
+      `http://localhost:${this._port}/invoke`,
       'POST',
       headers,
       postData,
@@ -146,38 +149,5 @@ export class CustomContainerLocalInvoke extends BaseLocalInvoke {
       logger.error(`fail to docker kill ${this.getContainerName()}, error=${e}`);
     }
     process.exit();
-  }
-
-  async request(url: string, method: any, headers: any, writeData: any, timeout: number) {
-    const response = await httpx.request(url, {
-      timeout,
-      method,
-      headers,
-      data: writeData,
-    });
-    const responseBody = await httpx.read(response, 'utf8');
-    return responseBody;
-  }
-
-  async checkServerReady(delay: number, maxRetries: number) {
-    let retries = 0;
-    while (retries < maxRetries) {
-      try {
-        // eslint-disable-next-line no-await-in-loop
-        await httpx.request(`http://127.0.0.1:${this._port}`, { timeout: 5000 });
-        logger.log(`Server running on port ${this._port} is ready!`);
-        return;
-      } catch (error) {
-        retries++;
-        logger.log(
-          `Server running on port ${this._port} is not yet ready. Retrying in ${delay}ms (${retries}/${maxRetries})`,
-        );
-        // eslint-disable-next-line no-await-in-loop
-        await new Promise((resolve) => setTimeout(resolve, delay));
-      }
-    }
-    logger.error(
-      `Server running on port ${this._port} is not ready after ${maxRetries} retries. Exiting...`,
-    );
   }
 }

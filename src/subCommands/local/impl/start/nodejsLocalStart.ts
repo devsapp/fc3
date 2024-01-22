@@ -1,11 +1,11 @@
-import { BaseLocalInvoke } from './baseLocalInvoke';
+import { BaseLocalStart } from './baseLocalStart';
 import _ from 'lodash';
 import { IDE_VSCODE } from '../../../../constant';
 import logger from '../../../../logger';
 
-export class NodejsLocalInvoke extends BaseLocalInvoke {
-  beforeInvoke(): boolean {
-    const ret = super.beforeInvoke();
+export class NodejsLocalStart extends BaseLocalStart {
+  beforeStart(): boolean {
+    const ret = super.beforeStart();
     if (!ret) {
       return ret;
     }

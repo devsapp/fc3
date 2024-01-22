@@ -1,11 +1,11 @@
-import { BaseLocalInvoke } from './baseLocalInvoke';
+import { BaseLocalStart } from './baseLocalStart';
 import _ from 'lodash';
 import { IDE_VSCODE } from '../../../../constant';
 import logger from '../../../../logger';
 
-export class PythonLocalInvoke extends BaseLocalInvoke {
-  beforeInvoke(): boolean {
-    const ret = super.beforeInvoke();
+export class PythonLocalStart extends BaseLocalStart {
+  beforeStart(): boolean {
+    const ret = super.beforeStart();
     if (!ret) {
       return ret;
     }
@@ -19,7 +19,7 @@ export class PythonLocalInvoke extends BaseLocalInvoke {
 
   getDebugArgs(): string {
     if (_.isFinite(this.getDebugPort())) {
-      return `DEBUG_OPTIONS=-m ptvsd --host 0.0.0.0 --port ${this.getDebugPort()} --wait`;
+      return `FC_DEBUG_ARGS=-m ptvsd --host 0.0.0.0 --port ${this.getDebugPort()} --wait`;
     }
     return '';
   }
