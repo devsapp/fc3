@@ -36,4 +36,5 @@ Examples with CLI:
       ],
     ],
   },
+  verify: false,
 };

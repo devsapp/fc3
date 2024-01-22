@@ -1,7 +1,7 @@
 import { ICredentials } from '@serverless-devs/component-interface';
 import _ from 'lodash';
 import { getDockerTmpUser, getAcrEEInstanceID, getAcrImageMeta } from './login';
-import { runCommand } from '../../utils';
+import { runCommand, checkDockerInstalled } from '../../utils';
 import { IRegion } from '../../interface';
 import logger from '../../logger';
 
@@ -56,6 +56,11 @@ export default class Acr {
     return isExist;
   }
   async pushAcr(imageUrl: string): Promise<void> {
+    try {
+      checkDockerInstalled();
+    } catch (error) {
+      logger.error(`skip push image, error=${error.message}`);
+    }
     let { instanceID } = this;
     if (!instanceID) {
       instanceID = await Acr.getAcrEEInstanceID(imageUrl, this.credential);

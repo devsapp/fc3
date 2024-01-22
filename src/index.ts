@@ -24,6 +24,7 @@ import Concurrency from './subCommands/concurrency';
 import SYaml2To3 from './subCommands/2to3';
 import Logs from './subCommands/logs';
 import { SCHEMA_FILE_PATH } from './constant';
+import { checkDockerInstalled, isAppCenter, isYunXiao } from './utils';
 
 export default class Fc extends Base {
   // 部署函数
@@ -114,11 +115,16 @@ export default class Fc extends Base {
 
     const runtime = _.get(inputs, 'props.runtime');
     if (FC.isCustomContainerRuntime(runtime)) {
-      if (_.isEqual(process.env.enableBuildkitServer, '1')) {
+      if (isYunXiao() && _.isEqual(process.env.enableBuildkitServer, '1')) {
         // buildKit only YunXiao
         const buildKitBuilder = BuilderFactory.getBuilder(BuildType.ImageBuildKit, inputs);
         await buildKitBuilder.build();
+      } else if (isAppCenter()) {
+        // kaniko build in app center
+        const kanikoBuilder = BuilderFactory.getBuilder(BuildType.ImageKaniko, inputs);
+        await kanikoBuilder.build();
       } else {
+        checkDockerInstalled();
         const dockerBuilder = BuilderFactory.getBuilder(BuildType.ImageDocker, inputs);
         await dockerBuilder.build();
       }
@@ -131,6 +137,7 @@ export default class Fc extends Base {
 
   public async local(inputs: IInputs) {
     await super.handlePreRun(inputs, false);
+    checkDockerInstalled();
 
     const { _: command } = parseArgv(inputs.args);
     const subCommand = _.get(command, '[0]');

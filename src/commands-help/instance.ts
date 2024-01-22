@@ -45,4 +45,5 @@ Example:
       },
     },
   },
+  verify: false,
 };

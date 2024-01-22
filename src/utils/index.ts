@@ -5,6 +5,7 @@ import * as crc64 from 'crc64-ecma182.js';
 import { promisify } from 'util';
 import * as fs from 'fs';
 import logger from '../logger';
+import { execSync } from 'child_process';
 
 export { default as verify } from './verify';
 export { default as runCommand } from './run-command';
@@ -105,4 +106,26 @@ export function getFileSize(filePath: string) {
     logger.debug(`Zip file: ${filePath} size = ${sizeInKB}KB`);
     return sizeInKB;
   }
+}
+
+export function checkDockerInstalled() {
+  try {
+    // 尝试执行 'docker --version' 命令
+    const output = execSync('docker --version', { encoding: 'utf-8' });
+    logger.debug('Docker is installed:', output.trim());
+  } catch (error) {
+    // 如果执行命令出错，则认为 Docker 没有安装
+    logger.error(
+      'Docker is not installed, please refer "https://docs.docker.com/engine/install". if use podman, please refer "https://help.aliyun.com/document_detail/2513750.html?spm=a2c4g.2513735.0.i0#e72aae479a5gf"',
+    );
+    throw new Error('Docker is not installed');
+  }
+}
+
+export function isAppCenter(): boolean {
+  return process.env.BUILD_IMAGE_ENV === 'fc-backend';
+}
+
+export function isYunXiao(): boolean {
+  return process.env.ENGINE_PIPELINE_PORTAL_URL === 'https://flow.aliyun.com';
 }

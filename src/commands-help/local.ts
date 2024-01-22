@@ -5,7 +5,7 @@ export default {
 Examples:
   $ s local invoke -e '{"key":"val"}'
   $ s local invoke -f evt.json
-  $ s local invoke -e '{"key":"val"}' -c vscode -d 3000 
+  $ s local invoke -e '{"key":"val"}' -c vscode -d 3000
   $ s local start`,
     summary: 'Local invoke fc function',
     option: [
@@ -27,4 +27,5 @@ Examples:
       ],
     ],
   },
+  verify: false,
 };

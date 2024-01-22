@@ -2,7 +2,7 @@ import _ from 'lodash';
 import * as path from 'path';
 
 import { Builder } from './baseBuilder';
-import { runCommand } from '../../../utils';
+import { runCommand, isAppCenter, isYunXiao } from '../../../utils';
 import logger from '../../../logger';
 import { buildPythonLocalPath } from '../../../default/image';
 import { parseArgv } from '@serverless-devs/utils';
@@ -84,7 +84,7 @@ export class DefaultBuilder extends Builder {
       shellScript = `"${tasks.join(' && ')}"`;
     }
 
-    if (this.isAppCenter() || this.isYunXiao()) {
+    if (isAppCenter() || isYunXiao()) {
       let cmdStr = `bash -c`;
       if (this.opts['script-file']) {
         cmdStr = `bash ${this.opts['script-file']}`;

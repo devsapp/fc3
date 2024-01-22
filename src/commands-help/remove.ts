@@ -25,4 +25,5 @@ Examples with CLI:
       ['-y, --assume-yes', "[Optional] Don't ask, delete directly"],
     ],
   },
+  verify: false,
 };
