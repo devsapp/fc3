@@ -53,8 +53,32 @@ export default class VpcNas {
           params,
           requestOption,
         );
-        logger.debug(JSON.stringify(result));
-        return result.VpcName || vpcId;
+        logger.debug(`DescribeVpcAttribute: ${JSON.stringify(result)}`);
+        if (
+          result.VpcName.trim() === '' ||
+          result.VpcName.trim() === '""' ||
+          result.VpcName.trim() === "''"
+        ) {
+          result.VpcName = `VpcName-${vpcId}`;
+          const params2 = {
+            RegionId: this.region,
+            VpcId: vpcId,
+            VpcName: result.VpcName,
+          };
+          const result2: any = await this.vpcClient.request(
+            'ModifyVpcAttribute',
+            params2,
+            requestOption,
+          );
+          logger.debug(`ModifyVpcAttribute: ${JSON.stringify(result2)}`);
+        }
+        // } else {
+        //   const regex = /^(?!http:\/\/|https:\/\/)[a-zA-Z一-龥][a-zA-Z0-9一-龥_-]*$/;
+        //   if (!regex.test(result.VpcName)) {
+        //     return VPC_AND_NAS_NAME;
+        //   }
+        // }
+        return result.VpcName;
       } catch (ex) {
         console.log(ex);
       }
@@ -70,7 +94,7 @@ export default class VpcNas {
     vpcConfig?: IVpcConfig;
   }): Promise<IGetInitNasConfigAsFcResponse | { vpcConfig: IVpcConfig }> {
     const rule = await this.getVpcNasRule(vpcConfig);
-    logger.debug(`rule: ${rule}`);
+    logger.debug(`rule: ${rule}, nasAuto: ${nasAuto}, vpcConfig: ${JSON.stringify(vpcConfig)}`);
     const params = {
       rule,
       region: this.region,
