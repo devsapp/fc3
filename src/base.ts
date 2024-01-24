@@ -54,7 +54,15 @@ export default class Base {
     } else {
       inputs.props = _.defaults(inputs.props, FUNCTION_DEFAULT_CONFIG);
     }
-
+    // 和控制台体验对齐， 如果不填配置，默认: cpu:0.35, mem: 512M, disk: 512M
+    if (
+      _.get(inputs.props, 'memorySize') === 512 &&
+      _.isNil(inputs.props.cpu) &&
+      _.isNil(inputs.props.diskSize)
+    ) {
+      inputs.props.cpu = 0.35;
+      inputs.props.diskSize = 512;
+    }
     if (
       FC.isCustomContainerRuntime(inputs.props.runtime) &&
       !IMAGE_ACCELERATION_REGION.includes(inputs.props.region)
