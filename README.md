@@ -39,11 +39,13 @@
 # 快速开始
 
 🙋 三步即可上手 函数计算（fc3）组件的使用：
+
 ❶ [安装 Serverless Devs 开发者工具](https://docs.serverless-devs.com/serverless-devs/quick_start#%E5%B7%A5%E5%85%B7%E5%AE%89%E8%A3%85) ：`npm install -g @serverless-devs/s`；
 
 > 安装完成还需要配置密钥，可以参考[密钥配置文档](config.md)
 
 ❷ 初始化一个函数计算的 `Hello World` 项目：`s init start-fc3-python`；
+
 ❸ 初始化完成之后，系统会提示是否部署项目，只需要输入`y`并按回车按钮即可完成项目的部署；
 
 - [更多入门示例](https://github.com/devsapp/start-fc/tree/V3)
