@@ -5,7 +5,7 @@ export default {
 Examples with Yaml:
   $ s invoke -e "{\\"key\\": \\"val\\"}"
   $ s invoke -f evt.json
-  $ s invoke --invocation-type async
+  $ s invoke --invocation-type Async
 
 Examples with CLI:
   $ s cli fc3 invoke -e "payload" --region cn-huhehaote --function-name test -a default`,
@@ -28,7 +28,7 @@ Examples with CLI:
       ],
       [
         '--invocation-type <invocationType>',
-        '[Optional] Specify Invocation type, value: async/sync, default: sync',
+        '[Optional] Specify Invocation type, value: Async/Async, default: Sync',
       ],
       [
         '--stateful-async-invocation-id <statefulAsyncInvocationId>',
