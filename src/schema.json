@@ -286,12 +286,142 @@
         "IHttpTriggerConfig": {
             "properties": {
                 "authConfig": {
-                    "type": "string"
+                    "properties": {
+                        "blacklist": {
+                            "items": {
+                                "type": "string"
+                            },
+                            "type": "array"
+                        },
+                        "claimPassBy": {
+                            "anyOf": [
+                                {
+                                    "items":{
+                                        "properties": {
+                                            "mappingParameterName": {
+                                                "type": "string"
+                                            },
+                                            "claimName": {
+                                                "type": "string"
+                                            },
+                                            "mappingParameterPosition": {
+                                                "enum": [
+                                                    "cookie",
+                                                    "form",
+                                                    "header"
+                                                ],
+                                                "type": "string"
+                                            }
+                                        },
+                                        "required": [
+                                            "mappingParameterName",
+                                            "mappingParameterPosition"
+                                        ],
+                                        "type": "object"
+                                    },
+                                    "minItems": 0,
+                                    "type": "array"
+                                },
+                                {
+                                    "type": "string"
+                                }
+                            ]
+                        },
+                        "jwks": {
+                            "properties": {
+                                "keys": {
+                                    "items": {
+                                        "properties": {
+                                            "alg": {
+                                                "type": "string"
+                                            },
+                                            "e": {
+                                                "type": "string"
+                                            },
+                                            "kid": {
+                                                "type": "string"
+                                            },
+                                            "kty": {
+                                                "type": "string"
+                                            },
+                                            "n": {
+                                                "type": "string"
+                                            },
+                                            "use": {
+                                                "type": "string"
+                                            }
+                                        },
+                                        "required": [
+                                            "alg",
+                                            "e",
+                                            "kty",
+                                            "n",
+                                            "use"
+                                        ],
+                                        "type": "object"
+                                    },
+                                    "minItems": 1,
+                                    "type": "array"
+                                }
+                            },
+                            "required": [
+                                "keys"
+                            ],
+                            "type": "object"
+                        },
+                        "tokenLookup": {
+                            "anyOf": [
+                                {
+                                    "items": {
+                                        "properties": {
+                                            "parameterName": {
+                                                "type": "string"
+                                            },
+                                            "prefix": {
+                                                "type": "string"
+                                            },
+                                            "readPosition": {
+                                                "enum": [
+                                                    "cookie",
+                                                    "form",
+                                                    "header",
+                                                    "query"
+                                                ],
+                                                "type": "string"
+                                            }
+                                        },
+                                        "required": [
+                                            "parameterName",
+                                            "readPosition"
+                                        ],
+                                        "type": "object"
+                                    },
+                                    "minItems": 1,
+                                    "type": "array"
+                                },
+                                {
+                                    "type": "string"
+                                }
+                            ]
+                        },
+                        "whitelist": {
+                            "items": {
+                                "type": "string"
+                            },
+                            "type": "array"
+                        }
+                    },
+                    "required": [
+                        "jwks",
+                        "tokenLookup"
+                    ],
+                    "type": "object"
                 },
                 "authType": {
                     "enum": [
                         "anonymous",
-                        "function"
+                        "function",
+                        "jwt"
                     ],
                     "type": "string"
                 },

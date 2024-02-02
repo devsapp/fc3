@@ -16,15 +16,64 @@ category: 'Yaml规范'
 | triggerName    | True  | String | 触发器名称                                                                                               |
 | triggerType    | True  | Enum   | 触发器类型                                                                                               |
 
-type 目前支持：`http`, `timer`, `oss`, `log`, `mns_topic`, `cdn_events`, `tablestore`, `eventbridge`
+triggerType 目前支持：`http`, `timer`, `oss`, `log`, `mns_topic`, `cdn_events`, `tablestore`, `eventbridge`
 
 ### Http 触发器
 
-| 参数名             | 必填  | 类型           | 参数描述                                                               |
-| ------------------ | ----- | -------------- | ---------------------------------------------------------------------- |
-| authType           | True  | String         | 鉴权类型，可选值：anonymous、function                                  |
-| disableURLInternet | False | Boolean        | 是否禁用公网访问 URL，默认为 false                                     |
-| methods            | True  | List\<String\> | HTTP 触发器支持的访问方法，可选值：GET、POST、PUT、DELETE、PATCH、HEAD |
+| 参数名                    | 必填  | 类型                  | 参数描述                                                               |
+| ------------------------- | ----- | --------------------- | ---------------------------------------------------------------------- |
+| [authConfig](#authConfig) | False | [Struct](#authConfig) | 鉴权配置，authType 为 jwt 时必填                                       |
+| authType                  | True  | String                | 鉴权类型，可选值：anonymous、function、jwt                             |
+| disableURLInternet        | False | Boolean               | 是否禁用公网访问 URL，默认为 false                                     |
+| methods                   | True  | List\<String\>        | HTTP 触发器支持的访问方法，可选值：GET、POST、PUT、DELETE、PATCH、HEAD |
+
+#### authConfig
+
+| 参数名                      | 必填  | 类型                   | 参数描述                                                                                                                                                                                                                                                                                                                                                                               |
+| --------------------------- | ----- | ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| blacklist                   | False | List\<String>          | 请求路径黑名单，匹配黑名单中的 Path 的 HTTP 请求需要校验，其他请求不需要校验。不可与 whitelist 同时设置。                                                                                                                                                                                                                                                                              |
+| [claimPassBy](#claimPassBy) | False | [Struct](#claimPassBy) | JWT Claim 转换，可选字段，留空代表不进行转换。配置后可以将 JWT Claim 映射到 HTTP 请求中。例如，提取 JWT 中名称为 userId 的 Claim，并将其映射到 HTTP 请求的 Query 参数 userId 中。这样在您的代码逻辑中可以直接从 Query 中获取用户 ID。                                                                                                                                                  |
+| [jwks](#jwks)               | True  | [Struct](#jwks)        | Json Web Key Set，JSON 格式的 JWT 公钥列表。您可以自行生成，或者使用在线生成工具生成，如 [mkjwk.org](https://mkjwk.org/?spm=5176.fcnext.0.0.764278c84vOH2b)。如果您已经有 PEM 格式的密钥，您可以借助工具，将其转换成 JWKS 格式，如工具 [jwx](https://github.com/lestrrat-go/jwx?spm=5176.fcnext.0.0.764278c84vOH2b)。                                                                  |
+| [tokenLookup](#tokenLookup) | True  | [Struct](#tokenLookup) | JWT Token 配置，配置 JWT Token 在请求中的位置和具体参数名称，从而使函数计算 FC 可以找到您请求中的 JWT Token。函数计算会顺序遍历您的 JWT Token 配置，从配置指定的位置查找 token，并对第一个查找到的 token 进行校验。（提示：在使用 Header 传递 Token 时，配置“去除前缀”可以移除值的指定前缀。例如，配置“去除前缀” Bearer 后，将可以使用 Header 中去除前缀 Bearer 后的部分作为 Token。） |
+| whitelist                   | False | List\<String>          | 请求路径白名单，匹配白名单中的 Path 的 HTTP 请求不需要校验，其他请求需要校验。不可与 blacklist 同时设置。                                                                                                                                                                                                                                                                              |
+
+请求路径支持“精确匹配”和“模糊匹配”。<br>
+精确匹配：请求的路径和设置的路径完全一致才可以匹配。例如，设置路径为 /a。那么只会匹配来自路径 /a 的请求，不会匹配来自路径 /a/ 的请求。<br>
+模糊匹配：支持使用通配符（\*）设置路径，且通配符（\*）只能放到路径的最后。例如，/login/\* 将匹配路径前缀为 /login/ 的请求。来自 /login/、/login/a 和 /login/b/c/d 的请求都会匹配。
+
+##### jwks
+
+| 参数名        | 必填 | 类型                  | 参数描述                 |
+| ------------- | ---- | --------------------- | ------------------------ |
+| [keys](#keys) | True | List<[Struct](#keys)> | JSON 格式的 JWT 公钥列表 |
+
+###### keys
+
+keys 为 List\<Struct\>，其中每个 Struct 需符合如下参数规范：
+| 参数名 | 必填 | 类型 | 参数描述 |
+| ------ | ----- | ------ | ------------------------------------------------------------------ |
+| alg | True | String | 使用的具体的加密算法，例如 RS256，必填，大小写敏感 |
+| e | True | String | 公钥的指数，例如 AQAB |
+| key | True | String | 使用的加密算法的家族，例如 RSA，必填，大小写敏感 |
+| kid | False | String | Key ID，kid 是可选的，如果 JWT 包含了 kid，函数计算会校验 kid 的一致性 |
+| n | True | String | 公钥的模值 |
+| use | True | String | 密钥的用途，例如 sig，用于签名 |
+
+##### tokenLookup
+
+| 参数名        | 必填  | 类型   | 参数描述                                                                                                                                                                                                                    |
+| ------------- | ----- | ------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| parameterName | True  | String | JWT Token 在请求中的具体参数名称                                                                                                                                                                                            |
+| prefix        | False | String | 去除前缀，仅当 type 为 header 时生效。如果 token 位置选择为 Header，需为其指定前缀，函数计算在获取 Token 时，会删除此前缀。prefix 需要以一个空格结尾，例如"Bearer: "，在 header 中前缀信息与 JWT Token 之间也要有一个空格。 |
+| readPosition  | True  | Enum   | JWT Token 在请求中的读取位置，可选值为“header”、“cookie”、“query”、“form”                                                                                                                                                   |
+
+##### claimPassBy
+
+| 参数名                   | 必填  | 类型   | 参数描述                                         |
+| ------------------------ | ----- | ------ | ------------------------------------------------ |
+| claimName                | False | String | Claim 名称                                       |
+| mappingParameterName     | True  | String | 映射参数名称                                     |
+| mappingParameterPosition | True  | Enum   | 映射参数位置，可选值为“header”、“cookie”、“form” |
 
 #### 权限配置相关
 

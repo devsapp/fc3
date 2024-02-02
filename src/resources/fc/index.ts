@@ -21,7 +21,14 @@ import { sleep, removeNullValues } from '../../utils/index';
 import { FC_DEPLOY_RETRY_COUNT, FC_INSTANCE_EXEC_TIMEOUT } from '../../default/config';
 
 import FC_Client, { fc2Client } from './impl/client';
-import { IFunction, ILogConfig, ITrigger } from '../../interface';
+import {
+  IFunction,
+  ILogConfig,
+  ITrigger,
+  convertIHttpTriggerConfig,
+  instanceOfIHttpTriggerConfig,
+  validateIHttpTriggerConfig,
+} from '../../interface';
 import {
   FC_API_ERROR_CODE,
   isAccessDenied,
@@ -225,6 +232,13 @@ export default class FC extends FC_Client {
     } catch (err) {
       if (err.code !== FC_API_ERROR_CODE.FunctionNotFound) {
         logger.debug(`Checking trigger ${id} error: ${err.message}, retrying create.`);
+      }
+    }
+
+    if (config.triggerConfig && instanceOfIHttpTriggerConfig(config.triggerConfig)) {
+      config.triggerConfig = convertIHttpTriggerConfig(config.triggerConfig);
+      if (!validateIHttpTriggerConfig(config.triggerConfig)) {
+        return;
       }
     }
 

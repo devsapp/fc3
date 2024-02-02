@@ -52,3 +52,28 @@ s invoke -e '{"hello":"fc nodejs with auto"}' -t ./s_auto.yaml
 s info -y -t ./s_auto.yaml
 s remove -y -t ./s_auto.yaml
 cd ..
+
+echo "test http trigger with jwt ..."
+cd trigger/jwt
+export fc_component_function_name=nodejs16-$(uname)-$(uname -m)-$RANDSTR
+s deploy -y -t ./s.yaml
+s invoke -e '{"hello":"fc http trigger with jwt"}' -t ./s.yaml
+rpm -ivh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+yum install -y jq
+url1=$(s info  -y -t ./s.yaml --silent -o json | jq -r '.hello_world.url.system_url')
+url2=$(s info  -y -t ./s.yaml --silent -o json | jq -r '.hello_world_2.url.system_url')
+echo $url1
+echo $url2
+curl -XPOST $url1/black1/aa -d '{"test":"jwt"}'
+curl -XPOST $url1/black2/aaa -d '{"test":"jwt"}'
+curl -XPOST $url1/black1/bbb -d '{"test":"jwt"}'
+curl -XPOST $url1/black1/bbb -d '{"test":"jwt"}' -H "Authentication: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiSm9obiIsImFkbWluIjp0cnVlLCJleHAiOjE3MDkxODg1MzksIm5iZiI6MTcwOTAxNTc1NCwiaWF0IjoxNzA5MDE1NzU2fQ.LknspC5W2QEThq9xpF1OciAJKpQMJmhkPGRWCS4rRoEeyTYl7bzKLqTuEhKE1I-luzjjIXNsnK6Ypbk_ith5mV2Wz6TTfQ-BF_dfBEfx75A9lDaTyLrn_zNLlOs-qsxst2y7eAOQQ7lb2mubFlLA3LDAWO-4UBJDLes0Mn6rp5pzSbF5zNypd319J1R6gAGBUBsPFGeTkxjr3ykHlB_nKNV0G7WpK9z_QvXQkT4os3oU2rs2tL1QQO4P3pSDB2lvEJ0dsXVggJi1rr6Av22uDI1lFo0PEekJmdFns-VIS36ipy3Ppgd7f5gicBNgUyhNUggPbdyePfV7zCkw3IrU-w"
+curl -XPOST $url1/black1/bbb -d '{"test":"jwt"}' -H "Authentication: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Ind3dy5iZWpzb24uY29tIiwic3ViIjoiZGVtbyIsImlhdCI6MTcwOTAxOTM5MCwibmJmIjoxNzA5MDE5MzkwLCJleHAiOjE3MDkxMDU3OTB9.TmHPtcD76VBNelt0Qdjc-SsYxfpxIzNIL0FSz8JAQchhqkXnhpqK5j2_sE0ot6Fx_bwFQHEB0erJLn4Ey7OtJgT4B3etxlpcw39jk2M1YidkFfKHgq2d8tUXa-Nu8mpvVQP7kQJ-Z-l_OkiJZs1NpgaKo5646k0vEaQqmzW3aYwuL4NE2tumDoYDCzexLzUTuzNUucxZ8sZYqf5_yIcLXueHItGampnLMtsWLNH3StXoiQWkS79Lhj04Lq5YTO4Sd074KNc5juJRZwqNpjddaQ08_5ry_jhOr0C3c1uEatehCePJozQZIdELf0Y6gN0-CYRhcJPiz5ynbOB9pNMLUw"
+curl -XPOST $url2/white1/aaa -d '{"test":"jwt"}'
+curl -XPOST $url2/white2/ccc -d '{"test":"jwt"}'
+curl -XPOST $url2/common/aaa -d '{"test":"jwt"}' -H "Authentication: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiSm9obiIsImFkbWluIjp0cnVlLCJleHAiOjE3MDkxODg1MzksIm5iZiI6MTcwOTAxNTc1NCwiaWF0IjoxNzA5MDE1NzU2fQ.LknspC5W2QEThq9xpF1OciAJKpQMJmhkPGRWCS4rRoEeyTYl7bzKLqTuEhKE1I-luzjjIXNsnK6Ypbk_ith5mV2Wz6TTfQ-BF_dfBEfx75A9lDaTyLrn_zNLlOs-qsxst2y7eAOQQ7lb2mubFlLA3LDAWO-4UBJDLes0Mn6rp5pzSbF5zNypd319J1R6gAGBUBsPFGeTkxjr3ykHlB_nKNV0G7WpK9z_QvXQkT4os3oU2rs2tL1QQO4P3pSDB2lvEJ0dsXVggJi1rr6Av22uDI1lFo0PEekJmdFns-VIS36ipy3Ppgd7f5gicBNgUyhNUggPbdyePfV7zCkw3IrU-w"
+curl -XPOST $url2/common/aaa -d '{"test":"jwt"}' -H "Authentication: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Ind3dy5iZWpzb24uY29tIiwic3ViIjoiZGVtbyIsImlhdCI6MTcwOTAxOTM5MCwibmJmIjoxNzA5MDE5MzkwLCJleHAiOjE3MDkxMDU3OTB9.TmHPtcD76VBNelt0Qdjc-SsYxfpxIzNIL0FSz8JAQchhqkXnhpqK5j2_sE0ot6Fx_bwFQHEB0erJLn4Ey7OtJgT4B3etxlpcw39jk2M1YidkFfKHgq2d8tUXa-Nu8mpvVQP7kQJ-Z-l_OkiJZs1NpgaKo5646k0vEaQqmzW3aYwuL4NE2tumDoYDCzexLzUTuzNUucxZ8sZYqf5_yIcLXueHItGampnLMtsWLNH3StXoiQWkS79Lhj04Lq5YTO4Sd074KNc5juJRZwqNpjddaQ08_5ry_jhOr0C3c1uEatehCePJozQZIdELf0Y6gN0-CYRhcJPiz5ynbOB9pNMLUw"
+s plan -t ./s.yaml
+s info -y -t ./s.yaml
+s remove -y -t ./s.yaml
+cd ..

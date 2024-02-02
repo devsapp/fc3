@@ -3,7 +3,12 @@ import _ from 'lodash';
 import inquirer from 'inquirer';
 import { diffConvertYaml } from '@serverless-devs/diff';
 
-import { IInputs, ITrigger } from '../../../interface';
+import {
+  IInputs,
+  ITrigger,
+  convertIHttpTriggerConfig,
+  instanceOfIHttpTriggerConfig,
+} from '../../../interface';
 import logger from '../../../logger';
 import Base from './base';
 import { GetApiType } from '../../../resources/fc';
@@ -114,6 +119,14 @@ export default class Trigger extends Base {
         continue;
       }
       const localConfig = this.local[index];
+
+      if (
+        localConfig.triggerType === 'http' &&
+        instanceOfIHttpTriggerConfig(localConfig.triggerConfig)
+      ) {
+        localConfig.triggerConfig = convertIHttpTriggerConfig(localConfig.triggerConfig);
+      }
+
       const { diffResult, show } = diffConvertYaml(remoteConfig, localConfig);
       logger.debug(`${this.functionName}/${localConfig.triggerName} diff show:\n${show}`);
       if (!_.isEmpty(diffResult)) {

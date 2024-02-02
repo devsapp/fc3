@@ -459,7 +459,7 @@ vendor`;
   }
 
   private _afterTipLibPath(): string | undefined {
-    const { LD_LIBRARY_PATH } = this.getEnv();
+    let { LD_LIBRARY_PATH } = this.getEnv();
     if (this.existManifest('apt-get.list')) {
       if (!LD_LIBRARY_PATH) {
         let libPaths = [
@@ -483,6 +483,9 @@ vendor`;
           ];
         }
         const libPathsStr = `${libPaths.join(':')}`;
+        if (LD_LIBRARY_PATH === undefined) {
+          LD_LIBRARY_PATH = '';
+        }
         if (!LD_LIBRARY_PATH.includes(libPathsStr)) {
           return `LD_LIBRARY_PATH: ${libPathsStr}`;
         }

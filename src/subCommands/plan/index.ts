@@ -1,6 +1,12 @@
 /* eslint-disable no-await-in-loop */
 import _ from 'lodash';
-import { IInputs, IRegion, ITrigger } from '../../interface';
+import {
+  IInputs,
+  IRegion,
+  ITrigger,
+  convertIHttpTriggerConfig,
+  instanceOfIHttpTriggerConfig,
+} from '../../interface';
 import { diffConvertPlanYaml } from '@serverless-devs/diff';
 import FC, { GetApiType } from '../../resources/fc';
 import { FC_API_ERROR_CODE } from '../../resources/fc/error-code';
@@ -34,6 +40,14 @@ export default class Plan {
         inputs.userAgent ||
         `Component:fc3;Nodejs:${process.version};OS:${process.platform}-${process.arch}`
       }command:plan`,
+    });
+
+    this.triggers = this.triggers.map((item) => {
+      const newItem = JSON.parse(JSON.stringify(item));
+      if (newItem.triggerType === 'http' && instanceOfIHttpTriggerConfig(newItem.triggerConfig)) {
+        newItem.triggerConfig = convertIHttpTriggerConfig(newItem.triggerConfig);
+      }
+      return newItem;
     });
   }
 
