@@ -38,9 +38,6 @@ export default class Acr {
       ? t.substring(0, t.length - 9)
       : '';
     logger.info(`get instanceName=${instanceName} and region=${region} from ${imageUrl}`);
-    if (instanceName !== '') {
-      throw new Error('ACREE image is currently not supported');
-    }
     return await getAcrEEInstanceID(region, credential, instanceName);
   }
 
