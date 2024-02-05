@@ -245,6 +245,8 @@ vendor`;
       case 'nodejs12':
       case 'nodejs14':
       case 'nodejs16':
+      case 'nodejs18':
+      case 'nodejs20':
         if (this.existManifest('package.json')) {
           tasks.push(`npm install ${customArgs}`);
         }

@@ -327,7 +327,9 @@ export class BaseLocal {
       case 'nodejs10':
       case 'nodejs12':
       case 'nodejs14':
-      case 'nodejs16': {
+      case 'nodejs16':
+      case 'nodejs18':
+      case 'nodejs20': {
         return JSON.stringify(
           {
             version: '0.2.0',
