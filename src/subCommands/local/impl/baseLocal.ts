@@ -20,6 +20,7 @@ import {
 import { runCommand } from '../../../utils';
 import FC from '../../../resources/fc';
 import { execSync } from 'child_process';
+import chalk from 'chalk';
 
 const httpx = require('httpx');
 
@@ -45,9 +46,12 @@ export class BaseLocal {
       console.log('\nDEVS:SIGINT, stop container');
       // kill container
       try {
-        execSync(`docker kill ${this.getContainerName()}`);
+        const result = execSync(`docker ps | grep ${this.getContainerName()}`);
+        if(result){
+          execSync(`docker kill ${this.getContainerName()}`);
+        }
       } catch (e) {
-        logger.warn(`fail to docker kill ${this.getContainerName()}, error=${e}`);
+        console.warn(chalk.yellow(`fail to docker kill ${this.getContainerName()}, error=${e}`));
       }
       process.exit();
     });
@@ -443,7 +447,8 @@ export class BaseLocal {
       return false;
     }
     // TODO check if runtime support breakpoint debugging
-    // if (this.canSupportDebug() && _.isFinite(this.getDebugPort())) {
+
+    // if (!this.canSupportDebug() && _.isFinite(this.getDebugPort())) {
     //   logger.error(`breakpoint debugging is not support in ${this.getRuntime()} runtime`);
     //   return false;
     // }

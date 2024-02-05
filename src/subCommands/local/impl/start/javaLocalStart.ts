@@ -1,18 +1,19 @@
-import { BaseLocalInvoke } from './baseLocalInvoke';
+import { BaseLocalStart } from './baseLocalStart';
 import _ from 'lodash';
-// import { IDE_INTELLIJ } from '../../../../constant';
-// import logger from '../../../../logger';
+import { IDE_VSCODE } from '../../../../constant';
+import logger from '../../../../logger';
 
-export class JavaLocalInvoke extends BaseLocalInvoke {
-  beforeInvoke(): boolean {
-    const ret = super.beforeInvoke();
+export class JavaLocalStart extends BaseLocalStart {
+  beforeStart(): boolean {
+    const ret = super.beforeStart();
     if (!ret) {
       return ret;
     }
-    // if (_.isString(this.getDebugIDE()) && this.getDebugIDE() !== IDE_INTELLIJ) {
-    //   logger.error('java runtime debug only support intellij');
-    //   return false;
-    // }
+    const debugIDEArray: string[] = [IDE_VSCODE];
+    if (_.isString(this.getDebugIDE()) && !debugIDEArray.includes(this.getDebugIDE())) {
+      logger.error('java runtime debug only support vscode');
+      return false;
+    }
     return true;
   }
 
