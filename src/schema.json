@@ -617,6 +617,8 @@
                 "nodejs12",
                 "nodejs14",
                 "nodejs16",
+                "nodejs18",
+                "nodejs20",
                 "php7.2",
                 "python2.7",
                 "python3",

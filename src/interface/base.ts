@@ -21,6 +21,8 @@ export enum Runtime {
   'nodejs12' = 'nodejs12',
   'nodejs14' = 'nodejs14',
   'nodejs16' = 'nodejs16',
+  'nodejs18' = 'nodejs18',
+  'nodejs20' = 'nodejs20',
   'python3.10' = 'python3.10',
   'python3.9' = 'python3.9',
   'python3' = 'python3',

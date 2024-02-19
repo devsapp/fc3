@@ -184,8 +184,7 @@ type 目前支持：`http`, `timer`, `oss`, `log`, `mns_topic`, `cdn_events`, `t
 | [functionParameter](#functionParameter) | True | [Struct](#functionParameter) | 该参数将作为函数 Event 的 Parameter 传入函数。默认值为空（{}） |
 | [jobConfig](#jobConfig)                 | True | [Struct](#jobConfig)         | job 配置                                                       |
 | [logConfig](#logConfig-1)               | True | [Struct](#logConfig-1)       | 日志配置                                                       |
-
-| [sourceConfig](#sourceConfig) | True | [Struct](#sourceConfig) | source 配置 |
+| [sourceConfig](#sourceConfig)           | True | [Struct](#sourceConfig)      | source 配置                                                    |
 
 #### 权限配置相关
 
