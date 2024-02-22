@@ -14,6 +14,9 @@ import logger from '../../logger';
 
 import { NodejsLocalStart } from './impl/start/nodejsLocalStart';
 import { PythonLocalStart } from './impl/start/pythonLocalStart';
+import { PhpLocalStart } from './impl/start/phpLocalStart';
+import { GoLocalStart } from './impl/start/goLocalInvoke';
+import { DotnetLocalStart } from './impl/start/dotnetLocalStart';
 
 export default class ComponentBuild {
   /**
@@ -25,12 +28,12 @@ export default class ComponentBuild {
 
     // check if has http trigger; if has, advise use local start
     if (this.hasHttpTrigger(inputs.props.triggers)) {
-      logger.warn('The function has an HTTP trigger. You had better use ‘s local start‘ instead. ');
+      logger.warn(`The function has an HTTP trigger. You had better use ‘s local start‘ instead. `);
     }
 
     switch (inputs.props.runtime) {
       // case 'nodejs6':
-      // case 'nodejs8':
+      case 'nodejs8':
       case 'nodejs10':
       case 'nodejs12':
       case 'nodejs14':
@@ -65,7 +68,7 @@ export default class ComponentBuild {
         await goLocalInvoke.invoke();
         break;
       }
-      case 'dotnetcore2.1': {
+      case 'dotnetcore3.1': {
         const dotnetLocalInvoker = new DotnetLocalInvoke(inputs);
         await dotnetLocalInvoker.invoke();
         break;
@@ -99,6 +102,7 @@ export default class ComponentBuild {
     }
 
     switch (inputs.props.runtime) {
+      case 'nodejs8':
       case 'nodejs10':
       case 'nodejs12':
       case 'nodejs14':
@@ -116,15 +120,30 @@ export default class ComponentBuild {
         await pythonLocalStart.start();
         break;
       }
+      case 'php7.2': {
+        const pythonLocalStart = new PhpLocalStart(inputs);
+        await pythonLocalStart.start();
+        break;
+      }
+      case 'go1': {
+        const goLocalStart = new GoLocalStart(inputs);
+        await goLocalStart.start();
+        break;
+      }
+      case 'dotnetcore3.1': {
+        const dotnetLocalStart = new DotnetLocalStart(inputs);
+        await dotnetLocalStart.start();
+        break;
+      }
       case 'custom':
       case 'custom.debian10': {
-        const customLocalInvoker = new CustomLocalStart(inputs);
-        await customLocalInvoker.start();
+        const customLocalStart = new CustomLocalStart(inputs);
+        await customLocalStart.start();
         break;
       }
       case 'custom-container': {
-        const customContainerLocalInvoker = new CustomContainerLocalStart(inputs);
-        await customContainerLocalInvoker.start();
+        const customContainerLocalStart = new CustomContainerLocalStart(inputs);
+        await customContainerLocalStart.start();
         break;
       }
       default:

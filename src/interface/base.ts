@@ -17,6 +17,7 @@ export enum Protocol {
 }
 
 export enum Runtime {
+  'nodejs8' = 'nodejs8',
   'nodejs10' = 'nodejs10',
   'nodejs12' = 'nodejs12',
   'nodejs14' = 'nodejs14',

@@ -234,7 +234,6 @@ export class BaseLocal {
 
     const sysEnvs: any = {
       FC_RUNTIME: this.getRuntime(),
-      FC_RIE_DEBUG: 'false',
       FC_TIMEOUT: this.getTimeout(),
       FC_FUNC_CODE_PATH: '/code/',
       ALIBABA_CLOUD_ACCESS_KEY_ID: credentials.AccessKeyID || '',
@@ -306,28 +305,7 @@ export class BaseLocal {
     const functionName = this.getFunctionName();
 
     switch (this.getRuntime()) {
-      case 'nodejs6': {
-        return JSON.stringify(
-          {
-            version: '0.2.0',
-            configurations: [
-              {
-                name: `fc/${functionName}`,
-                type: 'node',
-                request: 'attach',
-                address: 'localhost',
-                port: debugPort,
-                localRoot: `${codePath}`,
-                remoteRoot: '/code',
-                protocol: 'legacy',
-                stopOnEntry: false,
-              },
-            ],
-          },
-          null,
-          4,
-        );
-      }
+      case 'nodejs8': 
       case 'nodejs10':
       case 'nodejs12':
       case 'nodejs14':

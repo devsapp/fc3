@@ -1,12 +1,12 @@
-import { BaseLocalInvoke } from './baseLocalInvoke';
 import _ from 'lodash';
 import * as ip from 'ip';
 import { IDE_VSCODE } from '../../../../constant';
 import logger from '../../../../logger';
+import { BaseLocalStart } from './baseLocalStart';
 
-export class PhpLocalInvoke extends BaseLocalInvoke {
-  beforeInvoke(): boolean {
-    const ret = super.beforeInvoke();
+export class PhpLocalStart extends BaseLocalStart {
+  beforeStart(): boolean {
+    const ret = super.beforeStart();
     if (!ret) {
       return ret;
     }

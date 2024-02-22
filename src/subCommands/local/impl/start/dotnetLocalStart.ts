@@ -1,11 +1,11 @@
 /* eslint-disable no-template-curly-in-string */
-import { BaseLocalInvoke } from './baseLocalInvoke';
+import { BaseLocalStart } from './baseLocalStart';
 import _ from 'lodash';
 
-export class DotnetLocalInvoke extends BaseLocalInvoke {
+export class DotnetLocalStart extends BaseLocalStart {
   getDebugArgs(): string {
     if (_.isFinite(this.getDebugPort())) {
-      if (this.getRuntime() === 'dotnetcore3') {
+      if (this.getRuntime() === 'dotnetcore3.1') {
         return `DEBUG_OPTIONS=true`;
       }
       // TODO dotnetcore3.1, fc-docker also not support dotnetcore3.1
