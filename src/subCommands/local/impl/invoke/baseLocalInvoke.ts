@@ -9,7 +9,7 @@ import { v4 as uuidV4 } from 'uuid';
 import chalk from 'chalk';
 import { execSync } from 'child_process';
 
-const httpx = require('httpx');
+import * as httpx from 'httpx';
 
 export class BaseLocalInvoke extends BaseLocal {
   port: number;
@@ -78,7 +78,7 @@ export class BaseLocalInvoke extends BaseLocal {
       timeout,
     );
 
-    if (!this.isDebug()) {
+    if (!this.isDebug() && typeof headerInfo['x-fc-log-result'] === 'string') {
       console.log(Buffer.from(headerInfo['x-fc-log-result'], 'base64').toString());
     }
     console.log(result.toString());

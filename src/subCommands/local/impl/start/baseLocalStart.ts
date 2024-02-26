@@ -81,7 +81,7 @@ export class BaseLocalStart extends BaseLocal {
       .listen(this.proxyPort, () => {
         logger.debug(`代理服务器在端口 ${this.proxyPort} 上运行`);
       });
-    proxy.on('proxyRes', async (proxyRes, req, res) => {
+    proxy.on('proxyRes', async (proxyRes) => {
       console.log(Buffer.from(proxyRes.headers['x-fc-log-result'], 'base64').toString());
     });
   }

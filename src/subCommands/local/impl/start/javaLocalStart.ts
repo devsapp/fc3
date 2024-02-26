@@ -1,6 +1,6 @@
 import { BaseLocalStart } from './baseLocalStart';
 import _ from 'lodash';
-import { IDE_VSCODE } from '../../../../constant';
+import { IDE_INTELLIJ, IDE_VSCODE } from '../../../../constant';
 import logger from '../../../../logger';
 
 export class JavaLocalStart extends BaseLocalStart {
@@ -9,9 +9,9 @@ export class JavaLocalStart extends BaseLocalStart {
     if (!ret) {
       return ret;
     }
-    const debugIDEArray: string[] = [IDE_VSCODE];
+    const debugIDEArray: string[] = [IDE_VSCODE, IDE_INTELLIJ];
     if (_.isString(this.getDebugIDE()) && !debugIDEArray.includes(this.getDebugIDE())) {
-      logger.error('java runtime debug only support vscode');
+      logger.error('java runtime debug only support vscode and intellij');
       return false;
     }
     return true;
@@ -20,10 +20,10 @@ export class JavaLocalStart extends BaseLocalStart {
   getDebugArgs(): string {
     if (_.isFinite(this.getDebugPort())) {
       if (this.getRuntime() === 'java8') {
-        return `FC_DEBUG_ARGS=agentlib:jdwp=transport=dt_socket,server=y,suspend=y,quiet=y,address=${this.getDebugPort()}`;
+        return `FC_DEBUG_ARGS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,quiet=y,address=${this.getDebugPort()}`;
       }
-      if(this.getRuntime() === 'java11'){
-        return `FC_DEBUG_ARGS=agentlib:jdwp=transport=dt_socket,server=y,suspend=y,quiet=y,address=*:${this.getDebugPort()}`;
+      if (this.getRuntime() === 'java11') {
+        return `FC_DEBUG_ARGS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,quiet=y,address=*:${this.getDebugPort()}`;
       }
     }
     return '';

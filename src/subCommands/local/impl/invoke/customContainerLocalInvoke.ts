@@ -42,16 +42,16 @@ export class CustomContainerLocalInvoke extends BaseLocalInvoke {
     }
 
     let envStr = '';
-    for (const item in sysEnvs) {
-      envStr += ` -e "${item}=${sysEnvs[item]}"`;
-    }
+    Object.keys(sysEnvs).forEach((key) => {
+      envStr += ` -e "${key}=${sysEnvs[key]}"`;
+    });
 
     // function envs
     if ('environmentVariables' in this.inputs.props) {
       const envs = this.inputs.props.environmentVariables;
-      for (const item in envs) {
-        envStr += ` -e "${item}=${envs[item]}"`;
-      }
+      Object.keys(envs).forEach((key) => {
+        envStr += ` -e "${key}=${envs[key]}"`;
+      });
     }
 
     return envStr;

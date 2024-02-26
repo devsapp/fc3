@@ -17,6 +17,7 @@ import { PythonLocalStart } from './impl/start/pythonLocalStart';
 import { PhpLocalStart } from './impl/start/phpLocalStart';
 import { GoLocalStart } from './impl/start/goLocalInvoke';
 import { DotnetLocalStart } from './impl/start/dotnetLocalStart';
+import { JavaLocalStart } from './impl/start/javaLocalStart';
 
 export default class ComponentBuild {
   /**
@@ -118,6 +119,12 @@ export default class ComponentBuild {
       case 'python3.10': {
         const pythonLocalStart = new PythonLocalStart(inputs);
         await pythonLocalStart.start();
+        break;
+      }
+      case 'java8':
+      case 'java11': {
+        const javaLocalStart = new JavaLocalStart(inputs);
+        await javaLocalStart.start();
         break;
       }
       case 'php7.2': {

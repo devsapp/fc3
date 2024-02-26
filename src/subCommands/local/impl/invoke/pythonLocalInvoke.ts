@@ -16,7 +16,7 @@ export class PythonLocalInvoke extends BaseLocalInvoke {
     }
     return true;
   }
-  
+
   getDebugArgs(): string {
     if (_.isFinite(this.getDebugPort())) {
       // return `FC_DEBUG_ARGS=-m ptvsd --host 0.0.0.0 --port ${this.getDebugPort()} --wait`;

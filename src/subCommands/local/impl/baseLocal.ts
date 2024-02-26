@@ -21,8 +21,7 @@ import { runCommand } from '../../../utils';
 import FC from '../../../resources/fc';
 import { execSync } from 'child_process';
 import chalk from 'chalk';
-
-const httpx = require('httpx');
+import * as httpx from 'httpx';
 
 export class BaseLocal {
   protected defaultDebugArgs: string;
@@ -47,7 +46,7 @@ export class BaseLocal {
       // kill container
       try {
         const result = execSync(`docker ps | grep ${this.getContainerName()}`);
-        if(result){
+        if (result) {
           execSync(`docker kill ${this.getContainerName()}`);
         }
       } catch (e) {
@@ -305,7 +304,7 @@ export class BaseLocal {
     const functionName = this.getFunctionName();
 
     switch (this.getRuntime()) {
-      case 'nodejs8': 
+      case 'nodejs8':
       case 'nodejs10':
       case 'nodejs12':
       case 'nodejs14':
@@ -362,7 +361,22 @@ export class BaseLocal {
       }
       case 'java8':
       case 'java11': {
-        return '';
+        return JSON.stringify(
+          {
+            version: '0.2.0',
+            configurations: [
+              {
+                name: `fc/${functionName}`,
+                type: 'java',
+                request: 'attach',
+                hostName: 'localhost',
+                port: debugPort,
+              },
+            ],
+          },
+          null,
+          4,
+        );
       }
       case 'php7.2': {
         return JSON.stringify(
