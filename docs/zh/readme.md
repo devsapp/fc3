@@ -31,6 +31,10 @@ category: '概览'
   </a>
 </p>
 
+# 注意
+
+建议您直接阅读 [Serverless Devs 官方文档](https://manual.serverless-devs.com/getting-started/)
+
 # 五大亮点
 
 - **全生命周期管理**：组件拥有项目的创建、开发、调试、部署、运维全生命周期管理能力；

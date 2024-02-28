@@ -28,46 +28,23 @@
 
 - **全生命周期管理**：组件拥有项目的创建、开发、调试、部署、运维全生命周期管理能力；
 - **安全发布**：通过其他形式对函数进行变更，组件可以感知并安全更新；
-- **快速集成**：借助于 Serverless Devs 的集成性和被集成性，可以与常见的 [CI/CD 平台工具](https://github.com/Serverless-Devs/Serverless-Devs/blob/master/docs/cicd.md) 等集成；
-- **可观测性**：拥有完善的可观测性，在客户端可以通过[日志查询 logs](./docs/zh/command/logs.md) 等命令，进行执行日志观测；
-- **多模调试**：提出了多模调试方案，可以同时满足开发态、运维态的不同调试需求；包括[本地运行](./docs/zh/command/local.md)、[在线运行](./docs/zh/command/invoke.md) 等功能；
+- **快速集成**：借助于 Serverless Devs 的集成性和被集成性，可以与常见的 [CI/CD 平台工具](https://manual.serverless-devs.com/user-guide/cicd/) 等集成；
+- **可观测性**：拥有完善的可观测性，在客户端可以通过[日志查询 logs](https://manual.serverless-devs.com/user-guide/aliyun/fc3/logs/) 等命令，进行执行日志观测；
+- **多模调试**：提出了多模调试方案，可以同时满足开发态、运维态的不同调试需求；包括[本地运行](https://manual.serverless-devs.com/user-guide/aliyun/fc3/local/)、[在线运行](https://manual.serverless-devs.com/user-guide/aliyun/fc3/invoke/) 等功能；
 
 **注意:**
 
-> 如果您是函数计算老用户，操作存量具有 Service 的函数, 见[fc 组件](https://docs.serverless-devs.com/fc/readme), 您可以使用 [s2tos3](./docs/zh/command/s2tos3.md) 指令将 fc 组件的 s.yaml 一键转换成 fc 3.0 的 s.yaml
+> 如果您是函数计算老用户，操作存量具有 Service 的函数, 见[fc 组件](https://docs.serverless-devs.com/fc/readme), 您可以使用 [s2tos3](https://manual.serverless-devs.com/user-guide/aliyun/fc3/s2tos3/) 指令将 fc 组件的 s.yaml 一键转换成 fc 3.0 的 s.yaml
 
-# 快速开始
+# 文档
 
-🙋 三步即可上手 函数计算（fc3）组件的使用：
+[fc3 组件官方文档](https://manual.serverless-devs.com/user-guide/aliyun/#fc3)
 
-❶ [安装 Serverless Devs 开发者工具](https://docs.serverless-devs.com/serverless-devs/quick_start#%E5%B7%A5%E5%85%B7%E5%AE%89%E8%A3%85) ：`npm install -g @serverless-devs/s`；
-
-> 安装完成还需要配置密钥，可以参考[密钥配置文档](config.md)
-
-❷ 初始化一个函数计算的 `Hello World` 项目：`s init start-fc3-python`；
-
-❸ 初始化完成之后，系统会提示是否部署项目，只需要输入`y`并按回车按钮即可完成项目的部署；
-
-- [更多入门示例](https://github.com/devsapp/start-fc/tree/V3)
-- [Tips](./docs/zh/tips.md)
-
-# 文档相关
-
-函数计算（fc3）组件全部支持的能力列表如下：
-
-| 构建&部署                                      | 可观测性                                   | 调用&调试                                          | 发布&配置                                                | 其他功能                                            |
-| ---------------------------------------------- | ------------------------------------------ | -------------------------------------------------- | -------------------------------------------------------- | --------------------------------------------------- |
-| [**部署 deploy**](./docs/zh/command/deploy.md) | [日志查询 logs](./docs/zh/command/logs.md) | [**本地调用 local**](./docs/zh/command/local.md)   | [**版本 version**](./docs/zh/command/version.md)         | [查看函数 info](./docs/zh/command/info.md)          |
-| [**构建 build**](./docs/zh/command/build.md)   |                                            | [函数触发 invoke](./docs/zh/command/invoke.md)     | [**别名 alias**](./docs/zh/command/alias.md)             | [**资源同步 sync**](./docs/zh/command/sync.md)      |
-| [移除 remove](./docs/zh/command/remove.md)     |                                            | [实例登录 instance](./docs/zh/command/instance.md) | [预留 provision](./docs/zh/command/provision.md)         | [**YAML 转换 s2tos3**](./docs/zh/command/s2tos3.md) |
-| [计划变更 plan](./docs/zh/command/plan.md)     |                                            |                                                    | [按量资源 concurrency](./docs/zh/command/concurrency.md) |                                                     |
-|                                                |                                            |                                                    | [层 layer](./docs/zh/command/layer.md)                   |                                                     |
-
-在使用函数计算（fc3）组件时，还会涉及到资源描述文件的编写，关于函数计算（fc3）组件的 Yaml 规范可以参考[**函数计算（fc3）Yaml 规范文档**](./docs/zh/yaml/readme.md)
+[快速开始](https://manual.serverless-devs.com/getting-started/)
 
 # src 目录结构
 
-```
+```text
 |-- commands-help/    配置 help 信息
 |-- default/          用于处理一些默认值
 |-- interface/        暴露一些全局的声明
@@ -98,7 +75,7 @@ Serverless Devs fc3 组件遵循 [MIT License](./LICENSE) 开源许可。
 
 <p align="center">
 
-| <img src="https://serverless-article-picture.oss-cn-hangzhou.aliyuncs.com/1635407298906_20211028074819117230.png" width="200px" > | <img src="https://serverless-article-picture.oss-cn-hangzhou.aliyuncs.com/1635407044136_20211028074404326599.png" width="200px" > | <img src="https://serverless-article-picture.oss-cn-hangzhou.aliyuncs.com/1635407252200_20211028074732517533.png" width="200px" > |
+| <img src="HTTPS://serverless-article-picture.oss-cn-hangzhou.aliyuncs.com/1635407298906_20211028074819117230.png" width="200px" > | <img src="HTTPS://serverless-article-picture.oss-cn-hangzhou.aliyuncs.com/1635407044136_20211028074404326599.png" width="200px" > | <img src="HTTPS://serverless-article-picture.oss-cn-hangzhou.aliyuncs.com/1635407252200_20211028074732517533.png" width="200px" > |
 | --------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
 | <center>关注微信公众号：`serverless`</center>                                                                                     | <center>联系微信小助手：`xiaojiangwh`</center>                                                                                    | <center>加入钉钉交流群：`33947367`</center>                                                                                       |
 

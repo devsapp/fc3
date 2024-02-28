@@ -7,14 +7,14 @@ category: 'Yaml规范'
 
 ## triggers 字段
 
-| 参数名         | 必填  | 类型   | 参数描述                                                                                                 |
-| -------------- | ----- | ------ | -------------------------------------------------------------------------------------------------------- |
-| invocationRole | False | String | 使用一个 RAM 角色的 ARN 为函数指定执行角色，事件源会使用该角色触发函数执行，请确保该角色有调用函数的权限 |
-| qualifier      | False | String | 触发器函数的版本或者别名，默认 `LATEST`                                                                  |
-| sourceArn      | False | String | 触发器事件源的 ARN，对于 EB 触发器，该字段为选填项，若主动填写该字段，表示将 EB 侧已存在资源关联到该触发器，注意，**两个不同 EB 触发器不要配置同一个 sourceArn**，否则触发器的更新/删除操作会相互影响                                                                                       |
-| triggerConfig  | True  | Struct | 触发器配置，针对不同类型的触发器，配置有所不同。                                                         |
-| triggerName    | True  | String | 触发器名称                                                                                               |
-| triggerType    | True  | Enum   | 触发器类型                                                                                               |
+| 参数名         | 必填  | 类型   | 参数描述                                                                                                                                                                                              |
+| -------------- | ----- | ------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| invocationRole | False | String | 使用一个 RAM 角色的 ARN 为函数指定执行角色，事件源会使用该角色触发函数执行，请确保该角色有调用函数的权限                                                                                              |
+| qualifier      | False | String | 触发器函数的版本或者别名，默认 `LATEST`                                                                                                                                                               |
+| sourceArn      | False | String | 触发器事件源的 ARN，对于 EB 触发器，该字段为选填项，若主动填写该字段，表示将 EB 侧已存在资源关联到该触发器，注意，**两个不同 EB 触发器不要配置同一个 sourceArn**，否则触发器的更新/删除操作会相互影响 |
+| triggerConfig  | True  | Struct | 触发器配置，针对不同类型的触发器，配置有所不同。                                                                                                                                                      |
+| triggerName    | True  | String | 触发器名称                                                                                                                                                                                            |
+| triggerType    | True  | Enum   | 触发器类型                                                                                                                                                                                            |
 
 triggerType 目前支持：`http`, `timer`, `oss`, `log`, `mns_topic`, `cdn_events`, `tablestore`, `eventbridge`
 
