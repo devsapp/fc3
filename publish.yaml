@@ -13,74 +13,103 @@ Tags: #标签详情
   - fc3.0组件
 Category: 基础云服务
 
-Properties:
-  region:
-    type: string
-    required: true
-    description: 地域
-    default: cn-hangzhou
-    enum:
-      - cn-beijing
-      - cn-hangzhou
-      - cn-shanghai
-      - cn-qingdao
-      - cn-zhangjiakou
-      - cn-huhehaote
-      - cn-shenzhen
-      - cn-chengdu
-      - cn-hongkong
-      - ap-southeast-1
-      - ap-southeast-2
-      - ap-southeast-3
-      - ap-southeast-5
-      - ap-southeast-7
-      - ap-northeast-1
-      - ap-northeast-2
-      - eu-central-1
-      - eu-west-1
-      - us-west-1
-      - us-east-1
-      - ap-south-1
+Service:
+  函数计算:
+    Authorities: 
+      - AliyunFCFullAccess
 
-  functionName:
-    type: string
-    required: true
-    description: 函数名字
+Commands: 
+  deploy: 部署函数
+  build: 构建函数
+  remove: 删除函数
+  plan: 计划变更
+  invoke: 调用函数
+  local: 本地调试
+  instance: 实例登录
+  version: 函数版本操作
+  alias: 函数别名操作
+  provision: 函数预留操作
+  concurrency: 函数资源配额操作
+  layer: 层操作
+  logs: 函数日志查询
+  info: 查看函数详情
+  sync: 线上资源同步到本地
+  s2tos3: fc2.0 yaml 转 fc3.0 yaml
 
-  runtime:
-    type: string
-    required: true
-    description: 地域
-    default: nodejs14
-    enum:
-      - nodejs10
-      - nodejs12
-      - nodejs14
-      - nodejs16
-      - nodejs18
-      - nodejs20
-      - python3
-      - python3.9
-      - python3.10
-      - php7.2
-      - java8
-      - java11
-      - dotnetcore3.1
-      - custom
-      - custom.debian10
-      - custom-container
+Parameters:
+  type: object
+  additionalProperties: false
+  required: # 必填项
+    - region
+    - service
+  properties:
+    region:
+      type: string
+      required: true
+      description: 地域
+      default: cn-hangzhou
+      enum:
+        - cn-beijing
+        - cn-hangzhou
+        - cn-shanghai
+        - cn-qingdao
+        - cn-zhangjiakou
+        - cn-huhehaote
+        - cn-shenzhen
+        - cn-chengdu
+        - cn-hongkong
+        - ap-southeast-1
+        - ap-southeast-2
+        - ap-southeast-3
+        - ap-southeast-5
+        - ap-southeast-7
+        - ap-northeast-1
+        - ap-northeast-2
+        - eu-central-1
+        - eu-west-1
+        - us-west-1
+        - us-east-1
+        - ap-south-1
 
-  code:
-    type: string | object
-    required: true
-    description: 函数代码包地址，本地文件夹/本地zip文件/oss bucket+object
+    functionName:
+      type: string
+      required: true
+      description: 函数名字
 
-  triggers:
-    type: array
-    required: false
-    description: 触发器配置，和 FC3.0 CreateTrigger API 对齐
+    runtime:
+      type: string
+      required: true
+      description: 地域
+      default: nodejs14
+      enum:
+        - nodejs10
+        - nodejs12
+        - nodejs14
+        - nodejs16
+        - nodejs18
+        - nodejs20
+        - python3
+        - python3.9
+        - python3.10
+        - php7.2
+        - java8
+        - java11
+        - dotnetcore3.1
+        - custom
+        - custom.debian10
+        - custom-container
 
-  asyncInvokeConfig:
-    type: object
-    required: false
-    description: 异步调用配置，和 FC3.0 CreateAsyncInvokeConfig API 对齐
+    code:
+      type: string | object
+      required: true
+      description: 函数代码包地址，本地文件夹/本地zip文件/oss bucket+object
+
+    triggers:
+      type: array
+      required: false
+      description: 触发器配置，和 FC3.0 CreateTrigger API 对齐
+
+    asyncInvokeConfig:
+      type: object
+      required: false
+      description: 异步调用配置，和 FC3.0 CreateAsyncInvokeConfig API 对齐
