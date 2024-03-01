@@ -22,13 +22,13 @@ export default (props: IProps) => {
     logger.debug(`validate status: ${valid}`);
     if (!valid) {
       logger.debug(`validate error: ${JSON.stringify(ajv.errors, null, 2)}`);
-      logger.write(yellow(`Valid function props error:`));
+      logger.debug(yellow(`Valid function props error:`));
       for (const error of ajv.errors as Array<ErrorObject<string, Record<string, any>, unknown>>) {
-        logger.write(yellow(`  ${error.instancePath}: ${error.message}`));
+        logger.debug(yellow(`  ${error.instancePath}: ${error.message}`));
       }
-      logger.write(' \n ');
+      logger.debug(' \n ');
     }
   } catch (ex) {
-    logger.error(`Validate Error: ${ex}`);
+    logger.debug(`Validate Error: ${ex}`);
   }
 };

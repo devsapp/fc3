@@ -42,7 +42,7 @@ export default class Layer {
       logger.debug(`layer zip crc64=${crc64Value}; codeChecksum=${latestLayer.codeChecksum}`);
 
       if (latestLayer.codeChecksum === crc64Value) {
-        logger.write(
+        logger.debug(
           chalk.yellow(
             `Skip uploadCode because code is no changed, codeChecksum=${crc64Value}; Laster layerArn=${latestLayer.layerVersionArn}`,
           ),

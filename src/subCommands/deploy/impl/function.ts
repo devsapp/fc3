@@ -266,7 +266,7 @@ export default class Service extends Base {
     logger.debug(`code zip crc64=${crc64Value}; codeChecksum=${this.codeChecksum}`);
     if (this.codeChecksum) {
       if (this.codeChecksum === crc64Value) {
-        logger.write(
+        logger.debug(
           yellow(`skip uploadCode because code is no changed, codeChecksum=${crc64Value}`),
         );
         return false;

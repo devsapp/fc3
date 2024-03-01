@@ -116,6 +116,10 @@ export default class SYaml2To3 {
     const refineFileContents = this.variableReplace(fileContents);
     // eslint-disable-next-line prefer-const
     let parsedYamlData = yaml.load(refineFileContents);
+    if (parsedYamlData.edition === '3.0.0') {
+      logger.info(`${this.source} edition is 3.0.0, no need transform.`);
+      return;
+    }
     parsedYamlData.edition = '3.0.0';
     parsedYamlData.resources = parsedYamlData.services;
     _.unset(parsedYamlData, 'services');

@@ -33,6 +33,7 @@ export default class Fc extends Base {
     const deploy = new Deploy(inputs);
     const result = await deploy.run();
     console.log(); // 防止最后输出不换行
+    logger.tips(`You can use "s info" get more detail`);
     return result;
   }
 
@@ -169,5 +170,19 @@ export default class Fc extends Base {
   public async getSchema(inputs: IInputs) {
     logger.debug(`getSchema: ${JSON.stringify(inputs)}`);
     return fs.readFileSync(SCHEMA_FILE_PATH, 'utf-8');
+  }
+
+  public async getShownProps(inputs: IInputs) {
+    logger.debug(`getShownProps: ${JSON.stringify(inputs)}`);
+    return {
+      deploy: [
+        'region',
+        'functionName',
+        'handler',
+        'description',
+        'triggers[*].triggerName',
+        'triggers[*].triggerType',
+      ],
+    };
   }
 }
