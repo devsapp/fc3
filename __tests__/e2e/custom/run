@@ -32,3 +32,8 @@ s info -t ./springboot/s.yaml
 s jar_zip local invoke --event-file ./springboot/event/http.json -t ./springboot/s.yaml
 s jar local invoke --event-file ./springboot/event/http.json -t ./springboot/s.yaml
 s remove -y -t ./springboot/s.yaml
+
+rm -rf ./go/code/target
+rm -rf ./python/code/python
+rm -rf ./python/code/__pycache__
+rm -rf ./springboot/code/target

@@ -10,13 +10,13 @@ rm -rf ./code/node_modules
 echo "test nodejs14 runtime ..."
 s build
 s local invoke -e '{"hello":"fc nodejs14"}'
-s deploy -y 
+s deploy -y
 s info
 s invoke -e '{"hello":"fc nodejs14"}'
 export BUILD_IMAGE_ENV=fc-backend
 rm -rf ./code/node_modules
-s build 
-s deploy -y 
+s build
+s deploy -y
 s info
 s invoke -e '{"hello":"fc nodejs14 fc backed"}'
 s remove -y
@@ -29,7 +29,7 @@ rm -rf ./code/node_modules
 echo "test nodejs12 runtime ..."
 s build
 s local invoke -e '{"hello":"fc nodejs12"}'
-s deploy -y 
+s deploy -y
 s invoke -e '{"hello":"fc nodejs12"}'
 s remove -y
 
@@ -40,10 +40,9 @@ echo "test nodejs16 runtime ..."
 rm -rf ./code/node_modules
 s build
 s local invoke -e '{"hello":"fc nodejs16"}'
-s deploy -y 
+s deploy -y
 s invoke -e '{"hello":"fc nodejs16"}'
 s remove -y
-
 
 # nodejs10
 export fc_component_runtime=nodejs10
@@ -52,9 +51,33 @@ rm -rf ./code/node_modules
 echo "test nodejs10 runtime ..."
 s build
 s local invoke -e '{"hello":"fc nodejs10"}'
-s deploy -y 
+s deploy -y
 s invoke -e '{"hello":"fc nodejs10"}'
 s remove -y
+
+# nodejs18
+export fc_component_runtime=nodejs18
+export fc_component_function_name=nodejs18-$(uname)-$(uname -m)
+echo "test nodejs18 runtime ..."
+rm -rf ./code/node_modules
+s build
+s local invoke -e '{"hello":"fc nodejs18"}'
+s deploy -y
+s invoke -e '{"hello":"fc nodejs18"}'
+s remove -y
+
+# nodejs20
+export fc_component_runtime=nodejs20
+export fc_component_function_name=nodejs20-$(uname)-$(uname -m)
+echo "test nodejs20 runtime ..."
+rm -rf ./code/node_modules
+s build
+s local invoke -e '{"hello":"fc nodejs20"}'
+s deploy -y
+s invoke -e '{"hello":"fc nodejs20"}'
+s remove -y
+
+rm -rf ./code/node_modules
 
 # nodejs8
 # export fc_component_runtime=nodejs8
@@ -63,6 +86,6 @@ s remove -y
 # echo "test nodejs8 runtime ..."
 # s build
 # s local invoke -e '{"hello":"fc nodejs8"}'
-# s deploy -y 
+# s deploy -y
 # s invoke -e '{"hello":"fc nodejs8"}'
 # s remove -y

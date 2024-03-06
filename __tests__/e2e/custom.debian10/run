@@ -22,3 +22,7 @@ s deploy -y -t ./python/s.yaml
 s invoke -e '{"hello":"fc custom.debian10 python"}' -t ./python/s.yaml
 s info -t ./python/s.yaml
 s remove -y -t ./python/s.yaml
+
+rm -rf ./go/code/target
+rm -rf ./python/code/python
+rm -rf ./python/code/__pycache__

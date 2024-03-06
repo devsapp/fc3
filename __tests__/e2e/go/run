@@ -2,8 +2,9 @@
 
 set -e
 
-echo "test custom go runtime ..."
+echo "test go runtime ..."
 rm -rf ./code/go.sum
+rm -rf ./code/target
 export fc_component_function_name=go1-$(uname)-$(uname -m)
 s deploy -y
 s invoke -e '{"hello":"fc go1"}'

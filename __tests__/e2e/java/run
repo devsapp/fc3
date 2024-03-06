@@ -7,7 +7,7 @@ export fc_component_runtime=java8
 echo "test java8 runtime ..."
 rm -rf ./target
 export fc_component_function_name=java8-$(uname)-$(uname -m)
-s deploy -y 
+s deploy -y
 s local invoke -e '{"hello":"fc java8"}'
 s invoke -e '{"hello":"fc java8"}'
 s info
@@ -18,7 +18,9 @@ export fc_component_runtime=java11
 echo "test java11 runtime ..."
 rm -rf ./target
 export fc_component_function_name=java11-$(uname)-$(uname -m)
-s deploy -y 
+s deploy -y
 s local invoke -e '{"hello":"fc java11"}'
 s invoke -e '{"hello":"fc java11"}'
 s remove -y
+
+rm -rf ./target

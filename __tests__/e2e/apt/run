@@ -8,7 +8,10 @@ rm -rf ./code/node_modules
 export fc_component_function_name=nodejs14-$(uname)-$(uname -m)
 s build
 s local invoke -e '{"hello":"apt-get"}'
-s deploy -y 
+s deploy -y
 s invoke -e '{"hello":"apt-get"}'
 s info
 s remove -y
+
+rm -rf ./code/apt-archives
+rm -rf ./code/node_modules

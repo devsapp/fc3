@@ -8,26 +8,27 @@ export fc_component_function_name=php72-$(uname)-$(uname -m)
 
 s build
 s local invoke -e '{"hello":"fc php"}'
-s deploy -y 
+s deploy -y
 s info
 s invoke -e '{"hello":"fc php"}'
 
 rm -rf ./code/vendor
 s build --script-file ./test.sh
-s deploy -y 
+s deploy -y
 s info
 s invoke -e '{"hello":"fc php"}'
 
 rm -rf ./code/vendor
 s build --command='composer install -vvv' --custom-env '{"k": "v"}' --debug
-s deploy -y 
+s deploy -y
 s info
 s invoke -e '{"hello":"fc php"}'
 
 rm -rf ./code/vendor
 s build --custom-args='-v' --debug
-s deploy -y 
+s deploy -y
 s info
 s invoke -e '{"hello":"fc php"}'
 
 s remove -y
+rm -rf ./code/vendor

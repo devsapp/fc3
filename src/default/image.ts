@@ -12,7 +12,7 @@ const getDockerRegistry = () => {
   return 'registry.hub.docker.com';
 };
 
-export const fcDockerVersion = process.env.FC_DOCKER_VERSION || '3.0.0';
+export const fcDockerVersion = process.env.FC_DOCKER_VERSION || '3.1.0';
 
 export const fcDockerVersionRegistry = getDockerRegistry();
 
