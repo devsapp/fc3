@@ -304,7 +304,6 @@ export class BaseLocal {
     const functionName = this.getFunctionName();
 
     switch (this.getRuntime()) {
-      case 'nodejs8':
       case 'nodejs10':
       case 'nodejs12':
       case 'nodejs14':
@@ -332,7 +331,6 @@ export class BaseLocal {
           4,
         );
       }
-      case 'python2.7':
       case 'python3':
       case 'python3.9':
       case 'python3.10': {
@@ -440,10 +438,10 @@ export class BaseLocal {
     }
     // TODO check if runtime support breakpoint debugging
 
-    // if (!this.canSupportDebug() && _.isFinite(this.getDebugPort())) {
-    //   logger.error(`breakpoint debugging is not support in ${this.getRuntime()} runtime`);
-    //   return false;
-    // }
+    if (!this.canSupportDebug(this.getRuntime()) && _.isFinite(this.getDebugPort())) {
+      logger.error(`breakpoint debugging is not support in ${this.getRuntime()} runtime`);
+      return false;
+    }
     return true;
   }
 
@@ -476,5 +474,15 @@ export class BaseLocal {
     logger.error(
       `Server running on port ${port} is not ready after ${maxRetries} retries. Exiting...`,
     );
+  }
+
+  canSupportDebug(runtime: string): boolean{
+    const supportedRuntimeList = [
+      'nodejs10', 'nodejs12', 'nodejs14', 'nodejs16', 'nodejs18', 'nodejs20',
+      'python3', 'python3.9', 'python3.10',
+      'java8', 'java11',
+      'php7.2'
+    ]
+    return supportedRuntimeList.includes(runtime);
   }
 }

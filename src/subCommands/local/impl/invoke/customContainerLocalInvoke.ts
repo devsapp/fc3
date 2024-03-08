@@ -53,8 +53,22 @@ export class CustomContainerLocalInvoke extends BaseLocalInvoke {
         envStr += ` -e "${key}=${envs[key]}"`;
       });
     }
-
     return envStr;
+  }
+
+  getBootStrap(): string {
+    if (!this.isCustomContainerRuntime()) {
+      throw new Error('only custom container get command and args');
+    }
+    let bootStrap = '';
+    const { customContainerConfig } = this.inputs.props;
+    if (_.has(customContainerConfig, 'entrypoint')) {
+      bootStrap += customContainerConfig.entrypoint.join(' ');
+    }
+    if (_.has(customContainerConfig, 'command')) {
+      bootStrap += ` ${customContainerConfig.command.join(' ')}`;
+    }
+    return bootStrap;
   }
 
   async getLocalInvokeCmdStr(): Promise<string> {
@@ -64,12 +78,16 @@ export class CustomContainerLocalInvoke extends BaseLocalInvoke {
     this._port = port;
     const image = await this.getRuntimeRunImage();
     const envStr = await this.getEnvString();
-    const dockerCmdStr = `docker run --name ${this.getContainerName()} -d --platform linux/amd64 --rm -p ${port}:${this.getCaPort()} --memory=${this.getMemorySize()}m ${envStr} ${image}`;
+    let dockerCmdStr = `docker run --name ${this.getContainerName()} -d --platform linux/amd64 --rm -p ${port}:${this.getCaPort()} --memory=${this.getMemorySize()}m ${envStr} ${image}`;
 
     if (!_.isEmpty(this.getDebugArgs())) {
       if (this.debugIDEIsVsCode()) {
         await this.writeVscodeDebugConfig();
       }
+    }
+
+    if (!_.isEmpty(this.getBootStrap())) {
+      dockerCmdStr += ` ${this.getBootStrap()}`;
     }
     logger.debug(`You can start the container using the following command: `);
     logger.debug(`${chalk.blue(dockerCmdStr)}\n`);

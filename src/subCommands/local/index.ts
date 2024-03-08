@@ -45,7 +45,7 @@ export default class ComponentBuild {
         await nodeLocalInvoker.invoke();
         break;
       }
-      case 'python2.7':
+      // case 'python2.7':
       case 'python3':
       case 'python3.9':
       case 'python3.10': {
@@ -86,7 +86,7 @@ export default class ComponentBuild {
         break;
       }
       default:
-        logger.error(`${inputs.props.runtime} is not supported`);
+        logger.error(`${inputs.props.runtime} is not supported. you can see the supported runtime list in https://help.aliyun.com/document_detail/2512952.html`);
     }
     return {};
   }
@@ -153,8 +153,9 @@ export default class ComponentBuild {
         await customContainerLocalStart.start();
         break;
       }
+      // todo 新文档发布以后地址可能要改
       default:
-        logger.error(`start command ${inputs.props.runtime} is not supported!`);
+        logger.error(`start command ${inputs.props.runtime} is not supported. you can see the supported runtime list in https://manual.serverless-devs.com/user-guide/aliyun/fc3/local/#_6`);
     }
   }
 
