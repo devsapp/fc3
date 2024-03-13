@@ -17,7 +17,7 @@ Examples with CLI:
         option: [
           [
             '--region <region>',
-            '[C-Required] Specify fc region, you can see all supported regions in https://www.alibabacloud.com/help/zh/fc/product-overview/region-availability',
+            '[C-Required] Specify fc region, you can see all supported regions in https://help.aliyun.com/document_detail/2512917.html',
           ],
           ['--function-name <functionName>', '[C-Required] Specify function name'],
           ['--alias-name <aliasName>', '[Required] Specify alias name'],
@@ -38,7 +38,7 @@ Examples with CLI:
         option: [
           [
             '--region <region>',
-            '[C-Required] Specify the fc region, you can see all supported regions in https://www.alibabacloud.com/help/zh/fc/product-overview/region-availability',
+            '[C-Required] Specify the fc region, you can see all supported regions in https://help.aliyun.com/document_detail/2512917.html',
           ],
           ['--function-name <functionName>', '[C-Required] Specify function name'],
           ['--table', '[Optional] Specify if output the result as table format'],
@@ -60,7 +60,7 @@ Examples with CLI:
         option: [
           [
             '--region <region>',
-            '[C-Required] Specify the fc region, you can see all supported regions in https://www.alibabacloud.com/help/zh/fc/product-overview/region-availability',
+            '[C-Required] Specify the fc region, you can see all supported regions in https://help.aliyun.com/document_detail/2512917.html',
           ],
           ['--function-name <functionName>', '[C-Required] Specify function name'],
           ['--alias-name <aliasName>', '[Required] Specify alias name'],
@@ -87,7 +87,7 @@ Examples with CLI:
         option: [
           [
             '--region <region>',
-            '[C-Required] Specify the fc region, you can see all supported regions in https://www.alibabacloud.com/help/zh/fc/product-overview/region-availability',
+            '[C-Required] Specify the fc region, you can see all supported regions in https://help.aliyun.com/document_detail/2512917.html',
           ],
           ['--function-name <functionName>', '[C-Required] Specify function name'],
           ['--alias-name <aliasName>', '[Required] Specify alias name'],

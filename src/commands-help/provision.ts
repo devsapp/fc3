@@ -17,7 +17,7 @@ Examples with CLI:
         option: [
           [
             '--region <region>',
-            '[C-Required] Specify fc region, you can see all supported regions in https://www.alibabacloud.com/help/zh/fc/product-overview/region-availability',
+            '[C-Required] Specify fc region, you can see all supported regions in https://help.aliyun.com/document_detail/2512917.html',
           ],
           ['--function-name <functionName>', '[C-Required] Specify function name'],
         ],
@@ -37,7 +37,7 @@ Examples with CLI:
         option: [
           [
             '--region <region>',
-            '[C-Required] Specify fc region, you can see all supported regions in https://www.alibabacloud.com/help/zh/fc/product-overview/region-availability',
+            '[C-Required] Specify fc region, you can see all supported regions in https://help.aliyun.com/document_detail/2512917.html',
           ],
           ['--function-name <functionName>', '[C-Required] Specify function name'],
           [
@@ -61,7 +61,7 @@ Examples with CLI:
         option: [
           [
             '--region <region>',
-            '[C-Required] Specify fc region, you can see all supported regions in https://www.alibabacloud.com/help/zh/fc/product-overview/region-availability',
+            '[C-Required] Specify fc region, you can see all supported regions in https://help.aliyun.com/document_detail/2512917.html',
           ],
           ['--function-name <functionName>', '[C-Required] Specify function name'],
           [
@@ -98,7 +98,7 @@ Examples with CLI:
         option: [
           [
             '--region <region>',
-            '[C-Required] Specify fc region, you can see all supported regions in https://www.alibabacloud.com/help/zh/fc/product-overview/region-availability',
+            '[C-Required] Specify fc region, you can see all supported regions in https://help.aliyun.com/document_detail/2512917.html',
           ],
           ['--function-name <functionName>', '[C-Required] Specify function name'],
           [

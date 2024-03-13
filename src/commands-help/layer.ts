@@ -18,7 +18,7 @@ Examples with CLI:
         option: [
           [
             '--region <region>',
-            '[C-Required] Specify the fc region of the layer, you can see all supported regions in https://www.alibabacloud.com/help/zh/fc/product-overview/region-availability',
+            '[C-Required] Specify the fc region of the layer, you can see all supported regions in https://help.aliyun.com/document_detail/2512917.html',
           ],
           ['--layer-name <layerName>', '[Required] Specify the name of the layer'],
           ['--code <code>', '[Required] Specify the code path of the layer'],
@@ -41,7 +41,7 @@ Example:
         option: [
           [
             '--region <region>',
-            '[C-Required] Specify the fc region, you can see all supported regions in https://www.alibabacloud.com/help/zh/fc/product-overview/region-availability',
+            '[C-Required] Specify the fc region, you can see all supported regions in https://help.aliyun.com/document_detail/2512917.html',
           ],
           ['--prefix <prefix>', '[Optional] Specify the prefix of layer name'],
           ['--public', '[Optional] Specify if show personal public layers'],
@@ -63,7 +63,7 @@ Example:
         option: [
           [
             '--region <region>',
-            '[C-Required] Specify the fc region of the layer, you can see all supported regions in https://www.alibabacloud.com/help/zh/fc/product-overview/region-availability',
+            '[C-Required] Specify the fc region of the layer, you can see all supported regions in https://help.aliyun.com/document_detail/2512917.html',
           ],
           ['--layer-name <layernName>', '[Required] Specify the name of the layer'],
           ['--version-id <versionId>', '[Required] Specify the version id of the layer version'],
@@ -81,7 +81,7 @@ Example:
         option: [
           [
             '--region <region>',
-            '[C-Required] Specify the fc region of the layer, you can see all supported regions in https://www.alibabacloud.com/help/zh/fc/product-overview/region-availability',
+            '[C-Required] Specify the fc region of the layer, you can see all supported regions in https://help.aliyun.com/document_detail/2512917.html',
           ],
           ['--layer-name <layerName>', '[Required] Specify the name of the layer version'],
           ['--table', '[Optional] Specify if output the result as table format'],
@@ -98,7 +98,7 @@ Example:
         option: [
           [
             '--region <region>',
-            '[C-Required] Specify the fc region of the layer, you can see all supported regions in https://www.alibabacloud.com/help/zh/fc/product-overview/region-availability',
+            '[C-Required] Specify the fc region of the layer, you can see all supported regions in https://help.aliyun.com/document_detail/2512917.html',
           ],
           ['--layer-name <layerName>', '[Required] Specify the name of the layer version.'],
           ['--version-id <versionId>', '[Required] Specify the version id of the layer version.'],
@@ -116,7 +116,7 @@ Example:
         option: [
           [
             '--region <region>',
-            '[C-Required] Specify the fc region of the layer, you can see all supported regions in https://www.alibabacloud.com/help/zh/fc/product-overview/region-availability',
+            '[C-Required] Specify the fc region of the layer, you can see all supported regions in https://help.aliyun.com/document_detail/2512917.html',
           ],
           ['--layer-name <layerName>', '[Required] Specify the name of the layer version'],
           [
@@ -136,7 +136,7 @@ Example:
         option: [
           [
             '--region <region>',
-            '[C-Required] Specify the fc region of the layer, you can see all supported regions in https://www.alibabacloud.com/help/zh/fc/product-overview/region-availability',
+            '[C-Required] Specify the fc region of the layer, you can see all supported regions in https://help.aliyun.com/document_detail/2512917.html',
           ],
           ['--layer-name <layerName>', '[Required] Specify the name of the layer'],
           [
