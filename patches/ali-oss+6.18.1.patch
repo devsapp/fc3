@@ -1,0 +1,22 @@
+diff --git a/node_modules/ali-oss/lib/common/utils/checkEnv.ts b/node_modules/ali-oss/lib/common/utils/checkEnv.ts
+index b373658..078f65d 100644
+--- a/node_modules/ali-oss/lib/common/utils/checkEnv.ts
++++ b/node_modules/ali-oss/lib/common/utils/checkEnv.ts
+@@ -1,5 +1,5 @@
+ export function checkEnv(msg: string) {
+-  if (process.browser) {
++  if ((process as any).browser) {
+     console.warn(msg);
+   }
+ }
+diff --git a/node_modules/ali-oss/lib/common/utils/isDingTalk.ts b/node_modules/ali-oss/lib/common/utils/isDingTalk.ts
+index aa7ff33..5e2b7c1 100644
+--- a/node_modules/ali-oss/lib/common/utils/isDingTalk.ts
++++ b/node_modules/ali-oss/lib/common/utils/isDingTalk.ts
+@@ -1,5 +1,5 @@
+ export function isDingTalk() {
+-  if (process.browser && window.navigator.userAgent.toLowerCase().includes('aliapp(dingtalk')) {
++  if ((process as any).browser && window.navigator.userAgent.toLowerCase().includes('aliapp(dingtalk')) {
+     return true;
+   }
+   return false;
