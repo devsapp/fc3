@@ -29,12 +29,9 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 8
-      - name: Install dependencies
-        run: |
-          brew install wget curl
       - name: install s
         run: |
-          npm i @serverless-devs/s@v3 -g
+          npm i @serverless-devs/s@beta -g
       - name: config s
         run: |
           s config add --AccountID  ${{secrets.ACCOUNTID}} --AccessKeyID ${{secrets.ACCESSKEYID}} --AccessKeySecret ${{secrets.ACCESSKEYSECRET}} -a quanxi -f

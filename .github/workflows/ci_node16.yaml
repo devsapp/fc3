@@ -21,13 +21,9 @@ jobs:
         with:
           node-version: 16
           registry-url: https://registry.npmjs.org/
-      - name: Install dependencies
-        run: |
-          brew update
-          brew install curl wget
       - name: install s
         run: |
-          npm i @serverless-devs/s@v3 -g
+          npm i @serverless-devs/s@beta -g
       - name: config s
         run: |
           s config add --AccountID  ${{secrets.ACCOUNTID}} --AccountID  ${{secrets.ACCOUNTID}} --AccessKeyID ${{secrets.ACCESSKEYID}} --AccessKeySecret ${{secrets.ACCESSKEYSECRET}} -a quanxi -f
@@ -37,10 +33,9 @@ jobs:
       - name: NPM run build
         run: |
           npm run build
-      - name: run base ci
+      - name: run base ci e2e 
         run: |
           cd __tests__/e2e && ./ci-mac-linux.sh && cd -
-
 
   windows-ci:
     runs-on: windows-latest
@@ -52,11 +47,10 @@ jobs:
           registry-url: https://registry.npmjs.org/
       - name: Install dependencies
         run: |
-          choco install -y wget
           choco install -y curl
       - name: install s
         run: |
-          npm i @serverless-devs/s@v3 -g
+          npm i @serverless-devs/s@beta -g
       - name: config s
         run: |
           s config add --AccountID  ${{secrets.ACCOUNTID}} --AccessKeyID ${{secrets.ACCESSKEYID}} --AccessKeySecret ${{secrets.ACCESSKEYSECRET}} -a quanxi -f
@@ -80,13 +74,9 @@ jobs:
         with:
           node-version: 16
           registry-url: https://registry.npmjs.org/
-      - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y wget curl
       - name: install s
         run: |
-          npm i @serverless-devs/s@v3 -g
+          npm i @serverless-devs/s@beta -g
       - name: config s
         run: |
           s config add --AccountID  ${{secrets.ACCOUNTID}} --AccessKeyID ${{secrets.ACCESSKEYID}} --AccessKeySecret ${{secrets.ACCESSKEYSECRET}} -a quanxi -f
