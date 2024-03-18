@@ -32,7 +32,6 @@ export default class Fc extends Base {
     await super.handlePreRun(inputs, true);
     const deploy = new Deploy(inputs);
     const result = await deploy.run();
-    console.log(); // 防止最后输出不换行
     logger.tips(`You can use "s info" get more detail`);
     return result;
   }

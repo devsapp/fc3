@@ -3,6 +3,7 @@ import { IInputs } from '../../src/interface';
 import _Logger from '@serverless-devs/logger';
 import path from 'path';
 import _ from 'lodash';
+import { removeNullValues } from '../../src/utils';
 
 const loggerInstance = new _Logger({
   traceId: 'traceId_12345789',
@@ -18,7 +19,7 @@ const inputs: IInputs = {
   // 项目名称
   name: 'hello-world-app',
   props: {
-    region: 'cn-huhehaote',
+    region: process.env.REGION === 'cn-hongkong' ? 'cn-hongkong' : 'cn-huhehaote',
     functionName: 'start-py',
     description: 'hello world by serverless devs',
     runtime: 'python3.9',
@@ -54,7 +55,7 @@ test('deploy event function', async () => {
   const myFcInstance = new Fc({ logger: logger });
   const output = await myFcInstance.deploy(inputs);
   expect(output).toEqual({
-    region: 'cn-huhehaote',
+    region: process.env.REGION || 'cn-huhehaote',
     description: 'hello world by serverless devs',
     functionName: 'start-py',
     handler: 'index.handler',
@@ -83,8 +84,10 @@ inputs_http.props.triggers = [
 test('deploy http function', async () => {
   const myFcInstance = new Fc({ logger: logger });
   const output = await myFcInstance.deploy(inputs_http);
+  removeNullValues(output);
+  delete output['url'];
   expect(output).toEqual({
-    region: 'cn-huhehaote',
+    region: process.env.REGION || 'cn-huhehaote',
     description: 'hello world by serverless devs',
     functionName: 'start-py',
     handler: 'index.handler',
@@ -98,17 +101,13 @@ test('deploy http function', async () => {
         description: 'xxxx',
         qualifier: 'LATEST',
         triggerConfig: {
+          methods: ['GET', 'POST'],
           authType: 'anonymous',
           disableURLInternet: false,
-          methods: ['GET', 'POST'],
         },
         triggerName: 'httpTrigger',
         triggerType: 'http',
       },
     ],
-    url: {
-      system_url: 'https://start-py-reyloeixmp.cn-huhehaote.fcapp.run',
-      system_intranet_url: 'https://start-py-reyloeixmp.cn-huhehaote-vpc.fcapp.run',
-    },
   });
 });

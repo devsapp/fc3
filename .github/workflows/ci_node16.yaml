@@ -11,6 +11,9 @@ on:
 env:
   RANDSTR: github_node16
   REGION: cn-hongkong
+  DEVS_TEST_AK_ID: ${{secrets.DEVS_TEST_AK_ID}}
+  DEVS_TEST_AK_SECRET: ${{secrets.DEVS_TEST_AK_SECRET}}
+  DEVS_TEST_UID: ${{secrets.DEVS_TEST_UID}}
 
 jobs:
   macos-ci:
@@ -21,26 +24,24 @@ jobs:
         with:
           node-version: 16
           registry-url: https://registry.npmjs.org/
-      - name: Install dependencies
-        run: |
-          brew update
-          brew install curl wget
       - name: install s
         run: |
-          npm i @serverless-devs/s@v3 -g
+          npm i @serverless-devs/s -g
       - name: config s
         run: |
           s config add --AccountID  ${{secrets.ACCOUNTID}} --AccountID  ${{secrets.ACCOUNTID}} --AccessKeyID ${{secrets.ACCESSKEYID}} --AccessKeySecret ${{secrets.ACCESSKEYSECRET}} -a quanxi -f
       - name: NPM  install
         run: |
           npm install
+      - name: run base ci ut and it
+        run: |
+          npm run test
       - name: NPM run build
         run: |
           npm run build
-      - name: run base ci
+      - name: run base ci e2e 
         run: |
           cd __tests__/e2e && ./ci-mac-linux.sh && cd -
-
 
   windows-ci:
     runs-on: windows-latest
@@ -52,21 +53,23 @@ jobs:
           registry-url: https://registry.npmjs.org/
       - name: Install dependencies
         run: |
-          choco install -y wget
           choco install -y curl
       - name: install s
         run: |
-          npm i @serverless-devs/s@v3 -g
+          npm i @serverless-devs/s -g
       - name: config s
         run: |
           s config add --AccountID  ${{secrets.ACCOUNTID}} --AccessKeyID ${{secrets.ACCESSKEYID}} --AccessKeySecret ${{secrets.ACCESSKEYSECRET}} -a quanxi -f
       - name: NPM  install
         run: |
           npm install
+      - name: run base ci ut and it
+        run: |
+          npm run test
       - name: NPM run build
         run: |
           npm run build
-      - name: run base ci
+      - name: run base ci e2e
         shell: pwsh
         run: |
           cd __tests__/e2e
@@ -80,22 +83,21 @@ jobs:
         with:
           node-version: 16
           registry-url: https://registry.npmjs.org/
-      - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y wget curl
       - name: install s
         run: |
-          npm i @serverless-devs/s@v3 -g
+          npm i @serverless-devs/s -g
       - name: config s
         run: |
           s config add --AccountID  ${{secrets.ACCOUNTID}} --AccessKeyID ${{secrets.ACCESSKEYID}} --AccessKeySecret ${{secrets.ACCESSKEYSECRET}} -a quanxi -f
       - name: NPM  install
         run: |
           npm install
+      - name: run base ci ut and it
+        run: |
+          npm run test
       - name: NPM run build
         run: |
           npm run build
-      - name: run base ci
+      - name: run base ci e2e
         run: |
           cd __tests__/e2e && ./ci-mac-linux.sh && cd -
