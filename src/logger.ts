@@ -12,6 +12,9 @@ class Logger {
   spin: (...args: unknown[]) => void;
   tips: (...args: unknown[]) => void;
   append: (...args: unknown[]) => void;
+  tipsOnce: (...args: unknown[]) => void;
+  warnOnce: (...args: unknown[]) => void;
+  writeOnce: (...args: unknown[]) => void;
 
   _set = (logger) => {
     this.log = (...args) => logger.log.apply(logger, args);
@@ -24,6 +27,10 @@ class Logger {
     this.spin = (...args) => logger.spin.apply(logger, args);
     this.append = (...args) => logger.append.apply(logger, args);
     this.tips = (...args) => logger.tips.apply(logger, args);
+    // 兼容性加入
+    if (logger.tipsOnce) this.tipsOnce = (...args) => logger.tipsOnce.apply(logger, args);
+    if (logger.warnOnce) this.warnOnce = (...args) => logger.warnOnce.apply(logger, args);
+    if (logger.writeOnce) this.writeOnce = (...args) => logger.writeOnce.apply(logger, args);
     this.instance = logger;
   };
 }
