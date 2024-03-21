@@ -116,9 +116,11 @@ export default class Sync {
     logger.debug(`sync base dir: ${baseDir}`);
     await fs_extra.removeSync(baseDir);
     logger.debug(`clear sync target path: ${baseDir}`);
-    const codePath = path.join(baseDir, `${this.region}_${this.functionName}`);
+    const codePath = path.join(baseDir, `${this.region}_${this.functionName}`).replace('$', '_');
     logger.debug(`sync code path: ${codePath}`);
-    const ymlPath = path.join(baseDir, `${this.region}_${this.functionName}.yaml`);
+    const ymlPath = path
+      .join(baseDir, `${this.region}_${this.functionName}.yaml`)
+      .replace('$', '_');
     logger.debug(`sync yaml path: ${ymlPath}`);
     if (!FC.isCustomContainerRuntime(functionConfig.runtime)) {
       const { url } = await this.fcSdk.getFunctionCode(this.functionName, this.qualifier);
