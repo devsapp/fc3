@@ -37,7 +37,7 @@ export class ImageBuilder extends Builder {
     logger.debug(`ImageDockerBuilder building ... ${JSON.stringify(this.inputs)}`);
     const { dockerFile, context } = this.getBuildContext();
     const image = await this.getRuntimeBuildImage();
-    let dockerCmdStr = `DOCKER_BUILDKIT=0 docker build --platform linux/amd64 -t ${image} -f ${dockerFile} ${context}`;
+    let dockerCmdStr = `docker build --platform linux/amd64 -t ${image} -f ${dockerFile} ${context}`;
     await runCommand(dockerCmdStr, runCommand.showStdout.inherit);
   }
 }

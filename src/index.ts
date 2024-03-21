@@ -24,7 +24,7 @@ import Concurrency from './subCommands/concurrency';
 import SYaml2To3 from './subCommands/2to3';
 import Logs from './subCommands/logs';
 import { SCHEMA_FILE_PATH } from './constant';
-import { checkDockerInstalled, isAppCenter, isYunXiao } from './utils';
+import { checkDockerIsOK, isAppCenter, isYunXiao } from './utils';
 
 export default class Fc extends Base {
   // 部署函数
@@ -125,7 +125,7 @@ export default class Fc extends Base {
         const kanikoBuilder = BuilderFactory.getBuilder(BuildType.ImageKaniko, inputs);
         await kanikoBuilder.build();
       } else {
-        checkDockerInstalled();
+        checkDockerIsOK();
         const dockerBuilder = BuilderFactory.getBuilder(BuildType.ImageDocker, inputs);
         await dockerBuilder.build();
       }
@@ -138,7 +138,7 @@ export default class Fc extends Base {
 
   public async local(inputs: IInputs) {
     await super.handlePreRun(inputs, false);
-    checkDockerInstalled();
+    checkDockerIsOK();
 
     const { _: command } = parseArgv(inputs.args);
     const subCommand = _.get(command, '[0]');

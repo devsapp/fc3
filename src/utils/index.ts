@@ -97,13 +97,13 @@ export function getFileSize(filePath: string) {
 
   // 根据大小选择输出的单位
   if (sizeInGB > 0) {
-    logger.debug(`Zip file: ${filePath} size = ${sizeInGB}GB`);
+    // logger.debug(`Zip file: ${filePath} size = ${sizeInGB}GB`);
     return sizeInGB;
   } else if (sizeInMB > 0) {
-    logger.debug(`Zip file: ${filePath} size = ${sizeInMB}MB`);
+    // logger.debug(`Zip file: ${filePath} size = ${sizeInMB}MB`);
     return sizeInMB;
   } else {
-    logger.debug(`Zip file: ${filePath} size = ${sizeInKB}KB`);
+    // logger.debug(`Zip file: ${filePath} size = ${sizeInKB}KB`);
     return sizeInKB;
   }
 }
@@ -113,12 +113,33 @@ export function checkDockerInstalled() {
     // 尝试执行 'docker --version' 命令
     const output = execSync('docker --version', { encoding: 'utf-8' });
     logger.debug('Docker is installed:', output.trim());
+    return true;
   } catch (error) {
     // 如果执行命令出错，则认为 Docker 没有安装
     logger.error(
       'Docker is not installed, please refer "https://docs.docker.com/engine/install". if use podman, please refer "https://help.aliyun.com/document_detail/2513750.html?spm=a2c4g.2513735.0.i0#e72aae479a5gf"',
     );
-    throw new Error('Docker is not installed');
+    return false;
+  }
+}
+
+export function checkDockerDaemonRunning(): boolean {
+  try {
+    // 使用 'docker info' 或 'docker ps' 都可以检查守护进程是否运行
+    execSync('docker info', { encoding: 'utf-8' });
+    // 如果能正确获取到输出，则表示Docker守护进程正在运行
+    logger.debug('Docker daemon is running.');
+    return true;
+  } catch (error) {
+    logger.error('Docker daemon is not running.');
+    return false;
+  }
+}
+
+export function checkDockerIsOK() {
+  const isOK = checkDockerInstalled() && checkDockerDaemonRunning();
+  if (!isOK) {
+    throw new Error('Docker is not OK');
   }
 }
 

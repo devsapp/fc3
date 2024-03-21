@@ -1,7 +1,7 @@
 import { ICredentials } from '@serverless-devs/component-interface';
 import _ from 'lodash';
 import { getDockerTmpUser, getAcrEEInstanceID, getAcrImageMeta } from './login';
-import { runCommand, checkDockerInstalled } from '../../utils';
+import { runCommand, checkDockerIsOK } from '../../utils';
 import { IRegion } from '../../interface';
 import logger from '../../logger';
 
@@ -54,7 +54,7 @@ export default class Acr {
   }
   async pushAcr(imageUrl: string): Promise<void> {
     try {
-      checkDockerInstalled();
+      checkDockerIsOK();
     } catch (error) {
       logger.error(`skip push image, error=${error.message}`);
     }

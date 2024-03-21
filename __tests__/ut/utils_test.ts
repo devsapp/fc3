@@ -1,13 +1,13 @@
-import { isAuto, getTimeZone, isAutoVpcConfig, removeNullValues } from '../../src/utils/index';
+import {
+  isAuto,
+  getTimeZone,
+  isAutoVpcConfig,
+  removeNullValues,
+  getFileSize,
+} from '../../src/utils/index';
+import * as fs from 'fs';
 import log from '../../src/logger';
-import _Logger from '@serverless-devs/logger';
-const loggerInstance = new _Logger({
-  traceId: 'traceId_12345789',
-  logDir: '/tmp/.s',
-  level: 'DEBUG',
-});
-const logger = loggerInstance.__generate('s_cli_unit_test');
-log._set(logger);
+log._set(console);
 
 describe('isAuto', () => {
   test('should return true if config is string "AUTO" or "auto"', () => {
@@ -119,5 +119,65 @@ describe('removeNullValues', () => {
     const input = { a: 1, b: { c: null, d: 4 }, e: { f: 6, g: null } };
     removeNullValues(input);
     expect(input).toEqual({ a: 1, b: { d: 4 }, e: { f: 6 } });
+  });
+});
+
+// Mock fs module
+jest.mock('fs', () => ({
+  statSync: jest.fn(),
+}));
+
+describe('getFileSize', () => {
+  it('returns size in GB when size is greater than 1 GB', () => {
+    const filePath = 'path-to-file';
+    const fileSizeInBytes = 1073741824; // 1 GB in bytes
+    (fs.statSync as jest.Mock).mockReturnValue({ size: fileSizeInBytes });
+
+    const size = getFileSize(filePath);
+
+    expect(size).toBe(1);
+    expect(fs.statSync).toHaveBeenCalledWith(filePath);
+  });
+
+  it('returns size in MB when size is greater than 1 MB but less than 1 GB', () => {
+    const filePath = 'path-to-file';
+    const fileSizeInBytes = 1048576; // 1 MB in bytes
+    (fs.statSync as jest.Mock).mockReturnValue({ size: fileSizeInBytes });
+
+    const size = getFileSize(filePath);
+
+    expect(size).toBe(1);
+    expect(fs.statSync).toHaveBeenCalledWith(filePath);
+  });
+
+  it('returns size in KB when size is greater than 1 KB but less than 1 MB', () => {
+    const filePath = 'path-to-file';
+    const fileSizeInBytes = 1024; // 1 KB in bytes
+    (fs.statSync as jest.Mock).mockReturnValue({ size: fileSizeInBytes });
+
+    const size = getFileSize(filePath);
+
+    expect(size).toBe(1);
+    expect(fs.statSync).toHaveBeenCalledWith(filePath);
+  });
+
+  it('returns size in bytes when size is less than 1 KB', () => {
+    const filePath = 'path-to-file';
+    const fileSizeInBytes = 512; // Less than 1 KB
+    (fs.statSync as jest.Mock).mockReturnValue({ size: fileSizeInBytes });
+
+    const size = getFileSize(filePath);
+
+    expect(size).toBe(0);
+    expect(fs.statSync).toHaveBeenCalledWith(filePath);
+  });
+
+  it('throws error when file does not exist', () => {
+    const filePath = 'path-to-file';
+    (fs.statSync as jest.Mock).mockImplementation(() => {
+      throw new Error('File not found');
+    });
+
+    expect(() => getFileSize(filePath)).toThrow('File not found');
   });
 });

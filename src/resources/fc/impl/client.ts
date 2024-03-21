@@ -98,7 +98,7 @@ export default class FC_Client {
     const { host: endpoint = `${accountID}.${region}.fc.aliyuncs.com`, protocol = 'http' } =
       getCustomEndpoint(options.endpoint);
 
-    logger.debug(`endpoint=${endpoint}`);
+    logger.debug(`endpoint=${endpoint};  protocol=${protocol}`);
 
     const config = new Config({
       accessKeyId,
