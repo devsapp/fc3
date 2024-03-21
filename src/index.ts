@@ -32,7 +32,8 @@ export default class Fc extends Base {
     await super.handlePreRun(inputs, true);
     const deploy = new Deploy(inputs);
     const result = await deploy.run();
-    logger.tips(`You can use "s info" get more detail`);
+    if (_.isFunction(logger.tipsOnce)) logger.tipsOnce(`You can use "s info" get more detail`);
+    else logger.tips(`You can use "s info" get more detail`);
     return result;
   }
 
