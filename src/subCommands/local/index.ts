@@ -19,7 +19,7 @@ import { GoLocalStart } from './impl/start/goLocalInvoke';
 import { DotnetLocalStart } from './impl/start/dotnetLocalStart';
 import { JavaLocalStart } from './impl/start/javaLocalStart';
 
-export default class ComponentBuild {
+export default class ComponentLocal {
   /**
    * @param inputs
    * @returns
@@ -86,7 +86,9 @@ export default class ComponentBuild {
         break;
       }
       default:
-        logger.error(`${inputs.props.runtime} is not supported. you can see the supported runtime list in https://help.aliyun.com/document_detail/2512952.html`);
+        logger.error(
+          `${inputs.props.runtime} is not supported. you can see the supported runtime list in https://help.aliyun.com/document_detail/2512952.html`,
+        );
     }
     return {};
   }
@@ -155,7 +157,9 @@ export default class ComponentBuild {
       }
       // todo 新文档发布以后地址可能要改
       default:
-        logger.error(`start command ${inputs.props.runtime} is not supported. you can see the supported runtime list in https://manual.serverless-devs.com/user-guide/aliyun/fc3/local/#_6`);
+        logger.error(
+          `start command ${inputs.props.runtime} is not supported. you can see the supported runtime list in https://manual.serverless-devs.com/user-guide/aliyun/fc3/local/#_6`,
+        );
     }
   }
 

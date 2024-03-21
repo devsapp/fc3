@@ -1,5 +1,7 @@
 import { BaseLocalStart } from './baseLocalStart';
+import { runCommand } from '../../../../utils';
 import _ from 'lodash';
+import chalk from 'chalk';
 // import logger from '../logger';
 
 export class CustomLocalStart extends BaseLocalStart {
@@ -9,6 +11,13 @@ export class CustomLocalStart extends BaseLocalStart {
       // 比如调试的是 node 编写的 custom runtime 函数， DebugArgs 可以和 nodejs runtime 的看齐
     }
     return '';
+  }
+
+  async runStart() {
+    const cmdStr = await this.getLocalStartCmdStr();
+    const msg = `You can use curl or Postman to make an HTTP request to localhost:${this.getCaPort()} to test the function`;
+    console.log(chalk.green(msg));
+    await runCommand(cmdStr, runCommand.showStdout.ignore);
   }
 
   async getEnvString(): Promise<string> {

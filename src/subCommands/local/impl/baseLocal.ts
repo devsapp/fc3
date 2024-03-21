@@ -17,7 +17,7 @@ import {
   fcDockerVersion,
   fcDockerVersionRegistry,
 } from '../../../default/image';
-import { runCommand } from '../../../utils';
+import { runCommand, sleep } from '../../../utils';
 import FC from '../../../resources/fc';
 import { execSync } from 'child_process';
 import chalk from 'chalk';
@@ -41,10 +41,11 @@ export class BaseLocal {
     this._argsData = argsData;
     this._dockerName = uuidV4();
 
-    process.on('DEVS:SIGINT', () => {
+    process.on('DEVS:SIGINT', async () => {
       console.log('\nDEVS:SIGINT, stop container');
       // kill container
       try {
+        await sleep(0.5);
         const result = execSync(`docker ps | grep ${this.getContainerName()}`);
         if (result) {
           execSync(`docker kill ${this.getContainerName()}`);
@@ -476,13 +477,21 @@ export class BaseLocal {
     );
   }
 
-  canSupportDebug(runtime: string): boolean{
+  canSupportDebug(runtime: string): boolean {
     const supportedRuntimeList = [
-      'nodejs10', 'nodejs12', 'nodejs14', 'nodejs16', 'nodejs18', 'nodejs20',
-      'python3', 'python3.9', 'python3.10',
-      'java8', 'java11',
-      'php7.2'
-    ]
+      'nodejs10',
+      'nodejs12',
+      'nodejs14',
+      'nodejs16',
+      'nodejs18',
+      'nodejs20',
+      'python3',
+      'python3.9',
+      'python3.10',
+      'java8',
+      'java11',
+      'php7.2',
+    ];
     return supportedRuntimeList.includes(runtime);
   }
 }
