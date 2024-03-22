@@ -23,7 +23,7 @@ export class CustomLocalInvoke extends BaseLocalInvoke {
     const mntStr = await this.getMountString();
     const image = await this.getRuntimeRunImage();
     const envStr = await this.getEnvString();
-    const dockerCmdStr = `docker run --name ${this.getContainerName()} --platform linux/amd64 --rm -p ${port}:${this.getCaPort()} --memory=${this.getMemorySize()}m ${mntStr} ${envStr} ${image}`;
+    const dockerCmdStr = `docker run --name ${this.getContainerName()} --platform linux/amd64 --rm -p ${port}:${this.getCaPort()} --memory=${this.getMemorySize()}m ${mntStr} ${envStr} ${image} --event '${this.getEventString()}'`;
     if (!_.isEmpty(this.getDebugArgs())) {
       if (this.debugIDEIsVsCode()) {
         await this.writeVscodeDebugConfig();
@@ -58,6 +58,8 @@ export class CustomLocalInvoke extends BaseLocalInvoke {
         envStr += ` -e "AGENT_SCRIPT=${agent_script}"`;
       }
     }
+    // FC_SERVER_PORT
+    envStr += ` -e "FC_SERVER_PORT=${this.getCaPort()}"`;
     return envStr;
   }
 }

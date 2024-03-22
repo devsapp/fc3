@@ -40,6 +40,8 @@ export class CustomLocalStart extends BaseLocalStart {
         envStr += ` -e "AGENT_SCRIPT=${agent_script}"`;
       }
     }
+    // FC_SERVER_PORT
+    envStr += ` -e "FC_SERVER_PORT=${this.getCaPort()}"`;
     return envStr;
   }
 }
