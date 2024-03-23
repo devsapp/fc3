@@ -35,7 +35,7 @@ jobs:
           sudo apt-get install -y wget curl
       - name: install s
         run: |
-          sudo npm i @serverless-devs/s -g
+          sudo npm i @serverless-devs/s@beta -g
       - name: config s
         run: |
           sudo s config add --AccountID  ${{secrets.ACCOUNTID}} --AccessKeyID ${{secrets.ACCESSKEYID}} --AccessKeySecret ${{secrets.ACCESSKEYSECRET}} -a quanxi -f
