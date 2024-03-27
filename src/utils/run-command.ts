@@ -13,7 +13,7 @@ async function runCommand(
   shellScript?: string,
   cwd?: string,
 ) {
-  logger.info(`runComman ===>  \n${command} ${shellScript || ''}`);
+  logger.info(`runCommand ===>  \n${command} ${shellScript || ''}`);
   const [cmdStr, ...args] = command.split(' ');
   let cmd = cmdStr;
   if (cmd.includes('=') && args.length > 0) {

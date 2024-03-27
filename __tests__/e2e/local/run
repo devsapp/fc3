@@ -1,0 +1,10 @@
+#!/bin/bash
+
+set -e
+set -v
+
+cd ./nas
+export fc_component_function_name=test-local-nas-simulate-$(uname)-$(uname -m)-$RANDSTR
+echo "test local nas simulate ..."
+s local invoke -e '{"hello": "local nas"}'
+s local invoke -e '{"hello": "local nas"}'

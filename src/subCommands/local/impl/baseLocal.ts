@@ -6,7 +6,7 @@ import extract from 'extract-zip';
 import tmpDir from 'temp-dir';
 import * as fs from 'fs-extra';
 import * as rimraf from 'rimraf';
-import { parseArgv } from '@serverless-devs/utils';
+import { parseArgv, getRootHome } from '@serverless-devs/utils';
 import { ICredentials } from '@serverless-devs/component-interface';
 import logger from '../../../logger';
 import { ICodeUri, IInputs } from '../../../interface';
@@ -493,5 +493,23 @@ export class BaseLocal {
       'php7.2',
     ];
     return supportedRuntimeList.includes(runtime);
+  }
+
+  getNasMountString(): string{
+    let result = '';
+    const { nasConfig, functionName, region} = this.inputs.props;
+
+    if(nasConfig === 'auto'){
+      logger.warn(`Your nasConfig is 'auto', so you cannot simulate nasDir when using local command. You can use 's deploy' to get real nasConfig and replace 'auto'.`)
+    }
+    if(!_.isEmpty(nasConfig) && nasConfig !== 'auto'){
+      let localNasDir = path.join(getRootHome(), `nas`, region, functionName);
+      for(const mountPoint of nasConfig.mountPoints){
+        let localServerAddr = path.join(localNasDir, mountPoint.serverAddr.split(':')[1]);
+        result += ` -v ${localServerAddr}:${mountPoint.mountDir}`;
+      }
+      logger.info(chalk.green(`Your local NAS simulation directory is ${localNasDir}. You can maintain the files as you need in this directory.`))
+    }
+    return result;
   }
 }
