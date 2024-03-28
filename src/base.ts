@@ -118,6 +118,9 @@ export default class Base {
     if (role === undefined) {
       return role;
     }
+    if (!_.isString(role)) {
+      throw new Error('role must be a string');
+    }
     return role.toLowerCase();
   }
 
