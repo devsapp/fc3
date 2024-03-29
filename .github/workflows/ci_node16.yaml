@@ -26,7 +26,7 @@ jobs:
           registry-url: https://registry.npmjs.org/
       - name: install s
         run: |
-          npm i @serverless-devs/s -g
+          npm i @serverless-devs/s@canary -g
       - name: config s
         run: |
           s config add --AccountID  ${{secrets.ACCOUNTID}} --AccountID  ${{secrets.ACCOUNTID}} --AccessKeyID ${{secrets.ACCESSKEYID}} --AccessKeySecret ${{secrets.ACCESSKEYSECRET}} -a quanxi -f
@@ -56,7 +56,7 @@ jobs:
           choco install -y curl
       - name: install s
         run: |
-          npm i @serverless-devs/s -g
+          npm i @serverless-devs/s@canary -g
       - name: config s
         run: |
           s config add --AccountID  ${{secrets.ACCOUNTID}} --AccessKeyID ${{secrets.ACCESSKEYID}} --AccessKeySecret ${{secrets.ACCESSKEYSECRET}} -a quanxi -f
@@ -85,7 +85,7 @@ jobs:
           registry-url: https://registry.npmjs.org/
       - name: install s
         run: |
-          npm i @serverless-devs/s -g
+          npm i @serverless-devs/s@canary -g
       - name: config s
         run: |
           s config add --AccountID  ${{secrets.ACCOUNTID}} --AccessKeyID ${{secrets.ACCESSKEYID}} --AccessKeySecret ${{secrets.ACCESSKEYSECRET}} -a quanxi -f
