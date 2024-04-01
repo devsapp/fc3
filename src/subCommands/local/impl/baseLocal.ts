@@ -495,20 +495,26 @@ export class BaseLocal {
     return supportedRuntimeList.includes(runtime);
   }
 
-  getNasMountString(): string{
+  getNasMountString(): string {
     let result = '';
-    const { nasConfig, functionName, region} = this.inputs.props;
+    const { nasConfig, functionName, region } = this.inputs.props;
 
-    if(nasConfig === 'auto'){
-      logger.warn(`Your nasConfig is 'auto', so you cannot simulate nasDir when using local command. You can use 's deploy' to get real nasConfig and replace 'auto'.`)
+    if (nasConfig === 'auto') {
+      logger.warn(
+        `Your nasConfig is 'auto', so you cannot simulate nasDir when using local command. You can use 's deploy' to get real nasConfig and replace 'auto'.`,
+      );
     }
-    if(!_.isEmpty(nasConfig) && nasConfig !== 'auto'){
-      let localNasDir = path.join(getRootHome(), `nas`, region, functionName);
-      for(const mountPoint of nasConfig.mountPoints){
-        let localServerAddr = path.join(localNasDir, mountPoint.serverAddr.split(':')[1]);
+    if (!_.isEmpty(nasConfig) && nasConfig !== 'auto') {
+      const localNasDir = path.join(getRootHome(), `nas`, region, functionName);
+      for (const mountPoint of nasConfig.mountPoints) {
+        const localServerAddr = path.join(localNasDir, mountPoint.serverAddr.split(':')[1]);
         result += ` -v ${localServerAddr}:${mountPoint.mountDir}`;
       }
-      logger.info(chalk.green(`Your local NAS simulation directory is ${localNasDir}. You can maintain the files as you need in this directory.`))
+      logger.info(
+        chalk.green(
+          `Your local NAS simulation directory is ${localNasDir}. You can maintain the files as you need in this directory.`,
+        ),
+      );
     }
     return result;
   }

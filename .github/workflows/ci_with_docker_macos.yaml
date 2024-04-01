@@ -71,3 +71,6 @@ jobs:
       - name: test custom container
         run: |
           cd __tests__/e2e/custom-container && ./run && cd -
+      - name: test local with nas 
+        run: |
+          cd __tests__/e2e/local && sudo ./run && cd -
