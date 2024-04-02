@@ -75,6 +75,9 @@ export default class Acr {
         await runCommand(commandStr, runCommand.showStdout.inherit);
       }
       let dockerCmdStr = `echo ${dockerTmpToken} | docker login ${image} --username ${dockerTmpUser} --password-stdin`;
+      if (process.platform === 'win32') {
+        dockerCmdStr = `echo|set /p="${dockerTmpToken}" | docker login ${image} --username ${dockerTmpUser} --password-stdin`;
+      }
       await runCommand(dockerCmdStr, runCommand.showStdout.inherit);
 
       dockerCmdStr = `docker push ${image}`;
@@ -85,6 +88,9 @@ export default class Acr {
           // 尝试推送下 vpc 地址， 可以 s 工具运行在 vpc 内的 ECS 上
           logger.info(`retry to docker push ${imageUrl} ...`);
           let dockerCmdStr = `echo ${dockerTmpToken} | docker login ${imageUrl} --username ${dockerTmpUser} --password-stdin`;
+          if (process.platform === 'win32') {
+            dockerCmdStr = `echo|set /p="${dockerTmpToken}" | docker login ${imageUrl} --username ${dockerTmpUser} --password-stdin`;
+          }
           await runCommand(dockerCmdStr, runCommand.showStdout.inherit);
 
           dockerCmdStr = `docker push ${imageUrl}`;
