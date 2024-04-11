@@ -20,7 +20,6 @@ s remove -y
 rm -rf ./code/target
 cd ..
 
-
 echo "test java runtime"
 cd java
 export fc_component_function_name=java-$(uname)-$(uname -m)-$RANDSTR
@@ -30,7 +29,6 @@ s info
 s remove -y
 rm -rf ./target
 cd ..
-
 
 echo "test custom go runtime ..."
 cd custom
@@ -43,7 +41,6 @@ s remove -y -t ./go/s.yaml
 rm -rf ./go/code/target
 cd ..
 
-
 echo "test nodejs runtime with auto ..."
 cd nodejs
 export fc_component_function_name=nodejs14-$(uname)-$(uname -m)-$RANDSTR
@@ -53,6 +50,26 @@ s info -y -t ./s_auto.yaml
 s remove -y -t ./s_auto.yaml
 cd ..
 
+echo "test deploy with alias"
+cd nodejs
+export fc_component_function_name=nodejs14-$(uname)-$(uname -m)-$RANDSTR
+s deploy --function -t s2.yaml
+versionId=$(s version publish -t s2.yaml --silent -o json | jq -r '."versionId"')
+echo "latest version = $versionId"
+if [[ "$versionId" -gt 1 ]]; then
+    mainVersion=$((versionId - 1))
+    echo "main version = $mainVersion"
+    s alias publish --alias-name test --version-id $mainVersion --vw "{\"$versionId\": 0.2}" -t s2.yaml
+else
+    s alias publish --alias-name test --version-id $versionId -t s2.yaml
+fi
+
+s deploy --trigger -t s2.yaml
+s deploy --async-invoke-config -t s2.yaml
+s info -t s2.yaml
+s remove -y -t s2.yaml
+cd ..
+
 echo "test http trigger with jwt ..."
 cd trigger/jwt
 export fc_component_function_name=nodejs16-$(uname)-$(uname -m)-$RANDSTR
@@ -60,8 +77,8 @@ s deploy -y -t ./s.yaml
 s invoke -e '{"hello":"fc http trigger with jwt"}' -t ./s.yaml
 rpm -ivh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
 yum install -y jq
-url1=$(s info  -y -t ./s.yaml --silent -o json | jq -r '.hello_world.url.system_url')
-url2=$(s info  -y -t ./s.yaml --silent -o json | jq -r '.hello_world_2.url.system_url')
+url1=$(s info -y -t ./s.yaml --silent -o json | jq -r '.hello_world.url.system_url')
+url2=$(s info -y -t ./s.yaml --silent -o json | jq -r '.hello_world_2.url.system_url')
 echo $url1
 echo $url2
 curl -XPOST $url1/black1/aa -d '{"test":"jwt"}'

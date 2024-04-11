@@ -23,17 +23,23 @@ export default class Deploy {
       alias: {
         'assume-yes': 'y',
       },
-      boolean: ['skip-push'],
+      boolean: ['skip-push', 'async_invoke_config'],
     });
 
     // TODO: 更完善的验证
     verify(inputs.props);
 
-    const { function: type, trigger, 'assume-yes': yes, 'skip-push': skipPush } = this.opts;
+    const {
+      function: type,
+      trigger,
+      'async-invoke-config': async_invoke_config,
+      'assume-yes': yes,
+      'skip-push': skipPush,
+    } = this.opts;
     logger.debug('parse argv:');
     logger.debug(this.opts);
     // 初始化部署实例
-    const deployAll = !type && !trigger;
+    const deployAll = !type && !trigger && !async_invoke_config;
     logger.debug(`Deploy all resources: ${deployAll}`);
     if (deployAll || type) {
       this.service = new Service(inputs, { type, yes, skipPush }); // function
@@ -41,8 +47,10 @@ export default class Deploy {
     if (deployAll || trigger) {
       this.trigger = new Trigger(inputs, { yes, trigger });
     }
-    if (deployAll) {
+    if (deployAll || async_invoke_config) {
       this.asyncInvokeConfig = new AsyncInvokeConfig(inputs, { yes });
+    }
+    if (deployAll) {
       this.vpcBinding = new VpcBinding(inputs, { yes });
     }
   }

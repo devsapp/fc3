@@ -116,7 +116,17 @@ export default class Info {
       return {};
     }
     try {
-      return await this.fcSdk.getAsyncInvokeConfig(this.functionName, 'LATEST', this.getApiType);
+      const asyncInvokeConfig = _.get(this.inputs, 'props.asyncInvokeConfig', {});
+      const qualifier = _.get(asyncInvokeConfig, 'qualifier', 'LATEST');
+      const result = await this.fcSdk.getAsyncInvokeConfig(
+        this.functionName,
+        qualifier,
+        this.getApiType,
+      );
+      if (result) {
+        result.qualifier = qualifier;
+      }
+      return result;
     } catch (ex) {
       logger.debug(`Get AsyncInvokeConfig ${this.functionName} error: ${ex}`);
       return {

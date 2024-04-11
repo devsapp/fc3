@@ -126,12 +126,17 @@ export default class Plan {
 
   private async planAsyncInvokeConfig() {
     let remote = {};
+    const asyncInvokeConfig = _.get(this.inputs, 'props.asyncInvokeConfig', {});
+    const qualifier = _.get(asyncInvokeConfig, 'qualifier', 'LATEST');
     try {
       const result = await this.fcSdk.getAsyncInvokeConfig(
         this.functionName,
-        'LATEST',
+        qualifier,
         GetApiType.simpleUnsupported,
       );
+      if (result) {
+        result.qualifier = qualifier;
+      }
       remote = result;
     } catch (ex) {
       logger.debug(
@@ -140,7 +145,10 @@ export default class Plan {
     }
 
     // eslint-disable-next-line prefer-const
-    let local = _.cloneDeep(_.get(this.inputs.props, 'asyncInvokeConfig', {}));
+    let local = _.cloneDeep(_.get(this.inputs.props, 'asyncInvokeConfig', {} as any));
+    if (local) {
+      local.qualifier = qualifier;
+    }
     return diffConvertPlanYaml(remote, local, { deep: 1, complete: true });
   }
 

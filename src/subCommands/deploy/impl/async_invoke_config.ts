@@ -20,8 +20,9 @@ export default class AsyncInvokeConfig extends Base {
     super(inputs, opts.yes);
     this.functionName = inputs.props?.functionName;
 
-    this.local = _.cloneDeep(_.get(inputs, 'props.asyncInvokeConfig', {})) as IAsyncInvokeConfig;
-    logger.debug(`need deploy asyncInvokeConfig: ${JSON.stringify(this.local)}`);
+    const asyncInvokeConfig = _.get(inputs, 'props.asyncInvokeConfig', {});
+    this.local = _.cloneDeep(asyncInvokeConfig) as IAsyncInvokeConfig;
+    logger.debug(`need deploy asyncInvokeConfig: ${JSON.stringify(asyncInvokeConfig)}`);
   }
 
   async before() {
@@ -35,16 +36,18 @@ export default class AsyncInvokeConfig extends Base {
     const localConfig = this.local;
 
     const id = `${this.functionName}/asyncInvokeConfig`;
+    const asyncInvokeConfig = _.get(this.inputs, 'props.asyncInvokeConfig', {});
+    const qualifier = _.get(asyncInvokeConfig, 'qualifier', 'LATEST');
     if (!_.isEmpty(localConfig)) {
       localConfig.destinationConfig = localConfig.destinationConfig || {};
       if (this.needDeploy) {
-        await this.fcSdk.putAsyncInvokeConfig(this.functionName, 'LATEST', localConfig);
+        await this.fcSdk.putAsyncInvokeConfig(this.functionName, qualifier, localConfig);
       } else if (_.isEmpty(remoteConfig)) {
         // 如果不需要部署，但是远端资源不存在，则尝试创建一下
         logger.debug(
           `Online asyncInvokeConfig does not exist, specified not to deploy, attempting to create ${id}`,
         );
-        await this.fcSdk.putAsyncInvokeConfig(this.functionName, 'LATEST', localConfig);
+        await this.fcSdk.putAsyncInvokeConfig(this.functionName, qualifier, localConfig);
       } else {
         logger.debug(
           `Online asyncInvokeConfig exists, specified not to deploy, skipping deployment ${id}`,
@@ -55,12 +58,17 @@ export default class AsyncInvokeConfig extends Base {
   }
 
   private async getRemote() {
+    const asyncInvokeConfig = _.get(this.inputs, 'props.asyncInvokeConfig', {});
+    const qualifier = _.get(asyncInvokeConfig, 'qualifier', 'LATEST');
     try {
       const result = await this.fcSdk.getAsyncInvokeConfig(
         this.functionName,
-        'LATEST',
+        qualifier,
         GetApiType.simpleUnsupported,
       );
+      if (result) {
+        result.qualifier = qualifier;
+      }
       this.remote = result;
     } catch (ex) {
       logger.debug(`Get remote asyncInvokeConfig of  ${this.functionName} error: ${ex.message}`);

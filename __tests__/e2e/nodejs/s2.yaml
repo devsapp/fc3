@@ -1,0 +1,44 @@
+edition: 3.0.0 #  命令行YAML规范版本，遵循语义化版本（Semantic Versioning）规范
+name: test-node-app #  项目名称
+access: quanxi
+
+vars: 
+  region: ${env('REGION', 'cn-huhehaote')}
+
+resources:
+  fcDemo: # 业务名称/模块名称
+    component: ${env('fc_component_version', path('../../../'))}
+    props: # 组件的属性值
+      region: ${vars.region}
+      functionName: fc3-event-part-${env('fc_component_function_name', 'nodejs14')}
+      runtime: ${env('fc_component_runtime', 'nodejs14')}
+      code: ./code
+      handler: event.handler
+      memorySize: 128
+      timeout: 30
+      instanceLifecycleConfig:
+        initializer:
+          handler: event.initializer
+          timeout: 10
+
+      triggers:
+        - triggerName: httpTrigger # 触发器名称
+          triggerType: http # 触发器类型
+          description: 'xxxx'
+          qualifier: test # 触发服务的版本
+          triggerConfig:
+            authType: anonymous # 鉴权类型，可选值：anonymous、function
+            disableURLInternet: false # 是否禁用公网访问 URL
+            methods: # HTTP 触发器支持的访问方法，可选值：GET、POST、PUT、DELETE、HEAD
+              - GET
+              - POST
+
+      asyncInvokeConfig:
+        destinationConfig:
+          onFailure:
+            destination: acs:mns:${vars.region}::/topics/serverless-devs-fc3-ci-test/messages
+          onSuccess:
+            destination: acs:fc:${vars.region}::functions/serverless-devs-ci-async-invoke-config-succ
+        maxAsyncEventAgeInSeconds: 360
+        maxAsyncRetryAttempts: 3
+        qualifier:  test

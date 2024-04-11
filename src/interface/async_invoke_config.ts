@@ -10,4 +10,5 @@ export interface IAsyncInvokeConfig {
   destinationConfig?: IDestinationConfig;
   maxAsyncEventAgeInSeconds?: number;
   maxAsyncRetryAttempts?: number;
+  qualifier?: string;
 }

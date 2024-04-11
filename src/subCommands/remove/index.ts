@@ -12,6 +12,7 @@ export default class Remove {
   private region: IRegion;
   private functionName: string;
   private yes = false;
+  private async_invoke_config: boolean;
   private resources: Record<string, any> = {};
 
   private fcSdk: FC;
@@ -21,7 +22,7 @@ export default class Remove {
       alias: {
         'assume-yes': 'y',
       },
-      boolean: ['function'],
+      boolean: ['function', 'async_invoke_config'],
       string: ['function-name', 'region'],
     });
     logger.debug(`parse argv: ${JSON.stringify(opts)}`);
@@ -32,9 +33,11 @@ export default class Remove {
       trigger,
       'assume-yes': yes,
       'function-name': functionName,
+      'async-invoke-config': async_invoke_config,
     } = opts;
 
-    const removeAll = !needRemoveFunction && !trigger;
+    const removeAll = !needRemoveFunction && !trigger && !async_invoke_config;
+    this.async_invoke_config = async_invoke_config;
 
     this.region = region || _.get(inputs, 'props.region');
     logger.debug(`region: ${this.region}`);
@@ -87,6 +90,7 @@ export default class Remove {
         return;
       }
     }
+    await this.removeAsyncInvokeConfig();
     await this.removeTrigger();
     await this.removeFunction();
   }
@@ -102,6 +106,12 @@ export default class Remove {
       logger.spin('getting', 'trigger', `${this.region}/${this.functionName}`);
       await this.getTriggerResource();
       logger.spin('got', 'trigger', `${this.region}/${this.functionName}`);
+    }
+
+    if (this.resources.function || this.async_invoke_config) {
+      logger.spin('getting', 'asyncInvokeConfig', `${this.region}/${this.functionName}`);
+      await this.getAsyncInvokeConfigResource();
+      logger.spin('got', 'asyncInvokeConfig', `${this.region}/${this.functionName}`);
     }
   }
 
@@ -140,26 +150,6 @@ export default class Remove {
     } catch (ex) {
       logger.debug(
         `List function ${this.region}/${this.functionName} vpcBinding error: ${ex.message}`,
-      );
-    }
-
-    try {
-      const asyncInvokeConfigs = await this.fcSdk.listAsyncInvokeConfig(this.functionName);
-      if (!_.isEmpty(asyncInvokeConfigs)) {
-        this.resources.asyncInvokeConfigs = asyncInvokeConfigs.map((item) => ({
-          functionArn: item.functionArn,
-          // acs:fc:cn-huhehaote:123456:functions/fc3-command-fc3-command/test
-          // acs:fc:cn-huhehaote:123456:functions/fc3-command-fc3-command
-          qualifier: item.functionArn.split('/')[2] || 'LATEST',
-          destinationConfig: item.destinationConfig,
-        }));
-        logger.write(`Remove function ${this.region}/${this.functionName} asyncInvokeConfigs:`);
-        logger.output(this.resources.asyncInvokeConfigs, 2);
-        console.log();
-      }
-    } catch (ex) {
-      logger.debug(
-        `List function ${this.region}/${this.functionName} asyncInvokeConfigs error: ${ex.message}`,
       );
     }
 
@@ -232,6 +222,28 @@ export default class Remove {
     }
   }
 
+  private async getAsyncInvokeConfigResource() {
+    try {
+      const asyncInvokeConfigs = await this.fcSdk.listAsyncInvokeConfig(this.functionName);
+      if (!_.isEmpty(asyncInvokeConfigs)) {
+        this.resources.asyncInvokeConfigs = asyncInvokeConfigs.map((item) => ({
+          functionArn: item.functionArn,
+          // acs:fc:cn-huhehaote:123456:functions/fc3-command-fc3-command/test
+          // acs:fc:cn-huhehaote:123456:functions/fc3-command-fc3-command
+          qualifier: item.functionArn.split('/')[2] || 'LATEST',
+          destinationConfig: item.destinationConfig,
+        }));
+        logger.write(`Remove function ${this.region}/${this.functionName} asyncInvokeConfigs:`);
+        logger.output(this.resources.asyncInvokeConfigs, 2);
+        console.log();
+      }
+    } catch (ex) {
+      logger.debug(
+        `List function ${this.region}/${this.functionName} asyncInvokeConfigs error: ${ex.message}`,
+      );
+    }
+  }
+
   private async getTriggerResource() {
     let triggers = [];
     try {
@@ -281,10 +293,29 @@ export default class Remove {
     }
   }
 
+  private async removeAsyncInvokeConfig() {
+    if (_.isEmpty(this.resources.asyncInvokeConfigs)) {
+      return;
+    }
+
+    for (const { qualifier } of this.resources.asyncInvokeConfigs) {
+      logger.spin(
+        'removing',
+        'function asyncInvokeConfigs',
+        `${this.region}/${this.functionName}/${qualifier}`,
+      );
+      await this.fcSdk.removeAsyncInvokeConfig(this.functionName, qualifier);
+      logger.spin(
+        'removed',
+        'function asyncInvokeConfigs',
+        `${this.region}/${this.functionName}/${qualifier}`,
+      );
+    }
+  }
+
   private async removeFunction() {
     /* 删除资源顺序
       vpcBinding: {}
-      asyncInvokeConfig: {}
       provision: [ { qualifier: 'test', current: 2, target: 2 } ], // target / current
       concurrency: 80,
       aliases: [ 'test' ],
@@ -307,22 +338,6 @@ export default class Remove {
           'removed',
           'function vpcBinding',
           `${this.region}/${this.functionName}/${vpcId}`,
-        );
-      }
-    }
-
-    if (!_.isEmpty(this.resources.asyncInvokeConfigs)) {
-      for (const { qualifier } of this.resources.asyncInvokeConfigs) {
-        logger.spin(
-          'removing',
-          'function asyncInvokeConfigs',
-          `${this.region}/${this.functionName}/${qualifier}`,
-        );
-        await this.fcSdk.removeAsyncInvokeConfig(this.functionName, qualifier);
-        logger.spin(
-          'removed',
-          'function asyncInvokeConfigs',
-          `${this.region}/${this.functionName}/${qualifier}`,
         );
       }
     }
