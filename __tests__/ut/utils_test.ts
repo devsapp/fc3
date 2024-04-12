@@ -4,9 +4,23 @@ import {
   isAutoVpcConfig,
   removeNullValues,
   getFileSize,
+  promptForConfirmOrDetails,
+  checkDockerInstalled,
+  checkDockerDaemonRunning,
+  checkDockerIsOK,
+  isAppCenter,
+  isYunXiao,
+  tableShow,
+  sleep,
+  verify,
 } from '../../src/utils/index';
+import { IProps } from '../../src/interface';
 import * as fs from 'fs';
+import * as inquirer from 'inquirer';
 import log from '../../src/logger';
+import { 
+  execSync, 
+} from 'child_process';
 log._set(console);
 
 describe('isAuto', () => {
@@ -122,7 +136,6 @@ describe('removeNullValues', () => {
   });
 });
 
-// Mock fs module
 jest.mock('fs', () => ({
   statSync: jest.fn(),
 }));
@@ -179,5 +192,272 @@ describe('getFileSize', () => {
     });
 
     expect(() => getFileSize(filePath)).toThrow('File not found');
+  });
+});
+
+jest.mock('inquirer', () => ({
+  prompt: jest.fn(),
+}));
+
+describe('promptForConfirmOrDetails', () => {
+  it('should return true when user selects "yes"', async () => {
+    (inquirer.prompt as jest.Mock).mockResolvedValue({ prompt: 'yes' });
+
+    const result = await promptForConfirmOrDetails('Confirm?');
+
+    expect(result).toBe(true);
+    expect(inquirer.prompt).toHaveBeenCalledTimes(1);
+  });
+
+  it('should return false when user selects "no"', async () => {
+    (inquirer.prompt as jest.Mock).mockResolvedValue({ prompt: 'no' });
+
+    const result = await promptForConfirmOrDetails('Confirm?');
+
+    expect(result).toBe(false);
+    expect(inquirer.prompt).toHaveBeenCalledTimes(2);
+  });
+});
+
+jest.mock('child_process', () => ({
+  execSync: jest.fn(),
+  spawn: jest.fn(),
+}));
+
+describe('checkDockerInstalled', () => {
+  const originalLogDebug = log.debug
+  const originalLogError = log.error
+
+  beforeEach(() => {
+    log.error = (...args) => {
+      originalLogDebug('Error:', ...args)
+    }
+  });
+
+  afterEach(() => {
+    log.debug = originalLogDebug
+    log.error = originalLogError
+  });
+
+  it('return true if Docker is install', () => {
+    (execSync as jest.Mock).mockImplementation(() => 'Docker version 20.10.8, build 3967b0d');
+    const spyOnDebug = jest.spyOn(log, 'debug');
+
+    const result = checkDockerInstalled();
+
+    expect(result).toBe(true);
+    expect(spyOnDebug).toHaveBeenCalledWith(
+      'Docker is installed:',
+      'Docker version 20.10.8, build 3967b0d',
+    );
+  });
+
+  it('returns false if Docker is not installed', () => {
+    (execSync as jest.Mock).mockImplementation(() => {
+      throw new Error('Command failed: docker --version');
+    });
+    const spyOnError = jest.spyOn(log, 'error');
+
+    const result = checkDockerInstalled();
+
+    expect(result).toBe(false);
+    expect(spyOnError).toHaveBeenCalledWith(
+      'Docker is not installed, please refer "https://docs.docker.com/engine/install". if use podman, please refer "https://help.aliyun.com/document_detail/2513750.html?spm=a2c4g.2513735.0.i0#e72aae479a5gf"',
+    );
+  });
+});
+
+describe('checkDockerDaemonRunning', () => {
+  const originalLogDebug = log.debug
+  const originalLogError = log.error
+
+  beforeEach(() => {
+    log.error = (...args) => {
+      originalLogDebug('Error:', ...args)
+    }
+  });
+
+  afterEach(() => {
+    log.debug = originalLogDebug
+    log.error = originalLogError
+  });
+
+  it('return true if Docker daemon is running', () => {
+    (execSync as jest.Mock).mockImplementation(() => {});
+    const spyOnDebug = jest.spyOn(log, 'debug');
+
+    const result = checkDockerDaemonRunning();
+
+    expect(result).toBe(true);
+    expect(spyOnDebug).toHaveBeenCalledWith('Docker daemon is running.');
+  });
+
+  it('return false if Docker daemon is not running', () => {
+    (execSync as jest.Mock).mockImplementation(() => {
+      throw new Error('Docker daemon is not running.');
+    });
+    const spyOnError = jest.spyOn(log, 'error');
+
+    const result = checkDockerDaemonRunning();
+
+    expect(result).toBe(false);
+    expect(spyOnError).toHaveBeenCalledWith('Docker daemon is not running.');
+  });
+});
+
+describe('checkDockerIsOK', () => {
+  const checkDockerInstalled = jest.fn();
+  const checkDockerDaemonRunning = jest.fn();
+
+  const originalLogDebug = log.debug
+  const originalLogError = log.error
+
+  beforeEach(() => {
+    log.error = (...args) => {
+      originalLogDebug('Error:', ...args)
+    }
+  });
+
+  afterEach(() => {
+    log.debug = originalLogDebug
+    log.error = originalLogError
+  });
+
+  it('should throw an error if Docker is not installed', () => {
+    checkDockerInstalled.mockReturnValue(false);
+    checkDockerDaemonRunning.mockReturnValue(true);
+ 
+    const spyOnError = jest.spyOn(log, 'error');
+
+    expect(() => checkDockerIsOK()).toThrow('Docker is not OK');
+    expect(spyOnError).toHaveBeenCalledWith(
+      'Docker is not installed, please refer "https://docs.docker.com/engine/install". if use podman, please refer "https://help.aliyun.com/document_detail/2513750.html?spm=a2c4g.2513735.0.i0#e72aae479a5gf"',
+    );
+  });
+
+  it('should throw an error if Docker daemon is not running', () => {
+    checkDockerInstalled.mockReturnValue(true);
+    checkDockerDaemonRunning.mockReturnValue(false);
+
+    expect(() => checkDockerIsOK()).toThrow('Docker is not OK');
+  });
+});
+
+describe('isAppCenter', () => {
+  it('return true if BUILD_IMAGE_ENV is fc-backend', () => {
+    process.env.BUILD_IMAGE_ENV = 'fc-backend';
+    expect(isAppCenter()).toBe(true);
+  });
+
+  it('return false if BUILD_IMAGE_ENV is not fc-backend', () => {
+    delete process.env.BUILD_IMAGE_ENV;
+    expect(isAppCenter()).toBe(false);
+  });
+});
+
+describe('isYunXiao', () => {
+  it('return true if ENGINE_PIPELINE_PORTAL_URL is https://flow.aliyun.com', () => {
+    process.env.ENGINE_PIPELINE_PORTAL_URL = 'https://flow.aliyun.com';
+    expect(isYunXiao()).toBe(true);
+  });
+
+  it('return false if ENGINE_PIPELINE_PORTAL_URL is not https://flow.aliyun.com', () => {
+    delete process.env.ENGINE_PIPELINE_PORTAL_URL;
+    expect(isYunXiao()).toBe(false);
+  });
+});
+
+describe('tableShow', () => {
+  const logMock = jest.spyOn(console, 'log');
+
+  beforeEach(() => {
+    logMock.mockClear();
+  });
+
+  it('should render table with given data and showKey', () => {
+    const mockData = [
+      { name: 'John', age: 25, city: 'New York' },
+      { name: 'Lisa', age: 30, city: 'London' },
+      { name: 'David', age: 35, city: 'Paris' },
+    ];
+    const mockShowKey = ['name', 'age', 'city'];
+
+    tableShow(mockData, mockShowKey);
+
+    expect(logMock).toHaveBeenCalled();
+
+    const logCalls = logMock.mock.calls;
+
+    expect(logCalls.length).toBe(1);
+  });
+});
+
+describe('sleep', () => {
+  it('should sleep for the specified number of seconds', async () => {
+    const start = Date.now();
+    await sleep(1);
+    const end = Date.now();
+
+    expect(end - start).toBeGreaterThanOrEqual(1000);
+  });
+
+  it('should sleep for a fraction of a second when given a decimal value', async () => {
+    const start = Date.now();
+    await sleep(0.5);
+    const end = Date.now();
+
+    expect(end - start).toBeGreaterThanOrEqual(500);
+    expect(end - start).toBeLessThan(1000);
+  });
+
+  it('should sleep for at least 0 milliseconds when given 0 as the input', async () => {
+    const start = Date.now();
+    await sleep(0);
+    const end = Date.now();
+
+    expect(end - start).toBeGreaterThanOrEqual(0);
+  });
+});
+
+jest.mock(
+  'SCHEMA_FILE_PATH',
+  () => ({
+    validateSchema: jest.fn(),
+  }),
+  { virtual: true },
+);
+
+describe('verify', () => {
+
+  it('should validate valid props without errors', () => {
+    const props: IProps = {
+      region: 'cn-hangzhou',
+      functionName: 'your-function-name',
+      runtime: 'nodejs18',
+    };
+
+    verify(props);
+
+  });
+
+  it('should validate invalid props with errors', () => {
+    const props: IProps = {
+      region: 'cn-hangzhou',
+      functionName: 'your-function-name',
+      runtime: 'nodejs18',
+    };
+
+    verify(props);
+  });
+
+  it('should handle exceptions during validation', () => {
+    const props: IProps = {
+      region: 'cn-hangzhou',
+      functionName: 'your-function-name',
+      runtime: 'nodejs18',
+    };
+
+    verify(props);
+
   });
 });
