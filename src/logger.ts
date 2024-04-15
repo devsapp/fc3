@@ -28,9 +28,9 @@ class Logger {
     this.append = (...args) => logger.append.apply(logger, args);
     this.tips = (...args) => logger.tips.apply(logger, args);
     // 兼容性加入
-    if (logger.tipsOnce) this.tipsOnce = (...args) => logger.tipsOnce.apply(logger, args);
-    if (logger.warnOnce) this.warnOnce = (...args) => logger.warnOnce.apply(logger, args);
-    if (logger.writeOnce) this.writeOnce = (...args) => logger.writeOnce.apply(logger, args);
+    if (logger?.tipsOnce) this.tipsOnce = (...args) => logger.tipsOnce.apply(logger, args);
+    if (logger?.warnOnce) this.warnOnce = (...args) => logger.warnOnce.apply(logger, args);
+    if (logger?.writeOnce) this.writeOnce = (...args) => logger.writeOnce.apply(logger, args);
     this.instance = logger;
   };
 }
