@@ -3,7 +3,7 @@ name: test-node-app #  项目名称
 access: quanxi
 
 vars: 
-  region: ${env('REGION', 'cn-huhehaote')}
+  region: ${env('REGION', 'cn-hangzhou')}
 
 resources:
   fcDemo: # 业务名称/模块名称
@@ -20,3 +20,13 @@ resources:
         initializer:
           handler: event.initializer
           timeout: 10
+  
+      asyncInvokeConfig:
+        destinationConfig:
+          onFailure:
+            destination: acs:mns:${vars.region}::/topics/serverless-devs-fc3-ci-test/messages
+          onSuccess:
+            destination: acs:fc:${vars.region}::functions/serverless-devs-ci-async-invoke-config-succ
+        maxAsyncEventAgeInSeconds: 360
+        maxAsyncRetryAttempts: 3
+        asyncTask: true

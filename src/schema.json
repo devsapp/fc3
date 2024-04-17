@@ -3,6 +3,9 @@
     "definitions": {
         "IAsyncInvokeConfig": {
             "properties": {
+                "asyncTask": {
+                    "type": "boolean"
+                },
                 "destinationConfig": {
                     "$ref": "#/definitions/IDestinationConfig"
                 },
@@ -17,6 +20,9 @@
                     "default": 3,
                     "minimum": 0,
                     "maximum": 8
+                },
+                "qualifier": {
+                    "type": "string"
                 }
             },
             "type": "object"
@@ -296,30 +302,33 @@
                         "claimPassBy": {
                             "anyOf": [
                                 {
-                                    "items":{
-                                        "properties": {
-                                            "mappingParameterName": {
-                                                "type": "string"
+                                    "items": [
+                                        {
+                                            "properties": {
+                                                "claimName": {
+                                                    "type": "string"
+                                                },
+                                                "mappingParameterName": {
+                                                    "type": "string"
+                                                },
+                                                "mappingParameterPosition": {
+                                                    "enum": [
+                                                        "cookie",
+                                                        "form",
+                                                        "header"
+                                                    ],
+                                                    "type": "string"
+                                                }
                                             },
-                                            "claimName": {
-                                                "type": "string"
-                                            },
-                                            "mappingParameterPosition": {
-                                                "enum": [
-                                                    "cookie",
-                                                    "form",
-                                                    "header"
-                                                ],
-                                                "type": "string"
-                                            }
-                                        },
-                                        "required": [
-                                            "mappingParameterName",
-                                            "mappingParameterPosition"
-                                        ],
-                                        "type": "object"
-                                    },
-                                    "minItems": 0,
+                                            "required": [
+                                                "mappingParameterName",
+                                                "mappingParameterPosition"
+                                            ],
+                                            "type": "object"
+                                        }
+                                    ],
+                                    "maxItems": 1,
+                                    "minItems": 1,
                                     "type": "array"
                                 },
                                 {
@@ -330,36 +339,39 @@
                         "jwks": {
                             "properties": {
                                 "keys": {
-                                    "items": {
-                                        "properties": {
-                                            "alg": {
-                                                "type": "string"
+                                    "items": [
+                                        {
+                                            "properties": {
+                                                "alg": {
+                                                    "type": "string"
+                                                },
+                                                "e": {
+                                                    "type": "string"
+                                                },
+                                                "kid": {
+                                                    "type": "string"
+                                                },
+                                                "kty": {
+                                                    "type": "string"
+                                                },
+                                                "n": {
+                                                    "type": "string"
+                                                },
+                                                "use": {
+                                                    "type": "string"
+                                                }
                                             },
-                                            "e": {
-                                                "type": "string"
-                                            },
-                                            "kid": {
-                                                "type": "string"
-                                            },
-                                            "kty": {
-                                                "type": "string"
-                                            },
-                                            "n": {
-                                                "type": "string"
-                                            },
-                                            "use": {
-                                                "type": "string"
-                                            }
-                                        },
-                                        "required": [
-                                            "alg",
-                                            "e",
-                                            "kty",
-                                            "n",
-                                            "use"
-                                        ],
-                                        "type": "object"
-                                    },
+                                            "required": [
+                                                "alg",
+                                                "e",
+                                                "kty",
+                                                "n",
+                                                "use"
+                                            ],
+                                            "type": "object"
+                                        }
+                                    ],
+                                    "maxItems": 1,
                                     "minItems": 1,
                                     "type": "array"
                                 }
@@ -372,30 +384,33 @@
                         "tokenLookup": {
                             "anyOf": [
                                 {
-                                    "items": {
-                                        "properties": {
-                                            "parameterName": {
-                                                "type": "string"
+                                    "items": [
+                                        {
+                                            "properties": {
+                                                "parameterName": {
+                                                    "type": "string"
+                                                },
+                                                "prefix": {
+                                                    "type": "string"
+                                                },
+                                                "readPosition": {
+                                                    "enum": [
+                                                        "cookie",
+                                                        "form",
+                                                        "header",
+                                                        "query"
+                                                    ],
+                                                    "type": "string"
+                                                }
                                             },
-                                            "prefix": {
-                                                "type": "string"
-                                            },
-                                            "readPosition": {
-                                                "enum": [
-                                                    "cookie",
-                                                    "form",
-                                                    "header",
-                                                    "query"
-                                                ],
-                                                "type": "string"
-                                            }
-                                        },
-                                        "required": [
-                                            "parameterName",
-                                            "readPosition"
-                                        ],
-                                        "type": "object"
-                                    },
+                                            "required": [
+                                                "parameterName",
+                                                "readPosition"
+                                            ],
+                                            "type": "object"
+                                        }
+                                    ],
+                                    "maxItems": 1,
                                     "minItems": 1,
                                     "type": "array"
                                 },
@@ -609,7 +624,7 @@
             },
             "required": [
               "userId",
-              "groupId",
+                "groupId",
               "mountPoints"
             ],
             "type": "object"
@@ -749,6 +764,7 @@
                 "nodejs16",
                 "nodejs18",
                 "nodejs20",
+                "nodejs8",
                 "php7.2",
                 "python2.7",
                 "python3",
@@ -1102,3 +1118,4 @@
     },
     "type": "object"
 }
+

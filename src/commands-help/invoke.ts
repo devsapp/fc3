@@ -6,6 +6,7 @@ Examples with Yaml:
   $ s invoke -e "{\\"key\\": \\"val\\"}"
   $ s invoke -f evt.json
   $ s invoke --invocation-type Async
+  $ s invoke --invocation-type Async  --async-task-id  task-uuid
 
 Examples with CLI:
   $ s cli fc3 invoke -e "payload" --region cn-huhehaote --function-name test -a default`,
@@ -31,8 +32,8 @@ Examples with CLI:
         '[Optional] Specify Invocation type, value: Async/Async, default: Sync',
       ],
       [
-        '--stateful-async-invocation-id <statefulAsyncInvocationId>',
-        '[Optional] Specify The ID of the asynchronous task, only takes effect when --invocation-type=async',
+        '--async-task-id <asyncTaskId>',
+        '[Optional] Specify The ID of the asynchronous task, only takes effect when --invocation-type=Async',
       ],
     ],
   },

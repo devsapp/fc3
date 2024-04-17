@@ -15,7 +15,7 @@ export default class Invoke {
   private payload: string;
   private qualifier: string;
   private invokeType: string;
-  private statefulAsyncInvocationId: string;
+  private asyncTaskId: string;
   private region: IRegion;
   private silent: boolean;
 
@@ -25,7 +25,7 @@ export default class Invoke {
       'event-file': eventFile,
       'invocation-type': invocationType,
       qualifier,
-      'stateful-async-invocation-id': statefulAsyncInvocationId,
+      'async-task-id': asyncTaskId,
       timeout,
       region,
       'function-name': functionName,
@@ -77,11 +77,19 @@ export default class Invoke {
     if (invocationType !== undefined) {
       this.invokeType = invocationType;
     }
+    const allowedInvocationTypes = ['Sync', 'Async'];
+    if (!allowedInvocationTypes.includes(this.invokeType)) {
+      throw new Error(
+        `Invalid 'invocationType': ${
+          this.invokeType
+        }. Allowed values are: ${allowedInvocationTypes.join(', ')}`,
+      );
+    }
     if (qualifier !== undefined) {
       this.qualifier = qualifier;
     }
-    if (statefulAsyncInvocationId !== undefined) {
-      this.statefulAsyncInvocationId = statefulAsyncInvocationId;
+    if (asyncTaskId !== undefined) {
+      this.asyncTaskId = asyncTaskId;
     }
     this.silent = silent;
   }
@@ -93,7 +101,7 @@ export default class Invoke {
       payload: this.payload,
       qualifier: this.qualifier,
       invokeType: this.invokeType,
-      statefulAsyncInvocationId: this.statefulAsyncInvocationId,
+      asyncTaskId: this.asyncTaskId,
     });
     logger.debug(`invoke function ${this.functionName} result ${JSON.stringify(result)}`);
     if (this.silent) {
@@ -123,6 +131,13 @@ ${bold('Code Checksum:')} ${green(codeChecksum)}
 ${bold('Qualifier:')} ${green(qualifier || 'LATEST')}
 ${bold('RequestId:')} ${green(requestId)}
 `;
+    if (this.invokeType === 'Async') {
+      const { 'x-fc-async-task-id': taskId } = headers || {};
+      showLog = `${bold('Qualifier:')} ${green(qualifier || 'LATEST')}
+${bold('RequestId:')} ${green(requestId)}
+${bold('AsyncTaskId:')} ${green(taskId)}
+`;
+    }
 
     if (headers['x-fc-error-type']) {
       showLog += `${bold('Error Type:')} ${red(errorType)}

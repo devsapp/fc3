@@ -1,5 +1,5 @@
 #! /bin/bash
-# s remove -y -t s2.yaml
+s remove -y -t s2.yaml
 s deploy --function -t s2.yaml
 versionId=$(s version publish -t s2.yaml --silent -o json | jq -r '."versionId"')
 echo "latest version = $versionId"

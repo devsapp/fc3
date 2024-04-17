@@ -2,6 +2,7 @@ import _ from 'lodash';
 import { INasConfig, IVpcConfig, ILogConfig, Runtime } from '../../../interface';
 import { isAuto, isAutoVpcConfig } from '../../../utils';
 import logger from '../../../logger';
+import { isDebugMode } from '@serverless-devs/utils';
 
 export function isCustomContainerRuntime(runtime: string): boolean {
   return runtime === Runtime['custom-container'];
@@ -47,8 +48,13 @@ export const getCustomEndpoint = (
   const CUSTOM_ENDPOINT = endpoint || process.env.FC_CLIENT_CUSTOM_ENDPOINT;
   logger.debug(`get custom endpoint: ${CUSTOM_ENDPOINT}`);
 
+  let protocol = 'https';
+  if (isDebugMode()) {
+    protocol = 'http';
+  }
+
   if (!CUSTOM_ENDPOINT) {
-    return {};
+    return { protocol };
   }
 
   // logger.info(`get custom endpoint: ${CUSTOM_ENDPOINT}`);

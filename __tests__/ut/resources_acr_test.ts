@@ -101,7 +101,7 @@ describe('getCustomEndpoint', () => {
   it('should return an empty object when CUSTOM_ENDPOINT is not provided', () => {
     delete process.env.FC_CLIENT_CUSTOM_ENDPOINT;
     const result = getCustomEndpoint();
-    expect(result).toEqual({});
+    expect(result).toEqual({ protocol: 'https' });
   });
 
   it('should return custom endpoint with http protocol when CUSTOM_ENDPOINT starts with http://', () => {

@@ -167,12 +167,12 @@ export default class FC_Client {
       payload,
       qualifier,
       invokeType,
-      statefulAsyncInvocationId,
+      asyncTaskId,
     }: {
       payload?: string;
       qualifier?: string;
       invokeType?: string;
-      statefulAsyncInvocationId?: string;
+      asyncTaskId?: string;
     } = {},
   ) {
     const runtime = new RuntimeOptions({});
@@ -186,8 +186,8 @@ export default class FC_Client {
       xFcInvocationType: invokeType,
     });
 
-    if (statefulAsyncInvocationId) {
-      // TODO
+    if (asyncTaskId) {
+      headers.xFcAsyncTaskId = asyncTaskId;
     }
     const request = new InvokeFunctionRequest({
       qualifier,
