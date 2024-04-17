@@ -4,11 +4,11 @@ import path from 'path';
 import { parseArgv } from '@serverless-devs/utils';
 import fs from 'fs';
 import { IInputs } from '../../src/interface';
-log._set(console)
+log._set(console);
 
 jest.mock('@serverless-devs/utils', () => ({
   parseArgv: jest.fn(),
-}))
+}));
 
 describe('SYaml2To3', () => {
   let sYaml2To3Class;
@@ -29,7 +29,7 @@ describe('SYaml2To3', () => {
       timeout: 60,
     },
     // 执行的方法
-    command: 'deploy',
+    command: 's2tos3',
     args: ['-t', 's.yaml'],
     // yaml相关信息
     yaml: {
@@ -51,28 +51,32 @@ describe('SYaml2To3', () => {
     }),
   };
 
-  const originalLogDebug = log.debug
-  const originalLogError = log.error
+  const originalLogDebug = log.debug;
+  const originalLogError = log.error;
 
   afterEach(() => {
-    log.debug = originalLogDebug
-    log.error = originalLogError
+    log.debug = originalLogDebug;
+    log.error = originalLogError;
   });
 
   beforeEach(() => {
     sYaml2To3Class = () => new SYaml2To3(inputs);
     log.error = (...args) => {
-      originalLogDebug('Error:', ...args)
-    }
+      originalLogDebug('Error:', ...args);
+    };
   });
 
   describe('constructor', () => {
     it('should return error source is {}', () => {
-      (parseArgv as jest.Mock).mockReturnValue({})
+      (parseArgv as jest.Mock).mockReturnValue({});
       const errorMock = jest.spyOn(log, 'error');
 
-      expect(sYaml2To3Class).toThrow('source not specified and s.yaml or s.yml is not in current dir, please specify --source');
-      expect(errorMock).toHaveBeenCalledWith('source not specified and s.yaml or s.yml is not in current dir, please specify --source')
+      expect(sYaml2To3Class).toThrow(
+        'source not specified and s.yaml or s.yml is not in current dir, please specify --source',
+      );
+      expect(errorMock).toHaveBeenCalledWith(
+        'source not specified and s.yaml or s.yml is not in current dir, please specify --source',
+      );
     });
   });
 
@@ -84,12 +88,12 @@ describe('SYaml2To3', () => {
         target: 's3.yaml',
         region: 'cn-hangzhou',
         help: false,
-      })
-      sYaml2To3 = sYaml2To3Class()
-    })
+      });
+      sYaml2To3 = sYaml2To3Class();
+    });
 
     it('should return the correct file name if s.yaml exists', () => {
-      const spy = jest.spyOn(fs, 'accessSync').mockImplementation(() => { });
+      const spy = jest.spyOn(fs, 'accessSync').mockImplementation(() => {});
       const filename = sYaml2To3.getSYamlFile();
       expect(filename).toBe('s.yaml');
       spy.mockRestore();
@@ -113,25 +117,25 @@ describe('SYaml2To3', () => {
         target: 's3.yaml',
         region: 'cn-hangzhou',
         help: false,
-      })
-      sYaml2To3 = sYaml2To3Class()
-    })
+      });
+      sYaml2To3 = sYaml2To3Class();
+    });
     it('should replace environment variables', () => {
       const fileContents = 'Hello, ${env(NAME)}!';
       const result = sYaml2To3.variableReplace(fileContents);
-      expect(result).toBe('Hello, ${env(\'NAME\')}!');
+      expect(result).toBe("Hello, ${env('NAME')}!");
     });
 
     it('should replace configuration variables', () => {
       const fileContents = 'The port is ${config(PORT)}.';
       const result = sYaml2To3.variableReplace(fileContents);
-      expect(result).toBe('The port is ${config(\'PORT\')}.');
+      expect(result).toBe("The port is ${config('PORT')}.");
     });
 
     it('should replace file variables', () => {
       const fileContents = 'The content is ${file(FILE.txt)}.';
       const result = sYaml2To3.variableReplace(fileContents);
-      expect(result).toBe('The content is ${file(\'FILE.txt\')}.');
+      expect(result).toBe("The content is ${file('FILE.txt')}.");
     });
 
     it('should replace output variables', () => {

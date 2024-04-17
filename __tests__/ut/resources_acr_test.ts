@@ -4,9 +4,7 @@ import VpcNas from '../../src/resources/vpc-nas';
 import { getCustomEndpoint } from '../../src/resources/fc/impl/utils';
 import replaceFunction from '../../src/resources/fc/impl/replace-function-config';
 import log from '../../src/logger';
-import {
-  IVpcConfig
-} from '../../src/interface';
+import { IVpcConfig } from '../../src/interface';
 log._set(console);
 
 describe('Role', () => {
@@ -45,7 +43,6 @@ describe('Role', () => {
     });
   });
 });
-
 
 describe('Sls', () => {
   describe('generateProjectName', () => {
@@ -91,7 +88,7 @@ describe('VpcNas', () => {
 
       const result = await vpcNasClass.getVpcNasRule(vpcConfig);
 
-      expect(result).toBe('Alibaba-Fc-V3-Component-Generated')
+      expect(result).toBe('Alibaba-Fc-V3-Component-Generated');
     });
   });
 });

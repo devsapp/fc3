@@ -10,18 +10,18 @@ import log from '../../src/logger';
 log._set(console);
 
 describe('validateIHttpTriggerConfig', () => {
-  const originalLogDebug = log.debug
-  const originalLogError = log.error
+  const originalLogDebug = log.debug;
+  const originalLogError = log.error;
 
   beforeEach(() => {
     log.error = (...args) => {
-      originalLogDebug('Error:', ...args)
-    }
+      originalLogDebug('Error:', ...args);
+    };
   });
 
   afterEach(() => {
-    log.debug = originalLogDebug
-    log.error = originalLogError
+    log.debug = originalLogDebug;
+    log.error = originalLogError;
   });
 
   it('should return true if authConfig does not have blacklist and whitelist', () => {
@@ -39,11 +39,13 @@ describe('validateIHttpTriggerConfig', () => {
         whitelist: ['ghi', 'jkl'],
       },
     };
-    
-    const errorMock = jest.spyOn(log, 'error')
+
+    const errorMock = jest.spyOn(log, 'error');
 
     expect(validateIHttpTriggerConfig(data)).toBe(false);
-    expect(errorMock).toHaveBeenCalledWith('You cannot use blacklist and whitelist together in authConfig of http trigger')
+    expect(errorMock).toHaveBeenCalledWith(
+      'You cannot use blacklist and whitelist together in authConfig of http trigger',
+    );
   });
 
   it('should return true if authConfig has only blacklist', () => {
@@ -68,18 +70,18 @@ describe('validateIHttpTriggerConfig', () => {
 });
 
 describe('convertIHttpTriggerConfig', () => {
-  const originalLogDebug = log.debug
-  const originalLogError = log.error
+  const originalLogDebug = log.debug;
+  const originalLogError = log.error;
 
   beforeEach(() => {
     log.error = (...args) => {
-      originalLogDebug('Error:', ...args)
-    }
+      originalLogDebug('Error:', ...args);
+    };
   });
 
   afterEach(() => {
-    log.debug = originalLogDebug
-    log.error = originalLogError
+    log.debug = originalLogDebug;
+    log.error = originalLogError;
   });
 
   it('should convert IHttpTriggerConfig to IHttpTriggerConfig', () => {
@@ -103,7 +105,9 @@ describe('convertIHttpTriggerConfig', () => {
     const result = convertIHttpTriggerConfig(httpTriggerConfig);
 
     expect(result).toBe(httpTriggerConfig);
-    expect(errorMock).toHaveBeenCalledWith('You must set authConfig in triggerConfig when authType is jwt.')
+    expect(errorMock).toHaveBeenCalledWith(
+      'You must set authConfig in triggerConfig when authType is jwt.',
+    );
   });
 
   it('should httpTriggerConfig have authConfig.tokenLookup,and readPosition is header', () => {
@@ -206,18 +210,20 @@ describe('convertIHttpTriggerConfig', () => {
 
 describe('checkRegion', () => {
   it('should Error when r is undefind', () => {
-
-    expect(() => checkRegion('' as IRegion)).toThrow('Region not specified, please specify --region');
+    expect(() => checkRegion('' as IRegion)).toThrow(
+      'Region not specified, please specify --region',
+    );
   });
 
   it('should throw an error if region is invalid', () => {
-
-    expect(() => checkRegion('invalid-region' as IRegion)).toThrow(`Invalid region, The allowed regions are ${RegionList}`);
+    expect(() => checkRegion('invalid-region' as IRegion)).toThrow(
+      `Invalid region, The allowed regions are ${RegionList}`,
+    );
   });
 
-  it('should true when r is cn-hangzhou',()=>{
+  it('should true when r is cn-hangzhou', () => {
     const result = checkRegion('cn-hangzhou');
-    
-    expect(result).toBe(true)
-  })
+
+    expect(result).toBe(true);
+  });
 });

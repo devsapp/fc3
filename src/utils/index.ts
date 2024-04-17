@@ -91,20 +91,19 @@ export async function calculateCRC64(filePath: string) {
 export function getFileSize(filePath: string) {
   const fileSize = fs.statSync(filePath).size;
   const size = fileSize;
-  const sizeInKB = Math.floor(size / 1024);
   const sizeInMB = Math.floor(size / (1024 * 1024));
   const sizeInGB = Math.floor(size / (1024 * 1024 * 1024));
 
   // 根据大小选择输出的单位
   if (sizeInGB > 0) {
-    // logger.debug(`Zip file: ${filePath} size = ${sizeInGB}GB`);
-    return sizeInGB;
+    logger.debug(`Zip file: ${filePath} size = ${size / (1024 * 1024 * 1024)}GB`);
+    return size / (1024 * 1024 * 1024);
   } else if (sizeInMB > 0) {
-    // logger.debug(`Zip file: ${filePath} size = ${sizeInMB}MB`);
-    return sizeInMB;
+    logger.debug(`Zip file: ${filePath} size = ${size / (1024 * 1024)}MB`);
+    return size / (1024 * 1024);
   } else {
-    // logger.debug(`Zip file: ${filePath} size = ${sizeInKB}KB`);
-    return sizeInKB;
+    logger.debug(`Zip file: ${filePath} size = ${size / 1024}KB`);
+    return size / 1024;
   }
 }
 
