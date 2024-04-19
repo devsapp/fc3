@@ -3,6 +3,7 @@ import log from '../../src/logger';
 import path from 'path';
 import { parseArgv } from '@serverless-devs/utils';
 import fs from 'fs';
+import yaml from 'js-yaml';
 import { IInputs } from '../../src/interface';
 log._set(console);
 
@@ -154,6 +155,222 @@ describe('SYaml2To3', () => {
       const fileContents = 'This is a test. ${otherVariable}';
       const result = sYaml2To3.variableReplace(fileContents);
       expect(result).toBe('This is a test. ${otherVariable}');
+    });
+  });
+
+  jest.mock('js-yaml');
+
+  describe('run', () => {
+    let sYaml2To3: SYaml2To3;
+    beforeEach(() => {
+      (parseArgv as jest.Mock).mockReturnValue({
+        source: 's.yaml',
+        target: 's3.yaml',
+        region: 'cn-hangzhou',
+        help: false,
+      });
+      sYaml2To3 = sYaml2To3Class();
+    });
+
+    test('parsedYamlData.edition is 3.0.0', async () => {
+      const loadMock = jest.spyOn(yaml, 'load');
+      const readFileSyncMock = jest.spyOn(fs, 'readFileSync');
+      readFileSyncMock.mockReturnValue('');
+      loadMock.mockReturnValue({
+        edition: '3.0.0',
+      });
+      await sYaml2To3.run();
+      expect(loadMock).toBeCalled();
+    });
+
+    test('parsedYamlData.edition is not 3.0.0', async () => {
+      const loadMock = jest.spyOn(yaml, 'load');
+      const readFileSyncMock = jest.spyOn(fs, 'readFileSync');
+      readFileSyncMock.mockReturnValue('');
+      const command = JSON.stringify([
+        {
+          type: 'string',
+          value: 'test',
+        },
+        {
+          type: 'string',
+          value: 'test',
+        },
+      ]);
+      const args = JSON.stringify([
+        {
+          type: 'string',
+          value: 'test',
+        },
+        {
+          type: 'string',
+          value: 'test',
+        },
+      ]);
+      loadMock.mockReturnValue({
+        edition: '2.0.0',
+        services: {
+          service1: {
+            runtime: 'custom',
+            component: 'devsapp/fc@/fc',
+            props: {
+              codeUri: 'code',
+              region: 'cn-hangzhou',
+              service: {
+                name: 'service1',
+                description: 'service1',
+              },
+              function: {
+                name: 'function1',
+                description: 'function1',
+                runtime: 'nodejs10',
+                codeUri: './',
+                handler: 'index.handler',
+              },
+              ossBucket: 'test',
+              ossKey: 'test1',
+              environmentVariables: {
+                key1: 'value1',
+                key2: 'value2',
+              },
+              gpuMemorySize: 'test',
+              asyncConfiguration: {
+                destination: {
+                  onSuccess: 'acs:fc:::fc-test-on-success',
+                  onFailure: 'acs:fc:::fc-test-on-failure',
+                },
+              },
+              caPort: 'test',
+              customContainerConfig: {
+                image: 'test',
+                command,
+                args,
+                cpu: 1,
+                memorySize: 128,
+                imagePullPolicy: 'IfNotPresent',
+                user: 'test',
+                workingDir: 'test',
+                environmentVariables: {
+                  key1: 'value1',
+                  key2: 'value2',
+                },
+                webServerMode: false,
+              },
+              customRuntimeConfig: {
+                handler: 'test',
+                runtime: 'test',
+              },
+              customHealthCheckConfig: 'test',
+              triggers: [
+                {
+                  name: 'test-trigger',
+                  type: 'oss',
+                  config: {
+                    test: 'test',
+                    filter: {
+                      Key: {
+                        Prefix: 'test',
+                        Suffix: 'test',
+                      },
+                    },
+                  },
+                  role: 'test',
+                },
+                {
+                  name: 'test-trigger2',
+                  type: 'test',
+                  config: {
+                    test: 'test',
+                  },
+                  role: 'test',
+                },
+              ],
+            },
+          },
+          service2: {
+            runtime: 'custom',
+            component: 'test',
+            props: {
+              codeUri: 'code',
+              region: 'cn-hangzhou',
+              service: {
+                name: 'service1',
+                description: 'service1',
+              },
+              function: {
+                name: 'function1',
+                description: 'function1',
+                runtime: 'nodejs10',
+                codeUri: './',
+                handler: 'index.handler',
+              },
+              ossBucket: 'test',
+              ossKey: 'test1',
+              environmentVariables: {},
+              gpuMemorySize: 'test',
+              asyncConfiguration: {
+                destination: {},
+              },
+              caPort: 'test',
+              customContainerConfig: {
+                image: 'test',
+                command: [],
+                args: [],
+                cpu: 1,
+                memorySize: 128,
+                imagePullPolicy: 'IfNotPresent',
+                user: 'test',
+                workingDir: 'test',
+                environmentVariables: {
+                  key1: 'value1',
+                  key2: 'value2',
+                },
+                webServerMode: false,
+              },
+              customRuntimeConfig: {
+                handler: 'test',
+                runtime: 'test',
+              },
+              customHealthCheckConfig: 'test',
+              triggers: [
+                {
+                  name: 'test-trigger',
+                  type: 'oss',
+                  config: {
+                    test: 'test',
+                    filter: {
+                      Key: {
+                        Prefix: 'test',
+                        Suffix: 'test',
+                      },
+                    },
+                  },
+                  role: 'test',
+                },
+                {
+                  name: 'test-trigger2',
+                  type: 'test',
+                  config: {
+                    test: 'test',
+                  },
+                  role: 'test',
+                },
+              ],
+            },
+          },
+        },
+      });
+      const dumpMock = jest.spyOn(yaml, 'dump');
+      dumpMock.mockReturnValue('');
+      const writeFileSyncMock = jest.spyOn(fs, 'writeFileSync');
+      writeFileSyncMock.mockReturnValue();
+
+      await sYaml2To3.run();
+
+      expect(readFileSyncMock).toBeCalled();
+      expect(loadMock).toBeCalled();
+      expect(dumpMock).toBeCalled();
+      expect(writeFileSyncMock).toBeCalled();
     });
   });
 });

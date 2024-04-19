@@ -3,6 +3,7 @@ import Sls from '../../src/resources/sls';
 import VpcNas from '../../src/resources/vpc-nas';
 import { getCustomEndpoint } from '../../src/resources/fc/impl/utils';
 import replaceFunction from '../../src/resources/fc/impl/replace-function-config';
+import { fc2Client } from '../../src/resources/fc/impl/client';
 import log from '../../src/logger';
 import { IVpcConfig } from '../../src/interface';
 log._set(console);
@@ -619,5 +620,22 @@ describe('replaceFunction', () => {
     const { local: localResult, remote: resultRemote } = replaceFunction(local, remote);
     expect(localResult).toEqual(expectedLocal);
     expect(resultRemote).toEqual(expectedRemote);
+  });
+});
+
+describe('fc2Client', () => {
+  it('should return a fc2 client', () => {
+    const region = 'cn-hangzhou';
+    const credentials = {
+      AccessKeyID: 'accessKeyID',
+      AccessKeySecret: 'accessKeySecret',
+      AccountID: 'accountID',
+      SecurityToken: 'securityToken',
+    };
+    const customEndpoint = 'test';
+
+    const result = fc2Client(region, credentials, customEndpoint);
+
+    expect(result).toBeDefined();
   });
 });
