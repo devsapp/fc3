@@ -1,7 +1,7 @@
 import { ICredentials } from '@serverless-devs/component-interface';
 import _ from 'lodash';
 import { getDockerTmpUser, getAcrEEInstanceID, getAcrImageMeta } from './login';
-import { runCommand, checkDockerIsOK } from '../../utils';
+import { runCommand, checkDockerIsOK, sleep } from '../../utils';
 import { IRegion } from '../../interface';
 import logger from '../../logger';
 
@@ -82,6 +82,8 @@ export default class Acr {
 
       dockerCmdStr = `docker push ${image}`;
       await runCommand(dockerCmdStr, runCommand.showStdout.inherit);
+      logger.debug(`wait 3s to acr image ready`);
+      await sleep(3);
     } catch (err) {
       try {
         if (image !== imageUrl) {
@@ -95,6 +97,8 @@ export default class Acr {
 
           dockerCmdStr = `docker push ${imageUrl}`;
           await runCommand(dockerCmdStr, runCommand.showStdout.inherit);
+          logger.debug(`wait 3s to acr image ready`);
+          await sleep(3);
         }
       } catch (err2) {
         logger.error(

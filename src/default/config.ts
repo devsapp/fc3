@@ -58,6 +58,8 @@ export const IMAGE_ACCELERATION_REGION = [
   'ap-northeast-1',
   'us-east-1',
   'us-west-1',
+  'cn-huhehaote',
+  'eu-central-1',
 ];
 
 export const FC_CLIENT_CONNECT_TIMEOUT: number =
