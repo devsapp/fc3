@@ -61,6 +61,26 @@ export default class Trigger extends Base {
     await this._plan();
   }
 
+  // 是否线上存在 EB 触发器，并且和 本地 s.yaml 有 diff，这种才会真正 updateTrigger
+  checkUpdateEBTrigger(localConfig: any, remoteConfig: any): boolean {
+    if (_.isEmpty(remoteConfig)) {
+      return true;
+    }
+    const { triggerType } = remoteConfig;
+    if (triggerType === 'eventbridge') {
+      const { diffResult, show } = diffConvertYaml(remoteConfig, localConfig);
+      logger.debug(
+        `checkUpdateEBTrigger ===> ${this.functionName}/${
+          localConfig.triggerName
+        } diffResult: ${JSON.stringify(diffResult)}; diff show:\n${show}`,
+      );
+      if (_.isEmpty(diffResult)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   async run() {
     for (let index = 0; index < this.local.length; index++) {
       const remoteConfig = this.remote[index] || {};
@@ -68,6 +88,12 @@ export default class Trigger extends Base {
 
       const id = `${this.functionName}/${localConfig.triggerName}`;
       if (this.needDeploy) {
+        if (!this.checkUpdateEBTrigger(localConfig, remoteConfig)) {
+          logger.info(
+            `Skipping the deployment of the eventbridge trigger ${id} since its configuration has not  any changes.`,
+          );
+          return this.needDeploy;
+        }
         await this.fcSdk.deployTrigger(this.functionName, localConfig);
       } else if (_.isEmpty(remoteConfig)) {
         // 如果不需要部署，但是远端资源不存在，则尝试创建一下
