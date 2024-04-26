@@ -4,9 +4,22 @@ import VpcNas from '../../src/resources/vpc-nas';
 import { getCustomEndpoint } from '../../src/resources/fc/impl/utils';
 import replaceFunction from '../../src/resources/fc/impl/replace-function-config';
 import { fc2Client } from '../../src/resources/fc/impl/client';
+import Acr from '../../src/resources/acr';
+import {
+  getAcrEEInstanceID,
+  mockDockerConfigFile,
+  getAcrImageMeta,
+  getDockerTmpUser,
+} from '../../src/resources/acr/login';
 import log from '../../src/logger';
 import { IVpcConfig } from '../../src/interface';
+import Pop from '@alicloud/pop-core';
+import PopClient from '@serverless-cd/srm-aliyun-pop-core';
 log._set(console);
+const { ROAClient } = require('@alicloud/pop-core');
+
+jest.mock('@alicloud/pop-core');
+jest.mock('@serverless-cd/srm-aliyun-pop-core');
 
 describe('Role', () => {
   describe('isRoleArnFormat', () => {
@@ -87,6 +100,27 @@ describe('VpcNas', () => {
         securityGroupId: 'test',
       };
 
+      const result = await vpcNasClass.getVpcNasRule(vpcConfig);
+
+      expect(result).toBe('Alibaba-Fc-V3-Component-Generated');
+    });
+
+    test('', async () => {
+      (PopClient as jest.Mock).mockImplementation(() => {
+        return {
+          request: jest.fn().mockResolvedValue({
+            vpcId: 'test',
+            vSwitchIds: 'auto',
+            securityGroupId: 'test',
+            VpcName: ' test ',
+          }),
+        };
+      });
+      const vpcConfig: IVpcConfig = {
+        vpcId: 'test',
+        vSwitchIds: 'auto',
+        securityGroupId: 'test',
+      };
       const result = await vpcNasClass.getVpcNasRule(vpcConfig);
 
       expect(result).toBe('Alibaba-Fc-V3-Component-Generated');
@@ -637,5 +671,426 @@ describe('fc2Client', () => {
     const result = fc2Client(region, credentials, customEndpoint);
 
     expect(result).toBeDefined();
+  });
+});
+
+describe('Acr', () => {
+  describe('isAcreeRegistry', () => {
+    test('should return true when imageUrl satisfies the condition', () => {
+      const imageUrl = 'test.registry.cr.aliyuncs.com';
+
+      const result = Acr.isAcreeRegistry(imageUrl);
+      expect(result).toBe(true);
+    });
+
+    test('should return false when imageUrl does not satisfy the condition', () => {
+      const imageUrl = 'test.registry.cr.aliyuncs.cn';
+
+      const result = Acr.isAcreeRegistry(imageUrl);
+      expect(result).toBe(false);
+    });
+  });
+
+  describe('isVpcAcrRegistry', () => {
+    test('should return true when imageUrl satisfy the condition', () => {
+      const imageUrl = 'registry-vpc/test/path';
+
+      const result = Acr.isVpcAcrRegistry(imageUrl);
+      expect(result).toBe(true);
+    });
+
+    test('should return false when imageUrl not satisfy the condition', () => {
+      const imageUrl = 'registry/test/path';
+
+      const result = Acr.isVpcAcrRegistry(imageUrl);
+      expect(result).toBe(false);
+    });
+  });
+
+  describe('vpcImage2InternetImage', () => {
+    test('should return the correct imageUrl', () => {
+      const imageUrl = 'test.registry/test/path';
+
+      const result = Acr.vpcImage2InternetImage(imageUrl);
+      expect(result).toBe('test.registry/test/path');
+    });
+
+    test('should return the correct imageUrl,and replace registry-vpc', () => {
+      const imageUrl = 'registry-vpc.cn-hangzhou.aliyuncs.com/test/path';
+
+      const result = Acr.vpcImage2InternetImage(imageUrl);
+      expect(result).toBe('registry.cn-hangzhou.aliyuncs.com/test/path');
+    });
+  });
+
+  describe('getAcrEEInstanceID', () => {
+    test('should return the correct instanceID', async () => {
+      const imageUrl = 'test.cn-hangzhou.aliyuncs.com/test/path';
+      const credential = {
+        AccountID: '123456789',
+        AccessKeyID: 'test',
+        AccessKeySecret: 'test',
+        SecurityToken: 'test',
+      };
+
+      const result = await Acr.getAcrEEInstanceID(imageUrl, credential);
+      expect(result).toBe(undefined);
+    });
+  });
+  let acr;
+  const region = 'cn-hangzhou';
+  const credential = {
+    AccountID: '123456789',
+    AccessKeyID: 'test',
+    AccessKeySecret: 'test',
+    SecurityToken: 'test',
+  };
+  const originalLogDebug = log.debug;
+  const originalLogError = log.error;
+
+  beforeEach(() => {
+    acr = new Acr(region, credential);
+    log.error = (...args) => {
+      originalLogDebug('Error:', ...args);
+    };
+  });
+
+  afterEach(() => {
+    log.debug = originalLogDebug;
+    log.error = originalLogError;
+    jest.clearAllMocks();
+  });
+
+  describe('checkAcr', () => {
+    test('should return false when instanceID is null', async () => {
+      (ROAClient as jest.Mock).mockImplementation(() => {
+        return {
+          request: jest.fn().mockImplementation(() => {
+            throw new Error('instanceID is null');
+          }),
+        };
+      });
+      const imageUrl = 'test.cn-hangzhou.aliyuncs.com/test/path';
+
+      const result = await acr.checkAcr(imageUrl);
+      expect(result).toBe(false);
+    });
+  });
+
+  describe('pushAcr', () => {
+    test('should throw error when Docker is not OK', async () => {
+      (ROAClient as jest.Mock).mockImplementation(() => {
+        return {
+          request: jest.fn().mockReturnValue({
+            data: {
+              tempUserName: 'testName',
+              authorizationToken: 'testToken',
+            },
+          }),
+        };
+      });
+      const imageUrl = 'test.cn-hangzhou.aliyuncs.com/test/path';
+
+      const result = await acr.pushAcr(imageUrl);
+      expect(result).toBe(undefined);
+    });
+
+    test('image and imageUrl are not equal', async () => {
+      (ROAClient as jest.Mock).mockImplementation(() => {
+        return {
+          request: jest.fn().mockReturnValue({
+            data: {
+              tempUserName: 'testName',
+              authorizationToken: 'testToken',
+            },
+          }),
+        };
+      });
+      const imageUrl = 'test.cn-hangzhou.aliyuncs.com-registry-vpc/test/path';
+      const result = await acr.pushAcr(imageUrl);
+      expect(result).toBe(undefined);
+    });
+  });
+});
+
+describe('mockDockerConfigFile', () => {
+  test('test mockDockerConfigFile ran successfully', async () => {
+    (Pop as jest.Mock).mockImplementation(() => ({
+      request: async () => {
+        return Promise.resolve({
+          TempUserName: 'testName',
+          AuthorizationToken: 'testToken',
+        });
+      },
+    }));
+    const region = 'cn-hangzhou';
+    const imageName = 'test.com/test/test:test';
+    const credentials = {
+      AccountID: 'testAccountID',
+      AccessKeyID: 'testAccessKeyID',
+      AccessKeySecret: 'testAccessKeySecret',
+      SecurityToken: 'testSecurityToken',
+    };
+    const instanceID = 'test';
+
+    const result = await mockDockerConfigFile(region, imageName, credentials, instanceID);
+    expect(result).toBe(undefined);
+  });
+});
+
+describe('getAcrEEInstanceID', () => {
+  const originalLogDebug = log.debug;
+  const originalLogError = log.error;
+
+  beforeEach(() => {
+    log.error = (...args) => {
+      originalLogDebug('Error:', ...args);
+    };
+  });
+
+  afterEach(() => {
+    log.debug = originalLogDebug;
+    log.error = originalLogError;
+  });
+
+  test('should throw error when InstanceStatus is not RUNNING', () => {
+    (Pop as jest.Mock).mockImplementation(() => ({
+      request: async () =>
+        Promise.resolve({
+          TotalCoint: 1,
+          Instances: [
+            {
+              InstanceID: 'test',
+              InstanceName: 'test',
+              RegionID: 'cn-hangzhou',
+              InstanceStatus: 'Running',
+              CreationTime: '2021-01-01T00:00:00Z',
+              ModificationTime: '2021-01-01T00:00:00Z',
+            },
+          ],
+        }),
+    }));
+    const region = 'cn-hangzhou';
+    const credentials = {
+      AccountID: 'test',
+      AccessKeyID: 'test',
+      AccessKeySecret: 'test',
+      SecurityToken: 'test',
+    };
+    const instanceName = 'test';
+
+    expect(async () => {
+      await getAcrEEInstanceID(region, credentials, instanceName);
+    }).rejects.toThrowError('AcrEE test Status is Running');
+  });
+
+  test('should return instanceId when InstanceStatus is RUNNING', async () => {
+    (Pop as jest.Mock).mockImplementation(() => ({
+      request: async () =>
+        Promise.resolve({
+          TotalCoint: 1,
+          Instances: [
+            {
+              InstanceId: 'test',
+              InstanceName: 'test',
+              RegionID: 'cn-hangzhou',
+              InstanceStatus: 'RUNNING',
+              CreationTime: '2021-01-01T00:00:00Z',
+              ModificationTime: '2021-01-01T00:00:00Z',
+            },
+          ],
+        }),
+    }));
+    const region = 'cn-hangzhou';
+    const credentials = {
+      AccountID: 'test',
+      AccessKeyID: 'test',
+      AccessKeySecret: 'test',
+      SecurityToken: 'test',
+    };
+    const instanceName = 'test';
+
+    const result = await getAcrEEInstanceID(region, credentials, instanceName);
+    expect(result).toBe('test');
+  });
+
+  test('should return null string when InstanceName and instanceName are not equal', async () => {
+    (Pop as jest.Mock).mockImplementation(() => ({
+      request: async () =>
+        Promise.resolve({
+          TotalCount: 1,
+          Instances: [
+            {
+              InstanceId: 'test',
+              InstanceName: 'test1',
+              RegionID: 'cn-hangzhou',
+              InstanceStatus: 'RUNNING',
+              CreationTime: '2021-01-01T00:00:00Z',
+              ModificationTime: '2021-01-01T00:00:00Z',
+            },
+          ],
+        }),
+    }));
+    const region = 'cn-hangzhou';
+    const credentials = {
+      AccountID: 'test',
+      AccessKeyID: 'test',
+      AccessKeySecret: 'test',
+      SecurityToken: 'test',
+    };
+    const instanceName = 'test';
+
+    const result = await getAcrEEInstanceID(region, credentials, instanceName);
+    expect(result).toBe('');
+  });
+});
+
+describe('getAcrImageMeta', () => {
+  test('should return false when instanceID is test', async () => {
+    const region = 'cn-hangzhou';
+    const credentials = {
+      AccountID: 'test',
+      AccessKeyID: 'test',
+      AccessKeySecret: 'test',
+      SecurityToken: 'test',
+    };
+    const imageUrl = 'test';
+    const instanceID = 'test';
+
+    const result = await getAcrImageMeta(region, credentials, imageUrl, instanceID);
+    expect(result).toBe(false);
+  });
+
+  test('should return false when request return error', async () => {
+    (ROAClient as jest.Mock).mockImplementation(() => {
+      return {
+        request: () =>
+          Promise.reject(
+            new Error(
+              JSON.stringify({
+                statusCode: 404,
+              }),
+            ),
+          ),
+      };
+    });
+    const region = 'cn-hangzhou';
+    const credentials = {
+      AccountID: 'test',
+      AccessKeyID: 'test',
+      AccessKeySecret: 'test',
+      SecurityToken: 'test',
+    };
+    const imageUrl = 'test/test/test:test';
+    const instanceID = '';
+
+    const result = await getAcrImageMeta(region, credentials, imageUrl, instanceID);
+    expect(result).toBe(false);
+  });
+
+  test('should return true', async () => {
+    (ROAClient as jest.Mock).mockImplementation(() => {
+      return {
+        request: () =>
+          Promise.resolve({
+            data: {
+              isExist: true,
+            },
+          }),
+      };
+    });
+    const region = 'cn-hangzhou';
+    const credentials = {
+      AccountID: 'test',
+      AccessKeyID: 'test',
+      AccessKeySecret: 'test',
+      SecurityToken: 'test',
+    };
+    const imageUrl = 'test/test/test:test';
+    const instanceID = '';
+
+    const result = await getAcrImageMeta(region, credentials, imageUrl, instanceID);
+    expect(result).toBe(true);
+  });
+});
+
+describe('getAuthorizationTokenOfRegisrty and createUserInfo', () => {
+  const originalLogDebug = log.debug;
+  const originalLogError = log.error;
+
+  beforeEach(() => {
+    log.error = (...args) => {
+      originalLogDebug('Error:', ...args);
+    };
+  });
+
+  afterEach(() => {
+    log.debug = originalLogDebug;
+    log.error = originalLogError;
+  });
+
+  test('should throw error when code is not USER_NOT_EXIST', () => {
+    (ROAClient as jest.Mock).mockImplementation(() => {
+      return {
+        request: async () => {
+          throw new Error(
+            JSON.stringify({
+              code: 404,
+            }),
+          );
+        },
+      };
+    });
+    const region = 'cn-hangzhou';
+    const credentials = {
+      AccountID: 'test',
+      AccessKeyID: 'test',
+      AccessKeySecret: 'test',
+      SecurityToken: 'test',
+    };
+    expect(async () => {
+      await getDockerTmpUser(region, credentials, '');
+    }).rejects.toThrowError(
+      JSON.stringify({
+        code: 404,
+      }),
+    );
+  });
+
+  test('should dockerTmpConfig returned success', async () => {
+    (ROAClient as jest.Mock).mockImplementation(() => ({
+      request: jest.fn(() => {
+        if (!count) {
+          count = 1;
+          return Promise.reject(mockRejectedValue);
+        } else {
+          return Promise.resolve(mockResolvedValue);
+        }
+      }),
+    }));
+    var count = 0;
+    var mockRejectedValue = {
+      result: {
+        code: 'USER_NOT_EXIST',
+      },
+    };
+    var mockResolvedValue = {
+      data: {
+        tempUserName: 'test',
+        authorizationToken: 'test',
+      },
+    };
+    const region = 'cn-hangzhou';
+    const credentials = {
+      AccountID: 'test',
+      AccessKeyID: 'test',
+      AccessKeySecret: 'test',
+      SecurityToken: 'test',
+    };
+    const result = await getDockerTmpUser(region, credentials, '');
+    expect(result).toStrictEqual({
+      dockerTmpUser: 'test',
+      dockerTmpToken: 'test',
+    });
   });
 });
