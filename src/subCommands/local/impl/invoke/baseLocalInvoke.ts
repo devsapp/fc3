@@ -122,7 +122,8 @@ export class BaseLocalInvoke extends BaseLocal {
     const image = await this.getRuntimeRunImage();
     const envStr = await this.getEnvString();
     const nasStr = this.getNasMountString();
-    const dockerCmdStr = `docker run --name ${this.getContainerName()} -d --platform linux/amd64 --rm -p ${port}:${this.getCaPort()} --memory=${this.getMemorySize()}m ${mntStr} ${envStr} ${nasStr} ${image}`;
+    const layerStr = await this.getLayerMountString();
+    const dockerCmdStr = `docker run --name ${this.getContainerName()} -d --platform linux/amd64 --rm -p ${port}:${this.getCaPort()} --memory=${this.getMemorySize()}m ${mntStr} ${envStr} ${nasStr} ${layerStr} ${image}`;
     if (!_.isEmpty(this.getDebugArgs())) {
       if (this.debugIDEIsVsCode()) {
         await this.writeVscodeDebugConfig();

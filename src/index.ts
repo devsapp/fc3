@@ -137,7 +137,7 @@ export default class Fc extends Base {
   }
 
   public async local(inputs: IInputs) {
-    await super.handlePreRun(inputs, false);
+    await super.handlePreRun(inputs, true);
     checkDockerIsOK();
 
     const { _: command } = parseArgv(inputs.args);

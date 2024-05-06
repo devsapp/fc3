@@ -1,0 +1,23 @@
+edition: 3.0.0
+name: hello-world-app
+
+access: "quanxi"
+
+vars: 
+  region: "cn-hangzhou"
+
+resources:
+  hello_world:
+    component: ${env('fc_component_version', path('../../../../../'))} 
+    props:
+      region: ${vars.region}
+      functionName: ${env('fc_component_function_name', 'nodejs16-local-layer')}  
+      description: 'hello world by serverless devs'
+      runtime: "nodejs16"
+      code: ./code
+      handler: index.handler
+      memorySize: 128
+      timeout: 30
+      layers:
+        - acs:fc:cn-hangzhou:official:layers/Nodejs-Puppeteer17x/versions/3
+        - acs:fc:cn-hangzhou:1431999136518149:layers/devs_ci_test_koa/versions/3

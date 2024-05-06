@@ -491,6 +491,13 @@ export default class FC_Client {
     return maxVersionLayer;
   }
 
+  async getLayerVersionByArn(arn: string) {
+    const result = await this.fc20230330Client.getLayerVersionByArn(arn);
+    const { body } = result.toMap();
+    logger.debug(`getLayerVersionByArn response  body: ${JSON.stringify(body)}`);
+    return body;
+  }
+
   async createLayerVersion(
     layerName: string,
     ossBucketName: string,

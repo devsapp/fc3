@@ -9,7 +9,7 @@ import * as rimraf from 'rimraf';
 import { parseArgv, getRootHome } from '@serverless-devs/utils';
 import { ICredentials } from '@serverless-devs/component-interface';
 import logger from '../../../logger';
-import { ICodeUri, IInputs } from '../../../interface';
+import { ICodeUri, IInputs, IRegion, checkRegion } from '../../../interface';
 import { IDE_VSCODE } from '../../../constant';
 import {
   fcDockerNameSpace,
@@ -18,15 +18,18 @@ import {
   fcDockerVersionRegistry,
 } from '../../../default/image';
 import { runCommand, sleep } from '../../../utils';
-import FC from '../../../resources/fc';
 import { execSync } from 'child_process';
 import chalk from 'chalk';
 import * as httpx from 'httpx';
+import FC from '../../../resources/fc';
+import downloads from '@serverless-devs/downloads';
+import decompress from 'decompress'
 
 export class BaseLocal {
   protected defaultDebugArgs: string;
   protected _argsData: any;
   protected unzippedCodeDir?: string;
+  protected fcSdk: FC;
   private _dockerName: string;
   private baseDir: string;
 
@@ -37,9 +40,17 @@ export class BaseLocal {
       string: ['event', 'event-file', 'config', 'debug-port'],
       alias: { event: 'e', 'event-file': 'f', config: 'c', 'debug-port': 'd' },
     });
-    logger.debug(`argsData ====> ${JSON.stringify(argsData)}`);
     this._argsData = argsData;
     this._dockerName = uuidV4();
+    const region: IRegion = _.get(inputs, 'props.region');
+    checkRegion(region);
+    this.fcSdk = new FC(region, inputs.credential, {
+      endpoint: inputs.props.endpoint,
+      userAgent: `${
+        inputs.userAgent ||
+        `Component:fc3;Nodejs:${process.version};OS:${process.platform}-${process.arch}`
+      }command:local`,
+    });
 
     process.on('DEVS:SIGINT', async () => {
       console.log('\nDEVS:SIGINT, stop container');
@@ -114,7 +125,10 @@ export class BaseLocal {
   }
 
   async getCredentials(): Promise<ICredentials> {
-    return await this.inputs.getCredential();
+    if (_.isEmpty(this.inputs.credential)) {
+      this.inputs.credential = await this.inputs.getCredential();
+    }
+    return this.inputs.credential;
   }
 
   isHttpFunction(): boolean {
@@ -517,5 +531,88 @@ export class BaseLocal {
       );
     }
     return result;
+  }
+
+  async getLayerMountString(): Promise<string> {
+    let result = '';
+    const { layers, runtime } = this.inputs.props;
+
+    if (!_.isEmpty(layers)) {
+      const localLayerBaseDir = path.join(getRootHome(), 'layer');
+      const mergedDir = path.join(getRootHome(), 'temp', `${Date.now()}`);
+
+      if (fs.existsSync(mergedDir)) {
+        fs.rmdirSync(mergedDir);
+      }
+      fs.mkdirSync(mergedDir, { recursive: true });
+      process.on('exit', () => {
+        fs.rmdirSync(mergedDir, { recursive: true });
+      });
+
+      for (const arn of layers) {
+        // eslint-disable-next-line no-await-in-loop
+        const layerInfo = await this.fcSdk.getLayerVersionByArn(arn);
+        if (!layerInfo.compatibleRuntime.includes(runtime)) {
+          throw new Error(
+            `The Layer ${layerInfo.layerName} is not compatible with this runtime. The layer's ARN is ${arn}`,
+          );
+        }
+        const region = arn.split(':')[2];
+        const ownerId = arn.split(':')[3];
+        const localLayerDir = path.join(
+          localLayerBaseDir,
+          region,
+          ownerId,
+          layerInfo.layerName,
+          layerInfo.version.toString(),
+        );
+
+        if (fs.existsSync(localLayerDir)) {
+          logger.info(`The layer code already exists locally, skip the download: ${arn}`);
+        } else {
+          logger.info(`fetching layer ${arn} ···`);
+          // 此处因为downloads方法问题，被迫分解下载和解压操作，进行手动解压删除；后面有时间建议修复downloads，一步到位
+          // eslint-disable-next-line no-await-in-loop
+          await downloads(
+            layerInfo.code.location.replace('-internal.aliyuncs.com', '.aliyuncs.com'),
+            {
+              dest: localLayerDir,
+              filename: layerInfo.version.toString(),
+              extract: false,
+            },
+          );
+          const zipPath = path.join(localLayerDir, layerInfo.version.toString() + ".zip");
+          await decompress(zipPath, localLayerDir);
+          fs.unlinkSync(zipPath);
+        }
+        this.copyFolderContents(localLayerDir, mergedDir);
+      }
+      result += ` -v ${mergedDir}:/opt`;
+    }
+    return result;
+  }
+
+  copyFolderContents(source, target) {
+    // 读取源文件夹内容
+    const entries = fs.readdirSync(source, { withFileTypes: true });
+
+    // 确保目标文件夹存在
+    if (!fs.existsSync(target)) {
+      fs.mkdirSync(target, { recursive: true });
+    }
+
+    entries.forEach((entry) => {
+      const sourcePath = path.join(source, entry.name);
+      const targetPath = path.join(target, entry.name);
+
+      // 跳过已存在的目标文件或软链接
+
+      if (entry.isDirectory()) {
+        fs.mkdirSync(targetPath, { recursive: true });
+        this.copyFolderContents(sourcePath, targetPath);
+      } else if (!fs.existsSync(targetPath)) {
+        fs.copyFileSync(sourcePath, targetPath);
+      }
+    });
   }
 }

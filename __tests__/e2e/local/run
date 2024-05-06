@@ -8,3 +8,16 @@ export fc_component_function_name=test-local-nas-simulate-$(uname)-$(uname -m)-$
 echo "test local nas simulate ..."
 s local invoke -e '{"hello": "local nas"}'
 s local invoke -e '{"hello": "local nas"}'
+
+cd ../layer/nodejs
+export fc_component_function_name=test-local-layer-simulate-nodejs-$(uname)-$(uname -m)-$RANDSTR
+echo "test local layer simulate nodejs ..."
+s local invoke -e '{"hello": "local layer"}'
+s local invoke -e '{"hello": "local layer"}'
+
+cd ../python
+export fc_component_function_name=test-local-layer-simulate-python-$(uname)-$(uname -m)-$RANDSTR
+echo "test local layer simulate python ..."
+s local invoke -e '{"hello": "local layer"}'
+s local invoke -e '{"hello": "local layer"}'
+
