@@ -64,7 +64,7 @@ export class BaseLocalInvoke extends BaseLocal {
       'X-Fc-Request-Id': requestId,
       'X-Fc-HTTP-Path': '/',
     };
-    const postData = Buffer.from(this.getEventString(), 'binary');
+    const postData = Buffer.from(this.getEventString(), 'utf-8');
     // 断点调试允许超时时间延长一小时
     const timeout = _.isEmpty(this.getDebugArgs())
       ? (this.getTimeout() + 3) * 1000

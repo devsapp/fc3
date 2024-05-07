@@ -120,7 +120,7 @@ export class CustomContainerLocalInvoke extends BaseLocalInvoke {
         : '',
       'x-fc-function-initializer': this.getInitializer() ? this.getInitializer() : '',
     };
-    const postData = Buffer.from(this.getEventString(), 'binary');
+    const postData = Buffer.from(this.getEventString(), 'utf-8');
     const timeout = (this.getTimeout() + 3) * 1000;
     const { result } = await this.request(
       `http://localhost:${this._port}/invoke`,
