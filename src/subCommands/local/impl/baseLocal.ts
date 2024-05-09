@@ -1,3 +1,4 @@
+/* eslint-disable no-await-in-loop */
 /* eslint-disable guard-for-in */
 import path from 'path';
 import _ from 'lodash';
@@ -23,7 +24,7 @@ import chalk from 'chalk';
 import * as httpx from 'httpx';
 import FC from '../../../resources/fc';
 import downloads from '@serverless-devs/downloads';
-import decompress from 'decompress'
+import decompress from 'decompress';
 
 export class BaseLocal {
   protected defaultDebugArgs: string;
@@ -534,61 +535,63 @@ export class BaseLocal {
   }
 
   async getLayerMountString(): Promise<string> {
-    let result = '';
     const { layers, runtime } = this.inputs.props;
-
-    if (!_.isEmpty(layers)) {
-      const localLayerBaseDir = path.join(getRootHome(), 'layer');
-      const mergedDir = path.join(getRootHome(), 'temp', `${Date.now()}`);
-
-      if (fs.existsSync(mergedDir)) {
-        fs.rmdirSync(mergedDir);
-      }
-      fs.mkdirSync(mergedDir, { recursive: true });
-      process.on('exit', () => {
-        fs.rmdirSync(mergedDir, { recursive: true });
-      });
-
-      for (const arn of layers) {
-        // eslint-disable-next-line no-await-in-loop
-        const layerInfo = await this.fcSdk.getLayerVersionByArn(arn);
-        if (!layerInfo.compatibleRuntime.includes(runtime)) {
-          throw new Error(
-            `The Layer ${layerInfo.layerName} is not compatible with this runtime. The layer's ARN is ${arn}`,
-          );
-        }
-        const region = arn.split(':')[2];
-        const ownerId = arn.split(':')[3];
-        const localLayerDir = path.join(
-          localLayerBaseDir,
-          region,
-          ownerId,
-          layerInfo.layerName,
-          layerInfo.version.toString(),
-        );
-
-        if (fs.existsSync(localLayerDir)) {
-          logger.info(`The layer code already exists locally, skip the download: ${arn}`);
-        } else {
-          logger.info(`fetching layer ${arn} ···`);
-          // 此处因为downloads方法问题，被迫分解下载和解压操作，进行手动解压删除；后面有时间建议修复downloads，一步到位
-          // eslint-disable-next-line no-await-in-loop
-          await downloads(
-            layerInfo.code.location.replace('-internal.aliyuncs.com', '.aliyuncs.com'),
-            {
-              dest: localLayerDir,
-              filename: layerInfo.version.toString(),
-              extract: false,
-            },
-          );
-          const zipPath = path.join(localLayerDir, layerInfo.version.toString() + ".zip");
-          await decompress(zipPath, localLayerDir);
-          fs.unlinkSync(zipPath);
-        }
-        this.copyFolderContents(localLayerDir, mergedDir);
-      }
-      result += ` -v ${mergedDir}:/opt`;
+    if (_.isEmpty(layers)) {
+      return '';
     }
+
+    let result = '';
+    const localLayerBaseDir = path.join(getRootHome(), 'layer');
+    const mergedDir = path.join(getRootHome(), 'temp', `${Date.now()}`);
+
+    if (fs.existsSync(mergedDir)) {
+      fs.rmdirSync(mergedDir);
+    }
+    fs.mkdirSync(mergedDir, { recursive: true });
+    process.on('exit', () => {
+      fs.rmdirSync(mergedDir, { recursive: true });
+    });
+
+    for (const arn of layers) {
+      const layerInfo = await this.fcSdk.getLayerVersionByArn(arn);
+      if (!layerInfo.compatibleRuntime.includes(runtime)) {
+        throw new Error(
+          `The Layer ${layerInfo.layerName} is not compatible with this runtime. The layer's ARN is ${arn}`,
+        );
+      }
+      const region = arn.split(':')[2];
+      const ownerId = arn.split(':')[3];
+      const localLayerDir = path.join(
+        localLayerBaseDir,
+        region,
+        ownerId,
+        layerInfo.layerName,
+        layerInfo.version.toString(),
+      );
+
+      if (fs.existsSync(localLayerDir)) {
+        logger.info(
+          `The layer code ${localLayerDir} already exists locally, skip the download: ${arn}`,
+        );
+      } else {
+        logger.info(`fetching layer ${arn} ···`);
+        // 此处因为downloads方法问题，被迫分解下载和解压操作，进行手动解压删除；后面有时间建议修复downloads，一步到位
+        // eslint-disable-next-line no-await-in-loop
+        await downloads(
+          layerInfo.code.location.replace('-internal.aliyuncs.com', '.aliyuncs.com'),
+          {
+            dest: localLayerDir,
+            filename: layerInfo.version.toString(),
+            extract: false,
+          },
+        );
+        const zipPath = path.join(localLayerDir, `${layerInfo.version.toString()}.zip`);
+        await decompress(zipPath, localLayerDir);
+        fs.unlinkSync(zipPath);
+      }
+      this.copyFolderContents(localLayerDir, mergedDir);
+    }
+    result += ` -v ${mergedDir}:/opt`;
     return result;
   }
 

@@ -271,7 +271,7 @@ export default class Layer {
     );
     const fileName = path.join(localDir, `${version}.zip`);
     if (fs.existsSync(fileName)) {
-      logger.debug('The layer code already exists locally, skip the download');
+      logger.debug(`The layer code ${fileName} already exists locally, skip the download`);
       return fileName;
     }
     const codeUrl = url.replace('-internal.aliyuncs.com', '.aliyuncs.com');
