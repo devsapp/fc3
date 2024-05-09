@@ -114,8 +114,6 @@ export default class Sync {
       ? this.target
       : path.join(this.inputs.baseDir || process.cwd(), syncFolderName);
     logger.debug(`sync base dir: ${baseDir}`);
-    await fs_extra.removeSync(baseDir);
-    logger.debug(`clear sync target path: ${baseDir}`);
     const codePath = path.join(baseDir, `${this.region}_${this.functionName}`).replace('$', '_');
     logger.debug(`sync code path: ${codePath}`);
     const ymlPath = path
@@ -124,6 +122,9 @@ export default class Sync {
     logger.debug(`sync yaml path: ${ymlPath}`);
     if (!FC.isCustomContainerRuntime(functionConfig.runtime)) {
       const { url } = await this.fcSdk.getFunctionCode(this.functionName, this.qualifier);
+
+      await fs_extra.removeSync(codePath);
+      logger.debug(`clear sync code path: ${codePath}`);
 
       await downloads(url, {
         dest: codePath,
@@ -157,7 +158,10 @@ export default class Sync {
     }
 
     if (!_.isEmpty(vpcBindingConfig)) {
-      props.vpcBinding = vpcBindingConfig;
+      const vpcIds = _.get(functionConfig.vpcBinding, 'vpcIds', []);
+      if (vpcIds.length > 0) {
+        props.vpcBinding = vpcBindingConfig;
+      }
     }
 
     const config = {
