@@ -4,7 +4,7 @@ name: hello-world-app
 access: "quanxi"
 
 vars: 
-  region: "cn-hangzhou"
+  region: ${env('REGION', 'cn-hangzhou')}
 
 resources:
   hello_world:
@@ -19,5 +19,5 @@ resources:
       memorySize: 128
       timeout: 30
       layers:
-        - acs:fc:cn-hangzhou:official:layers/Nodejs-Puppeteer17x/versions/3
-        - acs:fc:cn-hangzhou:1431999136518149:layers/devs_ci_test_koa/versions/3
+        - acs:fc:${vars.region}:official:layers/Nodejs-Puppeteer17x/versions/3
+        - acs:fc:${vars.region}:1431999136518149:layers/devs_ci_test_koa/versions/3
