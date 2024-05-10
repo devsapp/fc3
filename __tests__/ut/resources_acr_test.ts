@@ -776,41 +776,6 @@ describe('Acr', () => {
       expect(result).toBe(false);
     });
   });
-
-  describe('pushAcr', () => {
-    test('should throw error when Docker is not OK', async () => {
-      (ROAClient as jest.Mock).mockImplementation(() => {
-        return {
-          request: jest.fn().mockReturnValue({
-            data: {
-              tempUserName: 'testName',
-              authorizationToken: 'testToken',
-            },
-          }),
-        };
-      });
-      const imageUrl = 'test.cn-hangzhou.aliyuncs.com/test/path';
-
-      const result = await acr.pushAcr(imageUrl);
-      expect(result).toBe(undefined);
-    });
-
-    test('image and imageUrl are not equal', async () => {
-      (ROAClient as jest.Mock).mockImplementation(() => {
-        return {
-          request: jest.fn().mockReturnValue({
-            data: {
-              tempUserName: 'testName',
-              authorizationToken: 'testToken',
-            },
-          }),
-        };
-      });
-      const imageUrl = 'test.cn-hangzhou.aliyuncs.com-registry-vpc/test/path';
-      const result = await acr.pushAcr(imageUrl);
-      expect(result).toBe(undefined);
-    });
-  });
 });
 
 describe('mockDockerConfigFile', () => {

@@ -17,7 +17,7 @@
     "test": "jest --config jestconfig.json",
     "postinstall": "patch-package"
   },
-  "repository": "git@gitlab.alibaba-inc.com:serverless-devs/fc.git",
+  "repository": "git@github.com:devsapp/fc3.git",
   "keywords": [],
   "author": "",
   "license": "ISC",
