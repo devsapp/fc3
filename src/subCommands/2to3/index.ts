@@ -273,11 +273,20 @@ export default class SYaml2To3 {
         };
       }
 
+      // 兼容老的 Handler 写法
+      if (_.get(v.props, 'Handler')) {
+        v.props.handler = v.props.Handler;
+        _.unset(v.props, 'Handler');
+      }
+
       if (_.get(v.props, 'asyncConfiguration')) {
         v.props.asyncInvokeConfig = v.props.asyncConfiguration;
         _.unset(v.props, 'asyncConfiguration');
         const { asyncInvokeConfig } = v.props;
-        _.unset(asyncInvokeConfig, 'statefulInvocation');
+        if (_.get(asyncInvokeConfig, 'statefulInvocation')) {
+          asyncInvokeConfig.asyncTask = asyncInvokeConfig.statefulInvocation;
+          _.unset(asyncInvokeConfig, 'statefulInvocation');
+        }
         if (_.get(asyncInvokeConfig, 'destination')) {
           asyncInvokeConfig.destinationConfig = asyncInvokeConfig.destination;
           _.unset(asyncInvokeConfig, 'destination');
