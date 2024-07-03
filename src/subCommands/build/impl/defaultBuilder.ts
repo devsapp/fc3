@@ -334,6 +334,26 @@ vendor`;
       }
       return false;
     };
+
+    const envExist = (tipEnvs: Array<string>, key: string, value: string) => {
+      for (let i = 0; i < tipEnvs.length; ++i) {
+        const v = tipEnvs[i];
+        const tmpLi = v.split(': ');
+        const tmpK = tmpLi[0].trim();
+        const tmpV = tmpLi[1].trim();
+        if (tmpK === key) {
+          if (tmpV.includes(value)) {
+            return true;
+          }
+          // 去掉原来内容 value 不够丰富的
+          if (value.includes(tmpV)) {
+            tipEnvs.splice(i, 1);
+            return false;
+          }
+        }
+      }
+      return false;
+    };
     const tLayer = tipsLayer();
     if (!_.isEmpty(tipEnvs) || tLayer) {
       logger.info(
@@ -342,10 +362,17 @@ vendor`;
       if (!_.isEmpty(tipEnvs)) {
         const envs = this.getEnv();
         for (let [key, value] of Object.entries(envs)) {
+          const isExist = envExist(tipEnvs, key, value);
+          if (!isExist) {
+            tipEnvs.push(`${key}: ${value}`);
+          }
+          /*
           if (key in tipEnvs) {
+            logger.debug(chalk.yellow(`${key}: ${value}`))
             continue;
           }
           tipEnvs.push(`${key}: ${value}`);
+          */
         }
         logger.write(
           chalk.yellow(`environmentVariables:
