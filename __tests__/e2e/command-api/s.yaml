@@ -16,6 +16,7 @@ resources:
       handler: event.handler
       memorySize: 128
       timeout: 30
+      logConfig: auto
       triggers:
         - triggerName: httpTrigger # 触发器名称
           triggerType: http # 触发器类型
