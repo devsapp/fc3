@@ -17,6 +17,7 @@ export default class Provision {
   private fcSdk: FC;
   private yes: boolean;
   private alwaysAllocateCPU: boolean;
+  private alwaysAllocateGPU: boolean;
   private scheduledActions: string;
   private targetTrackingPolicies: string;
   private target: number;
@@ -27,8 +28,9 @@ export default class Provision {
       alias: {
         'assume-yes': 'y',
         'always-allocate-cpu': 'ac',
+        'always-allocate-gpu': 'ag',
       },
-      boolean: ['y', 'always-allocate-cpu'],
+      boolean: ['y', 'always-allocate-cpu', 'always-allocate-gpu'],
       string: [
         'function-name',
         'region',
@@ -43,6 +45,7 @@ export default class Provision {
 
     const {
       'always-allocate-cpu': alwaysAllocateCPU, // 一直指定 cpu
+      'always-allocate-gpu': alwaysAllocateGPU,
       'scheduled-actions': scheduledActions,
       'target-tracking-policies': targetTrackingPolicies,
       'function-name': functionName,
@@ -72,6 +75,7 @@ export default class Provision {
     this.yes = !!yes;
     this.subCommand = subCommand;
     this.alwaysAllocateCPU = alwaysAllocateCPU;
+    this.alwaysAllocateGPU = alwaysAllocateGPU;
     this.scheduledActions = scheduledActions;
     this.targetTrackingPolicies = targetTrackingPolicies;
     this.target = target ? Number(target) : undefined;
@@ -110,6 +114,7 @@ export default class Provision {
     const config: IProvision = {
       target: this.target,
       alwaysAllocateCPU: _.isBoolean(this.alwaysAllocateCPU) ? this.alwaysAllocateCPU : false,
+      alwaysAllocateGPU: _.isBoolean(this.alwaysAllocateGPU) ? this.alwaysAllocateGPU : false,
       scheduledActions: [],
       targetTrackingPolicies: [],
     };

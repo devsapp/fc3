@@ -1,5 +1,6 @@
 export interface IProvision {
   alwaysAllocateCPU?: boolean;
+  alwaysAllocateGPU?: boolean;
   scheduledActions?: IProvisionScheduledAction[];
   targetTrackingPolicies?: IProvisionTargetTrackingPolicy[];
   target: number;
