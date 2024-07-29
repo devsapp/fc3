@@ -1,5 +1,3 @@
-![图片alt](https://serverless-article-picture.oss-cn-hangzhou.aliyuncs.com/1635756716877_20211101085157044368.png)
-
 <p align="center" class="flex justify-center">
   <a href="https://nodejs.org/en/" class="ml-1" target="_blank">
     <img src="https://img.shields.io/badge/node-%3E%3D%2014.14.0-brightgreen" alt="node.js version">

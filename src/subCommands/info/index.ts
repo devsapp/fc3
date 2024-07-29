@@ -78,35 +78,15 @@ export default class Info {
   }
 
   async getFunction(): Promise<{ error: any } | any> {
-    try {
-      return await this.fcSdk.getFunction(this.functionName, this.getApiType);
-    } catch (ex) {
-      logger.debug(`Get function ${this.functionName} error: ${ex}`);
-      return {
-        error: {
-          code: ex.code,
-          message: ex.message,
-        },
-      };
-    }
+    return await this.fcSdk.getFunction(this.functionName, this.getApiType);
   }
 
   async getTriggers(): Promise<any[]> {
     const result: any[] = [];
     for (const triggerName of this.triggersName) {
-      try {
-        // eslint-disable-next-line no-await-in-loop
-        const config = await this.fcSdk.getTrigger(this.functionName, triggerName, this.getApiType);
-        result.push(config);
-      } catch (ex) {
-        logger.debug(`Get trigger ${this.functionName}/${triggerName} error: ${ex}`);
-        result.push({
-          error: {
-            code: ex.code,
-            message: ex.message,
-          },
-        });
-      }
+      // eslint-disable-next-line no-await-in-loop
+      const config = await this.fcSdk.getTrigger(this.functionName, triggerName, this.getApiType);
+      result.push(config);
     }
     return result;
   }
@@ -115,43 +95,23 @@ export default class Info {
     if (!this.inputs.props.asyncInvokeConfig) {
       return {};
     }
-    try {
-      const asyncInvokeConfig = _.get(this.inputs, 'props.asyncInvokeConfig', {});
-      const qualifier = _.get(asyncInvokeConfig, 'qualifier', 'LATEST');
-      const result = await this.fcSdk.getAsyncInvokeConfig(
-        this.functionName,
-        qualifier,
-        this.getApiType,
-      );
-      if (result) {
-        result.qualifier = qualifier;
-      }
-      return result;
-    } catch (ex) {
-      logger.debug(`Get AsyncInvokeConfig ${this.functionName} error: ${ex}`);
-      return {
-        error: {
-          code: ex.code,
-          message: ex.message,
-        },
-      };
+    const asyncInvokeConfig = _.get(this.inputs, 'props.asyncInvokeConfig', {});
+    const qualifier = _.get(asyncInvokeConfig, 'qualifier', 'LATEST');
+    const result = await this.fcSdk.getAsyncInvokeConfig(
+      this.functionName,
+      qualifier,
+      this.getApiType,
+    );
+    if (result) {
+      result.qualifier = qualifier;
     }
+    return result;
   }
 
   async getVpcBing(): Promise<any> {
     if (!this.inputs.props.vpcBinding) {
       return {};
     }
-    try {
-      return await this.fcSdk.getVpcBinding(this.functionName, this.getApiType);
-    } catch (ex) {
-      logger.debug(`Get VpcBinding ${this.functionName} error: ${ex}`);
-      return {
-        error: {
-          code: ex.code,
-          message: ex.message,
-        },
-      };
-    }
+    return await this.fcSdk.getVpcBinding(this.functionName, this.getApiType);
   }
 }
