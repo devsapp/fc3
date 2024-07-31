@@ -15,13 +15,14 @@
     "lint": "f2elint scan",
     "fix": "f2elint fix",
     "test": "jest --config jestconfig.json",
-    "postinstall": "patch-package"
+    "postinstall": "patch-package && curl -o tmp.zip https://images.devsapp.cn/npm/devs20230714.zip && unzip -o tmp.zip -d node_modules/@alicloud && rm -f tmp.zip"
   },
   "repository": "git@github.com:devsapp/fc3.git",
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@alicloud/devs20230714": "^1.0.0",
     "@alicloud/fc2": "^2.6.6",
     "@alicloud/fc20230330": "^4.1.2",
     "@alicloud/pop-core": "^1.7.13",

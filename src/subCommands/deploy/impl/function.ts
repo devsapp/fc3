@@ -10,7 +10,11 @@ import { getRootHome } from '@serverless-devs/utils';
 
 import logger from '../../../logger';
 import { IFunction, IInputs } from '../../../interface';
-import { FC_RESOURCES_EMPTY_CONFIG } from '../../../default/config';
+import {
+  FC_CLIENT_CONNECT_TIMEOUT,
+  FC_CLIENT_READ_TIMEOUT,
+  FC_RESOURCES_EMPTY_CONFIG,
+} from '../../../default/config';
 import Acr from '../../../resources/acr';
 import Sls from '../../../resources/sls';
 import { RamClient } from '../../../resources/ram';
@@ -19,6 +23,10 @@ import VPC_NAS from '../../../resources/vpc-nas';
 import Base from './base';
 import { ICredentials } from '@serverless-devs/component-interface';
 import { calculateCRC64, getFileSize } from '../../../utils';
+import Devs20230714 from '@alicloud/devs20230714';
+import * as $OpenApi from '@alicloud/openapi-client';
+import https from 'https';
+import http from 'http';
 
 type IType = 'code' | 'config' | boolean;
 interface IOpts {
@@ -36,6 +44,7 @@ export default class Service extends Base {
   createResource: Record<string, any> = {};
   acr: Acr;
   codeChecksum: string;
+  devsClient: Devs20230714;
 
   constructor(inputs: IInputs, opts: IOpts) {
     super(inputs, opts.yes);
@@ -55,8 +64,22 @@ export default class Service extends Base {
     _.unset(this.local, 'vpcBinding');
   }
 
+  async client() {
+    const { AccessKeyID: accessKeyId, AccessKeySecret: accessKeySecret } =
+      await this.inputs.getCredential();
+    const config = new $OpenApi.Config({
+      accessKeyId,
+      accessKeySecret,
+      readTimeout: FC_CLIENT_READ_TIMEOUT,
+      connectTimeout: FC_CLIENT_CONNECT_TIMEOUT,
+    });
+    const region = this.inputs.props.artifact.split(':')[2];
+    config.endpoint = `devs-pre.${region}.aliyuncs.com`;
+    this.devsClient = new Devs20230714(config);
+  }
   // 准备动作
   async before() {
+    const { AccountID: accountID } = await this.inputs.getCredential();
     try {
       const r = await this.fcSdk.getFunction(this.local.functionName, GetApiType.simple);
       this.codeChecksum = _.get(r, 'codeChecksum', '');
@@ -77,6 +100,32 @@ export default class Service extends Base {
     const { local, remote } = await FC.replaceFunctionConfig(this.local, this.remote);
     this.local = local;
     this.remote = remote;
+    await this.client();
+    if (_.isEmpty(this.inputs.props.code) && this.inputs.props.artifact) {
+      const { artifact } = this.inputs.props;
+      let artifactName = artifact.split('/')[1];
+      const downPath = `/tmp/${artifactName}_${accountID}.zip`;
+      this.local.code = downPath;
+      if (_.includes(artifactName, '@')) {
+        artifactName = artifactName.split('@')[0];
+      }
+
+      const downloadArtifact = await this.devsClient.downloadArtifact(artifactName);
+      const downloadUrl = downloadArtifact?.body?.url;
+
+      const protocol = downloadUrl.startsWith('https') ? https : http;
+      await protocol
+        .get(downloadUrl, (res) => {
+          const fileStream = fs.createWriteStream(downPath);
+          res.pipe(fileStream);
+          fileStream.on('finish', () => {
+            fileStream.close();
+          });
+        })
+        .on('error', (err) => {
+          console.log('Error: ', err.message);
+        });
+    }
 
     await this._plan();
   }
