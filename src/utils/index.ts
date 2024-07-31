@@ -6,9 +6,32 @@ import { promisify } from 'util';
 import * as fs from 'fs';
 import logger from '../logger';
 import { execSync } from 'child_process';
+import axios from 'axios';
 
 export { default as verify } from './verify';
 export { default as runCommand } from './run-command';
+
+export async function downloadZipFile(url: string, filePath: string): Promise<void> {
+  try {
+    const response = await axios({
+      url,
+      method: 'GET',
+      responseType: 'stream',
+    });
+
+    const writer = fs.createWriteStream(filePath);
+
+    response.data.pipe(writer);
+
+    return new Promise((resolve, reject) => {
+      writer.on('finish', resolve);
+      writer.on('error', reject);
+    });
+  } catch (error) {
+    console.error(`Error downloading ZIP file: ${error.message}`);
+    throw error;
+  }
+}
 
 export const sleep = async (second: number): Promise<void> =>
   await new Promise((resolve) => setTimeout(resolve, second * 1000));

@@ -1,6 +1,8 @@
 import _ from 'lodash';
 import { diffConvertYaml } from '@serverless-devs/diff';
 import inquirer from 'inquirer';
+import tmpDir from 'temp-dir';
+import { v4 as uuidV4 } from 'uuid';
 import fs from 'fs';
 import assert from 'assert';
 import path from 'path';
@@ -22,11 +24,9 @@ import FC, { GetApiType } from '../../../resources/fc';
 import VPC_NAS from '../../../resources/vpc-nas';
 import Base from './base';
 import { ICredentials } from '@serverless-devs/component-interface';
-import { calculateCRC64, getFileSize } from '../../../utils';
+import { calculateCRC64, getFileSize, downloadZipFile } from '../../../utils';
 import Devs20230714 from '@alicloud/devs20230714';
 import * as $OpenApi from '@alicloud/openapi-client';
-import https from 'https';
-import http from 'http';
 
 type IType = 'code' | 'config' | boolean;
 interface IOpts {
@@ -64,17 +64,24 @@ export default class Service extends Base {
     _.unset(this.local, 'vpcBinding');
   }
 
-  async client() {
-    const { AccessKeyID: accessKeyId, AccessKeySecret: accessKeySecret } =
-      await this.inputs.getCredential();
+  async initDevsClient() {
+    const {
+      AccessKeyID: accessKeyId,
+      AccessKeySecret: accessKeySecret,
+      SecurityToken: securityToken,
+    } = await this.inputs.getCredential();
     const config = new $OpenApi.Config({
       accessKeyId,
       accessKeySecret,
+      securityToken,
       readTimeout: FC_CLIENT_READ_TIMEOUT,
       connectTimeout: FC_CLIENT_CONNECT_TIMEOUT,
     });
     const region = this.inputs.props.artifact.split(':')[2];
-    config.endpoint = `devs-pre.${region}.aliyuncs.com`;
+    config.endpoint = `devs.${region}.aliyuncs.com`;
+    if (process.env.ARTIFACT_ENV === 'pre') {
+      config.endpoint = `devs-pre.cn-hangzhou.aliyuncs.com`;
+    }
     this.devsClient = new Devs20230714(config);
   }
   // 准备动作
@@ -100,11 +107,11 @@ export default class Service extends Base {
     const { local, remote } = await FC.replaceFunctionConfig(this.local, this.remote);
     this.local = local;
     this.remote = remote;
-    await this.client();
+    await this.initDevsClient();
     if (_.isEmpty(this.inputs.props.code) && this.inputs.props.artifact) {
       const { artifact } = this.inputs.props;
       let artifactName = artifact.split('/')[1];
-      const downPath = `/tmp/${artifactName}_${accountID}.zip`;
+      const downPath: string = path.join(tmpDir, `${artifactName}_${accountID}_${uuidV4()}.zip`);
       this.local.code = downPath;
       if (_.includes(artifactName, '@')) {
         artifactName = artifactName.split('@')[0];
@@ -112,19 +119,7 @@ export default class Service extends Base {
 
       const downloadArtifact = await this.devsClient.downloadArtifact(artifactName);
       const downloadUrl = downloadArtifact?.body?.url;
-
-      const protocol = downloadUrl.startsWith('https') ? https : http;
-      await protocol
-        .get(downloadUrl, (res) => {
-          const fileStream = fs.createWriteStream(downPath);
-          res.pipe(fileStream);
-          fileStream.on('finish', () => {
-            fileStream.close();
-          });
-        })
-        .on('error', (err) => {
-          console.log('Error: ', err.message);
-        });
+      await downloadZipFile(downloadUrl, downPath);
     }
 
     await this._plan();

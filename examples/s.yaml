@@ -5,7 +5,7 @@
 # ------------------------------------
 edition: 3.0.0
 name: hello-world-app
-access: "xiliu_test"
+access: "devs_test"
 
 vars: # 全局变量
   region: "cn-hangzhou"
@@ -15,9 +15,9 @@ resources:
     component: ${path("../")} 
     props:
       region: ${vars.region}             
-      functionName: "start-nodejs-617i"
+      functionName: "test-devs-artifact"
       description: 'hello world by serverless devs'
-      runtime: "nodejs16"
+      runtime: "python3.10"
       # code: ./code
       artifact: acs:devs:cn-hangzhou::artifacts/xl_artifact_1
       handler: index.handler
