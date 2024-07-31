@@ -75,8 +75,6 @@ cd trigger/jwt
 export fc_component_function_name=nodejs16-$(uname)-$(uname -m)-$RANDSTR
 s deploy -y -t ./s.yaml
 s invoke -e '{"hello":"fc http trigger with jwt"}' -t ./s.yaml
-rpm -ivh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
-yum install -y jq
 url1=$(s info -y -t ./s.yaml --silent -o json | jq -r '.hello_world.url.system_url')
 url2=$(s info -y -t ./s.yaml --silent -o json | jq -r '.hello_world_2.url.system_url')
 echo $url1

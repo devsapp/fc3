@@ -25,8 +25,11 @@ import VPC_NAS from '../../../resources/vpc-nas';
 import Base from './base';
 import { ICredentials } from '@serverless-devs/component-interface';
 import { calculateCRC64, getFileSize, downloadZipFile } from '../../../utils';
-import Devs20230714 from '@alicloud/devs20230714';
+import Devs20230714, * as $Devs20230714 from '@alicloud/devs20230714';
 import * as $OpenApi from '@alicloud/openapi-client';
+import axios from 'axios';
+
+const OSS = require('ali-oss');
 
 type IType = 'code' | 'config' | boolean;
 interface IOpts {
@@ -62,6 +65,11 @@ export default class Service extends Base {
     _.unset(this.local, 'triggers');
     _.unset(this.local, 'asyncInvokeConfig');
     _.unset(this.local, 'vpcBinding');
+    _.unset(this.local, 'artifact');
+
+    if (this.inputs.props.code && this.inputs.props.artifact) {
+      throw new Error(`code and artifact cannot have value simultaneously.`);
+    }
   }
 
   async initDevsClient() {
@@ -77,8 +85,12 @@ export default class Service extends Base {
       readTimeout: FC_CLIENT_READ_TIMEOUT,
       connectTimeout: FC_CLIENT_CONNECT_TIMEOUT,
     });
-    const region = this.inputs.props.artifact.split(':')[2];
-    config.endpoint = `devs.${region}.aliyuncs.com`;
+    const { region } = this.inputs.props;
+    if (region.startsWith('cn-') && region !== 'cn-hongkong') {
+      config.endpoint = 'devs.cn-hangzhou.aliyuncs.com';
+    } else {
+      config.endpoint = 'devs.ap-southeast-1.aliyuncs.com';
+    }
     if (process.env.ARTIFACT_ENV === 'pre') {
       config.endpoint = `devs-pre.cn-hangzhou.aliyuncs.com`;
     }
@@ -107,8 +119,8 @@ export default class Service extends Base {
     const { local, remote } = await FC.replaceFunctionConfig(this.local, this.remote);
     this.local = local;
     this.remote = remote;
-    await this.initDevsClient();
     if (_.isEmpty(this.inputs.props.code) && this.inputs.props.artifact) {
+      await this.initDevsClient();
       const { artifact } = this.inputs.props;
       let artifactName = artifact.split('/')[1];
       const downPath: string = path.join(tmpDir, `${artifactName}_${accountID}_${uuidV4()}.zip`);
@@ -117,7 +129,7 @@ export default class Service extends Base {
         artifactName = artifactName.split('@')[0];
       }
 
-      const downloadArtifact = await this.devsClient.downloadArtifact(artifactName);
+      const downloadArtifact = await this.devsClient.fetchArtifactDownloadUrl(artifactName);
       const downloadUrl = downloadArtifact?.body?.url;
       await downloadZipFile(downloadUrl, downPath);
     }
@@ -462,5 +474,86 @@ nasConfig:
       variable.every((item) => typeof item === 'string'),
       'Variable must contain only strings',
     );
+  }
+
+  // eslint-disable-next-line @typescript-eslint/member-ordering
+  public async putArtifact() {
+    const { runtime, functionName, region } = this.inputs.props;
+    if (!FC.isCustomContainerRuntime(runtime)) {
+      logger.info('putArtifact');
+      await this.initDevsClient();
+      const { url } = await this.fcSdk.getFunctionCode(functionName, 'LATEST');
+      const truncateString = (s: string) => (s.length > 64 ? s.substring(0, 64) : s);
+      const artifactName = truncateString(`${functionName}_${region}`);
+      const downloadDir: string = path.join(tmpDir, 'artifacts');
+      const zipFile = path.join(downloadDir, `${artifactName}_${uuidV4()}.zip`);
+      await downloadZipFile(url, zipFile);
+
+      logger.debug(zipFile);
+      const resp = await this.devsClient.fetchArtifactTempBucketToken();
+      logger.debug(JSON.stringify(resp.body));
+      const { credentials, ossRegion, ossBucketName, ossObjectName } = resp.body;
+      let ossEndpoint = 'https://oss-accelerate.aliyuncs.com';
+      if (ossRegion.endsWith(process.env.FC_REGION)) {
+        ossEndpoint = `oss-${process.env.FC_REGION}-internal.aliyuncs.com`;
+      }
+      const ossClient = new OSS({
+        endpoint: ossEndpoint,
+        accessKeyId: credentials.accessKeyId,
+        accessKeySecret: credentials.accessKeySecret,
+        stsToken: credentials.securityToken,
+        bucket: ossBucketName,
+        timeout: '600000', // 10min
+        refreshSTSToken: async () => {
+          const refreshToken = await axios.get('https://127.0.0.1/sts');
+          return {
+            accessKeyId: refreshToken.data.credentials.AccessKeyId,
+            accessKeySecret: refreshToken.data.credentials.AccessKeySecret,
+            stsToken: refreshToken.data.credentials.SecurityToken,
+          };
+        },
+      });
+      const r = await (ossClient as any).put(ossObjectName, zipFile);
+      logger.debug(JSON.stringify(r));
+
+      const ossUri = `oss://${ossRegion.substring(4)}/${ossBucketName}/${ossObjectName}`;
+      const input = new $Devs20230714.Artifact({
+        name: artifactName,
+        description: 'artifact create by serverless-devs artifact command',
+        spec: new $Devs20230714.ArtifactSpec({
+          uri: ossUri,
+          type: 'fc',
+          runtime,
+        }),
+      });
+      logger.debug('create artifact...');
+      try {
+        const createArtifactRequest = new $Devs20230714.CreateArtifactRequest({ body: input });
+        const r2 = await this.devsClient.createArtifact(createArtifactRequest);
+        logger.debug(JSON.stringify(r2.body));
+        const { arn, checksum } = r2.body.status;
+        return {
+          artifact: `${arn}@${checksum}`,
+        };
+      } catch (error) {
+        if (error.message.includes('ArtifactAlreadyExists')) {
+          logger.debug('update artifact...');
+          const putArtifactRequest = new $Devs20230714.PutArtifactRequest({
+            body: input,
+            force: true,
+          });
+          const r3 = await this.devsClient.putArtifact(artifactName, putArtifactRequest);
+          logger.debug(JSON.stringify(r3.body));
+          const { arn, checksum } = r3.body.status;
+          return {
+            artifact: `${arn}@${checksum}`,
+          };
+        } else {
+          logger.error(error.message);
+        }
+      }
+    }
+    logger.info('skip putArtifact because custom container runtime');
+    return {};
   }
 }

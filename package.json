@@ -15,14 +15,14 @@
     "lint": "f2elint scan",
     "fix": "f2elint fix",
     "test": "jest --config jestconfig.json",
-    "postinstall": "patch-package && curl -o tmp.zip https://images.devsapp.cn/npm/devs20230714.zip && unzip -o tmp.zip -d node_modules/@alicloud && rm -f tmp.zip"
+    "postinstall": "patch-package"
   },
   "repository": "git@github.com:devsapp/fc3.git",
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@alicloud/devs20230714": "^1.0.0",
+    "@alicloud/devs20230714": "^1.0.3",
     "@alicloud/fc2": "^2.6.6",
     "@alicloud/fc20230330": "^4.1.2",
     "@alicloud/pop-core": "^1.7.13",
@@ -53,8 +53,8 @@
     "uuid": "^9.0.1"
   },
   "devDependencies": {
-    "@serverless-devs/component-interface": "^0.0.4",
-    "@serverless-devs/logger": "^0.0.5-beta.2",
+    "@serverless-devs/component-interface": "^0.0.5",
+    "@serverless-devs/logger": "^0.0.5",
     "@types/jest": "^29.5.12",
     "@types/lodash": "^4.17.1",
     "@types/node": "^20.12.11",
@@ -67,6 +67,11 @@
     "ts-jest": "^29.1.2",
     "ts-node": "^10.9.2",
     "typescript": "^4.4.2",
-    "typescript-json-schema": "^0.63.0"
+    "typescript-json-schema": "^0.64.0"
+  },
+  "resolutions": {
+    "@alicloud/devs20230714": {
+      "registry": "https://packages.aliyun.com/6455f7ff81b284e28f4774c4/npm/npm-registry/"
+    }
   }
 }

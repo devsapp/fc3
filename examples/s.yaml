@@ -5,21 +5,22 @@
 # ------------------------------------
 edition: 3.0.0
 name: hello-world-app
-access: "devs_test"
+access: "quanxi"
 
 vars: # 全局变量
   region: "cn-hangzhou"
 
 resources:
   hello_world:
-    component: ${path("../")} 
+    #component: fc3@dev
+    component: ${path("../")}
     props:
-      region: ${vars.region}             
+      region: ${vars.region}
       functionName: "test-devs-artifact"
       description: 'hello world by serverless devs'
       runtime: "python3.10"
-      # code: ./code
-      artifact: acs:devs:cn-hangzhou::artifacts/xl_artifact_1
+      #code: ./code
+      artifact: acs:devs:cn-hangzhou:1431999136518149:artifacts/test-devs-artifact_cn-hangzhou@14529464898926819844
       handler: index.handler
       memorySize: 128
       timeout: 30

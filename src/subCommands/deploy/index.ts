@@ -9,6 +9,7 @@ import { verify } from '../../utils';
 import { IInputs } from '../../interface';
 import Info from '../info/index';
 import { GetApiType } from '../../resources/fc';
+import _ from 'lodash';
 
 export default class Deploy {
   readonly opts: Record<string, any>;
@@ -18,12 +19,14 @@ export default class Deploy {
   readonly asyncInvokeConfig?: AsyncInvokeConfig;
   readonly vpcBinding?: VpcBinding;
 
+  putArtifact?: boolean;
+
   constructor(readonly inputs: IInputs) {
     this.opts = parseArgv(inputs.args, {
       alias: {
         'assume-yes': 'y',
       },
-      boolean: ['skip-push', 'async_invoke_config'],
+      boolean: ['skip-push', 'async_invoke_config', 'put-artifact'],
     });
 
     // TODO: 更完善的验证
@@ -53,6 +56,7 @@ export default class Deploy {
     if (deployAll) {
       this.vpcBinding = new VpcBinding(inputs, { yes });
     }
+    this.putArtifact = this.opts['put-artifact'];
   }
 
   async run() {
@@ -68,13 +72,24 @@ export default class Deploy {
     const run3 = await this.asyncInvokeConfig?.run();
     const run4 = await this.vpcBinding?.run();
 
+    if (_.isEmpty(this.inputs.props.code) && this.inputs.props.artifact && this.putArtifact) {
+      logger.info('No need to put artifact because artifact in props');
+      this.putArtifact = false;
+    }
+
+    let artResult = {};
+    if (this.putArtifact) {
+      artResult = await this.service.putArtifact();
+    }
+
     // 获取输出
     if (run1 && run2 && run3 && run4) {
       const info = new Info(this.inputs);
       info.setGetApiType(GetApiType.simpleUnsupported);
       const result = await info.run();
       logger.debug(`Get info: ${JSON.stringify(result)}`);
-      return result;
+      const mergedObj = Object.assign({}, result, artResult);
+      return mergedObj;
     }
   }
 }
