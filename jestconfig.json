@@ -15,6 +15,7 @@
         "node"
     ],
     "collectCoverage": true,
-    "coverageReporters": ["html", "text"]
+    "coverageReporters": ["html", "text"],
+    "testTimeout": 30000
   }
   

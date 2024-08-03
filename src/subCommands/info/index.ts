@@ -1,10 +1,13 @@
 /* eslint-disable no-await-in-loop */
-import { ICredentials } from '@serverless-devs/component-interface';
+import { ICredentials, IInputs as _IInputs } from '@serverless-devs/component-interface';
 import _, { isEmpty } from 'lodash';
 import { IInputs, IRegion, TriggerType, checkRegion } from '../../interface';
 import FC, { GetApiType } from '../../resources/fc';
 import logger from '../../logger';
 import { parseArgv } from '@serverless-devs/utils';
+import loadComponent from '@serverless-devs/load-component';
+import { transformCustomDomainProps } from '../../utils';
+import { FC3_DOMAIN_COMPONENT_NAME } from '../../constant';
 
 export default class Info {
   readonly region: IRegion;
@@ -46,9 +49,13 @@ export default class Info {
 
   async run() {
     const functionConfig = await this.getFunction();
+    if (this.inputs.props.artifact) {
+      functionConfig.artifact = `${this.inputs.props.artifact}@${functionConfig.codeChecksum}`;
+    }
     const triggers = await this.getTriggers();
     const asyncInvokeConfig = await this.getAsyncInvokeConfig();
     const vpcBindingConfig = await this.getVpcBing();
+    const customDomain = await this.getCustomDomain();
     let info: any = {
       region: this.region,
     };
@@ -57,6 +64,7 @@ export default class Info {
       triggers: isEmpty(triggers) ? undefined : triggers,
       asyncInvokeConfig: isEmpty(asyncInvokeConfig) ? undefined : asyncInvokeConfig,
       vpcBinding: isEmpty(vpcBindingConfig) ? undefined : vpcBindingConfig,
+      customDomain: isEmpty(customDomain) ? undefined : customDomain,
     });
     if (!_.isEmpty(triggers)) {
       for (let i = 0; i < triggers.length; i++) {
@@ -113,5 +121,21 @@ export default class Info {
       return {};
     }
     return await this.fcSdk.getVpcBinding(this.functionName, this.getApiType);
+  }
+
+  async getCustomDomain(): Promise<any> {
+    if (_.isEmpty(_.get(this.inputs.props, 'customDomain'))) {
+      return {};
+    }
+    const customDomain = _.get(this.inputs.props, 'customDomain', {});
+    const local = _.cloneDeep(customDomain) as any;
+    const customDomainInputs = _.cloneDeep(this.inputs) as _IInputs;
+    let props = { region: this.inputs.props.region } as any;
+    if (!_.isEmpty(local)) {
+      props = transformCustomDomainProps(local, this.region, this.functionName);
+    }
+    customDomainInputs.props = props;
+    const domainInstance = await loadComponent(FC3_DOMAIN_COMPONENT_NAME, { logger });
+    return domainInstance.info(customDomainInputs);
   }
 }

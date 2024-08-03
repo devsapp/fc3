@@ -51,63 +51,82 @@ const inputs: IInputs = {
   }),
 };
 
-test('deploy event function', async () => {
-  const myFcInstance = new Fc({ logger: logger });
-  const output = await myFcInstance.deploy(inputs);
-  expect(output).toEqual({
-    region: process.env.REGION || 'cn-huhehaote',
-    description: 'hello world by serverless devs',
-    functionName: 'start-py',
-    handler: 'index.handler',
-    internetAccess: true,
-    memorySize: 128,
-    role: '',
-    runtime: 'python3.9',
-    timeout: 60,
-  });
-});
+describe('Integration Tests', () => {
+  let myFcInstance: Fc;
 
-const inputs_http = _.cloneDeep(inputs);
-inputs_http.props.triggers = [
-  {
-    triggerName: 'httpTrigger',
-    triggerType: 'http',
-    description: 'xxxx',
-    qualifier: 'LATEST',
-    triggerConfig: {
-      authType: 'anonymous',
-      disableURLInternet: false,
-      methods: ['GET', 'POST'],
-    },
-  },
-];
-test('deploy http function', async () => {
-  const myFcInstance = new Fc({ logger: logger });
-  const output = await myFcInstance.deploy(inputs_http);
-  removeNullValues(output);
-  delete output['url'];
-  expect(output).toEqual({
-    region: process.env.REGION || 'cn-huhehaote',
-    description: 'hello world by serverless devs',
-    functionName: 'start-py',
-    handler: 'index.handler',
-    internetAccess: true,
-    memorySize: 128,
-    role: '',
-    runtime: 'python3.9',
-    timeout: 60,
-    triggers: [
+  beforeAll(() => {
+    jest.setTimeout(15000); // 设置超时时间为 15 秒
+  });
+
+  beforeEach(() => {
+    myFcInstance = new Fc({ logger: logger });
+  });
+
+  afterEach(async () => {
+    console.log('afterEach ***********');
+  });
+
+  afterAll(() => {
+    // 确保所有资源都被清理
+    // 如果有其他清理逻辑，可以在这里添加
+  });
+
+  test('deploy event function', async () => {
+    const output = await myFcInstance.deploy(inputs);
+    expect(output).toEqual({
+      region: process.env.REGION || 'cn-huhehaote',
+      description: 'hello world by serverless devs',
+      functionName: 'start-py',
+      handler: 'index.handler',
+      internetAccess: true,
+      memorySize: 128,
+      role: '',
+      runtime: 'python3.9',
+      timeout: 60,
+    });
+  });
+
+  test('deploy http function', async () => {
+    const inputs_http = _.cloneDeep(inputs);
+    inputs_http.props.triggers = [
       {
+        triggerName: 'httpTrigger',
+        triggerType: 'http',
         description: 'xxxx',
         qualifier: 'LATEST',
         triggerConfig: {
-          methods: ['GET', 'POST'],
           authType: 'anonymous',
           disableURLInternet: false,
+          methods: ['GET', 'POST'],
         },
-        triggerName: 'httpTrigger',
-        triggerType: 'http',
       },
-    ],
+    ];
+    const output = await myFcInstance.deploy(inputs_http);
+    removeNullValues(output);
+    delete output['url'];
+    expect(output).toEqual({
+      region: process.env.REGION || 'cn-huhehaote',
+      description: 'hello world by serverless devs',
+      functionName: 'start-py',
+      handler: 'index.handler',
+      internetAccess: true,
+      memorySize: 128,
+      role: '',
+      runtime: 'python3.9',
+      timeout: 60,
+      triggers: [
+        {
+          description: 'xxxx',
+          qualifier: 'LATEST',
+          triggerConfig: {
+            methods: ['GET', 'POST'],
+            authType: 'anonymous',
+            disableURLInternet: false,
+          },
+          triggerName: 'httpTrigger',
+          triggerType: 'http',
+        },
+      ],
+    });
   });
 });

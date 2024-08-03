@@ -11,7 +11,7 @@ import axios from 'axios';
 export { default as verify } from './verify';
 export { default as runCommand } from './run-command';
 
-export async function downloadZipFile(url: string, filePath: string): Promise<void> {
+export async function downloadFile(url: string, filePath: string): Promise<void> {
   try {
     const response = await axios({
       url,
@@ -171,4 +171,24 @@ export function isAppCenter(): boolean {
 
 export function isYunXiao(): boolean {
   return process.env.ENGINE_PIPELINE_PORTAL_URL === 'https://flow.aliyun.com';
+}
+
+export function transformCustomDomainProps(local: any, region: string, functionName: string): any {
+  const { domainName, protocol, certConfig, tlsConfig, authConfig, wafConfig, route } = local;
+  route.functionName = functionName;
+  const routeConfig = {
+    routes: [route],
+  };
+  const _props = {
+    region,
+    domainName,
+    protocol,
+    certConfig,
+    tlsConfig,
+    authConfig,
+    wafConfig,
+    routeConfig,
+  };
+  const props = _.pickBy(_props, (value) => value !== undefined);
+  return props;
 }

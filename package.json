@@ -31,6 +31,7 @@
     "@serverless-cd/srm-aliyun-sls20201230": "^0.0.1",
     "@serverless-devs/diff": "^0.0.3-beta.6",
     "@serverless-devs/downloads": "^0.0.6",
+    "@serverless-devs/load-component": "^0.0.7",
     "@serverless-devs/utils": "^0.0.15",
     "@serverless-devs/zip": "^0.0.3-beta.8",
     "ajv": "^8.13.0",

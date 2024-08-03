@@ -24,23 +24,24 @@ import FC, { GetApiType } from '../../../resources/fc';
 import VPC_NAS from '../../../resources/vpc-nas';
 import Base from './base';
 import { ICredentials } from '@serverless-devs/component-interface';
-import { calculateCRC64, getFileSize, downloadZipFile } from '../../../utils';
+import { calculateCRC64, getFileSize, downloadFile } from '../../../utils';
 import Devs20230714, * as $Devs20230714 from '@alicloud/devs20230714';
 import * as $OpenApi from '@alicloud/openapi-client';
 import axios from 'axios';
-
-const OSS = require('ali-oss');
+import OSS from 'ali-oss';
 
 type IType = 'code' | 'config' | boolean;
 interface IOpts {
   type?: IType;
   yes?: boolean;
   skipPush?: boolean;
+  putArtifact?: boolean;
 }
 
 export default class Service extends Base {
   readonly type?: IType;
   readonly skipPush?: boolean = false;
+  putArtifact?: boolean = false;
 
   remote?: any;
   local: IFunction;
@@ -66,9 +67,13 @@ export default class Service extends Base {
     _.unset(this.local, 'asyncInvokeConfig');
     _.unset(this.local, 'vpcBinding');
     _.unset(this.local, 'artifact');
+    _.unset(this.local, 'customDomain');
 
+    if (_.isEmpty(this.inputs.props.code) && this.inputs.props.artifact) {
+      this.putArtifact = false;
+    }
     if (this.inputs.props.code && this.inputs.props.artifact) {
-      throw new Error(`code and artifact cannot have value simultaneously.`);
+      this.putArtifact = true;
     }
   }
 
@@ -131,7 +136,7 @@ export default class Service extends Base {
 
       const downloadArtifact = await this.devsClient.fetchArtifactDownloadUrl(artifactName);
       const downloadUrl = downloadArtifact?.body?.url;
-      await downloadZipFile(downloadUrl, downPath);
+      await downloadFile(downloadUrl, downPath);
     }
 
     await this._plan();
@@ -170,7 +175,12 @@ export default class Service extends Base {
       type: this.type,
     });
 
-    return this.needDeploy;
+    let artifact = {};
+    if (this.putArtifact) {
+      artifact = await this.deployArtifact();
+    }
+
+    return { artifact };
   }
 
   private _getAcr() {
@@ -477,17 +487,19 @@ nasConfig:
   }
 
   // eslint-disable-next-line @typescript-eslint/member-ordering
-  public async putArtifact() {
-    const { runtime, functionName, region } = this.inputs.props;
+  public async deployArtifact() {
+    const { runtime, functionName } = this.inputs.props;
     if (!FC.isCustomContainerRuntime(runtime)) {
-      logger.info('putArtifact');
+      const artifactName = this.inputs.props.artifact.split('/')[1].split('@')[0];
+      logger.info(`putArtifact ${artifactName}`);
       await this.initDevsClient();
       const { url } = await this.fcSdk.getFunctionCode(functionName, 'LATEST');
-      const truncateString = (s: string) => (s.length > 64 ? s.substring(0, 64) : s);
-      const artifactName = truncateString(`${functionName}_${region}`);
+      // const truncateString = (s: string) => (s.length > 64 ? s.substring(0, 64) : s);
+      // const artifactName = truncateString(`${functionName}_${region}`);
+
       const downloadDir: string = path.join(tmpDir, 'artifacts');
       const zipFile = path.join(downloadDir, `${artifactName}_${uuidV4()}.zip`);
-      await downloadZipFile(url, zipFile);
+      await downloadFile(url, zipFile);
 
       logger.debug(zipFile);
       const resp = await this.devsClient.fetchArtifactTempBucketToken();

@@ -12,6 +12,10 @@ import FC, { GetApiType } from '../../resources/fc';
 import { FC_API_ERROR_CODE } from '../../resources/fc/error-code';
 import logger from '../../logger';
 import { FC_TRIGGER_DEFAULT_CONFIG } from '../../default/config';
+import loadComponent from '@serverless-devs/load-component';
+import { IInputs as _IInputs } from '@serverless-devs/component-interface';
+import { transformCustomDomainProps } from '../../utils';
+import { FC3_DOMAIN_COMPONENT_NAME } from '../../constant';
 
 export default class Plan {
   readonly region: IRegion;
@@ -74,6 +78,8 @@ export default class Plan {
     showDiff = showDiff.replace(/^/gm, '    ');
 
     logger.write(`${this.inputs.resource.name}:\n${showDiff}`);
+
+    await this.planCustomDomain();
   }
 
   private async planFunction() {
@@ -94,6 +100,8 @@ export default class Plan {
     _.unset(local, 'asyncInvokeConfig');
     _.unset(local, 'endpoint');
     _.unset(local, 'vpcBinding');
+    _.unset(local, 'artifact');
+    _.unset(local, 'customDomain');
     const config = FC.replaceFunctionConfig(local, remote);
     return diffConvertPlanYaml(config.remote, config.local, { deep: 0, complete: true });
   }
@@ -175,5 +183,83 @@ export default class Plan {
       local?.vpcIds.sort();
     }
     return diffConvertPlanYaml(remote, local, { deep: 1, complete: true });
+  }
+
+  private async planCustomDomain() {
+    if (_.isEmpty(_.get(this.inputs.props, 'customDomain'))) {
+      return {};
+    }
+    const customDomain = _.get(this.inputs.props, 'customDomain', {});
+    const local = _.cloneDeep(customDomain) as any;
+    const customDomainInputs = _.cloneDeep(this.inputs) as _IInputs;
+    let props = { region: this.inputs.props.region } as any;
+    if (!_.isEmpty(local)) {
+      props = transformCustomDomainProps(local, this.region, this.functionName);
+    }
+    customDomainInputs.props = props;
+    const domainInstance = await loadComponent(FC3_DOMAIN_COMPONENT_NAME, { logger });
+
+    const infoInput = _.cloneDeep(customDomainInputs);
+    let { domainName } = customDomainInputs.props;
+    const planInput = _.cloneDeep(customDomainInputs);
+    try {
+      const onlineCustomDomain = await domainInstance.info(infoInput);
+      // console.log(JSON.stringify(onlineCustomDomain, null, 2));
+      const routes = onlineCustomDomain?.routeConfig?.routes;
+      let found = false;
+      if (routes) {
+        domainName = onlineCustomDomain.domainName;
+        const myRoute = local.route;
+        for (let i = 0; i < routes.length; i++) {
+          const route = routes[i];
+          if (route.functionName !== this.functionName && route.path === myRoute.path) {
+            throw new Error(
+              `${domainName} ==> path ${route.path} is used by other function: ${route.functionName}`,
+            );
+          }
+          if (route.functionName === this.functionName && route.path === myRoute.path) {
+            found = true;
+          }
+        }
+      }
+      if (!found) {
+        const myRoute = _.cloneDeep(local.route);
+        myRoute.functionName = this.functionName;
+        routes.push(myRoute);
+      }
+      planInput.props.routeConfig.routes = routes;
+      if (local.protocol.toUpperCase() === 'HTTP') {
+        planInput.props.protocol = onlineCustomDomain.protocol;
+      }
+      if (!_.isEmpty(local.certConfig)) {
+        planInput.props.certConfig = local.certConfig;
+      } else if (!_.isEmpty(onlineCustomDomain.certConfig)) {
+        planInput.props.certConfig = onlineCustomDomain.certConfig;
+      }
+      if (!_.isEmpty(local.tlsConfig)) {
+        planInput.props.tlsConfig = local.tlsConfig;
+      } else if (!_.isEmpty(onlineCustomDomain.tlsConfig)) {
+        planInput.props.tlsConfig = onlineCustomDomain.tlsConfig;
+      }
+      if (!_.isEmpty(local.authConfig)) {
+        planInput.props.authConfig = local.authConfig;
+      } else if (!_.isEmpty(onlineCustomDomain.authConfig)) {
+        planInput.props.authConfig = onlineCustomDomain.authConfig;
+      }
+      if (!_.isEmpty(local.wafConfig)) {
+        planInput.props.wafConfig = local.wafConfig;
+      } else if (!_.isEmpty(onlineCustomDomain.wafConfig)) {
+        planInput.props.wafConfig = onlineCustomDomain.wafConfig;
+      }
+    } catch (e) {
+      logger.debug(e.message);
+      if (!e.message.includes('DomainNameNotFound')) {
+        throw e;
+      }
+    }
+    planInput.props.domainName = domainName;
+    const id = `${this.functionName}/${domainName}`;
+    logger.info(`plan ${id}, planInput props = \n${JSON.stringify(planInput.props, null, 2)}`);
+    return domainInstance.plan(planInput);
   }
 }

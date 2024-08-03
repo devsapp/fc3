@@ -6,7 +6,10 @@ import logger from '../../logger';
 import FC, { GetApiType } from '../../resources/fc';
 import { FC_API_ERROR_CODE } from '../../resources/fc/error-code';
 import { parseArgv } from '@serverless-devs/utils';
-import { promptForConfirmOrDetails, sleep } from '../../utils';
+import { promptForConfirmOrDetails, sleep, transformCustomDomainProps } from '../../utils';
+import loadComponent from '@serverless-devs/load-component';
+import { IInputs as _IInputs } from '@serverless-devs/component-interface';
+import { FC3_DOMAIN_COMPONENT_NAME } from '../../constant';
 
 export default class Remove {
   private region: IRegion;
@@ -17,7 +20,8 @@ export default class Remove {
 
   private fcSdk: FC;
 
-  constructor(inputs: IInputs) {
+  constructor(readonly inputs: IInputs) {
+    console.log(JSON.stringify(inputs));
     const opts = parseArgv(inputs.args, {
       alias: {
         'assume-yes': 'y',
@@ -93,6 +97,7 @@ export default class Remove {
     await this.removeAsyncInvokeConfig();
     await this.removeTrigger();
     await this.removeFunction();
+    await this.removeCustomDomain();
   }
 
   private async computingRemoveResource() {
@@ -415,5 +420,56 @@ export default class Remove {
     logger.spin('removing', 'function', `${this.region}/${this.functionName}`);
     await this.fcSdk.fc20230330Client.deleteFunction(this.functionName);
     logger.spin('removed', 'function', `${this.region}/${this.functionName}`);
+  }
+
+  private async removeCustomDomain() {
+    const customDomain = _.get(this.inputs.props, 'customDomain', {}) as any;
+    if (_.isEmpty(customDomain)) {
+      return;
+    }
+    const local = _.cloneDeep(customDomain) as any;
+    const customDomainInputs = _.cloneDeep(this.inputs) as _IInputs;
+    let props = { region: this.inputs.props.region } as any;
+    if (!_.isEmpty(local)) {
+      props = transformCustomDomainProps(local, this.region, this.functionName);
+    }
+    customDomainInputs.props = props;
+    const domainInstance = await loadComponent(FC3_DOMAIN_COMPONENT_NAME, { logger });
+    const onlineCustomDomain = await domainInstance.info(customDomainInputs);
+    const routes = onlineCustomDomain?.routeConfig?.routes;
+    if (routes) {
+      const { domainName } = onlineCustomDomain;
+      const myRoute = customDomain.route;
+      const qualifier = myRoute.qualifier || 'LATEST';
+      let index = -1;
+      for (let i = 0; i < routes.length; i++) {
+        const route = routes[i];
+        if (
+          route.functionName === this.functionName &&
+          route.path === myRoute.path &&
+          route.qualifier === qualifier
+        ) {
+          index = i;
+          break;
+        }
+      }
+      if (index !== -1) {
+        routes.splice(index, 1);
+        customDomainInputs.props = onlineCustomDomain;
+        onlineCustomDomain.routeConfig.routes = routes;
+        // console.log(JSON.stringify(customDomainInputs));
+        if (
+          customDomainInputs.args.indexOf('-y') === -1 &&
+          customDomainInputs.args.indexOf('--assume-yes') === -1
+        ) {
+          customDomainInputs.args.push('-y');
+        }
+        await domainInstance.deploy(customDomainInputs);
+      } else {
+        logger.warn(
+          `{path: ${myRoute.path}, functionName: ${this.functionName}} not found in custom domain ${domainName}`,
+        );
+      }
+    }
   }
 }

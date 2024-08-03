@@ -16,11 +16,20 @@ resources:
     component: ${path("../")}
     props:
       region: ${vars.region}
-      functionName: "test-devs-artifact"
+      functionName: "test-cd"
       description: 'hello world by serverless devs'
       runtime: "python3.10"
       code: ./code
-      #artifact: acs:devs:cn-hangzhou:1431999136518149:artifacts/test-devs-artifact_cn-hangzhou
       handler: index.handler
       memorySize: 128
-      timeout: 40
+      timeout: 45
+      customDomain:
+        domainName: auto
+        #domainName: "xiliu-test.devsapp.net"
+        protocol: HTTP
+        route:
+          methods:
+            - GET
+            - POST
+          path: /*
+          qualifier: LATEST
