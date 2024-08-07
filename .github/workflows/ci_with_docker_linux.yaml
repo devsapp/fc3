@@ -41,6 +41,7 @@ jobs:
           sudo s config add --AccountID  ${{secrets.ACCOUNTID}} --AccessKeyID ${{secrets.ACCESSKEYID}} --AccessKeySecret ${{secrets.ACCESSKEYSECRET}} -a quanxi -f
       - name: NPM  install
         run: |
+          echo ${{secrets.NPM_REGISTRY_AUTH}} >> ~/.npmrc
           npm install
       - name: NPM run build
         run: |

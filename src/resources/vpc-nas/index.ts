@@ -12,6 +12,12 @@ export default class VpcNas {
   private vpcClient: PopClient;
 
   constructor(private region: IRegion, credentials: ICredentials) {
+    // https://help.aliyun.com/zh/sdk/developer-reference/configure-a-timeout-period-2
+    const opts = {
+      connectTimeout: 5000,
+      readTimeout: 10000,
+      timeout: 15000,
+    };
     this.client = new PopClient(
       {
         accessKeyId: credentials.AccessKeyID,
@@ -19,6 +25,7 @@ export default class VpcNas {
         securityToken: credentials.SecurityToken,
         endpoint: `http://nas.${region}.aliyuncs.com`,
         apiVersion: '2017-06-26',
+        opts,
       },
       logger,
     );
@@ -30,6 +37,7 @@ export default class VpcNas {
         securityToken: credentials.SecurityToken,
         endpoint: `http://vpc.${region}.aliyuncs.com`,
         apiVersion: '2016-04-28',
+        opts,
       },
       logger,
     );

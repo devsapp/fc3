@@ -40,6 +40,7 @@ jobs:
           npm install
       - name: NPM run build
         run: |
+          echo ${{secrets.NPM_REGISTRY_AUTH}} >> ~/.npmrc
           npm run build
       - name: test python
         run: |

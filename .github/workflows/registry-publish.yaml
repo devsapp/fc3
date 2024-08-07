@@ -25,4 +25,5 @@ jobs:
           s registry login --token ${{ secrets.alibaba_registry_v3_publish_token }}
       - name: release prod
         run: |
+          echo ${{secrets.NPM_REGISTRY_AUTH}} >> ~/.npmrc
           make release-prod
