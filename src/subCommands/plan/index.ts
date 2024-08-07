@@ -259,7 +259,7 @@ export default class Plan {
     }
     planInput.props.domainName = domainName;
     const id = `${this.functionName}/${domainName}`;
-    logger.info(`plan ${id}, planInput props = \n${JSON.stringify(planInput.props, null, 2)}`);
+    logger.debug(`plan ${id}, planInput props = \n${JSON.stringify(planInput.props, null, 2)}`);
     return domainInstance.plan(planInput);
   }
 }

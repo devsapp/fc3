@@ -23,13 +23,21 @@ resources:
       handler: index.handler
       memorySize: 128
       timeout: 45
+      triggers:
+        - triggerName: httpTrigger
+          triggerType: http
+          triggerConfig:
+            methods:
+              - GET
+              - POST
+            authType: anonymous
+            disableURLInternet: false
       customDomain:
         domainName: auto
         #domainName: "xiliu-test.devsapp.net"
         protocol: HTTP
         route:
-          methods:
-            - GET
-            - POST
+          # methods:
+          #   - GET
           path: /*
           qualifier: LATEST

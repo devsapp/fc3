@@ -90,12 +90,7 @@ export default class Service extends Base {
       readTimeout: FC_CLIENT_READ_TIMEOUT,
       connectTimeout: FC_CLIENT_CONNECT_TIMEOUT,
     });
-    const { region } = this.inputs.props;
-    if (region.startsWith('cn-') && region !== 'cn-hongkong') {
-      config.endpoint = 'devs.cn-hangzhou.aliyuncs.com';
-    } else {
-      config.endpoint = 'devs.ap-southeast-1.aliyuncs.com';
-    }
+    config.endpoint = 'devs.cn-hangzhou.aliyuncs.com';
     if (process.env.ARTIFACT_ENV === 'pre') {
       config.endpoint = `devs-pre.cn-hangzhou.aliyuncs.com`;
     }
@@ -127,7 +122,12 @@ export default class Service extends Base {
     if (_.isEmpty(this.inputs.props.code) && this.inputs.props.artifact) {
       await this.initDevsClient();
       const { artifact } = this.inputs.props;
-      let artifactName = artifact.split('/')[1];
+      let artifactName = '';
+      if (artifact.split('/').length > 1) {
+        artifactName = artifact.split('/')[1].split('@')[0];
+      } else {
+        artifactName = artifact.split('@')[0];
+      }
       const downPath: string = path.join(tmpDir, `${artifactName}_${accountID}_${uuidV4()}.zip`);
       this.local.code = downPath;
       if (_.includes(artifactName, '@')) {
@@ -490,7 +490,13 @@ nasConfig:
   public async deployArtifact() {
     const { runtime, functionName } = this.inputs.props;
     if (!FC.isCustomContainerRuntime(runtime)) {
-      const artifactName = this.inputs.props.artifact.split('/')[1].split('@')[0];
+      const { artifact } = this.inputs.props;
+      let artifactName = '';
+      if (artifact.split('/').length > 1) {
+        artifactName = artifact.split('/')[1].split('@')[0];
+      } else {
+        artifactName = artifact.split('@')[0];
+      }
       logger.info(`putArtifact ${artifactName}`);
       await this.initDevsClient();
       const { url } = await this.fcSdk.getFunctionCode(functionName, 'LATEST');

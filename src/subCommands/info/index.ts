@@ -82,6 +82,15 @@ export default class Info {
         }
       }
     }
+    if (!_.isEmpty(customDomain)) {
+      if (info.url) {
+        info.url.custom_domain = customDomain.domainName;
+      } else {
+        info.url = {
+          custom_domain: customDomain.domainName,
+        };
+      }
+    }
     return info;
   }
 

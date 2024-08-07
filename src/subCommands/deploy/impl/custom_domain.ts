@@ -67,6 +67,9 @@ export default class CustomDomain extends Base {
           }
           if (route.functionName === this.functionName && route.path === myRoute.path) {
             found = true;
+            if (_.isEmpty(myRoute.methods)) {
+              routes[i].methods = [];
+            }
           }
         }
       }
@@ -116,7 +119,7 @@ export default class CustomDomain extends Base {
     }
     deployInput.props.domainName = domainName;
     const id = `${this.functionName}/${domainName}`;
-    logger.info(
+    logger.debug(
       `deploy ${id}, deployInput props = \n${JSON.stringify(deployInput.props, null, 2)}`,
     );
     return await this.domainInstance.deploy(deployInput);

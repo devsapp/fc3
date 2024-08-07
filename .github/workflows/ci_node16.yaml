@@ -38,6 +38,10 @@ jobs:
       - name: config s
         run: |
           s config add --AccountID  ${{secrets.ACCOUNTID}} --AccountID  ${{secrets.ACCOUNTID}} --AccessKeyID ${{secrets.ACCESSKEYID}} --AccessKeySecret ${{secrets.ACCESSKEYSECRET}} -a quanxi -f
+      - name: Configure NPM
+        run: |
+          npm config set registry https://registry.npmjs.org
+          npm config set '//packages.aliyun.com/6455f7ff81b284e28f4774c4/npm/npm-registry/:_authToken' ${{secrets.NPM_TOKEN}}
       - name: NPM  install
         run: |
           npm install
@@ -76,6 +80,10 @@ jobs:
       - name: config s
         run: |
           s config add --AccountID  ${{secrets.ACCOUNTID}} --AccessKeyID ${{secrets.ACCESSKEYID}} --AccessKeySecret ${{secrets.ACCESSKEYSECRET}} -a quanxi -f
+      - name: Configure NPM
+        run: |
+          npm config set registry https://registry.npmjs.org
+          npm config set '//packages.aliyun.com/6455f7ff81b284e28f4774c4/npm/npm-registry/:_authToken' ${{secrets.NPM_TOKEN}}
       - name: NPM  install
         run: |
           npm install
@@ -113,9 +121,12 @@ jobs:
       - name: config s
         run: |
           s config add --AccountID  ${{secrets.ACCOUNTID}} --AccessKeyID ${{secrets.ACCESSKEYID}} --AccessKeySecret ${{secrets.ACCESSKEYSECRET}} -a quanxi -f
+      - name: Configure NPM
+        run: |
+          npm config set registry https://registry.npmjs.org
+          npm config set '//packages.aliyun.com/6455f7ff81b284e28f4774c4/npm/npm-registry/:_authToken' ${{secrets.NPM_TOKEN}}
       - name: NPM  install
         run: |
-          echo ${{secrets.NPM_REGISTRY_AUTH}} >> ~/.npmrc
           npm install
       - name: run base ci ut and it
         run: |

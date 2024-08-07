@@ -23,7 +23,10 @@ jobs:
       - name: s registry login
         run: |
           s registry login --token ${{ secrets.alibaba_registry_v3_publish_token }}
+      - name: Configure NPM
+        run: |
+          npm config set registry https://registry.npmjs.org
+          npm config set '//packages.aliyun.com/6455f7ff81b284e28f4774c4/npm/npm-registry/:_authToken' ${{secrets.NPM_TOKEN}}
       - name: release prod
         run: |
-          echo ${{secrets.NPM_REGISTRY_AUTH}} >> ~/.npmrc
           make release-prod
