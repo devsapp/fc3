@@ -6,6 +6,33 @@
 set -e
 set -v
 
+echo "test custom-domain"
+cd custom-domain
+s deploy -y
+curl -v xiliu-test.devsapp.net
+curl -v xiliu-test.devsapp.net/a
+s info
+s remove -y
+
+s deploy -y -t s2.yaml
+curl -v test-cd3.fcv3.1431999136518149.cn-huhehaote.fc.devsapp.net
+s info -t s2.yaml
+s remove -y -t s2.yaml
+cd ..
+
+# echo "test artifact"
+# cd artifact
+# s deploy -y
+# s invoke
+# s info
+# s remove -y
+
+# s deploy -y -t s2.yaml
+# s invoke -t s2.yaml
+# s info -t s2.yaml
+# s remove -y -t s2.yaml
+# cd ..
+
 echo " *********  command-api *********"
 cd command-api && bash ./run && cd -
 cd command-api && bash ./run_cli_mode && cd -

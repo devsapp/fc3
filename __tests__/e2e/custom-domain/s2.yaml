@@ -1,0 +1,37 @@
+edition: 3.0.0
+name: hello-world-app
+access: "quanxi"
+
+vars: 
+  region: ${env('REGION', 'cn-huhehaote')}
+
+resources:
+  hello_world_1:
+    #component: fc3@dev
+    component: ${env('fc_component_version', path('../../../'))}
+    props:
+      region: ${vars.region}
+      functionName: "test-cd3"
+      description: 'hello world by serverless devs'
+      runtime: "python3.10"
+      code: ./code
+      handler: index.handler
+      memorySize: 128
+      timeout: 45
+      triggers:
+        - triggerName: httpTrigger
+          triggerType: http
+          triggerConfig:
+            methods:
+              - GET
+              - POST
+            authType: anonymous
+            disableURLInternet: false
+      customDomain:
+        domainName: auto
+        protocol: HTTP
+        route:
+          # methods:
+          #   - GET
+          path: /*
+          qualifier: LATEST

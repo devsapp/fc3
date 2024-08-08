@@ -91,8 +91,8 @@ export default class Service extends Base {
       connectTimeout: FC_CLIENT_CONNECT_TIMEOUT,
     });
     config.endpoint = 'devs.cn-hangzhou.aliyuncs.com';
-    if (process.env.ARTIFACT_ENV === 'pre') {
-      config.endpoint = `devs-pre.cn-hangzhou.aliyuncs.com`;
+    if (process.env.ARTIFACT_ENDPOINT) {
+      config.endpoint = process.env.ARTIFACT_ENDPOINT;
     }
     this.devsClient = new Devs20230714(config);
   }

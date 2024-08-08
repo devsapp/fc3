@@ -7,21 +7,18 @@ edition: 3.0.0
 name: hello-world-app
 access: "quanxi"
 
-vars: # 全局变量
-  region: "cn-hangzhou"
+vars: 
+  region: ${env('REGION', 'cn-huhehaote')}
 
 resources:
   hello_world:
-    #component: fc3@dev
-    component: ${path("../")}
+    component: ${env('fc_component_version', path('../../../'))}
     props:
       region: ${vars.region}
-      functionName: "test-devs-artifact"
+      functionName: "test-devs-artifact-2"
       description: 'hello world by serverless devs'
       runtime: "python3.10"
-      code: ./code
-      # artifact: test-devs-artifact_cn-hangzhou@1555622798284556248
-      artifact: acs:devs:cn-hangzhou:1431999136518149:artifacts/test-devs-artifact_cn-hangzhou
+      artifact: test-devs-artifact_cn-hangzhou
       handler: index.handler
       memorySize: 128
       timeout: 40

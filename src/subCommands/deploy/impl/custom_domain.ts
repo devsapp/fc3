@@ -119,7 +119,7 @@ export default class CustomDomain extends Base {
     }
     deployInput.props.domainName = domainName;
     const id = `${this.functionName}/${domainName}`;
-    logger.debug(
+    logger.info(
       `deploy ${id}, deployInput props = \n${JSON.stringify(deployInput.props, null, 2)}`,
     );
     return await this.domainInstance.deploy(deployInput);

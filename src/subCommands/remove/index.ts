@@ -21,7 +21,6 @@ export default class Remove {
   private fcSdk: FC;
 
   constructor(readonly inputs: IInputs) {
-    console.log(JSON.stringify(inputs));
     const opts = parseArgv(inputs.args, {
       alias: {
         'assume-yes': 'y',
