@@ -94,6 +94,9 @@ export default class Service extends Base {
     if (process.env.ARTIFACT_ENDPOINT) {
       config.endpoint = process.env.ARTIFACT_ENDPOINT;
     }
+    if (process.env.artifact_endpoint) {
+      config.endpoint = process.env.artifact_endpoint;
+    }
     this.devsClient = new Devs20230714(config);
   }
   // 准备动作
@@ -504,10 +507,14 @@ nasConfig:
       // const artifactName = truncateString(`${functionName}_${region}`);
 
       const downloadDir: string = path.join(tmpDir, 'artifacts');
+      if (!fs.existsSync(downloadDir)) {
+        fs.mkdirSync(downloadDir);
+      }
       const zipFile = path.join(downloadDir, `${artifactName}_${uuidV4()}.zip`);
+
+      logger.info(`download ${url} to ${zipFile}`);
       await downloadFile(url, zipFile);
 
-      logger.debug(zipFile);
       const resp = await this.devsClient.fetchArtifactTempBucketToken();
       logger.debug(JSON.stringify(resp.body));
       const { credentials, ossRegion, ossBucketName, ossObjectName } = resp.body;

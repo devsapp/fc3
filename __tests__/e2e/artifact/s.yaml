@@ -7,7 +7,7 @@ edition: 3.0.0
 name: hello-world-app
 access: "quanxi"
 
-vars: 
+vars:
   region: ${env('REGION', 'cn-huhehaote')}
 
 resources:
@@ -19,7 +19,7 @@ resources:
       description: 'hello world by serverless devs'
       runtime: "python3.10"
       code: ./code
-      artifact: test-devs-artifact_cn-hangzhou
+      artifact: test-devs-artifact-1001
       handler: index.handler
       memorySize: 128
       timeout: 40

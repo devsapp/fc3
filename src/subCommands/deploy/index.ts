@@ -77,7 +77,6 @@ export default class Deploy {
     const run3 = await this.asyncInvokeConfig?.run();
     const run4 = await this.vpcBinding?.run();
     const run5 = await this.customDomain?.run();
-
     // 获取输出
     if (run1 && run2 && run3 && run4 && run5) {
       const info = new Info(this.inputs);
@@ -88,6 +87,7 @@ export default class Deploy {
         return result;
       }
       const mergedObj = Object.assign({}, result, artifact);
+      logger.debug(`mergedObj = ${JSON.stringify(mergedObj, null, 2)}`);
       return mergedObj;
     }
   }
