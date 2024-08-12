@@ -575,6 +575,7 @@ nasConfig:
           };
         } else {
           logger.error(error.message);
+          throw error;
         }
       }
     }
