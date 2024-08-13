@@ -512,7 +512,7 @@ nasConfig:
       }
       const zipFile = path.join(downloadDir, `${artifactName}_${uuidV4()}.zip`);
 
-      logger.info(`download ${url} to ${zipFile}`);
+      logger.debug(`download ${url} to ${zipFile}`);
       await downloadFile(url, zipFile);
 
       const resp = await this.devsClient.fetchArtifactTempBucketToken();

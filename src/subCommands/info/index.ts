@@ -109,7 +109,7 @@ export default class Info {
   }
 
   async getAsyncInvokeConfig(): Promise<any> {
-    if (!this.inputs.props.asyncInvokeConfig) {
+    if (_.isEmpty(_.get(this.inputs.props, 'asyncInvokeConfig'))) {
       return {};
     }
     const asyncInvokeConfig = _.get(this.inputs, 'props.asyncInvokeConfig', {});
