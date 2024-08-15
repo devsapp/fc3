@@ -76,6 +76,7 @@ describe('Integration Tests', () => {
     expect(output).toEqual({
       region: process.env.REGION || 'cn-huhehaote',
       description: 'hello world by serverless devs',
+      functionArn: 'acs:fc:cn-huhehaote:1431999136518149:functions/start-py',
       functionName: 'start-py',
       handler: 'index.handler',
       internetAccess: true,
@@ -107,6 +108,7 @@ describe('Integration Tests', () => {
     expect(output).toEqual({
       region: process.env.REGION || 'cn-huhehaote',
       description: 'hello world by serverless devs',
+      functionArn: 'acs:fc:cn-huhehaote:1431999136518149:functions/start-py',
       functionName: 'start-py',
       handler: 'index.handler',
       internetAccess: true,
