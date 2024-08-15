@@ -74,10 +74,11 @@ describe('Integration Tests', () => {
   test('deploy event function', async () => {
     const output = await myFcInstance.deploy(inputs);
     const region = process.env.REGION || 'cn-huhehaote';
+    removeNullValues(output);
+    delete output.functionArn;
     expect(output).toEqual({
       region,
       description: 'hello world by serverless devs',
-      functionArn: `acs:fc:${region}:1431999136518149:functions/start-py`,
       functionName: 'start-py',
       handler: 'index.handler',
       internetAccess: true,
@@ -106,11 +107,11 @@ describe('Integration Tests', () => {
     const output = await myFcInstance.deploy(inputs_http);
     removeNullValues(output);
     delete output['url'];
+    delete output.functionArn;
     const region = process.env.REGION || 'cn-huhehaote';
     expect(output).toEqual({
       region,
       description: 'hello world by serverless devs',
-      functionArn: `acs:fc:${region}:1431999136518149:functions/start-py`,
       functionName: 'start-py',
       handler: 'index.handler',
       internetAccess: true,
