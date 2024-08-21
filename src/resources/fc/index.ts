@@ -56,9 +56,9 @@ export default class FC extends FC_Client {
 
   async untilFunctionStateOK(config: IFunction, reason: string) {
     const retryTime = 2;
-    const currentTime = new Date().getTime();
+    const startTime = new Date().getTime();
     const calculateRetryTime = (minute: number) =>
-      currentTime - new Date().getTime() > minute * 60 * 1000;
+      new Date().getTime() - startTime > minute * 60 * 1000;
     const retryContainerAccelerated = FC.isCustomContainerRuntime(config.runtime);
     // 部署镜像需要重试 3min, 直到达到!(State == Pending || LastUpdateStatus == InProgress)
     if (retryContainerAccelerated) {
@@ -132,9 +132,9 @@ export default class FC extends FC_Client {
     let retryTime = 3;
 
     // 计算是否超时
-    const currentTime = new Date().getTime();
+    const startTime = new Date().getTime();
     const calculateRetryTime = (minute: number) =>
-      currentTime - new Date().getTime() > minute * 60 * 1000;
+      new Date().getTime() - startTime > minute * 60 * 1000;
 
     while (true) {
       try {
@@ -192,14 +192,13 @@ export default class FC extends FC_Client {
         */
         const { project, logstore } = (config.logConfig || {}) as ILogConfig;
         const retrySls = slsAuto && isSlsNotExistException(project, logstore, ex);
-        // TODO: 如果是权限问题不重试直接异常
-        if (isAccessDenied(ex) || isInvalidArgument(ex)) {
-          throw ex;
-        } else if (retrySls) {
+        if (retrySls) {
           if (calculateRetryTime(3)) {
             throw ex;
           }
           retryTime = 5;
+        } else if (isAccessDenied(ex) || isInvalidArgument(ex)) {
+          throw ex;
         } else if (retry > FC_DEPLOY_RETRY_COUNT) {
           throw ex;
         }
