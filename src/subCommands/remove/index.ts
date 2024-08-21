@@ -433,46 +433,50 @@ export default class Remove {
       props = transformCustomDomainProps(local, this.region, this.functionName);
     }
     customDomainInputs.props = props;
-    const domainInstance = await loadComponent(FC3_DOMAIN_COMPONENT_NAME, { logger });
-    const onlineCustomDomain = await domainInstance.info(customDomainInputs);
-    const routes = onlineCustomDomain?.routeConfig?.routes;
-    if (routes) {
-      const { domainName } = onlineCustomDomain;
-      const myRoute = customDomain.route;
-      const qualifier = myRoute.qualifier || 'LATEST';
-      let index = -1;
-      for (let i = 0; i < routes.length; i++) {
-        const route = routes[i];
-        if (
-          route.functionName === this.functionName &&
-          route.path === myRoute.path &&
-          route.qualifier === qualifier
-        ) {
-          index = i;
-          break;
+    try {
+      const domainInstance = await loadComponent(FC3_DOMAIN_COMPONENT_NAME, { logger });
+      const onlineCustomDomain = await domainInstance.info(customDomainInputs);
+      const routes = onlineCustomDomain?.routeConfig?.routes;
+      if (routes) {
+        const { domainName } = onlineCustomDomain;
+        const myRoute = customDomain.route;
+        const qualifier = myRoute.qualifier || 'LATEST';
+        let index = -1;
+        for (let i = 0; i < routes.length; i++) {
+          const route = routes[i];
+          if (
+            route.functionName === this.functionName &&
+            route.path === myRoute.path &&
+            route.qualifier === qualifier
+          ) {
+            index = i;
+            break;
+          }
         }
-      }
-      if (index !== -1) {
-        routes.splice(index, 1);
-        customDomainInputs.props = onlineCustomDomain;
-        onlineCustomDomain.routeConfig.routes = routes;
-        // console.log(JSON.stringify(customDomainInputs));
-        if (
-          customDomainInputs.args.indexOf('-y') === -1 &&
-          customDomainInputs.args.indexOf('--assume-yes') === -1
-        ) {
-          customDomainInputs.args.push('-y');
-        }
-        if (routes.length > 0) {
-          await domainInstance.deploy(customDomainInputs);
+        if (index !== -1) {
+          routes.splice(index, 1);
+          customDomainInputs.props = onlineCustomDomain;
+          onlineCustomDomain.routeConfig.routes = routes;
+          // console.log(JSON.stringify(customDomainInputs));
+          if (
+            customDomainInputs.args.indexOf('-y') === -1 &&
+            customDomainInputs.args.indexOf('--assume-yes') === -1
+          ) {
+            customDomainInputs.args.push('-y');
+          }
+          if (routes.length > 0) {
+            await domainInstance.deploy(customDomainInputs);
+          } else {
+            await domainInstance.remove(customDomainInputs);
+          }
         } else {
-          await domainInstance.remove(customDomainInputs);
+          logger.warn(
+            `{path: ${myRoute.path}, functionName: ${this.functionName}} not found in custom domain ${domainName}`,
+          );
         }
-      } else {
-        logger.warn(
-          `{path: ${myRoute.path}, functionName: ${this.functionName}} not found in custom domain ${domainName}`,
-        );
       }
+    } catch (error) {
+      logger.warn(`removeCustomDomain error: ${error}`);
     }
   }
 }
