@@ -463,7 +463,11 @@ export default class Remove {
         ) {
           customDomainInputs.args.push('-y');
         }
-        await domainInstance.deploy(customDomainInputs);
+        if (routes.length > 0) {
+          await domainInstance.deploy(customDomainInputs);
+        } else {
+          await domainInstance.remove(customDomainInputs);
+        }
       } else {
         logger.warn(
           `{path: ${myRoute.path}, functionName: ${this.functionName}} not found in custom domain ${domainName}`,
