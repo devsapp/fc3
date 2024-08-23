@@ -6,6 +6,7 @@ import { runCommand } from '../../../../utils';
 import http from 'http';
 import { createProxyServer } from 'http-proxy';
 import chalk from 'chalk';
+import { parse } from 'url';
 
 export class BaseLocalStart extends BaseLocal {
   serverPort: number;
@@ -67,14 +68,15 @@ export class BaseLocalStart extends BaseLocal {
       .createServer((req, res) => {
         // 在这里，你可以根据需要处理请求
         // 添加你的自定义逻辑，比如验证、日志记录等
-        const path = req.url;
-        req.url = '/2023-03-30/functions/function/invocations';
-
+        const parsedUrl = parse(req.url, false);
+        const { query, pathname } = parsedUrl;
+        logger.info(`path=${pathname}; query=${query}`);
+        req.url = `/2023-03-30/functions/function/invocations?${query}`;
         // 转发请求到实际的服务
         proxy.web(req, res, {
           target: `http://localhost:${this.serverPort}`,
           headers: {
-            'X-Fc-HTTP-Path': path,
+            'X-Fc-HTTP-Path': pathname,
             'X-Fc-Event-Type': 'HTTP',
             'X-Fc-Log-Type': 'Tail',
           },
