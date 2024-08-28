@@ -77,28 +77,6 @@ export default class Service extends Base {
     }
   }
 
-  async initDevsClient() {
-    const {
-      AccessKeyID: accessKeyId,
-      AccessKeySecret: accessKeySecret,
-      SecurityToken: securityToken,
-    } = await this.inputs.getCredential();
-    const config = new $OpenApi.Config({
-      accessKeyId,
-      accessKeySecret,
-      securityToken,
-      readTimeout: FC_CLIENT_READ_TIMEOUT,
-      connectTimeout: FC_CLIENT_CONNECT_TIMEOUT,
-    });
-    config.endpoint = 'devs.cn-hangzhou.aliyuncs.com';
-    if (process.env.ARTIFACT_ENDPOINT) {
-      config.endpoint = process.env.ARTIFACT_ENDPOINT;
-    }
-    if (process.env.artifact_endpoint) {
-      config.endpoint = process.env.artifact_endpoint;
-    }
-    this.devsClient = new Devs20230714(config);
-  }
   // 准备动作
   async before() {
     const { AccountID: accountID } = await this.inputs.getCredential();
@@ -581,5 +559,28 @@ nasConfig:
     }
     logger.info('skip putArtifact because custom container runtime');
     return {};
+  }
+
+  private async initDevsClient() {
+    const {
+      AccessKeyID: accessKeyId,
+      AccessKeySecret: accessKeySecret,
+      SecurityToken: securityToken,
+    } = await this.inputs.getCredential();
+    const config = new $OpenApi.Config({
+      accessKeyId,
+      accessKeySecret,
+      securityToken,
+      readTimeout: FC_CLIENT_READ_TIMEOUT,
+      connectTimeout: FC_CLIENT_CONNECT_TIMEOUT,
+    });
+    config.endpoint = 'devs.cn-hangzhou.aliyuncs.com';
+    if (process.env.ARTIFACT_ENDPOINT) {
+      config.endpoint = process.env.ARTIFACT_ENDPOINT;
+    }
+    if (process.env.artifact_endpoint) {
+      config.endpoint = process.env.artifact_endpoint;
+    }
+    this.devsClient = new Devs20230714(config);
   }
 }

@@ -10,6 +10,9 @@ import { promptForConfirmOrDetails, sleep, transformCustomDomainProps } from '..
 import loadComponent from '@serverless-devs/load-component';
 import { IInputs as _IInputs } from '@serverless-devs/component-interface';
 import { FC3_DOMAIN_COMPONENT_NAME } from '../../constant';
+import Devs20230714 from '@alicloud/devs20230714';
+import * as $OpenApi from '@alicloud/openapi-client';
+import { FC_CLIENT_CONNECT_TIMEOUT, FC_CLIENT_READ_TIMEOUT } from '../../default/config';
 
 export default class Remove {
   private region: IRegion;
@@ -97,6 +100,19 @@ export default class Remove {
     await this.removeTrigger();
     await this.removeFunction();
     await this.removeCustomDomain();
+
+    if (this.inputs.props.artifact) {
+      const devsClient = await this.initDevsClient();
+      const { artifact } = this.inputs.props;
+      let artifactName = '';
+      if (artifact.split('/').length > 1) {
+        artifactName = artifact.split('/')[1].split('@')[0];
+      } else {
+        artifactName = artifact.split('@')[0];
+      }
+      logger.info(`try delete artifact ${artifactName}`);
+      devsClient.deleteArtifact(artifactName);
+    }
   }
 
   private async computingRemoveResource() {
@@ -478,5 +494,28 @@ export default class Remove {
     } catch (error) {
       logger.warn(`removeCustomDomain error: ${error}`);
     }
+  }
+
+  private async initDevsClient() {
+    const {
+      AccessKeyID: accessKeyId,
+      AccessKeySecret: accessKeySecret,
+      SecurityToken: securityToken,
+    } = await this.inputs.getCredential();
+    const config = new $OpenApi.Config({
+      accessKeyId,
+      accessKeySecret,
+      securityToken,
+      readTimeout: FC_CLIENT_READ_TIMEOUT,
+      connectTimeout: FC_CLIENT_CONNECT_TIMEOUT,
+    });
+    config.endpoint = 'devs.cn-hangzhou.aliyuncs.com';
+    if (process.env.ARTIFACT_ENDPOINT) {
+      config.endpoint = process.env.ARTIFACT_ENDPOINT;
+    }
+    if (process.env.artifact_endpoint) {
+      config.endpoint = process.env.artifact_endpoint;
+    }
+    return new Devs20230714(config);
   }
 }
