@@ -8,22 +8,21 @@ import logger from '../../logger';
 export { getDockerTmpUser, mockDockerConfigFile } from './login';
 
 export default class Acr {
-  static isAcrRegistry(imageUrl: string) {
+  static isAcreeRegistry(imageUrl: string) {
     // 定义正则表达式模式
     const pattern =
-      /^(([\w-]{3,30}-)?(registry(-vpc)?)?\.([\w-]+)\.cr\.aliyuncs\.com)\/([\w-]+)\/([\w-]+)(:[\w.-]+)?$/;
+      /^(([\w-]{3,30}-)(registry(-vpc)?)?\.([\w-]+)\.cr\.aliyuncs\.com)\/([\w-]+)\/([\w-]+)(:[\w.-]+)?$/;
 
     // 使用正则表达式进行匹配
     return pattern.test(imageUrl);
   }
-  static isAcreeRegistry(imageUrl: string): boolean {
+  static isAcrRegistry(imageUrl: string): boolean {
     // 容器镜像企业服务
-    if (!this.isAcrRegistry(imageUrl)) {
-      return false;
+    if (this.isAcreeRegistry(imageUrl)) {
+      return true;
     }
     const registry = _.split(imageUrl, '/')[0];
-    const name = _.split(registry, '.')[0];
-    return !name.startsWith('registry');
+    return registry.startsWith('registry') && registry.endsWith('.aliyuncs.com');
   }
 
   static isVpcAcrRegistry(imageUrl: string): boolean {

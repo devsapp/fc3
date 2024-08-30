@@ -185,7 +185,9 @@ export default class Service extends Base {
     _.unset(this.local, 'endpoint');
     const { code } = this.local;
     _.unset(this.local, 'code');
-    const { diffResult, show } = diffConvertYaml(this.remote, this.local);
+    const local = _.cloneDeep(this.local);
+    _.unset(local, 'customContainerConfig.registryConfig');
+    const { diffResult, show } = diffConvertYaml(this.remote, local);
     _.set(this.local, 'code', code);
 
     logger.debug(`function diff result: ${JSON.stringify(diffResult)}`);

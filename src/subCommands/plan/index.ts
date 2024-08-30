@@ -102,6 +102,8 @@ export default class Plan {
     _.unset(local, 'vpcBinding');
     _.unset(local, 'artifact');
     _.unset(local, 'customDomain');
+    _.unset(local, 'customContainerConfig.registryConfig');
+    _.unset(remote, 'functionArn');
     const config = FC.replaceFunctionConfig(local, remote);
     return diffConvertPlanYaml(config.remote, config.local, { deep: 0, complete: true });
   }

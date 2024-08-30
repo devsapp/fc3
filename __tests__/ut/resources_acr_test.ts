@@ -677,7 +677,7 @@ describe('fc2Client', () => {
 describe('Acr', () => {
   describe('isAcreeRegistry', () => {
     test('should return true when imageUrl satisfies the condition', () => {
-      const imageUrl = 'my-service-registry.us-west-1.cr.aliyuncs.com/my-service/my-image:latest';
+      const imageUrl = 'my-service-registry.cn-hangzhou.cr.aliyuncs.com/aaaaa/testing-b-proxy:v1';
 
       const result = Acr.isAcreeRegistry(imageUrl);
       expect(result).toBe(true);
@@ -736,7 +736,7 @@ describe('Acr', () => {
 
   describe('isAcrRegistry', () => {
     test('should return false when imageUrl satisfies the condition', () => {
-      const imageUrl = 'registry.cn-hangzhou.cr.aliyuncs.com/my-service/my-image:latest';
+      const imageUrl = 'registry.cn-hangzhou.aliyuncs.com/fc-demo2/test-xiliu:ciExpressV1';
 
       const result = Acr.isAcrRegistry(imageUrl);
       expect(result).toBe(true);
