@@ -16,12 +16,35 @@ export interface IHealthCheckConfig {
   timeoutSeconds?: number;
 }
 
+export interface IAuthConfig {
+  userName?: string;
+  password?: string;
+}
+
+export interface ICertConfig {
+  insecure?: boolean;
+  rootCaCertBase64?: string;
+}
+
+export interface INetworkConfig {
+  vpcId?: string;
+  vSwitchId?: string;
+  securityGroupId?: string;
+}
+
+export interface IRegistryConfig {
+  authConfig?: IAuthConfig;
+  certConfig?: ICertConfig;
+  networkConfig?: INetworkConfig;
+}
+
 export interface ICustomContainerConfig {
   command?: string[];
   entrypoint?: string[];
   healthCheckConfig?: IHealthCheckConfig;
   image?: string;
   port?: number;
+  registryConfig?: IRegistryConfig;
 }
 
 export interface ICustomRuntimeConfig {

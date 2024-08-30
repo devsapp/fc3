@@ -207,28 +207,37 @@ export default class Service extends Base {
       if (_.isNil(image)) {
         throw new Error('CustomContainerRuntime must have a valid image URL');
       }
-      const isExist = await this._getAcr().checkAcr(image);
-      if (!isExist) {
-        if (_.isEmpty(diffResult)) {
-          this.needDeploy = true;
-          return;
-        }
-      } else {
-        // eslint-disable-next-line no-lonely-if
-        if (!this.skipPush) {
-          tipsMsg = yellow(
-            `WARNING: You are pushing ${image} to overwrite an existing image tag.If this image tag is being used by any other functions, subsequent calls to these functions may fail.Please confirm if you want to continue.`,
-          );
-        } else {
-          // eslint-disable-next-line no-lonely-if
+      if (Acr.isAcrRegistry(image)) {
+        const isExist = await this._getAcr().checkAcr(image);
+        if (!isExist) {
           if (_.isEmpty(diffResult)) {
             this.needDeploy = true;
             return;
           }
+        } else {
+          // eslint-disable-next-line no-lonely-if
+          if (!this.skipPush) {
+            tipsMsg = yellow(
+              `WARNING: You are pushing ${image} to overwrite an existing image tag.If this image tag is being used by any other functions, subsequent calls to these functions may fail.Please confirm if you want to continue.`,
+            );
+          } else {
+            // eslint-disable-next-line no-lonely-if
+            if (_.isEmpty(diffResult)) {
+              this.needDeploy = true;
+              return;
+            }
+          }
         }
       }
+      logger.write(tipsMsg);
+    } else {
+      // eslint-disable-next-line no-lonely-if
+      if (_.isEmpty(diffResult)) {
+        this.needDeploy = true;
+        return;
+      }
     }
-    logger.write(tipsMsg);
+
     logger.write(show);
     // 用户指定了 --yes 或者 --no-yes，不再交互
     if (_.isBoolean(this.needDeploy)) {
@@ -260,7 +269,13 @@ export default class Service extends Base {
     if (_.isNil(image)) {
       throw new Error('CustomContainerRuntime must have a valid image URL');
     }
-    await this._getAcr().pushAcr(image);
+    if (Acr.isAcrRegistry(image)) {
+      await this._getAcr().pushAcr(image);
+    } else {
+      logger.info(
+        'By default, the push is skipped if the image is not from an ACR (Aliyun Container Registry) registry.',
+      );
+    }
   }
 
   /**

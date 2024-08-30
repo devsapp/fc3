@@ -677,10 +677,32 @@ describe('fc2Client', () => {
 describe('Acr', () => {
   describe('isAcreeRegistry', () => {
     test('should return true when imageUrl satisfies the condition', () => {
-      const imageUrl = 'test.registry.cr.aliyuncs.com';
+      const imageUrl = 'my-service-registry.us-west-1.cr.aliyuncs.com/my-service/my-image:latest';
 
       const result = Acr.isAcreeRegistry(imageUrl);
       expect(result).toBe(true);
+    });
+
+    test('should return true when imageUrl satisfies the condition', () => {
+      const imageUrl = 'my-service-registry.cn-hangzhou.cr.aliyuncs.com/my-service/my-image:latest';
+
+      const result = Acr.isAcreeRegistry(imageUrl);
+      expect(result).toBe(true);
+    });
+
+    test('should return true when imageUrl satisfies the condition', () => {
+      const imageUrl =
+        'my-service-registry-vpc.cn-hangzhou.cr.aliyuncs.com/my-service/my-image:latest';
+
+      const result = Acr.isAcreeRegistry(imageUrl);
+      expect(result).toBe(true);
+    });
+
+    test('should return false when imageUrl does not satisfies the condition', () => {
+      const imageUrl = 'registry.cn-hangzhou.cr.aliyuncs.com/my-service/my-image:latest';
+
+      const result = Acr.isAcreeRegistry(imageUrl);
+      expect(result).toBe(false);
     });
 
     test('should return false when imageUrl does not satisfy the condition', () => {
@@ -689,14 +711,59 @@ describe('Acr', () => {
       const result = Acr.isAcreeRegistry(imageUrl);
       expect(result).toBe(false);
     });
+
+    test('should return false when imageUrl does not satisfy the condition', () => {
+      const imageUrl = 'registry.cn-hangzhou.aliyuncs.com/demo/nginx:v1';
+
+      const result = Acr.isAcreeRegistry(imageUrl);
+      expect(result).toBe(false);
+    });
+
+    test('should return false when imageUrl does not satisfy the condition', () => {
+      const imageUrl = 'registry.cn-beijing.aliyuncs.com/some-org/some-repo:latest';
+
+      const result = Acr.isAcreeRegistry(imageUrl);
+      expect(result).toBe(false);
+    });
+
+    test('should return false when imageUrl does not satisfy the condition', () => {
+      const imageUrl = 'not-an-aliyun-registry-address';
+
+      const result = Acr.isAcreeRegistry(imageUrl);
+      expect(result).toBe(false);
+    });
+  });
+
+  describe('isAcrRegistry', () => {
+    test('should return false when imageUrl satisfies the condition', () => {
+      const imageUrl = 'registry.cn-hangzhou.cr.aliyuncs.com/my-service/my-image:latest';
+
+      const result = Acr.isAcrRegistry(imageUrl);
+      expect(result).toBe(true);
+    });
   });
 
   describe('isVpcAcrRegistry', () => {
     test('should return true when imageUrl satisfy the condition', () => {
-      const imageUrl = 'registry-vpc/test/path';
+      const imageUrl = 'registry-vpc.cn-hangzhou.cr.aliyuncs.com/my-service/my-image:latest';
 
       const result = Acr.isVpcAcrRegistry(imageUrl);
       expect(result).toBe(true);
+    });
+
+    test('should return true when imageUrl satisfy the condition', () => {
+      const imageUrl =
+        'my-service-registry-vpc.cn-hangzhou.cr.aliyuncs.com/my-service/my-image:latest';
+
+      const result = Acr.isVpcAcrRegistry(imageUrl);
+      expect(result).toBe(true);
+    });
+
+    test('should return true when imageUrl does not satisfy the condition', () => {
+      const imageUrl = 'registry-vpc/test/path';
+
+      const result = Acr.isVpcAcrRegistry(imageUrl);
+      expect(result).toBe(false);
     });
 
     test('should return false when imageUrl not satisfy the condition', () => {
@@ -709,17 +776,17 @@ describe('Acr', () => {
 
   describe('vpcImage2InternetImage', () => {
     test('should return the correct imageUrl', () => {
-      const imageUrl = 'test.registry/test/path';
+      const imageUrl = 'my-service-registry-vpc.cn-hangzhou.cr.aliyuncs.com/my-service/my-image:v1';
 
       const result = Acr.vpcImage2InternetImage(imageUrl);
-      expect(result).toBe('test.registry/test/path');
+      expect(result).toBe('my-service-registry.cn-hangzhou.cr.aliyuncs.com/my-service/my-image:v1');
     });
 
     test('should return the correct imageUrl,and replace registry-vpc', () => {
-      const imageUrl = 'registry-vpc.cn-hangzhou.aliyuncs.com/test/path';
+      const imageUrl = 'registry-vpc.cn-hangzhou.cr.aliyuncs.com/test/my-image:v1';
 
       const result = Acr.vpcImage2InternetImage(imageUrl);
-      expect(result).toBe('registry.cn-hangzhou.aliyuncs.com/test/path');
+      expect(result).toBe('registry.cn-hangzhou.cr.aliyuncs.com/test/my-image:v1');
     });
   });
 

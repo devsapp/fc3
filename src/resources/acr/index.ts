@@ -8,13 +8,28 @@ import logger from '../../logger';
 export { getDockerTmpUser, mockDockerConfigFile } from './login';
 
 export default class Acr {
+  static isAcrRegistry(imageUrl: string) {
+    // 定义正则表达式模式
+    const pattern =
+      /^(([\w-]{3,30}-)?(registry(-vpc)?)?\.([\w-]+)\.cr\.aliyuncs\.com)\/([\w-]+)\/([\w-]+)(:[\w.-]+)?$/;
+
+    // 使用正则表达式进行匹配
+    return pattern.test(imageUrl);
+  }
   static isAcreeRegistry(imageUrl: string): boolean {
     // 容器镜像企业服务
+    if (!this.isAcrRegistry(imageUrl)) {
+      return false;
+    }
     const registry = _.split(imageUrl, '/')[0];
-    return registry.includes('registry') && registry.endsWith('cr.aliyuncs.com');
+    const name = _.split(registry, '.')[0];
+    return !name.startsWith('registry');
   }
 
   static isVpcAcrRegistry(imageUrl: string): boolean {
+    if (!this.isAcrRegistry(imageUrl)) {
+      return false;
+    }
     const imageArr = imageUrl.split('/');
     return imageArr[0].includes('registry-vpc');
   }

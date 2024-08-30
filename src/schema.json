@@ -27,6 +27,17 @@
             },
             "type": "object"
         },
+        "IAuthConfig": {
+            "properties": {
+                "password": {
+                    "type": "string"
+                },
+                "userName": {
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
         "ICdnTriggerConfig": {
             "properties": {
                 "eventName": {
@@ -59,6 +70,17 @@
                 "filter",
                 "notes"
             ],
+            "type": "object"
+        },
+        "ICertConfig": {
+            "properties": {
+                "insecure": {
+                    "type": "boolean"
+                },
+                "rootCaCertBase64": {
+                    "type": "string"
+                }
+            },
             "type": "object"
         },
         "ICodeUri": {
@@ -109,6 +131,9 @@
                 },
                 "port": {
                     "type": "number"
+                },
+                "registryConfig": {
+                    "$ref": "#/definitions/IRegistryConfig"
                 }
             },
             "type": "object"
@@ -623,10 +648,24 @@
                 }
             },
             "required": [
-              "userId",
                 "groupId",
-              "mountPoints"
+                "mountPoints",
+                "userId"
             ],
+            "type": "object"
+        },
+        "INetworkConfig": {
+            "properties": {
+                "securityGroupId": {
+                    "type": "string"
+                },
+                "vSwitchId": {
+                    "type": "string"
+                },
+                "vpcId": {
+                    "type": "string"
+                }
+            },
             "type": "object"
         },
         "IOssMountConfig": {
@@ -749,6 +788,20 @@
                 "us-west-1"
             ],
             "type": "string"
+        },
+        "IRegistryConfig": {
+            "properties": {
+                "authConfig": {
+                    "$ref": "#/definitions/IAuthConfig"
+                },
+                "certConfig": {
+                    "$ref": "#/definitions/ICertConfig"
+                },
+                "networkConfig": {
+                    "$ref": "#/definitions/INetworkConfig"
+                }
+            },
+            "type": "object"
         },
         "IRuntime": {
             "enum": [
@@ -916,6 +969,9 @@
         }
     },
     "properties": {
+        "artifact": {
+            "type": "string"
+        },
         "asyncInvokeConfig": {
             "$ref": "#/definitions/IAsyncInvokeConfig"
         },
