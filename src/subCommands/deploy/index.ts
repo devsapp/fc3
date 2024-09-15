@@ -5,6 +5,7 @@ import Trigger from './impl/trigger';
 import AsyncInvokeConfig from './impl/async_invoke_config';
 import VpcBinding from './impl/vpc_binding';
 import CustomDomain from './impl/custom_domain';
+import ProvisionConfig from './impl/provision_config';
 import logger from '../../logger';
 import { verify } from '../../utils';
 import { IInputs } from '../../interface';
@@ -20,6 +21,7 @@ export default class Deploy {
   readonly asyncInvokeConfig?: AsyncInvokeConfig;
   readonly vpcBinding?: VpcBinding;
   readonly customDomain?: CustomDomain;
+  readonly provisionConfig?: ProvisionConfig;
 
   constructor(readonly inputs: IInputs) {
     this.opts = parseArgv(inputs.args, {
@@ -60,6 +62,7 @@ export default class Deploy {
     if (deployAll) {
       this.vpcBinding = new VpcBinding(inputs, { yes });
       this.customDomain = new CustomDomain(inputs, { yes });
+      this.provisionConfig = new ProvisionConfig(inputs, { yes });
     }
   }
 
@@ -70,6 +73,7 @@ export default class Deploy {
     await this.asyncInvokeConfig?.before();
     await this.vpcBinding?.before();
     await this.customDomain?.before();
+    await this.provisionConfig?.before();
 
     // 调用运行
     const run1 = await this.service?.run();
@@ -77,8 +81,9 @@ export default class Deploy {
     const run3 = await this.asyncInvokeConfig?.run();
     const run4 = await this.vpcBinding?.run();
     const run5 = await this.customDomain?.run();
+    const run6 = await this.provisionConfig?.run();
     // 获取输出
-    if (run1 && run2 && run3 && run4 && run5) {
+    if (run1 && run2 && run3 && run4 && run5 && run6) {
       const info = new Info(this.inputs);
       info.setGetApiType(GetApiType.simpleUnsupported);
       const result = await info.run();

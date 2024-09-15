@@ -56,6 +56,7 @@ export default class Info {
     const asyncInvokeConfig = await this.getAsyncInvokeConfig();
     const vpcBindingConfig = await this.getVpcBing();
     const customDomain = await this.getCustomDomain();
+    const provisionConfig = await this.getProvisionConfig();
     let info: any = {
       region: this.region,
     };
@@ -65,6 +66,7 @@ export default class Info {
       asyncInvokeConfig: isEmpty(asyncInvokeConfig) ? undefined : asyncInvokeConfig,
       vpcBinding: isEmpty(vpcBindingConfig) ? undefined : vpcBindingConfig,
       customDomain: isEmpty(customDomain) ? undefined : customDomain,
+      provisionConfig: isEmpty(provisionConfig) ? undefined : provisionConfig,
     });
     if (!_.isEmpty(triggers)) {
       for (let i = 0; i < triggers.length; i++) {
@@ -146,5 +148,12 @@ export default class Info {
     customDomainInputs.props = props;
     const domainInstance = await loadComponent(FC3_DOMAIN_COMPONENT_NAME, { logger });
     return domainInstance.info(customDomainInputs);
+  }
+
+  async getProvisionConfig(): Promise<any> {
+    if (_.isEmpty(_.get(this.inputs.props, 'provisionConfig'))) {
+      return {};
+    }
+    return await this.fcSdk.getFunctionProvisionConfig(this.functionName, 'LATEST');
   }
 }

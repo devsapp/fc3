@@ -60,6 +60,7 @@ export default class Plan {
     const triggersConfig = await this.planTriggers();
     const asyncInvokeConfig = await this.planAsyncInvokeConfig();
     const vpcBindingConfig = await this.planVpcBinding();
+    const provisionConfig = await this.planProvisionConfig();
 
     let showDiff = `region: ${this.region}\n${functionConfig.show}`;
 
@@ -73,6 +74,10 @@ export default class Plan {
 
     if (_.get(this.inputs.props, 'vpcBinding')) {
       showDiff += `\nvpcBinding:\n${vpcBindingConfig.show}`;
+    }
+
+    if (_.get(this.inputs.props, 'provisionConfig')) {
+      showDiff += `\nprovisionConfig:\n${provisionConfig.show}`;
     }
 
     showDiff = showDiff.replace(/^/gm, '    ');
@@ -102,8 +107,10 @@ export default class Plan {
     _.unset(local, 'vpcBinding');
     _.unset(local, 'artifact');
     _.unset(local, 'customDomain');
+    _.unset(local, 'provisionConfig');
     _.unset(local, 'customContainerConfig.registryConfig');
     _.unset(remote, 'functionArn');
+
     const config = FC.replaceFunctionConfig(local, remote);
     return diffConvertPlanYaml(config.remote, config.local, { deep: 0, complete: true });
   }
@@ -184,6 +191,25 @@ export default class Plan {
     if (!_.isEmpty(local)) {
       local?.vpcIds.sort();
     }
+    return diffConvertPlanYaml(remote, local, { deep: 1, complete: true });
+  }
+
+  private async planProvisionConfig() {
+    let remote: any = {};
+    try {
+      const provisionConfig = _.get(this.inputs, 'props.provisionConfig', {});
+      const qualifier = _.get(provisionConfig, 'qualifier', 'LATEST');
+      const result = await this.fcSdk.getFunctionProvisionConfig(this.functionName, qualifier);
+      const r = _.omit(result, ['current', 'functionArn', 'currentError']);
+      remote = r;
+    } catch (ex) {
+      logger.debug(
+        `planProvisionConfig ==> Get remote provisionConfig of  ${this.functionName} error: ${ex.message}`,
+      );
+    }
+
+    // eslint-disable-next-line prefer-const
+    let local = _.cloneDeep(_.get(this.inputs.props, 'provisionConfig', {})) as any;
     return diffConvertPlanYaml(remote, local, { deep: 1, complete: true });
   }
 

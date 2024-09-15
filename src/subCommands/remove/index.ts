@@ -96,22 +96,26 @@ export default class Remove {
         return;
       }
     }
-    await this.removeAsyncInvokeConfig();
-    await this.removeTrigger();
-    await this.removeFunction();
-    await this.removeCustomDomain();
+    try {
+      await this.removeAsyncInvokeConfig();
+      await this.removeTrigger();
+      await this.removeFunction();
+      await this.removeCustomDomain();
 
-    if (this.inputs.props.artifact) {
-      const devsClient = await this.initDevsClient();
-      const { artifact } = this.inputs.props;
-      let artifactName = '';
-      if (artifact.split('/').length > 1) {
-        artifactName = artifact.split('/')[1].split('@')[0];
-      } else {
-        artifactName = artifact.split('@')[0];
+      if (this.inputs.props.artifact) {
+        const devsClient = await this.initDevsClient();
+        const { artifact } = this.inputs.props;
+        let artifactName = '';
+        if (artifact.split('/').length > 1) {
+          artifactName = artifact.split('/')[1].split('@')[0];
+        } else {
+          artifactName = artifact.split('@')[0];
+        }
+        logger.info(`try delete artifact ${artifactName}`);
+        devsClient.deleteArtifact(artifactName);
       }
-      logger.info(`try delete artifact ${artifactName}`);
-      devsClient.deleteArtifact(artifactName);
+    } catch (ex) {
+      logger.error(`remove error: ${ex.message}`);
     }
   }
 
@@ -176,7 +180,11 @@ export default class Remove {
     try {
       const provision = await this.fcSdk.listFunctionProvisionConfig(this.functionName);
       this.resources.provision = provision.map((item) => {
-        const qualifier = _.findLast(item.functionArn.split('/'));
+        const li = item.functionArn.split('/');
+        let qualifier = 'LATEST';
+        if (li.length > 2) {
+          qualifier = _.findLast(item.functionArn.split('/'));
+        }
         return {
           qualifier,
           current: item.current,
