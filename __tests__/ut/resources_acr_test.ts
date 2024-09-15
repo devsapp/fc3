@@ -62,10 +62,10 @@ describe('Sls', () => {
   describe('generateProjectName', () => {
     it('test generateProjectName', () => {
       const region = 'cn-hangzhou';
-      const accessKeyId = 'accessKeyId';
+      const uid = 'uid';
 
-      const result = Sls.generateProjectName(region, accessKeyId);
-      expect(result).toEqual(`${accessKeyId}-${region}-project`);
+      const result = Sls.generateProjectName(region, uid);
+      expect(result).toEqual(`aliyun-serverless-uid-cn-hangzhou`);
     });
   });
 
@@ -73,7 +73,7 @@ describe('Sls', () => {
     it('test generateLogstoreName', () => {
       const result = Sls.generateLogstoreName();
 
-      expect(result).toBe('function-logstore');
+      expect(result).toBe('default-logs');
     });
   });
 });

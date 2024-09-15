@@ -28,7 +28,7 @@
     "@alicloud/pop-core": "^1.7.13",
     "@serverless-cd/srm-aliyun-pop-core": "^0.0.7-beta.16",
     "@serverless-cd/srm-aliyun-ram20150501": "^0.0.2-beta.9",
-    "@serverless-cd/srm-aliyun-sls20201230": "0.0.3-beta.2",
+    "@serverless-cd/srm-aliyun-sls20201230": "0.0.3-beta.7",
     "@serverless-devs/diff": "^0.0.3-beta.6",
     "@serverless-devs/downloads": "^0.0.6",
     "@serverless-devs/load-component": "^0.0.8",
@@ -72,6 +72,9 @@
   },
   "resolutions": {
     "@alicloud/devs20230714": {
+      "registry": "https://packages.aliyun.com/6455f7ff81b284e28f4774c4/npm/npm-registry/"
+    },
+    "@serverless-cd/srm-aliyun-sls20201230": {
       "registry": "https://packages.aliyun.com/6455f7ff81b284e28f4774c4/npm/npm-registry/"
     }
   }
