@@ -23,6 +23,8 @@ export default class Sls {
       endpoint: `${region}.log.aliyuncs.com`,
       userAgent: 'serverless-devs',
       regionId: region,
+      readTimeout: 60000,
+      connectTimeout: 5000,
     });
     this.client = new Sls20201230(config);
     this.accountID = credentials.AccountID;
