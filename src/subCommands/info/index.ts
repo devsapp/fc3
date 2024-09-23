@@ -57,6 +57,7 @@ export default class Info {
     const vpcBindingConfig = await this.getVpcBing();
     const customDomain = await this.getCustomDomain();
     const provisionConfig = await this.getProvisionConfig();
+    const concurrencyConfig = await this.getConcurrencyConfig();
     let info: any = {
       region: this.region,
     };
@@ -67,6 +68,7 @@ export default class Info {
       vpcBinding: isEmpty(vpcBindingConfig) ? undefined : vpcBindingConfig,
       customDomain: isEmpty(customDomain) ? undefined : customDomain,
       provisionConfig: isEmpty(provisionConfig) ? undefined : provisionConfig,
+      concurrencyConfig: isEmpty(concurrencyConfig) ? undefined : concurrencyConfig,
     });
     if (!_.isEmpty(triggers)) {
       for (let i = 0; i < triggers.length; i++) {
@@ -155,5 +157,14 @@ export default class Info {
       return {};
     }
     return await this.fcSdk.getFunctionProvisionConfig(this.functionName, 'LATEST');
+  }
+
+  async getConcurrencyConfig(): Promise<any> {
+    if (_.isEmpty(_.get(this.inputs.props, 'concurrencyConfig'))) {
+      return {};
+    }
+    const result = await this.fcSdk.getFunctionConcurrency(this.functionName);
+    const r = _.omit(result, ['functionArn']);
+    return r;
   }
 }

@@ -61,6 +61,7 @@ export default class Plan {
     const asyncInvokeConfig = await this.planAsyncInvokeConfig();
     const vpcBindingConfig = await this.planVpcBinding();
     const provisionConfig = await this.planProvisionConfig();
+    const concurrencyConfig = await this.planConcurrencyConfig();
 
     let showDiff = `region: ${this.region}\n${functionConfig.show}`;
 
@@ -78,6 +79,10 @@ export default class Plan {
 
     if (_.get(this.inputs.props, 'provisionConfig')) {
       showDiff += `\nprovisionConfig:\n${provisionConfig.show}`;
+    }
+
+    if (_.get(this.inputs.props, 'concurrencyConfig')) {
+      showDiff += `\nconcurrencyConfig:\n${concurrencyConfig.show}`;
     }
 
     showDiff = showDiff.replace(/^/gm, '    ');
@@ -108,6 +113,7 @@ export default class Plan {
     _.unset(local, 'artifact');
     _.unset(local, 'customDomain');
     _.unset(local, 'provisionConfig');
+    _.unset(local, 'concurrencyConfig');
     _.unset(local, 'customContainerConfig.registryConfig');
     _.unset(remote, 'functionArn');
 
@@ -210,6 +216,23 @@ export default class Plan {
 
     // eslint-disable-next-line prefer-const
     let local = _.cloneDeep(_.get(this.inputs.props, 'provisionConfig', {})) as any;
+    return diffConvertPlanYaml(remote, local, { deep: 1, complete: true });
+  }
+
+  private async planConcurrencyConfig() {
+    let remote: any = {};
+    try {
+      const result = await this.fcSdk.getFunctionConcurrency(this.functionName);
+      const r = _.omit(result, ['functionArn']);
+      remote = r;
+    } catch (ex) {
+      logger.debug(
+        `planConcurrencyConfig ==> Get remote concurrencyConfig of  ${this.functionName} error: ${ex.message}`,
+      );
+    }
+
+    // eslint-disable-next-line prefer-const
+    let local = _.cloneDeep(_.get(this.inputs.props, 'concurrencyConfig', {})) as any;
     return diffConvertPlanYaml(remote, local, { deep: 1, complete: true });
   }
 

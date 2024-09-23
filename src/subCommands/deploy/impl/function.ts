@@ -69,6 +69,7 @@ export default class Service extends Base {
     _.unset(this.local, 'artifact');
     _.unset(this.local, 'customDomain');
     _.unset(this.local, 'provisionConfig');
+    _.unset(this.local, 'concurrencyConfig');
 
     if (_.isEmpty(this.inputs.props.code) && this.inputs.props.artifact) {
       this.putArtifact = false;

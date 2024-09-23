@@ -30,3 +30,27 @@ resources:
         maxAsyncEventAgeInSeconds: 360
         maxAsyncRetryAttempts: 3
         asyncTask: true
+        qualifier: LATEST
+
+      # provisionConfig:
+      #   target: 1
+      #   alwaysAllocateCPU: false
+      #   alwaysAllocateGPU: false
+      #   scheduledActions:
+      #     - name: scheduled-actions
+      #       startTime: '2023-08-15T02:04:00.000Z'
+      #       endTime: '2033-08-15T03:04:00.000Z'
+      #       target: 1
+      #       scheduleExpression: cron(0 0 4 * * *)
+      #       timeZone: ''
+      #   targetTrackingPolicies:
+      #     - name: target-tracking-policies
+      #       startTime: '2023-08-15T02:05:00.000Z'
+      #       endTime: '2033-08-15T02:55:00.000Z'
+      #       metricType: ProvisionedConcurrencyUtilization
+      #       metricTarget: 0.6
+      #       minCapacity: 1
+      #       maxCapacity: 3
+
+      concurrencyConfig:
+        reservedConcurrency: 3

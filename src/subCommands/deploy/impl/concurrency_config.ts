@@ -10,7 +10,7 @@ interface IOpts {
   yes: boolean | undefined;
 }
 
-export default class ProvisionConfig extends Base {
+export default class ConcurrencyConfig extends Base {
   local: any;
   remote: any;
   readonly functionName: string;
@@ -19,9 +19,8 @@ export default class ProvisionConfig extends Base {
     super(inputs, opts.yes);
     this.functionName = inputs.props?.functionName;
 
-    const provisionConfig = _.get(inputs, 'props.provisionConfig', {});
-    this.local = _.cloneDeep(provisionConfig);
-    logger.debug(`need deploy provisionConfig: ${JSON.stringify(provisionConfig)}`);
+    this.local = _.get(inputs, 'props.concurrencyConfig');
+    logger.debug(`need deploy concurrencyConfig: ${JSON.stringify(this.local)}`);
   }
 
   async before() {
@@ -32,23 +31,20 @@ export default class ProvisionConfig extends Base {
 
   async run() {
     const remoteConfig = this.remote || {};
-    const localConfig = this.local;
-
-    const id = `${this.functionName}/provisionConfig`;
-    const provisionConfig = _.get(this.inputs, 'props.provisionConfig', {});
-    const qualifier = _.get(provisionConfig, 'qualifier', 'LATEST');
-    if (!_.isEmpty(localConfig)) {
+    const id = `${this.functionName}/concurrencyConfig`;
+    if (!_.isEmpty(this.local)) {
+      const { reservedConcurrency } = this.local;
       if (this.needDeploy) {
-        await this.fcSdk.putFunctionProvisionConfig(this.functionName, qualifier, localConfig);
+        await this.fcSdk.putFunctionConcurrency(this.functionName, reservedConcurrency);
       } else if (_.isEmpty(remoteConfig)) {
         // 如果不需要部署，但是远端资源不存在，则尝试创建一下
         logger.debug(
-          `Online provisionConfig does not exist, specified not to deploy, attempting to create ${id}`,
+          `Online concurrencyConfig does not exist, specified not to deploy, attempting to create ${id}`,
         );
-        await this.fcSdk.putFunctionProvisionConfig(this.functionName, qualifier, localConfig);
+        await this.fcSdk.putFunctionConcurrency(this.functionName, reservedConcurrency);
       } else {
         logger.debug(
-          `Online provisionConfig exists, specified not to deploy, skipping deployment ${id}`,
+          `Online concurrencyConfig exists, specified not to deploy, skipping deployment ${id}`,
         );
       }
     }
@@ -56,14 +52,12 @@ export default class ProvisionConfig extends Base {
   }
 
   private async getRemote() {
-    const provisionConfig = _.get(this.inputs, 'props.provisionConfig', {});
-    const qualifier = _.get(provisionConfig, 'qualifier', 'LATEST');
     try {
-      const result = await this.fcSdk.getFunctionProvisionConfig(this.functionName, qualifier);
-      const r = _.omit(result, ['current', 'functionArn', 'currentError']);
+      const result = await this.fcSdk.getFunctionConcurrency(this.functionName);
+      const r = _.omit(result, ['functionArn']);
       this.remote = r;
     } catch (ex) {
-      logger.debug(`Get remote provisionConfig of  ${this.functionName} error: ${ex.message}`);
+      logger.debug(`Get remote concurrencyConfig of  ${this.functionName} error: ${ex.message}`);
       this.remote = {};
     }
   }
@@ -82,7 +76,7 @@ export default class ProvisionConfig extends Base {
       this.needDeploy = true;
       return;
     }
-    logger.write(`provisionConfig was changed, please confirm before deployment:\n`);
+    logger.write(`concurrencyConfig was changed, please confirm before deployment:\n`);
     logger.write(show);
 
     // 用户指定了 --assume-yes，不再交互
