@@ -269,7 +269,7 @@ export default class SYaml2To3 {
       if (_.get(v.props, 'gpuMemorySize')) {
         v.props.gpuConfig = {
           gpuMemorySize: _.get(v.props, 'gpuMemorySize'),
-          gpuType: 'fc.gpu.tesla.1',
+          gpuType: _.get(v.props, 'instanceType', 'fc.gpu.tesla.1'),
         };
       }
 
