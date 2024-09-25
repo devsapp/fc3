@@ -19,7 +19,7 @@ export default class ConcurrencyConfig extends Base {
     super(inputs, opts.yes);
     this.functionName = inputs.props?.functionName;
 
-    this.local = _.get(inputs, 'props.concurrencyConfig');
+    this.local = _.get(inputs, 'props.concurrencyConfig', {});
     logger.debug(`need deploy concurrencyConfig: ${JSON.stringify(this.local)}`);
   }
 
