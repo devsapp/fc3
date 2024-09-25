@@ -51,6 +51,17 @@ export default class ProvisionConfig extends Base {
           `Online provisionConfig exists, specified not to deploy, skipping deployment ${id}`,
         );
       }
+    } else {
+      try {
+        if (!_.isEmpty(this.remote)) {
+          logger.info(`Remove remote provisionConfig of  ${this.functionName}/${qualifier}`);
+          await this.fcSdk.removeFunctionProvisionConfig(this.functionName, qualifier);
+        }
+      } catch (ex) {
+        logger.error(
+          `Remove remote provisionConfig of  ${this.functionName}/${qualifier} error: ${ex.message}`,
+        );
+      }
     }
     return this.needDeploy;
   }

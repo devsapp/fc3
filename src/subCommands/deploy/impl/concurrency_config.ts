@@ -47,7 +47,19 @@ export default class ConcurrencyConfig extends Base {
           `Online concurrencyConfig exists, specified not to deploy, skipping deployment ${id}`,
         );
       }
+    } else {
+      try {
+        if (!_.isEmpty(this.remote)) {
+          logger.info(`Remove remote concurrencyConfig of  ${this.functionName}`);
+          await this.fcSdk.removeFunctionConcurrency(this.functionName);
+        }
+      } catch (ex) {
+        logger.error(
+          `Remove remote concurrencyConfig of  ${this.functionName} error: ${ex.message}`,
+        );
+      }
     }
+
     return this.needDeploy;
   }
 
