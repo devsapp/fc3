@@ -86,12 +86,26 @@ export default class Sync {
     const triggers = await this.getTriggers();
     let asyncInvokeConfig = {};
     let vpcBindingConfig = {};
+    let concurrencyConfig = {};
+    let provisionConfig = {};
     try {
       asyncInvokeConfig = await this.fcSdk.getAsyncInvokeConfig(
         this.functionName,
         'LATEST',
         GetApiType.simpleUnsupported,
       );
+    } catch (ex) {
+      // eslint-disable-next-line no-empty
+    }
+
+    try {
+      provisionConfig = await this.fcSdk.getFunctionProvisionConfig(this.functionName, 'LATEST');
+    } catch (ex) {
+      // eslint-disable-next-line no-empty
+    }
+
+    try {
+      concurrencyConfig = await this.fcSdk.getFunctionConcurrency(this.functionName);
     } catch (ex) {
       // eslint-disable-next-line no-empty
     }
@@ -104,10 +118,24 @@ export default class Sync {
     } catch (ex) {
       // eslint-disable-next-line no-empty
     }
-    return await this.write(functionInfo, triggers, asyncInvokeConfig, vpcBindingConfig);
+    return await this.write(
+      functionInfo,
+      triggers,
+      asyncInvokeConfig,
+      vpcBindingConfig,
+      concurrencyConfig,
+      provisionConfig,
+    );
   }
 
-  async write(functionConfig: any, triggers: any, asyncInvokeConfig: any, vpcBindingConfig: any) {
+  async write(
+    functionConfig: any,
+    triggers: any,
+    asyncInvokeConfig: any,
+    vpcBindingConfig: any,
+    concurrencyConfig: any,
+    provisionConfig: any,
+  ) {
     const syncFolderName = 'sync-clone';
 
     const baseDir = this.target
@@ -155,6 +183,16 @@ export default class Sync {
     }
     if (!_.isEmpty(asyncInvokeConfig)) {
       props.asyncInvokeConfig = asyncInvokeConfig;
+    }
+    if (!_.isEmpty(provisionConfig)) {
+      _.unset(provisionConfig, 'current');
+      _.unset(provisionConfig, 'currentError');
+      _.unset(provisionConfig, 'functionArn');
+      props.provisionConfig = provisionConfig;
+    }
+    if (!_.isEmpty(concurrencyConfig)) {
+      _.unset(concurrencyConfig, 'functionArn');
+      props.concurrencyConfig = concurrencyConfig;
     }
 
     if (!_.isEmpty(vpcBindingConfig)) {
