@@ -8,7 +8,7 @@ name: hello-world-app
 access: "quanxi"
 
 vars: 
-  region: ${env('REGION', 'cn-huhehaote')}
+  region: 'cn-huhehaote'
 
 resources:
   hello_world_1:

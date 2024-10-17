@@ -7,6 +7,24 @@
 set -e
 set -v
 
+if [[ $(uname -s) == "Linux" ]]; then
+    # echo "test trigger"
+    # cd trigger && ./run
+    # cd ..
+    echo "test custom-domain"
+    cd custom-domain
+    s deploy -y
+    s info
+    s remove -y
+
+    s deploy -y -t s2.yaml
+    s info -t s2.yaml
+    s remove -y -t s2.yaml
+    cd ..
+else
+    echo "skip test trigger"
+fi
+
 echo "test go runtime"
 cd go
 export fc_component_function_name=go1-$(uname)-$(uname -m)-$RANDSTR
@@ -40,14 +58,32 @@ s remove -y -t ./go/s.yaml
 rm -rf ./go/code/target
 cd ..
 
-# echo "test nodejs runtime with auto ..."
-# cd nodejs
-# export fc_component_function_name=nodejs14-$(uname)-$(uname -m)-$RANDSTR
-# s deploy -y -t ./s_auto.yaml
-# s invoke -e '{"hello":"fc nodejs with auto"}' -t ./s_auto.yaml
-# s info -y -t ./s_auto.yaml
-# s remove -y -t ./s_auto.yaml
-# cd ..
+echo "test nodejs runtime with auto ..."
+cd nodejs
+export fc_component_function_name=nodejs14-$(uname)-$(uname -m)-$RANDSTR
+s deploy -y -t s_auto.yaml
+s invoke -e '{"hello":"fc nodejs with auto"}' -t s_auto.yaml
+s info -y -t s_auto.yaml
+s remove -y -t s_auto.yaml
+
+echo "test deploy with alias"
+export fc_component_function_name=nodejs14-$(uname)-$(uname -m)-$RANDSTR
+s deploy --function -t s2.yaml
+versionId=$(s version publish -t s2.yaml --silent -o json | jq -r '."versionId"')
+echo "latest version = $versionId"
+if [[ "$versionId" -gt 1 ]]; then
+    mainVersion=$((versionId - 1))
+    echo "main version = $mainVersion"
+    s alias publish --alias-name test --version-id $mainVersion --vw "{\"$versionId\": 0.2}" -t s2.yaml
+else
+    s alias publish --alias-name test --version-id $versionId -t s2.yaml
+fi
+
+s deploy --trigger -t s2.yaml
+s deploy --async-invoke-config -t s2.yaml
+s info -t s2.yaml
+s remove -y -t s2.yaml
+cd ..
 
 echo " *********  command-api *********"
 cd command-api && ./run && cd -
