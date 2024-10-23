@@ -4,10 +4,11 @@ import { Config } from '@alicloud/openapi-client';
 import { IRegion } from '../../interface';
 import { PROJECT, LOG_STORE } from '../../default/resources';
 import logger from '../../logger';
+import getUuid from 'uuid-by-string';
 
 export default class Sls {
   static generateProjectName = (region: IRegion, accountID: string): string =>
-    PROJECT || `aliyun-serverless-${accountID}-${region}`;
+    PROJECT || `serverless-${region}-${getUuid(accountID)}`;
   static generateLogstoreName = (): string => {
     return LOG_STORE;
   };

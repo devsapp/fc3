@@ -65,7 +65,7 @@ describe('Sls', () => {
       const uid = 'uid';
 
       const result = Sls.generateProjectName(region, uid);
-      expect(result).toEqual(`aliyun-serverless-uid-cn-hangzhou`);
+      expect(result).toEqual(`serverless-cn-hangzhou-e2577dd7-8b54-5e28-865e-e56ffbc8bb73`);
     });
   });
 
