@@ -91,12 +91,14 @@ Parameters:
         - python3
         - python3.9
         - python3.10
+        - python3.12
         - php7.2
         - java8
         - java11
         - dotnetcore3.1
         - custom
         - custom.debian10
+        - custom.debian11
         - custom-container
 
     code:

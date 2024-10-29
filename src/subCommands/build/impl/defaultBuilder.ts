@@ -233,6 +233,7 @@ vendor`;
       case 'python3':
       case 'python3.9':
       case 'python3.10':
+      case 'python3.12':
         if (this.existManifest('requirements.txt')) {
           tasks.push(
             `pip install -t ${buildPythonLocalPath} -r requirements.txt --upgrade ${customArgs}`,
@@ -258,6 +259,7 @@ vendor`;
         break;
       case 'custom':
       case 'custom.debian10':
+      case 'custom.debian11':
         if (this.existManifest('requirements.txt')) {
           tasks.push(
             `pip install -t ${buildPythonLocalPath} -r requirements.txt --upgrade ${customArgs}`,
