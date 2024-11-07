@@ -106,7 +106,9 @@ export default class Invoke {
     logger.debug(`invoke function ${this.functionName} result ${JSON.stringify(result)}`);
     if (this.silent) {
       // console.log(result.body);
-      return result.body;
+      return {
+        body: result.body,
+      };
     } else {
       this.showLog(result.headers, result.body);
     }
