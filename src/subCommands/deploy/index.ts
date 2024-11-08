@@ -92,11 +92,7 @@ export default class Deploy {
       const info = new Info(this.inputs);
       info.setGetApiType(GetApiType.simpleUnsupported);
       const result = await info.run();
-      const { artifact } = run1;
-      if (_.isEmpty(artifact)) {
-        return result;
-      }
-      const mergedObj = Object.assign({}, result, artifact);
+      const mergedObj = Object.assign({}, result);
       logger.debug(`mergedObj = ${JSON.stringify(mergedObj, null, 2)}`);
       return mergedObj;
     }

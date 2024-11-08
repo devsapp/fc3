@@ -49,9 +49,6 @@ export default class Info {
 
   async run() {
     const functionConfig = await this.getFunction();
-    if (this.inputs.props.artifact) {
-      functionConfig.artifact = `${this.inputs.props.artifact}@${functionConfig.codeChecksum}`;
-    }
     const triggers = await this.getTriggers();
     const asyncInvokeConfig = await this.getAsyncInvokeConfig();
     const vpcBindingConfig = await this.getVpcBing();
