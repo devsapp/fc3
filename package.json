@@ -22,7 +22,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@alicloud/devs20230714": "^1.0.4",
+    "@alicloud/devs20230714": "^1.0.1",
     "@alicloud/fc2": "^2.6.6",
     "@alicloud/fc20230330": "^4.1.3",
     "@alicloud/pop-core": "^1.7.13",
@@ -73,7 +73,7 @@
   },
   "resolutions": {
     "@alicloud/devs20230714": {
-      "registry": "https://packages.aliyun.com/6455f7ff81b284e28f4774c4/npm/npm-registry/"
+      "registry": "https://packages.aliyun.com/670e108663cd360abfe4be65/npm/npm-registry/"
     }
   }
 }
