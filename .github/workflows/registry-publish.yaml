@@ -26,7 +26,7 @@ jobs:
       - name: Configure NPM
         run: |
           npm config set registry https://registry.npmjs.org
-          npm config set '//packages.aliyun.com/6455f7ff81b284e28f4774c4/npm/npm-registry/:_authToken' ${{secrets.NPM_TOKEN}}
+          npm config set '//packages.aliyun.com/670e108663cd360abfe4be65/npm/npm-registry/:_authToken' ${{secrets.NPM_TOKEN}}
       - name: release prod
         run: |
           make release-prod
