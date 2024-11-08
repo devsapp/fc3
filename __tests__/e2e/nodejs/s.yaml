@@ -15,7 +15,7 @@ resources:
       code: ./code
       handler: event.handler
       memorySize: 128
-      timeout: 30
+      timeout: 60
       instanceLifecycleConfig:
         initializer:
           handler: event.initializer
@@ -28,29 +28,36 @@ resources:
           onSuccess:
             destination: acs:fc:${vars.region}::functions/serverless-devs-ci-async-invoke-config-succ
         maxAsyncEventAgeInSeconds: 360
-        maxAsyncRetryAttempts: 3
+        maxAsyncRetryAttempts: 1
         asyncTask: true
         qualifier: LATEST
 
-      # provisionConfig:
-      #   target: 1
-      #   alwaysAllocateCPU: false
-      #   alwaysAllocateGPU: false
-      #   scheduledActions:
-      #     - name: scheduled-actions
-      #       startTime: '2023-08-15T02:04:00.000Z'
-      #       endTime: '2033-08-15T03:04:00.000Z'
-      #       target: 1
-      #       scheduleExpression: cron(0 0 4 * * *)
-      #       timeZone: ''
-      #   targetTrackingPolicies:
-      #     - name: target-tracking-policies
-      #       startTime: '2023-08-15T02:05:00.000Z'
-      #       endTime: '2033-08-15T02:55:00.000Z'
-      #       metricType: ProvisionedConcurrencyUtilization
-      #       metricTarget: 0.6
-      #       minCapacity: 1
-      #       maxCapacity: 3
+      provisionConfig:
+        target: 1
+        alwaysAllocateCPU: false
+        alwaysAllocateGPU: false
+        scheduledActions:
+          - name: scheduled-actions
+            startTime: '2023-08-15T02:04:00.000Z'
+            endTime: '2033-08-15T03:04:00.000Z'
+            target: 1
+            scheduleExpression: cron(0 0 4 * * *)
+            timeZone: ''
+        # targetTrackingPolicies:
+        #   - name: target-tracking-policies
+        #     startTime: '2023-08-15T02:05:00.000Z'
+        #     endTime: '2033-08-15T02:55:00.000Z'
+        #     metricType: ProvisionedConcurrencyUtilization
+        #     metricTarget: 0.6
+        #     minCapacity: 1
+        #     maxCapacity: 3
 
       concurrencyConfig:
-        reservedConcurrency: 3
+        reservedConcurrency: 1
+
+      customDomain:
+        domainName: auto
+        protocol: HTTP
+        route:
+          path: /*
+          qualifier: LATEST

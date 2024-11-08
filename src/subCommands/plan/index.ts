@@ -110,7 +110,6 @@ export default class Plan {
     _.unset(local, 'asyncInvokeConfig');
     _.unset(local, 'endpoint');
     _.unset(local, 'vpcBinding');
-    _.unset(local, 'artifact');
     _.unset(local, 'customDomain');
     _.unset(local, 'provisionConfig');
     _.unset(local, 'concurrencyConfig');

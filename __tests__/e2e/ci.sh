@@ -20,13 +20,6 @@ s info -t s2.yaml
 s remove -y -t s2.yaml
 cd ..
 
-# echo "test artifact"
-# cd artifact
-# s deploy -y
-# s invoke
-# s info
-# s remove -y
-
 # s deploy -y -t s2.yaml
 # s invoke -t s2.yaml
 # s info -t s2.yaml

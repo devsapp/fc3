@@ -969,9 +969,6 @@
         }
     },
     "properties": {
-        "artifact": {
-            "type": "string"
-        },
         "asyncInvokeConfig": {
             "$ref": "#/definitions/IAsyncInvokeConfig"
         },
