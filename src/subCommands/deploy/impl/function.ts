@@ -1,8 +1,6 @@
 import _ from 'lodash';
 import { diffConvertYaml } from '@serverless-devs/diff';
 import inquirer from 'inquirer';
-import tmpDir from 'temp-dir';
-import { v4 as uuidV4 } from 'uuid';
 import fs from 'fs';
 import assert from 'assert';
 import path from 'path';
@@ -12,11 +10,7 @@ import { getRootHome } from '@serverless-devs/utils';
 
 import logger from '../../../logger';
 import { IFunction, IInputs } from '../../../interface';
-import {
-  FC_CLIENT_CONNECT_TIMEOUT,
-  FC_CLIENT_READ_TIMEOUT,
-  FC_RESOURCES_EMPTY_CONFIG,
-} from '../../../default/config';
+import { FC_RESOURCES_EMPTY_CONFIG } from '../../../default/config';
 import Acr from '../../../resources/acr';
 import Sls from '../../../resources/sls';
 import { RamClient } from '../../../resources/ram';
@@ -24,31 +18,24 @@ import FC, { GetApiType } from '../../../resources/fc';
 import VPC_NAS from '../../../resources/vpc-nas';
 import Base from './base';
 import { ICredentials } from '@serverless-devs/component-interface';
-import { calculateCRC64, getFileSize, downloadFile } from '../../../utils';
-import Devs20230714, * as $Devs20230714 from '@alicloud/devs20230714';
-import * as $OpenApi from '@alicloud/openapi-client';
-import axios from 'axios';
-import OSS from 'ali-oss';
+import { calculateCRC64, getFileSize } from '../../../utils';
 
 type IType = 'code' | 'config' | boolean;
 interface IOpts {
   type?: IType;
   yes?: boolean;
   skipPush?: boolean;
-  putArtifact?: boolean;
 }
 
 export default class Service extends Base {
   readonly type?: IType;
   readonly skipPush?: boolean = false;
-  putArtifact?: boolean = false;
 
   remote?: any;
   local: IFunction;
   createResource: Record<string, any> = {};
   acr: Acr;
   codeChecksum: string;
-  devsClient: Devs20230714;
 
   constructor(inputs: IInputs, opts: IOpts) {
     super(inputs, opts.yes);
@@ -66,22 +53,14 @@ export default class Service extends Base {
     _.unset(this.local, 'triggers');
     _.unset(this.local, 'asyncInvokeConfig');
     _.unset(this.local, 'vpcBinding');
-    _.unset(this.local, 'artifact');
     _.unset(this.local, 'customDomain');
     _.unset(this.local, 'provisionConfig');
     _.unset(this.local, 'concurrencyConfig');
-
-    if (_.isEmpty(this.inputs.props.code) && this.inputs.props.artifact) {
-      this.putArtifact = false;
-    }
-    if (this.inputs.props.code && this.inputs.props.artifact) {
-      this.putArtifact = true;
-    }
   }
 
   // 准备动作
   async before() {
-    const { AccountID: accountID } = await this.inputs.getCredential();
+    await this.inputs.getCredential();
     try {
       const r = await this.fcSdk.getFunction(this.local.functionName, GetApiType.simple);
       this.codeChecksum = _.get(r, 'codeChecksum', '');
@@ -102,25 +81,6 @@ export default class Service extends Base {
     const { local, remote } = await FC.replaceFunctionConfig(this.local, this.remote);
     this.local = local;
     this.remote = remote;
-    if (_.isEmpty(this.inputs.props.code) && this.inputs.props.artifact) {
-      await this.initDevsClient();
-      const { artifact } = this.inputs.props;
-      let artifactName = '';
-      if (artifact.split('/').length > 1) {
-        artifactName = artifact.split('/')[1].split('@')[0];
-      } else {
-        artifactName = artifact.split('@')[0];
-      }
-      const downPath: string = path.join(tmpDir, `${artifactName}_${accountID}_${uuidV4()}.zip`);
-      this.local.code = downPath;
-      if (_.includes(artifactName, '@')) {
-        artifactName = artifactName.split('@')[0];
-      }
-
-      const downloadArtifact = await this.devsClient.fetchArtifactDownloadUrl(artifactName);
-      const downloadUrl = downloadArtifact?.body?.url;
-      await downloadFile(downloadUrl, downPath);
-    }
 
     await this._plan();
   }
@@ -157,13 +117,7 @@ export default class Service extends Base {
       slsAuto: !_.isEmpty(this.createResource.sls),
       type: this.type,
     });
-
-    let artifact = {};
-    if (this.putArtifact) {
-      artifact = await this.deployArtifact();
-    }
-
-    return { artifact };
+    return this.needDeploy;
   }
 
   private _getAcr() {
@@ -484,122 +438,5 @@ nasConfig:
       variable.every((item) => typeof item === 'string'),
       'Variable must contain only strings',
     );
-  }
-
-  // eslint-disable-next-line @typescript-eslint/member-ordering
-  public async deployArtifact() {
-    const { runtime, functionName } = this.inputs.props;
-    if (!FC.isCustomContainerRuntime(runtime)) {
-      const { artifact } = this.inputs.props;
-      let artifactName = '';
-      if (artifact.split('/').length > 1) {
-        artifactName = artifact.split('/')[1].split('@')[0];
-      } else {
-        artifactName = artifact.split('@')[0];
-      }
-      logger.info(`putArtifact ${artifactName}`);
-      await this.initDevsClient();
-      const { url } = await this.fcSdk.getFunctionCode(functionName, 'LATEST');
-      // const truncateString = (s: string) => (s.length > 64 ? s.substring(0, 64) : s);
-      // const artifactName = truncateString(`${functionName}_${region}`);
-
-      const downloadDir: string = path.join(tmpDir, 'artifacts');
-      if (!fs.existsSync(downloadDir)) {
-        fs.mkdirSync(downloadDir);
-      }
-      const zipFile = path.join(downloadDir, `${artifactName}_${uuidV4()}.zip`);
-
-      logger.debug(`download ${url} to ${zipFile}`);
-      await downloadFile(url, zipFile);
-
-      const resp = await this.devsClient.fetchArtifactTempBucketToken();
-      logger.debug(JSON.stringify(resp.body));
-      const { credentials, ossRegion, ossBucketName, ossObjectName } = resp.body;
-      let ossEndpoint = 'https://oss-accelerate.aliyuncs.com';
-      if (ossRegion.endsWith(process.env.FC_REGION)) {
-        ossEndpoint = `oss-${process.env.FC_REGION}-internal.aliyuncs.com`;
-      }
-      const ossClient = new OSS({
-        endpoint: ossEndpoint,
-        accessKeyId: credentials.accessKeyId,
-        accessKeySecret: credentials.accessKeySecret,
-        stsToken: credentials.securityToken,
-        bucket: ossBucketName,
-        timeout: '600000', // 10min
-        refreshSTSToken: async () => {
-          const refreshToken = await axios.get('https://127.0.0.1/sts');
-          return {
-            accessKeyId: refreshToken.data.credentials.AccessKeyId,
-            accessKeySecret: refreshToken.data.credentials.AccessKeySecret,
-            stsToken: refreshToken.data.credentials.SecurityToken,
-          };
-        },
-      });
-      const r = await (ossClient as any).put(ossObjectName, zipFile);
-      logger.debug(JSON.stringify(r));
-
-      const ossUri = `oss://${ossRegion.substring(4)}/${ossBucketName}/${ossObjectName}`;
-      const input = new $Devs20230714.Artifact({
-        name: artifactName,
-        description: 'artifact create by serverless-devs artifact command',
-        spec: new $Devs20230714.ArtifactSpec({
-          uri: ossUri,
-          type: 'fc',
-          runtime,
-        }),
-      });
-      logger.debug('create artifact...');
-      try {
-        const createArtifactRequest = new $Devs20230714.CreateArtifactRequest({ body: input });
-        const r2 = await this.devsClient.createArtifact(createArtifactRequest);
-        logger.debug(JSON.stringify(r2.body));
-        const { arn, checksum } = r2.body.status;
-        return {
-          artifact: `${arn}@${checksum}`,
-        };
-      } catch (error) {
-        if (error.message.includes('ArtifactAlreadyExists')) {
-          logger.debug('update artifact...');
-          const putArtifactRequest = new $Devs20230714.PutArtifactRequest({
-            body: input,
-            force: true,
-          });
-          const r3 = await this.devsClient.putArtifact(artifactName, putArtifactRequest);
-          logger.debug(JSON.stringify(r3.body));
-          const { arn, checksum } = r3.body.status;
-          return {
-            artifact: `${arn}@${checksum}`,
-          };
-        } else {
-          logger.error(error.message);
-          throw error;
-        }
-      }
-    }
-    logger.info('skip putArtifact because custom container runtime');
-    return {};
-  }
-
-  private async initDevsClient() {
-    const {
-      AccessKeyID: accessKeyId,
-      AccessKeySecret: accessKeySecret,
-      SecurityToken: securityToken,
-    } = await this.inputs.getCredential();
-    const config = new $OpenApi.Config({
-      accessKeyId,
-      accessKeySecret,
-      securityToken,
-      readTimeout: FC_CLIENT_READ_TIMEOUT,
-      connectTimeout: FC_CLIENT_CONNECT_TIMEOUT,
-    });
-    config.endpoint = 'devs.cn-hangzhou.aliyuncs.com';
-    if (process.env.ARTIFACT_ENDPOINT) {
-      config.endpoint = process.env.ARTIFACT_ENDPOINT;
-    }
-    if (process.env.artifact_endpoint) {
-      config.endpoint = process.env.artifact_endpoint;
-    }
-    this.devsClient = new Devs20230714(config);
   }
 }

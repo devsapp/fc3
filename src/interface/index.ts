@@ -12,7 +12,6 @@ export * from './async_invoke_config';
 
 export interface IProps extends IFunction {
   region: IRegion;
-  artifact?: string;
   triggers?: ITrigger[];
   asyncInvokeConfig?: IAsyncInvokeConfig;
   endpoint?: string;
