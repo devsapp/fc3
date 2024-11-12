@@ -24,6 +24,7 @@ export enum Runtime {
   'nodejs16' = 'nodejs16',
   'nodejs18' = 'nodejs18',
   'nodejs20' = 'nodejs20',
+  'python3.12' = 'python3.12',
   'python3.10' = 'python3.10',
   'python3.9' = 'python3.9',
   'python3' = 'python3',
@@ -35,6 +36,7 @@ export enum Runtime {
   'dotnetcore3.1' = 'dotnetcore3.1',
   'dotnetcore2.1' = 'dotnetcore2.1',
   'custom.debian10' = 'custom.debian10',
+  'custom.debian11' = 'custom.debian11',
   'custom' = 'custom',
   'custom-container' = 'custom-container',
 }

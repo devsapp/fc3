@@ -13,6 +13,16 @@ s info
 s invoke -e '{"hello":"fc python3"}'
 s remove -y
 
+export fc_component_runtime=python3.12
+export fc_component_function_name=python312-$(uname)-$(uname -m)
+rm -rf ./code/python
+echo "test python3.12 runtime ..."
+s build
+s local invoke -e '{"hello":"fc python3.12"}'
+s deploy -y
+s invoke -e '{"hello":"fc python3.12"}'
+s remove -y
+
 export fc_component_runtime=python3.10
 export fc_component_function_name=python310-$(uname)-$(uname -m)
 rm -rf ./code/python

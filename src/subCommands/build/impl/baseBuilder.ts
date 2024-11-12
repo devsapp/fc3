@@ -93,7 +93,11 @@ export abstract class Builder {
       if (runtime === 'python3') {
         runtime = 'python3.6';
       }
-      image = `${fcDockerVersionRegistry}/${fcDockerNameSpace}/runtime-${runtime}:build-${fcDockerVersion}`;
+      if (runtime === 'python3.12' || runtime === 'custom.debian11') {
+        image = `${fcDockerVersionRegistry}/${fcDockerNameSpace}/runtime:${runtime}-build-${fcDockerVersion}`;
+      } else {
+        image = `${fcDockerVersionRegistry}/${fcDockerNameSpace}/runtime-${runtime}:build-${fcDockerVersion}`;
+      }
       logger.debug(`use fc docker image: ${image}`);
       await runCommand(`docker pull ${image}`, runCommand.showStdout.inherit);
     }

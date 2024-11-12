@@ -10,6 +10,15 @@ s info
 s invoke -e '{"hello":"fc python3"}'
 s remove -y
 
+$env:fc_component_runtime = "python3.12"
+$env:fc_component_function_name = "python312-$($env:OS)-$($env:PROCESSOR_ARCHITECTURE)"
+Remove-Item -Recurse -Force ./code/python -ErrorAction SilentlyContinue
+Write-Host "test python3.12 runtime ..."
+s build
+s local invoke -e '{"hello":"fc python3.12"}'
+s deploy -y
+s invoke -e '{"hello":"fc python3.12"}'
+s remove -y
 
 $env:fc_component_runtime = "python3.10"
 $env:fc_component_function_name = "python310-$($env:OS)-$($env:PROCESSOR_ARCHITECTURE)"
