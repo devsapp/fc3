@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import subprocess
-import fc2
 from bs4 import BeautifulSoup
 import logging
 import flask

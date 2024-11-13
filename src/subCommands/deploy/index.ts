@@ -12,7 +12,6 @@ import { verify } from '../../utils';
 import { IInputs } from '../../interface';
 import Info from '../info/index';
 import { GetApiType } from '../../resources/fc';
-import _ from 'lodash';
 
 export default class Deploy {
   readonly opts: Record<string, any>;

@@ -48,7 +48,8 @@ export default class ComponentLocal {
       // case 'python2.7':
       case 'python3':
       case 'python3.9':
-      case 'python3.10': {
+      case 'python3.10':
+      case 'python3.12': {
         const pythonLocalInvoker = new PythonLocalInvoke(inputs);
         await pythonLocalInvoker.invoke();
         break;
@@ -75,7 +76,8 @@ export default class ComponentLocal {
         break;
       }
       case 'custom':
-      case 'custom.debian10': {
+      case 'custom.debian10':
+      case 'custom.debian11': {
         const customLocalInvoker = new CustomLocalInvoke(inputs);
         await customLocalInvoker.invoke();
         break;
@@ -118,7 +120,8 @@ export default class ComponentLocal {
       }
       case 'python3':
       case 'python3.9':
-      case 'python3.10': {
+      case 'python3.10':
+      case 'python3.12': {
         const pythonLocalStart = new PythonLocalStart(inputs);
         await pythonLocalStart.start();
         break;
@@ -145,7 +148,8 @@ export default class ComponentLocal {
         break;
       }
       case 'custom':
-      case 'custom.debian10': {
+      case 'custom.debian10':
+      case 'custom.debian11': {
         const customLocalStart = new CustomLocalStart(inputs);
         await customLocalStart.start();
         break;

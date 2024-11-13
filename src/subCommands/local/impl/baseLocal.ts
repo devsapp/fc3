@@ -229,7 +229,11 @@ export class BaseLocal {
       if (runtime === 'python3') {
         runtime = 'python3.6';
       }
-      image = `${fcDockerVersionRegistry}/${fcDockerNameSpace}/runtime-${runtime}:${fcDockerVersion}`;
+      if (runtime === 'python3.12' || runtime === 'custom.debian11') {
+        image = `${fcDockerVersionRegistry}/${fcDockerNameSpace}/runtime:${runtime}-${fcDockerVersion}`;
+      } else {
+        image = `${fcDockerVersionRegistry}/${fcDockerNameSpace}/runtime-${runtime}:${fcDockerVersion}`;
+      }
       logger.debug(`use fc docker image: ${image}`);
       await runCommand(`docker pull ${image}`, runCommand.showStdout.inherit);
     }
@@ -349,7 +353,8 @@ export class BaseLocal {
       }
       case 'python3':
       case 'python3.9':
-      case 'python3.10': {
+      case 'python3.10':
+      case 'python3.12': {
         return JSON.stringify(
           {
             version: '0.2.0',
@@ -453,7 +458,6 @@ export class BaseLocal {
       return false;
     }
     // TODO check if runtime support breakpoint debugging
-
     if (!this.canSupportDebug(this.getRuntime()) && _.isFinite(this.getDebugPort())) {
       logger.error(`breakpoint debugging is not support in ${this.getRuntime()} runtime`);
       return false;
@@ -503,6 +507,7 @@ export class BaseLocal {
       'python3',
       'python3.9',
       'python3.10',
+      'python3.12',
       'java8',
       'java11',
       'php7.2',

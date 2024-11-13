@@ -808,6 +808,7 @@
                 "custom",
                 "custom-container",
                 "custom.debian10",
+                "custom.debian11",
                 "dotnetcore2.1",
                 "dotnetcore3.1",
                 "go1",
@@ -824,7 +825,8 @@
                 "python2.7",
                 "python3",
                 "python3.10",
-                "python3.9"
+                "python3.9",
+                "python3.12"
             ],
             "type": "string"
         },

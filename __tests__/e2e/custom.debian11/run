@@ -1,0 +1,14 @@
+#!/bin/bash
+
+set -e
+
+echo "test custom.debian11 go runtime ..."
+rm -rf ./go/code/go.sum
+export fc_component_function_name=go1-$(uname)-$(uname -m)
+s deploy -y -t ./go/s.yaml
+s invoke -e '{"hello":"fc custom.debian11 go"}' -t ./go/s.yaml
+s local invoke -e '{"hello":"fc custom.debian11 go"}' -t ./go/s.yaml
+s info -t ./go/s.yaml
+s remove -y -t ./go/s.yaml
+rm -rf ./go/code/target
+

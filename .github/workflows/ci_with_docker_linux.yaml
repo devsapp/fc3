@@ -79,3 +79,6 @@ jobs:
       - name: test local with nas 
         run: |
           cd __tests__/e2e/local && sudo ./run && cd -
+      - name: test custom.debian11
+        run: |
+          cd __tests__/e2e/custom.debian11 && sudo ./run && cd -
