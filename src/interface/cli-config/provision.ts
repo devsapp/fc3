@@ -3,7 +3,8 @@ export interface IProvision {
   alwaysAllocateGPU?: boolean;
   scheduledActions?: IProvisionScheduledAction[];
   targetTrackingPolicies?: IProvisionTargetTrackingPolicy[];
-  target: number;
+  target?: number;
+  defaultTarget?: number;
 }
 
 export interface IProvisionScheduledAction {

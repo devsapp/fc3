@@ -314,7 +314,13 @@ export default class FC extends FC_Client {
     if (this.customEndpoint) {
       ossEndpoint = `oss-${this.region}.aliyuncs.com`;
     }
-
+    if (this.region === 'cn-shanghai-finance-1') {
+      if (process.env.FC_REGION === this.region) {
+        ossEndpoint = `oss-${this.region}-pub-internal.aliyuncs.com`;
+      } else {
+        ossEndpoint = `oss-${this.region}-pub.aliyuncs.com`;
+      }
+    }
     logger.debug(`Uploading code to ${ossEndpoint}`);
 
     const ossClient = new OSS({

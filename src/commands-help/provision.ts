@@ -69,6 +69,7 @@ Examples with CLI:
             '[Required] Specify the qualifier parameter. Only supports LATEST and alias',
           ],
           ['--target <max>', '[Required] Specify the provision target parameter'],
+          ['--default-target <max>', '[Optional] Specify the default provision target parameter'],
           [
             '--ac, --always-allocate-cpu',
             '[Optional] Specify if always allocate CPU resources to the provisioned instances',
