@@ -21,6 +21,7 @@ export default class Provision {
   private scheduledActions: string;
   private targetTrackingPolicies: string;
   private target: number;
+  private defaultTarget: number;
   private qualifier: string;
 
   constructor(inputs: IInputs) {
@@ -35,6 +36,7 @@ export default class Provision {
         'function-name',
         'region',
         'target',
+        'default-target',
         'qualifier',
         'scheduled-actions',
         'target-tracking-policies',
@@ -51,6 +53,7 @@ export default class Provision {
       'function-name': functionName,
       qualifier,
       target,
+      'default-target': defaultTarget,
       region,
       'assume-yes': yes,
       _: subCommands,
@@ -79,6 +82,7 @@ export default class Provision {
     this.scheduledActions = scheduledActions;
     this.targetTrackingPolicies = targetTrackingPolicies;
     this.target = target ? Number(target) : undefined;
+    this.defaultTarget = defaultTarget ? Number(defaultTarget) : undefined;
 
     this.fcSdk = new FC(this.region, inputs.credential, {
       endpoint: inputs.props.endpoint,
@@ -105,14 +109,15 @@ export default class Provision {
       throw new Error('Qualifier not specified, please specify --qualifier');
     }
 
-    if (!_.isNumber(this.target)) {
+    if (!_.isNumber(this.defaultTarget || this.target)) {
       throw new Error(
-        `Target must be a number, got ${this.target}. Please specify a number through --target <number>`,
+        `Target or defaultTarget must be a number, got ${this.target}. Please specify a number through --target <number>`,
       );
     }
 
     const config: IProvision = {
       target: this.target,
+      defaultTarget: this.defaultTarget,
       alwaysAllocateCPU: _.isBoolean(this.alwaysAllocateCPU) ? this.alwaysAllocateCPU : false,
       alwaysAllocateGPU: _.isBoolean(this.alwaysAllocateGPU) ? this.alwaysAllocateGPU : false,
       scheduledActions: [],

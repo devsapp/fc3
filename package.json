@@ -23,7 +23,7 @@
   "license": "ISC",
   "dependencies": {
     "@alicloud/fc2": "^2.6.6",
-    "@alicloud/fc20230330": "^4.1.4",
+    "@alicloud/fc20230330": "^4.1.5",
     "@alicloud/pop-core": "^1.7.13",
     "@serverless-cd/srm-aliyun-pop-core": "^0.0.7-beta.16",
     "@serverless-cd/srm-aliyun-ram20150501": "^0.0.2-beta.9",
