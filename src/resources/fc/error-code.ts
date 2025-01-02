@@ -35,3 +35,10 @@ export const isSlsNotExistException = (project: string, logstore: string, ex) =>
 export const isAccessDenied = (ex) => ex.statusCode === 403;
 
 export const isInvalidArgument = (ex) => ex.statusCode === 400;
+
+export const isFailedState = (ex) => {
+  if (_.startsWith(ex.message, 'retry to wait function state ok failed reach 3 times')) {
+    return true;
+  }
+  return false;
+};

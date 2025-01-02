@@ -34,6 +34,7 @@ import {
   isAccessDenied,
   isSlsNotExistException,
   isInvalidArgument,
+  isFailedState,
 } from './error-code';
 import { isCustomContainerRuntime, isCustomRuntime, computeLocalAuto } from './impl/utils';
 import replaceFunctionConfig from './impl/replace-function-config';
@@ -76,7 +77,7 @@ export default class FC extends FC_Client {
           `optimization to be ready, function calls will be updated to the latest deployed version once the image optimization process is complete ...`,
         );
       }
-      let retry = 1;
+      let failedTimes = 0; // 初始化失败次数
       while (true) {
         const functionMeta = await this.getFunction(
           config.functionName,
@@ -98,11 +99,19 @@ export default class FC extends FC_Client {
             'checking',
             `${config.customContainerConfig.image}`,
             `optimization is not ready, function state=${state}, lastUpdateStatus=${lastUpdateStatus}, waiting ${
-              retry * 5
+              (new Date().getTime() - startTime) / 1000
             } seconds...`,
           );
-
-          retry++;
+        } else if (state === 'Failed') {
+          failedTimes++;
+          if (failedTimes < 3) {
+            logger.debug(`retry to wait function state ok failed but not reach 3 times.`);
+          } else {
+            throw new Error(
+              `retry to wait function state ok failed reach 3 times, function State=${state},  LastUpdateStatus=${lastUpdateStatus}`,
+            );
+          }
+          await sleep(retryTime);
         } else {
           logger.spin('checked', `${config.customContainerConfig.image}`, `optimization is ready`);
           break;
@@ -186,7 +195,7 @@ export default class FC extends FC_Client {
         logger.debug(`Deploy function error: ${ex}`);
         /**
          * 重试机制
-          ○ 1. 如果是权限问题不重重试直接异常
+          ○ 1. 如果是权限问题，或3次都是 Failed 不重试直接异常
           ○ 2. 重试 3min, 首次创建日志：报错日志不存在，需要重试 3min
           ○ 3. 其他情况，默认重试 3 次
         */
@@ -197,7 +206,7 @@ export default class FC extends FC_Client {
             throw ex;
           }
           retryTime = 5;
-        } else if (isAccessDenied(ex) || isInvalidArgument(ex)) {
+        } else if (isAccessDenied(ex) || isInvalidArgument(ex) || isFailedState(ex)) {
           throw ex;
         } else if (retry > FC_DEPLOY_RETRY_COUNT) {
           throw ex;
