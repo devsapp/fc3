@@ -38,7 +38,7 @@ export const isInvalidArgument = (ex) => ex.statusCode === 400;
 
 export const isFailedState = (ex) => {
   if (_.startsWith(ex.message, 'retry to wait function state ok failed reach 3 times')) {
-    return true
+    return true;
   }
-  return false
-}
+  return false;
+};

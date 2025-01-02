@@ -77,7 +77,6 @@ export default class FC extends FC_Client {
           `optimization to be ready, function calls will be updated to the latest deployed version once the image optimization process is complete ...`,
         );
       }
-      let retry = 1;
       let failedTimes = 0; // 初始化失败次数
       while (true) {
         const functionMeta = await this.getFunction(
@@ -100,14 +99,12 @@ export default class FC extends FC_Client {
             'checking',
             `${config.customContainerConfig.image}`,
             `optimization is not ready, function state=${state}, lastUpdateStatus=${lastUpdateStatus}, waiting ${
-              retry * 5
+              (new Date().getTime() - startTime) / 1000
             } seconds...`,
           );
-
-          retry++;
-        } else if(state === 'Failed') {
+        } else if (state === 'Failed') {
           failedTimes++;
-          if(failedTimes < 3){
+          if (failedTimes < 3) {
             logger.debug(`retry to wait function state ok failed but not reach 3 times.`);
           } else {
             throw new Error(
