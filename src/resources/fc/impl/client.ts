@@ -57,6 +57,7 @@ import _ from 'lodash';
 import logger from '../../../logger';
 import { IAlias } from '../../../interface/cli-config/alias';
 import { IProvision } from '../../../interface/cli-config/provision';
+import * as $Util from '@alicloud/tea-util';
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const httpx = require('httpx');
@@ -118,16 +119,33 @@ export default class FC_Client {
     const request = new CreateFunctionRequest({
       body: new CreateFunctionInput(config),
     });
+    const headers: {
+      [key: string]: string;
+    } = {
+      ...config?.annotaions?.headers,
+    };
+    const runtime = new $Util.RuntimeOptions({});
 
-    return await this.fc20230330Client.createFunction(request);
+    return await this.fc20230330Client.createFunctionWithOptions(request, headers, runtime);
   }
 
   async updateFunction(config: IFunction): Promise<UpdateFunctionResponse> {
     const request = new UpdateFunctionRequest({
       body: new UpdateFunctionInput(config),
     });
+    const headers: {
+      [key: string]: string;
+    } = {
+      ...config?.annotaions?.headers,
+    };
+    const runtime = new $Util.RuntimeOptions({});
 
-    return await this.fc20230330Client.updateFunction(config.functionName, request);
+    return await this.fc20230330Client.updateFunctionWithOptions(
+      config.functionName,
+      request,
+      headers,
+      runtime,
+    );
   }
 
   async createTrigger(functionName: string, config: ITrigger): Promise<CreateTriggerResponse> {

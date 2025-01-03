@@ -139,4 +139,10 @@ export interface IFunction {
     initializer?: ILifecycleHook;
     preStop?: ILifecycleHook;
   };
+
+  annotaions?: {
+    headers?: {
+      [key: string]: string;
+    };
+  };
 }
