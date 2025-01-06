@@ -5,14 +5,28 @@ on:
     branches:
       - master
 
+  pull_request:
+    branches:
+      - master
+
 env:
   REGION: cn-hongkong
 
 jobs:
   docker-ci:
-    runs-on: macos-14-large
+    runs-on: macos-latest
     steps:
-      - uses: docker-practice/actions-setup-docker@master
+      - name: install docker
+        run: |
+          brew install --cask --appdir=/Applications docker
+          open -a /Applications/Docker.app
+          while ! docker ps > /dev/null 2>&1; do
+            echo "Waiting for Docker to start..."
+            ps auxww
+            ls -lh /Applications/Docker.app
+            sleep 5
+          done
+          echo "Docker is running!"
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
         with:
