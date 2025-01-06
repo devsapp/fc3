@@ -1,16 +1,16 @@
 name: macos docker (build and local) ci
 
-on:
-  push:
-    branches:
-      - master
+# on:
+#   push:
+#     branches:
+#       - master
 
 env:
   REGION: cn-hongkong
 
 jobs:
   docker-ci:
-    runs-on: macos-14-large
+    runs-on: macos-13
     steps:
       - uses: docker-practice/actions-setup-docker@master
       - uses: actions/checkout@v2
