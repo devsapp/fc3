@@ -140,7 +140,7 @@ export interface IFunction {
     preStop?: ILifecycleHook;
   };
 
-  annotaions?: {
+  annotations?: {
     headers?: {
       [key: string]: string;
     };
