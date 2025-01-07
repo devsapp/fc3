@@ -122,7 +122,7 @@ export default class FC_Client {
     const headers: {
       [key: string]: string;
     } = {
-      ...config?.annotaions?.headers,
+      ...config?.annotations?.headers,
     };
     const runtime = new $Util.RuntimeOptions({});
 
@@ -136,7 +136,7 @@ export default class FC_Client {
     const headers: {
       [key: string]: string;
     } = {
-      ...config?.annotaions?.headers,
+      ...config?.annotations?.headers,
     };
     const runtime = new $Util.RuntimeOptions({});
 

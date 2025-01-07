@@ -19,6 +19,7 @@ if [[ $(uname -s) == "Linux" ]]; then
 
     s deploy -y -t s2.yaml
     s info -t s2.yaml
+    curl -v test-cd3.fcv3.1431999136518149.cn-hongkong.fc.devsapp.net
     s remove -y -t s2.yaml
     cd ..
 else

@@ -15,7 +15,7 @@ s info
 s remove -y
 
 s deploy -y -t s2.yaml
-curl -v test-cd3.fcv3.1431999136518149.cn-huhehaote.fc.devsapp.net
+curl -v test-cd3.fcv3.1431999136518149.cn-hongkong.fc.devsapp.net
 s info -t s2.yaml
 s remove -y -t s2.yaml
 cd ..
