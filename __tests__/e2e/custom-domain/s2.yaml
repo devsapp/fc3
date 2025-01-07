@@ -3,7 +3,7 @@ name: hello-world-app
 access: "quanxi"
 
 vars: 
-  region: 'cn-huhehaote'
+  region: 'cn-hongkong'
 
 resources:
   hello_world_1:
