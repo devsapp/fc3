@@ -76,7 +76,7 @@ export default class Instance {
     if (cmd) {
       rawData = ['bash', '-c', cmd];
     } else {
-      rawData = ['bash', '-c', 'cd /code && bash'];
+      rawData = ['bash', '-c', '(cd /code ||  cd / ) && bash'];
     }
     await this.fcSdk.instanceExec(functionName, instanceId, rawData, qualifier, true);
   }
