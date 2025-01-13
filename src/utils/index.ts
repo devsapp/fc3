@@ -174,7 +174,11 @@ export function isYunXiao(): boolean {
 }
 
 export function transformCustomDomainProps(local: any, region: string, functionName: string): any {
-  const { domainName, protocol, certConfig, tlsConfig, authConfig, wafConfig, route } = local;
+  const { domainName, protocol, certConfig, tlsConfig, authConfig, wafConfig } = local;
+  let { route } = local;
+  if (_.isEmpty(route)) {
+    route = {};
+  }
   route.functionName = functionName;
   const routeConfig = {
     routes: [route],
