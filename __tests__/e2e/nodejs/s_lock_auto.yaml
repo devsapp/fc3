@@ -1,0 +1,46 @@
+edition: 3.0.0 #  命令行YAML规范版本，遵循语义化版本（Semantic Versioning）规范
+name: test-node-app #  项目名称
+access: quanxi
+
+vars:
+  region: ${env('REGION', 'cn-huhehaote')}
+
+resources:
+  fcDemo1: # 业务名称/模块名称
+    component: ${env('fc_component_version', path('../../../'))}
+    props: # 组件的属性值
+      region: ${vars.region}
+      functionName: fc3-event-${env('fc_component_function_name', 'nodejs16')}-f1
+      runtime: ${env('fc_component_runtime', 'nodejs16')}
+      code: ./test-auto-code
+      handler: index.handler
+      memorySize: 128
+      timeout: 30
+      vpcConfig: auto
+      nasConfig: auto
+
+  fcDemo2: # 业务名称/模块名称
+    component: ${env('fc_component_version', path('../../../'))}
+    props: # 组件的属性值
+      region: ${vars.region}
+      functionName: fc3-event-${env('fc_component_function_name', 'nodejs16')}-f2
+      runtime: ${env('fc_component_runtime', 'nodejs16')}
+      code: ./test-auto-code
+      handler: index.handler
+      memorySize: 128
+      timeout: 30
+      vpcConfig: auto
+      nasConfig: auto
+
+  fcDemo3: # 业务名称/模块名称
+    component: ${env('fc_component_version', path('../../../'))}
+    props: # 组件的属性值
+      region: ${vars.region}
+      functionName: fc3-event-${env('fc_component_function_name', 'nodejs16')}-f3
+      runtime: ${env('fc_component_runtime', 'nodejs16')}
+      code: ./test-auto-code
+      handler: index.handler
+      memorySize: 128
+      timeout: 30
+      vpcConfig: auto
+      nasConfig: auto
