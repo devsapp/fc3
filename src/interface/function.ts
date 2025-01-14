@@ -107,6 +107,11 @@ export interface IVpcConfig {
   vpcId: string;
 }
 
+export interface ITags {
+  key: string;
+  value: string;
+}
+
 export interface IFunction {
   functionName: string;
   runtime: IRuntime;
@@ -139,6 +144,8 @@ export interface IFunction {
     initializer?: ILifecycleHook;
     preStop?: ILifecycleHook;
   };
+
+  tags?: ITags[];
 
   annotations?: {
     headers?: {
