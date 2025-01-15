@@ -154,7 +154,12 @@ export default class Sync {
       await fs_extra.removeSync(codePath);
       logger.debug(`clear sync code path: ${codePath}`);
 
-      await downloads(url, {
+      let codeUrl = url;
+      if (process.env.FC_REGION === this.region){
+        codeUrl = url.replace('.aliyuncs.com', '-internal.aliyuncs.com');
+      }
+
+      await downloads(codeUrl, {
         dest: codePath,
         extract: true,
       });
