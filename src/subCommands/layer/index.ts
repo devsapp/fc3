@@ -275,10 +275,10 @@ export default class Layer {
       return fileName;
     }
     let codeUrl = url;
-    if (process.env.FC_REGION !== this.region && this.region !== 'cn-heyuan-acdr-1'){
+    if (process.env.FC_REGION !== this.region && this.region !== 'cn-heyuan-acdr-1') {
       codeUrl = url.replace('-internal.aliyuncs.com', '.aliyuncs.com');
     }
-    
+
     await downloads(codeUrl, {
       dest: localDir,
       filename: version,
