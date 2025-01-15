@@ -274,7 +274,11 @@ export default class Layer {
       logger.debug(`The layer code ${fileName} already exists locally, skip the download`);
       return fileName;
     }
-    const codeUrl = url.replace('-internal.aliyuncs.com', '.aliyuncs.com');
+    let codeUrl = url;
+    if (process.env.FC_REGION !== this.region && this.region !== 'cn-heyuan-acdr-1'){
+      codeUrl = url.replace('-internal.aliyuncs.com', '.aliyuncs.com');
+    }
+    
     await downloads(codeUrl, {
       dest: localDir,
       filename: version,
