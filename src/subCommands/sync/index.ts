@@ -155,7 +155,7 @@ export default class Sync {
       logger.debug(`clear sync code path: ${codePath}`);
 
       let codeUrl = url;
-      if (process.env.FC_REGION === this.region){
+      if (process.env.FC_REGION === this.region) {
         codeUrl = url.replace('.aliyuncs.com', '-internal.aliyuncs.com');
       }
 
