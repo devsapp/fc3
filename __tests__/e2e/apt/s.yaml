@@ -10,8 +10,8 @@ resources:
     component: ${env('fc_component_version', path('../../../'))}
     props: # 组件的属性值
       region: ${vars.region}
-      functionName: fc3-event-apt-get-${env('fc_component_function_name', 'nodejs18')}
-      runtime: nodejs18
+      functionName: fc3-event-apt-get-${env('fc_component_function_name', 'nodejs14')}
+      runtime: nodejs14
       code: ./code
       handler: index.handler
       memorySize: 128
