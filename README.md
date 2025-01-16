@@ -17,28 +17,28 @@
   <a href="https://github.com/devsapp/fc3/actions/workflows/ci_with_docker_linux.yaml" class="ml-1" target="_blank">
     <img src="https://github.com/devsapp/fc3/actions/workflows/ci_with_docker_linux.yaml/badge.svg" alt="Linux docker ci">
   </a>
-  <a href="https://github.com/devsapp/fc3/actions/workflows/ci_with_docker_macos.yaml" class="ml-1" target="_blank">
+  <!-- <a href="https://github.com/devsapp/fc3/actions/workflows/ci_with_docker_macos.yaml" class="ml-1" target="_blank">
     <img src="https://github.com/devsapp/fc3/actions/workflows/ci_with_docker_macos.yaml/badge.svg" alt="macos docker ci">
-  </a>
+  </a> -->
 </p>
 
 # 五大亮点
 
 - **全生命周期管理**：组件拥有项目的创建、开发、调试、部署、运维全生命周期管理能力；
 - **安全发布**：通过其他形式对函数进行变更，组件可以感知并安全更新；
-- **快速集成**：借助于 Serverless Devs 的集成性和被集成性，可以与常见的 [CI/CD 平台工具](https://manual.serverless-devs.com/user-guide/cicd/) 等集成；
-- **可观测性**：拥有完善的可观测性，在客户端可以通过[日志查询 logs](https://manual.serverless-devs.com/user-guide/aliyun/fc3/logs/) 等命令，进行执行日志观测；
-- **多模调试**：提出了多模调试方案，可以同时满足开发态、运维态的不同调试需求；包括[本地运行](https://manual.serverless-devs.com/user-guide/aliyun/fc3/local/)、[在线运行](https://manual.serverless-devs.com/user-guide/aliyun/fc3/invoke/) 等功能；
+- **快速集成**：借助于 Serverless Devs 的集成性和被集成性，可以与常见的 [CI/CD 平台工具](https://docs.serverless-devs.com/user-guide/cicd/) 等集成；
+- **可观测性**：拥有完善的可观测性，在客户端可以通过[日志查询 logs](https://docs.serverless-devs.com/user-guide/aliyun/fc3/logs/) 等命令，进行执行日志观测；
+- **多模调试**：提出了多模调试方案，可以同时满足开发态、运维态的不同调试需求；包括[本地运行](https://docs.serverless-devs.com/user-guide/aliyun/fc3/local/)、[在线运行](https://docs.serverless-devs.com/user-guide/aliyun/fc3/invoke/) 等功能；
 
 **注意:**
 
-> 如果您是函数计算老用户，操作存量具有 Service 的函数, 见[fc 组件](https://docs.serverless-devs.com/fc/readme), 您可以使用 [s2tos3](https://manual.serverless-devs.com/user-guide/aliyun/fc3/s2tos3/) 指令将 fc 组件的 s.yaml 一键转换成 fc 3.0 的 s.yaml
+> 如果您是函数计算老用户，操作存量具有 Service 的函数, 见[fc 组件](https://docs.serverless-devs.com/fc/readme), 您可以使用 [s2tos3](https://docs.serverless-devs.com/user-guide/aliyun/fc3/s2tos3/) 指令将 fc 组件的 s.yaml 一键转换成 fc 3.0 的 s.yaml
 
 # 文档
 
-[fc3 组件官方文档](https://manual.serverless-devs.com/user-guide/aliyun/#fc3)
+[fc3 组件官方文档](https://docs.serverless-devs.com/user-guide/aliyun/#fc3)
 
-[快速开始](https://manual.serverless-devs.com/getting-started/)
+[快速开始](https://docs.serverless-devs.com/getting-started/)
 
 # src 目录结构
 
