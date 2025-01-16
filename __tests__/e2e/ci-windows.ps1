@@ -46,7 +46,7 @@ cd ..
 
 # Write-Host "test nodejs runtime with auto ..."
 # cd nodejs
-# $env:fc_component_function_name = "nodejs14-$($env:OS)-$($env:PROCESSOR_ARCHITECTURE)-$($env:RANDSTR)"
+# $env:fc_component_function_name = "nodejs18-$($env:OS)-$($env:PROCESSOR_ARCHITECTURE)-$($env:RANDSTR)"
 # s deploy -y -t ./s_auto.yaml
 # s invoke -e '{"hello":"fc nodejs with auto"}' -t ./s_auto.yaml
 # s info -y -t ./s_auto.yaml

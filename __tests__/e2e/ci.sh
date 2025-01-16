@@ -61,18 +61,18 @@ s remove -y -t ./go/s.yaml
 rm -rf ./go/code/target
 cd ..
 
-echo "test nodejs runtime with auto ..."
+echo "test nodejs runtime with auto  serial ..."
 cd nodejs
-export fc_component_function_name=nodejs14-$(uname)-$(uname -m)-$RANDSTR
+export fc_component_function_name=nodejs18-$(uname)-$(uname -m)-$RANDSTR
 s deploy -y -t ./s_auto.yaml
 s invoke -e '{"hello":"fc nodejs with auto"}' -t ./s_auto.yaml
 s info -y -t ./s_auto.yaml
 s remove -y -t ./s_auto.yaml
 cd ..
 
-echo "test nodejs runtime with more vpc and nas auto ..."
+echo "test nodejs runtime with more vpc and nas auto parallel ..."
 cd nodejs
-export fc_component_function_name=nodejs16-$(uname)-$(uname -m)-$RANDSTR
+export fc_component_function_name=nodejs18-$(uname)-$(uname -m)-$RANDSTR
 s deploy -y -t ./s_lock_auto.yaml
 s invoke -e '{"hello":"fc nodejs with more vpc and nas auto"}' -t ./s_lock_auto.yaml
 s info -y -t ./s_lock_auto.yaml
@@ -81,7 +81,7 @@ cd ..
 
 echo "test deploy with alias"
 cd nodejs
-export fc_component_function_name=nodejs14-$(uname)-$(uname -m)-$RANDSTR
+export fc_component_function_name=nodejs18-$(uname)-$(uname -m)-$RANDSTR
 s deploy --function -t s2.yaml
 versionId=$(s version publish -t s2.yaml --silent -o json | jq -r '."versionId"')
 echo "latest version = $versionId"
@@ -101,7 +101,7 @@ cd ..
 
 echo "test http trigger with jwt ..."
 cd trigger/jwt
-export fc_component_function_name=nodejs16-$(uname)-$(uname -m)-$RANDSTR
+export fc_component_function_name=nodejs18-$(uname)-$(uname -m)-$RANDSTR
 s deploy -y -t ./s.yaml
 s invoke -e '{"hello":"fc http trigger with jwt"}' -t ./s.yaml
 url1=$(s info -y -t ./s.yaml --silent -o json | jq -r '.hello_world.url.system_url')

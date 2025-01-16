@@ -80,7 +80,7 @@ Parameters:
       type: string
       required: true
       description: 地域
-      default: nodejs14
+      default: nodejs18
       enum:
         - nodejs10
         - nodejs12

@@ -6,18 +6,18 @@ set -v
 echo "********* test http trigger ************"
 cd ./http
 export fc_component_function_name=test-http-trigger-$(uname)-$(uname -m)-$RANDSTR
-echo "test nodejs14 runtime http trigger ..."
+echo "test nodejs18 runtime http trigger ..."
 s remove -y
 
 echo "********* test other trigger ************"
 cd ../other
 export fc_component_function_name=test-other-trigger-$(uname)-$(uname -m)-$RANDSTR
-echo "test nodejs14 runtime with timer/oss/sls/mns trigger ..."
+echo "test nodejs18 runtime with timer/oss/sls/mns trigger ..."
 s remove -y --debug
 
 echo "********* test event bridge trigger ************"
 cd ../eb
 export fc_component_function_name=test-eb-trigger-$(uname)-$(uname -m)-$RANDSTR
-echo "test nodejs14 runtime with eb trigger ..."
+echo "test nodejs18 runtime with eb trigger ..."
 s remove -y
 cd ..

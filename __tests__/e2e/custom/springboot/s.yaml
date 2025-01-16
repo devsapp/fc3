@@ -3,7 +3,7 @@ name: test-custom-springboot
 access: 'quanxi'
 
 vars: 
-  region: ${env('REGION', 'cn-huhehaote')}
+  region: ${env('REGION', 'cn-hongkong')}
 
 template:
   props:

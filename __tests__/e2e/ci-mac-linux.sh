@@ -61,7 +61,7 @@ cd ..
 
 echo "test nodejs runtime with auto ..."
 cd nodejs
-export fc_component_function_name=nodejs14-$(uname)-$(uname -m)-$RANDSTR
+export fc_component_function_name=nodejs18-$(uname)-$(uname -m)-$RANDSTR
 s deploy -y -t s_auto.yaml
 s invoke -e '{"hello":"fc nodejs with auto"}' -t s_auto.yaml
 s info -y -t s_auto.yaml
@@ -75,7 +75,7 @@ s info -y -t ./s_lock_auto.yaml
 s remove -y -t ./s_lock_auto.yaml
 
 echo "test deploy with alias"
-export fc_component_function_name=nodejs14-$(uname)-$(uname -m)-$RANDSTR
+export fc_component_function_name=nodejs18-$(uname)-$(uname -m)-$RANDSTR
 s deploy --function -t s2.yaml
 versionId=$(s version publish -t s2.yaml --silent -o json | jq -r '."versionId"')
 echo "latest version = $versionId"

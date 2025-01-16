@@ -3,7 +3,7 @@ name: test-custom-go
 access: quanxi
 
 vars: 
-  region: ${env('REGION', 'cn-huhehaote')}
+  region: ${env('REGION', 'cn-hongkong')}
 
 resources:
   fcDemo:

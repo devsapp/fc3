@@ -3,7 +3,7 @@ name: test-custom-python
 access: "quanxi"
 
 vars:
-  region: ${env('REGION', 'cn-huhehaote')}
+  region: ${env('REGION', 'cn-hongkong')}
 
 resources:
   helloworld:
