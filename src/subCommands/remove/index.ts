@@ -332,7 +332,7 @@ export default class Remove {
       concurrency: 80,
       aliases: [ 'test' ],
       versions: [ '2', '1' ]
-      function: 'fc3-event-nodejs14',
+      function: 'fc3-event-nodejs18',
     */
     if (!this.resources.function) {
       return;

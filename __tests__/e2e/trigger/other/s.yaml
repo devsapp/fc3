@@ -1,5 +1,5 @@
-edition: 3.0.0 #  命令行YAML规范版本，遵循语义化版本（Semantic Versioning）规范
-name: test-node-app #  项目名称
+edition: 3.0.0
+name: test-node-app 
 access: quanxi
 
 vars:
@@ -10,8 +10,8 @@ resources:
     component: ${env('fc_component_version', path('../../../../'))}
     props: # 组件的属性值
       region: ${vars.region}
-      functionName: ${env('fc_component_function_name', 'nodejs14-ci')}
-      runtime: ${env('fc_component_runtime', 'nodejs14')}
+      functionName: ${env('fc_component_function_name', 'nodejs18-ci')}
+      runtime: ${env('fc_component_runtime', 'nodejs18')}
       code: ./code
       handler: index.handler
       memorySize: 128
@@ -99,8 +99,8 @@ resources:
     component: ${env('fc_component_version', path('../../../../'))}
     props:
       region: cn-shenzhen
-      functionName: ${env('fc_component_function_name', 'nodejs14-ci')}
-      runtime: ${env('fc_component_runtime', 'nodejs14')}
+      functionName: ${env('fc_component_function_name', 'nodejs18-ci')}
+      runtime: ${env('fc_component_runtime', 'nodejs18')}
       code: ./code
       handler: index.handler
       memorySize: 128
@@ -109,7 +109,6 @@ resources:
         - triggerName: tablestoreTrigger 
           triggerType: tablestore 
           invocationRole: aliyuntablestorestreamnotificationrole
-          #sourceArn: acs:ots:cn-shenzhen:${config("AccountID")}:instance/s-fc3-test-ci/table/app_table
-          sourceArn: acs:ots:cn-shenzhen:${config("AccountID")}:instance/test-ots-trigegr/table/test
+          sourceArn: acs:ots:cn-shenzhen:${config("AccountID")}:instance/ots-trigger-ci/table/test
           qualifier: LATEST 
           triggerConfig: {}

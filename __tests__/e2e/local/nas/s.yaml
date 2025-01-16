@@ -6,7 +6,7 @@ resources:
   hello_world:
     component: ${env('fc_component_version', path('../../../../'))} 
     props:
-      region: ${env('REGION', 'cn-huhehaote')}                  
+      region: ${env('REGION', 'cn-hongkong')}                  
       functionName: ${env('fc_component_function_name', 'python3-local-nas')}      
       runtime: "python3.9"
       code: ./code

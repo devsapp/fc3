@@ -6,7 +6,7 @@ set -v
 echo "********* test http trigger ************"
 cd ./http
 export fc_component_function_name=test-http-trigger-$(uname)-$(uname -m)-$RANDSTR
-echo "test nodejs14 runtime http trigger ..."
+echo "test nodejs18 runtime http trigger ..."
 
 s deploy --function -y
 s deploy --trigger http_t -y
@@ -20,9 +20,9 @@ s deploy --trigger http_t2
 s info
 s plan
 s invoke -e 'hello latest'
-s invoke -e 'hello latest' --qualifier 'test'
+s invoke -e 'hello test' --qualifier 'test'
 
-s remove -y
+s remove -y 
 
 if [ -n "$region" ] && [ "$region" != "cn-huhehaote" ]; then
   echo "Region is not equal to cn-huhehaote. skip eb and other trigger test"
@@ -32,7 +32,7 @@ fi
 echo "********* test other trigger ************"
 cd ../other
 export fc_component_function_name=test-other-trigger-$(uname)-$(uname -m)-$RANDSTR
-echo "test nodejs14 runtime with timer/oss/sls/mns trigger ..."
+echo "test nodejs18 runtime with timer/oss/sls/mns trigger ..."
 s deploy  -y
 s info
 s plan
@@ -41,7 +41,7 @@ s remove -y
 echo "********* test event bridge trigger ************"
 cd ../eb
 export fc_component_function_name=test-eb-trigger-$(uname)-$(uname -m)-$RANDSTR
-echo "test nodejs14 runtime with eb trigger ..."
+echo "test nodejs18 runtime with eb trigger ..."
 s deploy  -y
 s info
 s plan
