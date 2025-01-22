@@ -7,8 +7,15 @@ import logger from '../../logger';
 import getUuid from 'uuid-by-string';
 
 export default class Sls {
-  static generateProjectName = (region: IRegion, accountID: string): string =>
-    PROJECT || `serverless-${region}-${getUuid(accountID)}`;
+  static generateProjectName = (region: IRegion, accountID: string): string => {
+    let project = PROJECT || `serverless-${region}-${getUuid(accountID)}`;
+
+    if (project.length > 63) {
+      project = project.substring(0, 63);
+    }
+
+    return project;
+  };
   static generateLogstoreName = (): string => {
     return LOG_STORE;
   };
