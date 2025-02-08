@@ -42,6 +42,3 @@ resources:
         maxAsyncEventAgeInSeconds: 360
         maxAsyncRetryAttempts: 3
         qualifier:  test
-      tags:
-        - key: test
-          value: test_value
