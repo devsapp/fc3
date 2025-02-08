@@ -79,6 +79,15 @@ s info -y -t ./s_lock_auto.yaml
 s remove -y -t ./s_lock_auto.yaml
 cd ..
 
+echo "test nodejs runtime with tags ..."
+cd nodejs
+export fc_component_function_name=nodejs18-$(uname)-$(uname -m)-$RANDSTR
+s deploy -y -t ./s_tags.yaml
+s deploy -y -t ./s_tags2.yaml
+s deploy -y -t ./s_tags3.yaml
+s remove -y -t ./s_tags3.yaml
+cd ..
+
 echo "test deploy with alias"
 cd nodejs
 export fc_component_function_name=nodejs18-$(uname)-$(uname -m)-$RANDSTR

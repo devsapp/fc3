@@ -1,0 +1,21 @@
+edition: 3.0.0 
+name: test-node-app 
+access: quanxi
+
+vars:
+  region: ${env('REGION', 'cn-hongkong')}
+
+resources:
+  fcDemo1: # 业务名称/模块名称
+    component: ${env('fc_component_version', path('../../../'))}
+    props: # 组件的属性值
+      region: ${vars.region}
+      functionName: fc3-event-${env('fc_component_function_name', 'nodejs18')}-tags
+      runtime: ${env('fc_component_runtime', 'nodejs18')}
+      code: ./test-auto-code
+      handler: index.handler
+      memorySize: 128
+      timeout: 30
+      tags:
+        - Key: test
+          Value: value

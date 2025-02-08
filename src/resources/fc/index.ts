@@ -13,6 +13,8 @@ import {
   GetAsyncInvokeConfigRequest,
   ListInstancesRequest,
   ListAsyncInvokeConfigsRequest,
+  TagResourcesRequest,
+  UntagResourcesRequest,
 } from '@alicloud/fc20230330';
 import { RuntimeOptions } from '@alicloud/tea-util';
 
@@ -126,8 +128,9 @@ export default class FC extends FC_Client {
   async deployFunction(config: IFunction, { slsAuto, type }): Promise<void> {
     logger.debug(`Deploy function use config:\n${JSON.stringify(config, null, 2)}`);
     let needUpdate = false;
+    let remoteConfig = null;
     try {
-      await this.getFunction(config.functionName);
+      remoteConfig = await this.getFunction(config.functionName);
       needUpdate = true;
     } catch (err) {
       if (err.code !== FC_API_ERROR_CODE.FunctionNotFound) {
@@ -144,6 +147,10 @@ export default class FC extends FC_Client {
     const startTime = new Date().getTime();
     const calculateRetryTime = (minute: number) =>
       new Date().getTime() - startTime > minute * 60 * 1000;
+
+    if (config?.tags) {
+      config.tags = this.tagsToLowerCase(config?.tags);
+    }
 
     while (true) {
       try {
@@ -174,6 +181,43 @@ export default class FC extends FC_Client {
             command: [],
             entrypoint: [],
           });
+        }
+
+        /*
+         * 如果tags有更新，则需要更新tags
+         * 判断tags的长度是否相等，如果不相等，则需要更新tags
+         * 如果tags的长度相等，则比较tags的值是否相等，如果不相等，则需要更新tags
+         */
+        const remoteTags = remoteConfig?.body?.tags;
+        const localTags = config.tags;
+        if (this.isUpdateTags(remoteTags, localTags)) {
+          logger.debug(`Updating tags for function ${config.functionName}`);
+          /*
+           * 如果远程tags不为空，则先删除远程tags(当前 sdk 只是设置 tags)
+           * 然后再添加本地tags
+           */
+          if (remoteTags?.length) {
+            const remoteTagsKey = remoteTags.map((item) => item.key);
+            const untagResourcesRequest = new UntagResourcesRequest({
+              resourceId: [remoteConfig?.body?.functionArn],
+              resourceType: 'function',
+              tagKey: remoteTagsKey,
+            });
+            await this.fc20230330Client.untagResources(untagResourcesRequest);
+          }
+          /*
+           * 如果本地tags为空，则不设置tags
+           */
+          if (localTags?.length) {
+            const tagResourcesRequest = new TagResourcesRequest({
+              body: {
+                resourceId: [remoteConfig?.body?.functionArn],
+                resourceType: 'FUNCTION',
+                tag: localTags,
+              },
+            });
+            await this.fc20230330Client.tagResources(tagResourcesRequest);
+          }
         }
 
         logger.debug(`Need update function ${config.functionName}`);
@@ -811,5 +855,35 @@ export default class FC extends FC_Client {
         conn.sendMessage(new Uint8Array(arr));
       });
     });
+  }
+
+  tagsToLowerCase(tags) {
+    if (!tags) {
+      return [];
+    }
+    const newTags = [];
+    for (const tag of tags) {
+      const newTag = {};
+      for (const key in tag) {
+        if (Object.prototype.hasOwnProperty.call(tag, key)) {
+          const lowerCaseKey = key.toLowerCase();
+          newTag[lowerCaseKey] = tag[key];
+        }
+      }
+      newTags.push(newTag);
+    }
+    return newTags;
+  }
+
+  isUpdateTags(remoteTags, localTags) {
+    if (remoteTags?.length !== localTags?.length) {
+      return true;
+    }
+    const noNeedUpdate = remoteTags?.every((item) => {
+      return localTags?.some((localItem) => {
+        return localItem.key === item.key && localItem.value === item.value;
+      });
+    });
+    return !noNeedUpdate;
   }
 }
