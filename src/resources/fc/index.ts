@@ -150,6 +150,7 @@ export default class FC extends FC_Client {
 
     if (config?.tags) {
       config.tags = this.tagsToLowerCase(config?.tags);
+      this.checkTags(config?.tags);
     }
 
     while (true) {
@@ -193,27 +194,26 @@ export default class FC extends FC_Client {
         if (this.isUpdateTags(remoteTags, localTags)) {
           logger.debug(`Updating tags for function ${config.functionName}`);
           /*
-           * 如果远程tags不为空，则先删除远程tags(当前 sdk 只是设置 tags)
-           * 然后再添加本地tags
+           * 先 diff 获取需要删除的 tags 和需要添加的 tags
            */
-          if (remoteTags?.length) {
-            const remoteTagsKey = remoteTags.map((item) => item.key);
+          const { deleteTags, addTags } = this.diffTags(remoteTags, localTags);
+          // logger.info(`deleteTags: ${JSON.stringify(deleteTags,null,2)}, addTags: ${JSON.stringify(addTags,null,2)}`);
+
+          if (deleteTags?.length) {
             const untagResourcesRequest = new UntagResourcesRequest({
               resourceId: [remoteConfig?.body?.functionArn],
               resourceType: 'function',
-              tagKey: remoteTagsKey,
+              tagKey: deleteTags,
             });
             await this.fc20230330Client.untagResources(untagResourcesRequest);
           }
-          /*
-           * 如果本地tags为空，则不设置tags
-           */
-          if (localTags?.length) {
+
+          if (addTags?.length) {
             const tagResourcesRequest = new TagResourcesRequest({
               body: {
                 resourceId: [remoteConfig?.body?.functionArn],
                 resourceType: 'FUNCTION',
-                tag: localTags,
+                tag: addTags,
               },
             });
             await this.fc20230330Client.tagResources(tagResourcesRequest);
@@ -885,5 +885,46 @@ export default class FC extends FC_Client {
       });
     });
     return !noNeedUpdate;
+  }
+
+  diffTags(remoteTags, localTags) {
+    const deleteTags = remoteTags
+      ?.filter((item) => {
+        return !localTags?.some((localItem) => {
+          return localItem.key === item.key && localItem.value === item.value;
+        });
+      })
+      .map((item) => item.key);
+    const addTags = localTags?.filter((item) => {
+      return !remoteTags?.some((remoteItem) => {
+        return remoteItem.key === item.key && remoteItem.value === item.value;
+      });
+    });
+
+    return {
+      deleteTags,
+      addTags,
+    };
+  }
+
+  checkTags(tags) {
+    if (tags.length > 20) {
+      throw new Error(
+        `The number of tags cannot exceed 20,the overall modification will not be executed.`,
+      );
+    }
+    // 检查标签键是否重复
+    const keys = new Set();
+
+    for (const tag of tags) {
+      const { key } = tag;
+      if (keys.has(key)) {
+        throw new Error(
+          `The tag keys must be unique. repeat keys: ${key},the overall modification will not be executed.`,
+        );
+      } else {
+        keys.add(key);
+      }
+    }
   }
 }
