@@ -47,7 +47,9 @@ export default class Remove {
     checkRegion(this.region);
     this.functionName = functionName || _.get(inputs, 'props.functionName');
     if (!this.functionName) {
-      throw new Error('Function name not specified, please specify --function-name');
+      // throw new Error('Function name not specified, please specify --function-name');
+      logger.error('Function name not specified, please specify --function-name');
+      this.functionName = "undefined_placeholder"
     }
 
     if (removeAll || needRemoveFunction === true) {
