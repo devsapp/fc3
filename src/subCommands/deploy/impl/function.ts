@@ -166,24 +166,22 @@ export default class Service extends Base {
         throw new Error('CustomContainerRuntime must have a valid image URL');
       }
       if (Acr.isAcrRegistry(image)) {
-        const isExist = await this._getAcr().checkAcr(image);
-        if (!isExist) {
+        if (this.skipPush) {
           if (_.isEmpty(diffResult)) {
             this.needDeploy = true;
             return;
           }
         } else {
-          // eslint-disable-next-line no-lonely-if
-          if (!this.skipPush) {
-            tipsMsg = yellow(
-              `WARNING: You are pushing ${image} to overwrite an existing image tag.If this image tag is being used by any other functions, subsequent calls to these functions may fail.Please confirm if you want to continue.`,
-            );
-          } else {
-            // eslint-disable-next-line no-lonely-if
+          const isExist = await this._getAcr().checkAcr(image);
+          if (!isExist) {
             if (_.isEmpty(diffResult)) {
               this.needDeploy = true;
               return;
             }
+          } else {
+            tipsMsg = yellow(
+              `WARNING: You are pushing ${image} to overwrite an existing image tag.If this image tag is being used by any other functions, subsequent calls to these functions may fail.Please confirm if you want to continue.`,
+            );
           }
         }
       }

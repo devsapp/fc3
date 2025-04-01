@@ -49,7 +49,7 @@ export default class Remove {
     if (!this.functionName) {
       // throw new Error('Function name not specified, please specify --function-name');
       logger.error('Function name not specified, please specify --function-name');
-      this.functionName = "undefined_placeholder"
+      this.functionName = 'undefined_placeholder_not_exist_123456789';
     }
 
     if (removeAll || needRemoveFunction === true) {
