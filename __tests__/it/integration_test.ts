@@ -30,7 +30,7 @@ const inputs: IInputs = {
   },
   // 执行的方法
   command: 'deploy',
-  args: ['-t', 's.yaml'],
+  args: ['-t', 's.yaml', '--assume-yes'],
   // yaml相关信息
   yaml: {
     path: path.join(__dirname, 's.yaml'),
@@ -86,8 +86,14 @@ describe('Integration Tests', () => {
       role: '',
       runtime: 'python3.9',
       timeout: 60,
+      asyncInvokeConfig: undefined,
+      concurrencyConfig: undefined,
+      customDomain: undefined,
+      provisionConfig: undefined,
+      triggers: undefined,
+      vpcBinding: undefined,
     });
-  });
+  }, 60000);
 
   test('deploy http function', async () => {
     const inputs_http = _.cloneDeep(inputs);
@@ -132,6 +138,11 @@ describe('Integration Tests', () => {
           triggerType: 'http',
         },
       ],
+      vpcBinding: undefined,
+      asyncInvokeConfig: undefined,
+      concurrencyConfig: undefined,
+      provisionConfig: undefined,
+      customDomain: undefined,
     });
-  });
+  }, 60000);
 });

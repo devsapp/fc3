@@ -93,7 +93,11 @@ export abstract class Builder {
       if (runtime === 'python3') {
         runtime = 'python3.6';
       }
-      if (runtime === 'python3.12' || runtime === 'custom.debian11') {
+      if (
+        runtime === 'python3.12' ||
+        runtime === 'custom.debian11' ||
+        runtime === 'custom.debian12'
+      ) {
         image = `${fcDockerVersionRegistry}/${fcDockerNameSpace}/runtime:${runtime}-build-${fcDockerVersion}`;
       } else {
         image = `${fcDockerVersionRegistry}/${fcDockerNameSpace}/runtime-${runtime}:build-${fcDockerVersion}`;

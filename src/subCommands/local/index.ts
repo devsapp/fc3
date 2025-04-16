@@ -77,7 +77,8 @@ export default class ComponentLocal {
       }
       case 'custom':
       case 'custom.debian10':
-      case 'custom.debian11': {
+      case 'custom.debian11':
+      case 'custom.debian12': {
         const customLocalInvoker = new CustomLocalInvoke(inputs);
         await customLocalInvoker.invoke();
         break;
@@ -149,7 +150,8 @@ export default class ComponentLocal {
       }
       case 'custom':
       case 'custom.debian10':
-      case 'custom.debian11': {
+      case 'custom.debian11':
+      case 'custom.debian12': {
         const customLocalStart = new CustomLocalStart(inputs);
         await customLocalStart.start();
         break;

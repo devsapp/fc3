@@ -12,7 +12,8 @@ export function isCustomRuntime(runtime: string): boolean {
   return (
     runtime === Runtime.custom ||
     runtime === Runtime['custom.debian10'] ||
-    runtime === Runtime['custom.debian11']
+    runtime === Runtime['custom.debian11'] ||
+    runtime === Runtime['custom.debian12']
   );
 }
 

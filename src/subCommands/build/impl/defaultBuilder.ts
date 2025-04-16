@@ -260,6 +260,7 @@ vendor`;
       case 'custom':
       case 'custom.debian10':
       case 'custom.debian11':
+      case 'custom.debian12':
         if (this.existManifest('requirements.txt')) {
           tasks.push(
             `pip install -t ${buildPythonLocalPath} -r requirements.txt --upgrade ${customArgs}`,
