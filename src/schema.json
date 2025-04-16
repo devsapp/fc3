@@ -109,6 +109,17 @@
                 }
             ]
         },
+        "IConcurrencyConfig": {
+            "properties": {
+                "reservedConcurrency": {
+                    "type": "number"
+                }
+            },
+            "required": [
+                "reservedConcurrency"
+            ],
+            "type": "object"
+        },
         "ICustomContainerConfig": {
             "properties": {
                 "command": {
@@ -761,6 +772,39 @@
         "IOtsConfig": {
             "type": "object"
         },
+        "IProvisionConfig": {
+            "properties": {
+                "alwaysAllocateCPU": {
+                    "type": "boolean"
+                },
+                "alwaysAllocateGPU": {
+                    "type": "boolean"
+                },
+                "defaultTarget": {
+                    "type": "number"
+                },
+                "scheduledActions": {
+                    "items": {
+                        "$ref": "#/definitions/ScheduledAction"
+                    },
+                    "type": "array"
+                },
+                "targetTrackingPolicies": {
+                    "items": {
+                        "$ref": "#/definitions/TargetTrackingPolicy"
+                    },
+                    "type": "array"
+                }
+            },
+            "required": [
+                "alwaysAllocateCPU",
+                "alwaysAllocateGPU",
+                "defaultTarget",
+                "scheduledActions",
+                "targetTrackingPolicies"
+            ],
+            "type": "object"
+        },
         "IRegion": {
             "enum": [
                 "ap-northeast-1",
@@ -779,6 +823,8 @@
                 "cn-huhehaote",
                 "cn-qingdao",
                 "cn-shanghai",
+                "cn-shanghai-cloudspe",
+                "cn-shanghai-finance-1",
                 "cn-shenzhen",
                 "cn-wulanchabu",
                 "cn-zhangjiakou",
@@ -809,6 +855,7 @@
                 "custom-container",
                 "custom.debian10",
                 "custom.debian11",
+                "custom.debian12",
                 "dotnetcore2.1",
                 "dotnetcore3.1",
                 "go1",
@@ -825,10 +872,25 @@
                 "python2.7",
                 "python3",
                 "python3.10",
-                "python3.9",
-                "python3.12"
+                "python3.12",
+                "python3.9"
             ],
             "type": "string"
+        },
+        "ITags": {
+            "properties": {
+                "key": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "key",
+                "value"
+            ],
+            "type": "object"
         },
         "ITimerTriggerConfig": {
             "properties": {
@@ -968,14 +1030,98 @@
                 "vpcId"
             ],
             "type": "object"
+        },
+        "ScheduledAction": {
+            "properties": {
+                "endTime": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "scheduleExpression": {
+                    "type": "string"
+                },
+                "startTime": {
+                    "type": "string"
+                },
+                "target": {
+                    "type": "number"
+                },
+                "timeZone": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "endTime",
+                "name",
+                "scheduleExpression",
+                "startTime",
+                "target",
+                "timeZone"
+            ],
+            "type": "object"
+        },
+        "TargetTrackingPolicy": {
+            "properties": {
+                "endTime": {
+                    "type": "string"
+                },
+                "maxCapacity": {
+                    "type": "number"
+                },
+                "metricTarget": {
+                    "type": "number"
+                },
+                "metricType": {
+                    "type": "string"
+                },
+                "minCapacity": {
+                    "type": "number"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "startTime": {
+                    "type": "string"
+                },
+                "timeZone": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "endTime",
+                "maxCapacity",
+                "metricTarget",
+                "metricType",
+                "minCapacity",
+                "name",
+                "startTime",
+                "timeZone"
+            ],
+            "type": "object"
         }
     },
     "properties": {
+        "annotations": {
+            "properties": {
+                "headers": {
+                    "additionalProperties": {
+                        "type": "string"
+                    },
+                    "type": "object"
+                }
+            },
+            "type": "object"
+        },
         "asyncInvokeConfig": {
             "$ref": "#/definitions/IAsyncInvokeConfig"
         },
         "code": {
             "$ref": "#/definitions/ICodeUri"
+        },
+        "concurrencyConfig": {
+            "$ref": "#/definitions/IConcurrencyConfig"
         },
         "cpu": {
             "type": "number",
@@ -1069,6 +1215,9 @@
         "ossMountConfig": {
             "$ref": "#/definitions/IOssMountConfig"
         },
+        "provisionConfig": {
+            "$ref": "#/definitions/IProvisionConfig"
+        },
         "region": {
             "$ref": "#/definitions/IRegion"
         },
@@ -1078,17 +1227,26 @@
         "runtime": {
             "$ref": "#/definitions/IRuntime"
         },
-        "timeout": {
-          "type": "integer",
-          "default": 3,
-          "minimum": 1,
-          "maximum": 86400
+        "sessionAffinity": {
+            "type": "string"
         },
-         "instanceConcurrency": {
+        "tags": {
+            "items": {
+                "$ref": "#/definitions/ITags"
+            },
+            "type": "array"
+        },
+        "timeout": {
+            "type": "integer",
+            "default": 3,
+            "minimum": 1,
+            "maximum": 86400
+        },
+        "instanceConcurrency": {
           "type": "integer",
           "default": 1,
           "minimum": 1,
-          "maximum": 100
+          "maximum": 200
         },
         "tracingConfig": {
             "$ref": "#/definitions/ITracingConfig"

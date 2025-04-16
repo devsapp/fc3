@@ -71,7 +71,16 @@ export default class ProvisionConfig extends Base {
     const qualifier = _.get(provisionConfig, 'qualifier', 'LATEST');
     try {
       const result = await this.fcSdk.getFunctionProvisionConfig(this.functionName, qualifier);
-      const r = _.omit(result, ['current', 'functionArn', 'currentError']);
+      let r = _.omit(result, ['current', 'functionArn', 'currentError']);
+      if ('target' in r && 'defaultTarget' in r) {
+        r = _.omit(r, ['target']);
+      }
+      if (_.isEmpty(r?.targetTrackingPolicies)) {
+        r = _.omit(r, ['targetTrackingPolicies']);
+      }
+      if (_.isEmpty(r?.scheduledActions)) {
+        r = _.omit(r, ['scheduledActions']);
+      }
       this.remote = r;
     } catch (ex) {
       logger.debug(`Get remote provisionConfig of  ${this.functionName} error: ${ex.message}`);

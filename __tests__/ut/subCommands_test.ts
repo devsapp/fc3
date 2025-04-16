@@ -245,7 +245,7 @@ describe('SYaml2To3', () => {
                 key1: 'value1',
                 key2: 'value2',
               },
-              gpuMemorySize: 'test',
+              gpuMemorySize: 16384,
               asyncConfiguration: {
                 destination: {
                   onSuccess: 'acs:fc:::fc-test-on-success',
@@ -363,7 +363,7 @@ describe('SYaml2To3', () => {
               ossBucket: 'test',
               ossKey: 'test1',
               environmentVariables: {},
-              gpuMemorySize: 'test',
+              gpuMemorySize: 16384,
               asyncConfiguration: {
                 destination: {},
               },
@@ -494,7 +494,7 @@ describe('SYaml2To3', () => {
                 key1: 'value1',
                 key2: 'value2',
               },
-              gpuMemorySize: 'test',
+              gpuMemorySize: 16384,
               asyncConfiguration: {
                 destination: {
                   onSuccess: 'acs:fc:::fc-test-on-success',
@@ -631,7 +631,7 @@ describe('SYaml2To3', () => {
               },
               ossBucket: 'test',
               ossKey: 'test1',
-              gpuMemorySize: 'test',
+              gpuMemorySize: 16384,
               asyncConfiguration: {
                 destination: {},
               },

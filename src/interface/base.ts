@@ -37,6 +37,7 @@ export enum Runtime {
   'dotnetcore2.1' = 'dotnetcore2.1',
   'custom.debian10' = 'custom.debian10',
   'custom.debian11' = 'custom.debian11',
+  'custom.debian12' = 'custom.debian12',
   'custom' = 'custom',
   'custom-container' = 'custom-container',
 }
