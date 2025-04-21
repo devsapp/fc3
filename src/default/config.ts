@@ -63,7 +63,7 @@ export const IMAGE_ACCELERATION_REGION = [
 ];
 
 export const FC_CLIENT_CONNECT_TIMEOUT: number =
-  parseInt(process.env.FC_CLIENT_CONNECT_TIMEOUT || '5', 10) * 1000;
+  parseInt(process.env.FC_CLIENT_CONNECT_TIMEOUT || '60', 10) * 1000;
 
 export const FC_CLIENT_READ_TIMEOUT: number =
   parseInt(process.env.FC_CLIENT_READ_TIMEOUT || '60', 10) * 1000;
