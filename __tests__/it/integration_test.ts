@@ -92,6 +92,7 @@ describe('Integration Tests', () => {
       provisionConfig: undefined,
       triggers: undefined,
       vpcBinding: undefined,
+      disableOndemand: false,
     });
   }, 60000);
 
@@ -125,6 +126,7 @@ describe('Integration Tests', () => {
       role: '',
       runtime: 'python3.9',
       timeout: 60,
+      disableOndemand: false,
       triggers: [
         {
           description: 'xxxx',
