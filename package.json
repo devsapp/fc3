@@ -23,7 +23,7 @@
   "license": "ISC",
   "dependencies": {
     "@alicloud/fc2": "^2.6.6",
-    "@alicloud/fc20230330": "4.1.6-beta.2",
+    "@alicloud/fc20230330": "4.3.2",
     "@alicloud/pop-core": "^1.8.0",
     "@serverless-cd/srm-aliyun-pop-core": "^0.0.7-beta.21",
     "@serverless-cd/srm-aliyun-ram20150501": "^0.0.2-beta.9",
@@ -51,7 +51,8 @@
     "temp-dir": "^2.0.0",
     "tty-table": "^4.2.3",
     "uuid": "^9.0.1",
-    "uuid-by-string": "^4.0.0"
+    "uuid-by-string": "^4.0.0",
+    "ali-oss": "6.18.1"
   },
   "devDependencies": {
     "@serverless-devs/component-interface": "^0.0.6",
@@ -72,9 +73,6 @@
   },
   "resolutions": {
     "@alicloud/sls20191023": {
-      "registry": "https://packages.aliyun.com/670e108663cd360abfe4be65/npm/npm-registry/"
-    },
-    "@alicloud/fc20230330": {
       "registry": "https://packages.aliyun.com/670e108663cd360abfe4be65/npm/npm-registry/"
     }
   }
