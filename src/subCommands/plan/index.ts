@@ -115,7 +115,9 @@ export default class Plan {
     _.unset(local, 'concurrencyConfig');
     _.unset(local, 'customContainerConfig.registryConfig');
     _.unset(remote, 'functionArn');
-
+    if (_.get(remote, 'disableOndemand') === false) {
+      _.unset(remote, 'disableOndemand');
+    }
     const config = FC.replaceFunctionConfig(local, remote);
     return diffConvertPlanYaml(config.remote, config.local, { deep: 0, complete: true });
   }

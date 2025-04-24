@@ -125,6 +125,7 @@ export interface IFunction {
   memorySize?: number;
   timeout?: number;
   sessionAffinity?: string;
+  enableLongLiving?: boolean;
 
   logConfig?: 'auto' | ILogConfig;
   nasConfig?: 'auto' | INasConfig;
