@@ -5,6 +5,7 @@ export type IRuntime = `${Runtime}`;
 export interface ILifecycleHook {
   handler?: string;
   timeout?: number;
+  command?: string[];
 }
 
 export interface IHealthCheckConfig {

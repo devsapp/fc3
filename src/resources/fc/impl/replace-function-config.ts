@@ -92,50 +92,86 @@ export default function (_local: any, _remote: any) {
   // 适配钩子函数配置
   if (!(_.isEmpty(local?.instanceLifecycleConfig) && _.isEmpty(remote?.instanceLifecycleConfig))) {
     const { initializer, preStop } = local.instanceLifecycleConfig || {};
+    if (initializer?.handler && initializer?.command) {
+      throw new Error(
+        'fc3 pre check: command and handler can not be set at the same time in lifecycle Lifecycle.Initializer',
+      );
+    }
+    if (preStop?.handler && preStop?.command) {
+      throw new Error(
+        'fc3 pre check: command and handler can not be set at the same time in lifecycle Lifecycle.PreStop',
+      );
+    }
     const initializerTimeout = _.get(remote, 'instanceLifecycleConfig.initializer.timeout', 3);
     if (
       remote?.instanceLifecycleConfig?.initializer?.handler ||
+      remote?.instanceLifecycleConfig?.initializer?.command ||
       remote?.instanceLifecycleConfig?.initializer?.timeout
     ) {
-      if (initializer?.handler) {
+      if (initializer?.handler || initializer?.command) {
+        if (remote?.instanceLifecycleConfig?.initializer?.handler && initializer?.command) {
+          _.set(local, 'instanceLifecycleConfig.initializer.handler', '');
+        }
+        if (remote?.instanceLifecycleConfig?.initializer?.command && initializer?.handler) {
+          _.set(local, 'instanceLifecycleConfig.initializer.command', []);
+        }
         if (!initializer.timeout) {
           _.set(local, 'instanceLifecycleConfig.initializer.timeout', initializerTimeout);
         }
       } else {
         _.set(local, 'instanceLifecycleConfig.initializer.handler', '');
+        _.set(local, 'instanceLifecycleConfig.initializer.command', []);
         _.set(local, 'instanceLifecycleConfig.initializer.timeout', 3);
       }
-    } else if (initializer?.handler && !initializer.timeout) {
+    } else if ((initializer?.command || initializer?.handler) && !initializer.timeout) {
       _.set(local, 'instanceLifecycleConfig.initializer.timeout', initializerTimeout);
     }
 
     const preStopTimeout = _.get(remote, 'instanceLifecycleConfig.preStop.timeout', 3);
     if (
       remote?.instanceLifecycleConfig?.preStop?.handler ||
+      remote?.instanceLifecycleConfig?.preStop?.command ||
       remote?.instanceLifecycleConfig?.preStop?.timeout
     ) {
-      if (preStop?.handler) {
+      if (preStop?.handler || preStop?.command) {
+        if (remote?.instanceLifecycleConfig?.preStop?.handler && preStop?.command) {
+          _.set(local, 'instanceLifecycleConfig.preStop.handler', '');
+        }
+        if (remote?.instanceLifecycleConfig?.preStop?.command && preStop?.handler) {
+          _.set(local, 'instanceLifecycleConfig.preStop.command', []);
+        }
         if (!preStop.timeout) {
           _.set(local, 'instanceLifecycleConfig.preStop.timeout', preStopTimeout);
         }
       } else {
         _.set(local, 'instanceLifecycleConfig.preStop.handler', '');
+        _.set(local, 'instanceLifecycleConfig.preStop.command', []);
         _.set(local, 'instanceLifecycleConfig.preStop.timeout', 3);
       }
-    } else if (preStop?.handler && !preStop.timeout) {
+    } else if ((preStop?.command || preStop?.handler) && !preStop.timeout) {
       _.set(local, 'instanceLifecycleConfig.preStop.timeout', preStopTimeout);
     }
   }
 
-  // 如果 local 和 remote 都是 handler 为 '', 则从 props 中删除
+  // 如果 local 和 remote 都是 handler 和 command 为 '', 则从 props 中删除
   if (local?.instanceLifecycleConfig && remote?.instanceLifecycleConfig) {
     const { initializer: initializerL, preStop: preStopL } = local.instanceLifecycleConfig || {};
     const { initializer: initializerR, preStop: preStopR } = remote.instanceLifecycleConfig || {};
-    if (initializerL?.handler === initializerR?.handler && initializerL?.handler === '') {
+    if (
+      initializerL?.handler === initializerR?.handler &&
+      initializerL?.handler === '' &&
+      _.isEqual(initializerL?.command, initializerR?.command) &&
+      _.isEmpty(initializerL?.command)
+    ) {
       _.unset(local, 'instanceLifecycleConfig.initializer');
       _.unset(remote, 'instanceLifecycleConfig.initializer');
     }
-    if (preStopL?.handler === preStopR?.handler && preStopL?.handler === '') {
+    if (
+      preStopL?.handler === preStopR?.handler &&
+      preStopL?.handler === '' &&
+      _.isEqual(preStopL?.command, preStopR?.command) &&
+      _.isEmpty(preStopL?.command)
+    ) {
       _.unset(local, 'instanceLifecycleConfig.preStop');
       _.unset(remote, 'instanceLifecycleConfig.preStop');
     }

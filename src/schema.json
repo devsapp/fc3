@@ -509,6 +509,12 @@
         },
         "ILifecycleHook": {
             "properties": {
+                "command": {
+                    "items": {
+                        "type": "string"
+                    },
+                    "type": "array"
+                },
                 "handler": {
                     "type": "string"
                 },

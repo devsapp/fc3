@@ -241,10 +241,12 @@ describe('replaceFunction', () => {
       instanceLifecycleConfig: {
         initializer: {
           handler: '',
+          command: [],
           timeout: 3,
         },
         preStop: {
           handler: '',
+          command: [],
           timeout: 3,
         },
       },
