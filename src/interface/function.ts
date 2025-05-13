@@ -5,6 +5,7 @@ export type IRuntime = `${Runtime}`;
 export interface ILifecycleHook {
   handler?: string;
   timeout?: number;
+  command?: string[];
 }
 
 export interface IHealthCheckConfig {
@@ -125,6 +126,7 @@ export interface IFunction {
   memorySize?: number;
   timeout?: number;
   sessionAffinity?: string;
+  enableLongLiving?: boolean;
 
   logConfig?: 'auto' | ILogConfig;
   nasConfig?: 'auto' | INasConfig;

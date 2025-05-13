@@ -509,6 +509,12 @@
         },
         "ILifecycleHook": {
             "properties": {
+                "command": {
+                    "items": {
+                        "type": "string"
+                    },
+                    "type": "array"
+                },
                 "handler": {
                     "type": "string"
                 },
@@ -1147,6 +1153,9 @@
                 512
             ],
             "type": "number"
+        },
+        "enableLongLiving": {
+            "type": "boolean"
         },
         "endpoint": {
             "type": "string"
