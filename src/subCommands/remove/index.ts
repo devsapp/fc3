@@ -17,6 +17,8 @@ export default class Remove {
   private yes = false;
   private async_invoke_config: boolean;
   private resources: Record<string, any> = {};
+  private disable_list_remote_eb_triggers: string;
+  private disable_list_remote_alb_triggers: string;
 
   private fcSdk: FC;
 
@@ -26,7 +28,12 @@ export default class Remove {
         'assume-yes': 'y',
       },
       boolean: ['function', 'async_invoke_config'],
-      string: ['function-name', 'region'],
+      string: [
+        'function-name',
+        'region',
+        'disable-list-remote-eb-triggers',
+        'disable-list-remote-alb-triggers',
+      ],
     });
     logger.debug(`parse argv: ${JSON.stringify(opts)}`);
 
@@ -37,10 +44,14 @@ export default class Remove {
       'assume-yes': yes,
       'function-name': functionName,
       'async-invoke-config': async_invoke_config,
+      'disable-list-remote-eb-triggers': disable_list_remote_eb_triggers,
+      'disable-list-remote-alb-triggers': disable_list_remote_alb_triggers,
     } = opts;
 
     const removeAll = !needRemoveFunction && !trigger && !async_invoke_config;
     this.async_invoke_config = async_invoke_config;
+    this.disable_list_remote_eb_triggers = disable_list_remote_eb_triggers;
+    this.disable_list_remote_alb_triggers = disable_list_remote_alb_triggers;
 
     this.region = region || _.get(inputs, 'props.region');
     logger.debug(`region: ${this.region}`);
@@ -261,7 +272,11 @@ export default class Remove {
   private async getTriggerResource() {
     let triggers = [];
     try {
-      triggers = await this.fcSdk.listTriggers(this.functionName);
+      triggers = await this.fcSdk.listTriggers(
+        this.functionName,
+        this.disable_list_remote_eb_triggers,
+        this.disable_list_remote_alb_triggers,
+      );
     } catch (ex) {
       logger.debug(
         `List function ${this.region}/${this.functionName} triggers error: ${ex.message}`,

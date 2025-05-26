@@ -16,6 +16,8 @@ export default class Sync {
   private fcSdk: FC;
   private target: string;
   private qualifier: string;
+  private disable_list_remote_eb_triggers: string;
+  private disable_list_remote_alb_triggers: string;
 
   constructor(private inputs: IInputs) {
     const {
@@ -23,8 +25,17 @@ export default class Sync {
       'function-name': functionName,
       qualifier,
       region,
+      'disable-list-remote-eb-triggers': disable_list_remote_eb_triggers,
+      'disable-list-remote-alb-triggers': disable_list_remote_alb_triggers,
     } = parseArgv(inputs.args, {
-      string: ['target-dir', 'function-name', 'qualifier', 'region'],
+      string: [
+        'target-dir',
+        'function-name',
+        'qualifier',
+        'region',
+        'disable-list-remote-eb-triggers',
+        'disable-list-remote-alb-triggers',
+      ],
       alias: { 'assume-yes': 'y' },
     });
 
@@ -41,6 +52,10 @@ export default class Sync {
     checkRegion(this.region);
     this.functionName = functionName || _.get(inputs, 'props.functionName');
     logger.debug(`function name: ${this.functionName}`);
+    this.disable_list_remote_eb_triggers = disable_list_remote_eb_triggers;
+    logger.debug(`disable_list_remote_eb_triggers: ${disable_list_remote_eb_triggers}`);
+    this.disable_list_remote_alb_triggers = disable_list_remote_alb_triggers;
+    logger.debug(`disable_list_remote_alb_triggers: ${disable_list_remote_alb_triggers}`);
     if (!this.functionName) {
       throw new Error('Function name not specified, please specify --function-name');
     }
@@ -55,7 +70,11 @@ export default class Sync {
 
   async getTriggers(): Promise<any[]> {
     const result: any[] = [];
-    const triggers = await this.fcSdk.listTriggers(this.functionName);
+    const triggers = await this.fcSdk.listTriggers(
+      this.functionName,
+      this.disable_list_remote_eb_triggers,
+      this.disable_list_remote_alb_triggers,
+    );
     logger.debug(triggers);
     for (const t of triggers) {
       const { triggerName, triggerType, description, qualifier, invocationRole, sourceArn } = t;
