@@ -617,7 +617,11 @@ export default class FC extends FC_Client {
     }
   }
 
-  async listTriggers(functionName: string) {
+  async listTriggers(
+    functionName: string,
+    disable_list_remote_eb_triggers: string,
+    disable_list_remote_alb_triggers: string,
+  ) {
     let nextToken: string;
     const limit = 10;
     const triggers: any[] = [];
@@ -625,13 +629,18 @@ export default class FC extends FC_Client {
     while (true) {
       const request = new ListTriggersRequest({ limit, nextToken });
       const runtime = new RuntimeOptions({});
-      const headers = {};
+      const headers = {
+        'x-fc-disable-list-remote-eb-triggers': disable_list_remote_eb_triggers || 'false',
+        'x-fc-disable-list-remote-alb-triggers': disable_list_remote_alb_triggers || 'false',
+      };
+      logger.info(`listTriggers headers: ${JSON.stringify(headers, null, 2)}`);
       const result = await this.fc20230330Client.listTriggersWithOptions(
         functionName,
         request,
         headers,
         runtime,
       );
+      logger.info(`listTriggers result: ${JSON.stringify(result, null, 2)}`);
       const { body } = result.toMap();
       triggers.push(...body.triggers);
       if (!body.nextToken) {

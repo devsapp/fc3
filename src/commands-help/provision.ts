@@ -75,6 +75,10 @@ Examples with CLI:
             '[Optional] Specify if always allocate CPU resources to the provisioned instances',
           ],
           [
+            '--ag, --always-allocate-gpu',
+            '[Optional] Specify if always allocate GPU resources to the provisioned instances',
+          ],
+          [
             '--scheduled-actions <json>',
             '[Optional] Set the configuration details of scheduled auto scaling.',
           ],
