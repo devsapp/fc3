@@ -61,6 +61,10 @@ export const IMAGE_ACCELERATION_REGION = [
   'cn-huhehaote',
   'eu-central-1',
   'cn-wulanchabu',
+  'cn-qingdao',
+  'cn-chengdu',
+  'ap-southeast-5',
+  'cn-heyuan-acdr-1',
 ];
 
 export const FC_CLIENT_CONNECT_TIMEOUT: number =
