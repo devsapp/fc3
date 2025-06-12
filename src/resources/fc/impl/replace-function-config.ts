@@ -92,12 +92,12 @@ export default function (_local: any, _remote: any) {
   // 适配钩子函数配置
   if (!(_.isEmpty(local?.instanceLifecycleConfig) && _.isEmpty(remote?.instanceLifecycleConfig))) {
     const { initializer, preStop } = local.instanceLifecycleConfig || {};
-    if (initializer?.handler && initializer?.command) {
+    if (initializer?.handler && initializer?.command &&  !_.isEmpty(initializer?.command)) {
       throw new Error(
         'fc3 pre check: command and handler can not be set at the same time in lifecycle Lifecycle.Initializer',
       );
     }
-    if (preStop?.handler && preStop?.command) {
+    if (preStop?.handler && preStop?.command &&  !_.isEmpty(preStop?.command)) {
       throw new Error(
         'fc3 pre check: command and handler can not be set at the same time in lifecycle Lifecycle.PreStop',
       );
@@ -108,8 +108,8 @@ export default function (_local: any, _remote: any) {
       remote?.instanceLifecycleConfig?.initializer?.command ||
       remote?.instanceLifecycleConfig?.initializer?.timeout
     ) {
-      if (initializer?.handler || initializer?.command) {
-        if (remote?.instanceLifecycleConfig?.initializer?.handler && initializer?.command) {
+      if (initializer?.handler || (initializer?.command && !_.isEmpty(initializer.command))) {
+        if (remote?.instanceLifecycleConfig?.initializer?.handler && (initializer?.command && !_.isEmpty(initializer.command))) {
           _.set(local, 'instanceLifecycleConfig.initializer.handler', '');
         }
         if (remote?.instanceLifecycleConfig?.initializer?.command && initializer?.handler) {
@@ -133,8 +133,8 @@ export default function (_local: any, _remote: any) {
       remote?.instanceLifecycleConfig?.preStop?.command ||
       remote?.instanceLifecycleConfig?.preStop?.timeout
     ) {
-      if (preStop?.handler || preStop?.command) {
-        if (remote?.instanceLifecycleConfig?.preStop?.handler && preStop?.command) {
+      if (preStop?.handler || (preStop?.command && !_.isEmpty(preStop.command))) {
+        if (remote?.instanceLifecycleConfig?.preStop?.handler && (preStop?.command && !_.isEmpty(preStop.command))) {
           _.set(local, 'instanceLifecycleConfig.preStop.handler', '');
         }
         if (remote?.instanceLifecycleConfig?.preStop?.command && preStop?.handler) {
