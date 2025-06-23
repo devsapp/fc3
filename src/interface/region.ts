@@ -24,6 +24,7 @@ enum Region {
   'cn-wulanchabu' = 'cn-wulanchabu',
   'cn-shanghai-finance-1' = 'cn-shanghai-finance-1',
   'cn-shanghai-cloudspe' = 'cn-shanghai-cloudspe',
+  'me-central-1' = 'me-central-1',
 }
 
 export type IRegion = `${Region}`;
