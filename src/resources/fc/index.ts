@@ -377,6 +377,9 @@ export default class FC extends FC_Client {
     if (this.region === 'cn-heyuan-acdr-1') {
       ossEndpoint = `oss-${this.region}-internal.aliyuncs.com`;
     }
+    if (process.env.FC_CODE_TEMP_OSS_ENDPOINT) {
+      ossEndpoint = process.env.FC_CODE_TEMP_OSS_ENDPOINT;
+    }
     logger.debug(`Uploading code to ${ossEndpoint}`);
 
     const ossClient = new OSS({
