@@ -72,7 +72,7 @@ export default class Base {
       FC.isCustomContainerRuntime(inputs.props.runtime) &&
       !IMAGE_ACCELERATION_REGION.includes(inputs.props.region)
     ) {
-      throw new Error(
+      log.warn(
         `The region ${inputs.props.region} does not support custom container image acceleration, please use another region, details: https://help.aliyun.com/zh/fc/product-overview/region-availability`,
       );
     }
