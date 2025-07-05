@@ -1,3 +1,5 @@
+import logger from '../logger';
+
 enum Region {
   'cn-hangzhou' = 'cn-hangzhou',
   'cn-shanghai' = 'cn-shanghai',
@@ -36,7 +38,7 @@ export function checkRegion(r: IRegion): boolean {
     throw new Error('Region not specified, please specify --region');
   }
   if (!RegionList.includes(r)) {
-    throw new Error(`Invalid region, The allowed regions are ${RegionList}`);
+    logger.warn(`Invalid region, The allowed regions are ${RegionList}`);
   }
   return true;
 }

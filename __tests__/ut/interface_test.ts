@@ -4,7 +4,6 @@ import {
   IHttpTriggerConfig,
   checkRegion,
   IRegion,
-  RegionList,
 } from '../../src/interface';
 import log from '../../src/logger';
 log._set(console);
@@ -215,11 +214,13 @@ describe('checkRegion', () => {
     );
   });
 
+  /*
   it('should throw an error if region is invalid', () => {
     expect(() => checkRegion('invalid-region' as IRegion)).toThrow(
       `Invalid region, The allowed regions are ${RegionList}`,
     );
   });
+  */
 
   it('should true when r is cn-hangzhou', () => {
     const result = checkRegion('cn-hangzhou');

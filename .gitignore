@@ -57,5 +57,6 @@ __tests__/e2e/custom.debian10/python/code/python
 __tests__/e2e/custom/python/code/python
 __tests__/e2e/python/code/python
 __tests__/e2e/python/code/apt-archives
+__tests__/e2e/apt/code/package-lock.json
 
 .env_test
