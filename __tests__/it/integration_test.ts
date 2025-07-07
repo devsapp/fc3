@@ -76,6 +76,7 @@ describe('Integration Tests', () => {
     const region = process.env.REGION || 'cn-huhehaote';
     removeNullValues(output);
     delete output.functionArn;
+    delete output.resourceGroupId;
     expect(output).toEqual({
       region,
       description: 'hello world by serverless devs',
@@ -115,6 +116,7 @@ describe('Integration Tests', () => {
     removeNullValues(output);
     delete output['url'];
     delete output.functionArn;
+    delete output.resourceGroupId;
     const region = process.env.REGION || 'cn-huhehaote';
     expect(output).toEqual({
       region,
