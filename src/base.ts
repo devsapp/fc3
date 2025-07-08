@@ -20,14 +20,16 @@ import { isAuto, isAppCenter } from './utils';
 
 export default class Base {
   commands: any;
+  logger: any;
   constructor({ logger }: any) {
-    log._set(logger);
-
+    this.logger = logger || console;
+    log._set(this.logger);
     this.commands = commandsHelp;
   }
 
   // 在运行方法之前运行
   async handlePreRun(inputs: IInputs, needCredential: boolean) {
+    log._set(this.logger);
     log.info(`userAgent: ${inputs.userAgent}`);
     if (isAppCenter()) {
       log.info(`input: ${JSON.stringify(inputs)}`);
