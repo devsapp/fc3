@@ -19,7 +19,7 @@ import {
 import { RuntimeOptions } from '@alicloud/tea-util';
 
 import logger from '../../logger';
-import { sleep, removeNullValues } from '../../utils/index';
+import { sleep, removeNullValues, isAppCenter } from '../../utils/index';
 import { FC_DEPLOY_RETRY_COUNT, FC_INSTANCE_EXEC_TIMEOUT } from '../../default/config';
 
 import FC_Client, { fc2Client } from './impl/client';
@@ -67,17 +67,29 @@ export default class FC extends FC_Client {
     if (retryContainerAccelerated) {
       console.log('');
       if (reason === 'CREATE') {
-        logger.spin(
-          'checking',
-          `${config.customContainerConfig.image} `,
-          `optimization to be ready, the function will be available for invocation once this process is complete ...`,
-        );
+        if (isAppCenter()) {
+          logger.info(
+            `${config.customContainerConfig.image} optimization to be ready, the function will be available for invocation once this process is complete`,
+          );
+        } else {
+          logger.spin(
+            'checking',
+            `${config.customContainerConfig.image} `,
+            `optimization to be ready, the function will be available for invocation once this process is complete ...`,
+          );
+        }
       } else if (reason === 'UPDATE') {
-        logger.spin(
-          'checking',
-          `${config.customContainerConfig.image}`,
-          `optimization to be ready, function calls will be updated to the latest deployed version once the image optimization process is complete ...`,
-        );
+        if (isAppCenter()) {
+          logger.info(
+            `${config.customContainerConfig.image} optimization to be ready, function calls will be updated to the latest deployed version once the image optimization process is complete ...`,
+          );
+        } else {
+          logger.spin(
+            'checking',
+            `${config.customContainerConfig.image}`,
+            `optimization to be ready, function calls will be updated to the latest deployed version once the image optimization process is complete ...`,
+          );
+        }
       }
       let failedTimes = 0; // 初始化失败次数
       while (true) {
@@ -97,13 +109,23 @@ export default class FC extends FC_Client {
             );
           }
           await sleep(retryTime);
-          logger.spin(
-            'checking',
-            `${config.customContainerConfig.image}`,
-            `optimization is not ready, function state=${state}, lastUpdateStatus=${lastUpdateStatus}, waiting ${
-              (new Date().getTime() - startTime) / 1000
-            } seconds...`,
-          );
+          if (isAppCenter()) {
+            logger.info(
+              `${
+                config.customContainerConfig.image
+              } optimization is not ready, function state=${state}, lastUpdateStatus=${lastUpdateStatus}, waiting ${
+                (new Date().getTime() - startTime) / 1000
+              } seconds...`,
+            );
+          } else {
+            logger.spin(
+              'checking',
+              `${config.customContainerConfig.image}`,
+              `optimization is not ready, function state=${state}, lastUpdateStatus=${lastUpdateStatus}, waiting ${
+                (new Date().getTime() - startTime) / 1000
+              } seconds...`,
+            );
+          }
         } else if (state === 'Failed') {
           failedTimes++;
           if (failedTimes < 3) {
@@ -115,7 +137,15 @@ export default class FC extends FC_Client {
           }
           await sleep(retryTime);
         } else {
-          logger.spin('checked', `${config.customContainerConfig.image}`, `optimization is ready`);
+          if (isAppCenter()) {
+            logger.info(`${config.customContainerConfig.image} optimization is ready`);
+          } else {
+            logger.spin(
+              'checked',
+              `${config.customContainerConfig.image}`,
+              `optimization is ready`,
+            );
+          }
           break;
         }
       }

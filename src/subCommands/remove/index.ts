@@ -396,7 +396,7 @@ export default class Remove {
         );
         // eslint-disable-next-line no-constant-condition
         while (true) {
-          await sleep(1.5);
+          await sleep(1);
           const { current } =
             (await this.fcSdk.getFunctionProvisionConfig(this.functionName, qualifier)) || {};
           if (current === 0 || !current) {

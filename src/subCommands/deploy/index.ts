@@ -8,7 +8,7 @@ import CustomDomain from './impl/custom_domain';
 import ProvisionConfig from './impl/provision_config';
 import ConcurrencyConfig from './impl/concurrency_config';
 import logger from '../../logger';
-import { verify } from '../../utils';
+import { verify, isAppCenter } from '../../utils';
 import { IInputs } from '../../interface';
 import Info from '../info/index';
 import { GetApiType } from '../../resources/fc';
@@ -25,6 +25,11 @@ export default class Deploy {
   readonly concurrencyConfig?: ConcurrencyConfig;
 
   constructor(readonly inputs: IInputs) {
+    if (isAppCenter()) {
+      logger.info(`input: ${JSON.stringify(inputs)}`);
+    } else {
+      logger.debug(`input: ${JSON.stringify(inputs)}`);
+    }
     this.opts = parseArgv(inputs.args, {
       alias: {
         'assume-yes': 'y',

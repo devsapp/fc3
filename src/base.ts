@@ -16,7 +16,7 @@ import FC from './resources/fc';
 import { ICredentials } from '@serverless-devs/component-interface';
 import Role, { RamClient } from './resources/ram';
 import { TriggerType } from './interface/base';
-import { isAuto, isAppCenter } from './utils';
+import { isAuto } from './utils';
 
 export default class Base {
   commands: any;
@@ -30,12 +30,6 @@ export default class Base {
   // 在运行方法之前运行
   async handlePreRun(inputs: IInputs, needCredential: boolean) {
     log._set(this.logger);
-    log.info(`userAgent: ${inputs.userAgent}`);
-    if (isAppCenter()) {
-      log.info(`input: ${JSON.stringify(inputs)}`);
-    } else {
-      log.debug(`input: ${JSON.stringify(inputs)}`);
-    }
     // fc组件镜像 trim 左右空格
     const image = _.get(inputs, 'props.customContainerConfig.image');
     if (!_.isEmpty(image)) {

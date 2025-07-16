@@ -5,6 +5,8 @@ import { diffConvertYaml } from '@serverless-devs/diff';
 import { IInputs } from '../../../interface';
 import logger from '../../../logger';
 import Base from './base';
+import { sleep } from '../../../utils';
+// import Logs from '../../logs';
 
 interface IOpts {
   yes: boolean | undefined;
@@ -40,6 +42,53 @@ export default class ProvisionConfig extends Base {
     if (!_.isEmpty(localConfig)) {
       if (this.needDeploy) {
         await this.fcSdk.putFunctionProvisionConfig(this.functionName, qualifier, localConfig);
+        const { defaultTarget, target } = localConfig;
+        let realTarget = defaultTarget;
+        if (!defaultTarget) {
+          realTarget = target;
+        }
+        let getCurrentErrorCount = 0;
+        if (realTarget && realTarget > 0) {
+          const maxRetries = 180;
+          for (let index = 0; index < maxRetries; index++) {
+            // eslint-disable-next-line no-await-in-loop
+            const result = await this.fcSdk.getFunctionProvisionConfig(
+              this.functionName,
+              qualifier,
+            );
+            const { current, currentError } = result || {};
+            if (current && current === realTarget) {
+              break;
+            }
+            if (currentError && currentError.length > 0) {
+              /*
+              logger.warn('=========== LAST 10 MINUTES LOGS START ==========');
+              const iInput = _.cloneDeep(this.inputs);
+              iInput.args = [
+                '--start-time',
+                (new Date().getTime() - 10 * 60 * 1000).toString(),
+                '--end-time',
+                new Date().getTime().toString(),
+              ];
+              const logs = new Logs(iInput);
+              // eslint-disable-next-line no-await-in-loop
+              await logs.run();
+              logger.warn('=========== LAST 10 MINUTES END =========== ');
+              */
+              getCurrentErrorCount++;
+              if (getCurrentErrorCount > 3 || (index > 6 && getCurrentErrorCount > 0)) {
+                throw new Error(
+                  `get ${this.functionName}/${qualifier} provision config error: ${currentError}`,
+                );
+              }
+            }
+            logger.info(
+              `waiting ${this.functionName}/${qualifier} provision OK: current: ${current}, target: ${realTarget}`,
+            );
+            // eslint-disable-next-line no-await-in-loop
+            await sleep(5);
+          }
+        }
       } else if (_.isEmpty(remoteConfig)) {
         // 如果不需要部署，但是远端资源不存在，则尝试创建一下
         logger.debug(
@@ -56,6 +105,20 @@ export default class ProvisionConfig extends Base {
         if (!_.isEmpty(this.remote)) {
           logger.info(`Remove remote provisionConfig of  ${this.functionName}/${qualifier}`);
           await this.fcSdk.removeFunctionProvisionConfig(this.functionName, qualifier);
+          for (let index = 0; index < 12; index++) {
+            // eslint-disable-next-line no-await-in-loop
+            const result = await this.fcSdk.getFunctionProvisionConfig(
+              this.functionName,
+              qualifier,
+            );
+            const { current } = result || {};
+            if (current === 0 || !current) {
+              break;
+            }
+            logger.info(`waiting ${this.functionName}/${qualifier} provision current to 0 ...`);
+            // eslint-disable-next-line no-await-in-loop
+            await sleep(5);
+          }
         }
       } catch (ex) {
         logger.error(
