@@ -30,6 +30,7 @@ export default class Fc extends Base {
   // 部署函数
   public async deploy(inputs: IInputs) {
     await super.handlePreRun(inputs, true);
+    logger.info(`userAgent: ${inputs.userAgent}`);
     const deploy = new Deploy(inputs);
     const result = await deploy.run();
     if (_.isFunction(logger.tipsOnce)) logger.tipsOnce(`You can use "s info" get more detail`);
