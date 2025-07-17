@@ -26,9 +26,9 @@ export default class Deploy {
 
   constructor(readonly inputs: IInputs) {
     if (isAppCenter()) {
-      logger.info(`input: ${JSON.stringify(inputs)}`);
+      logger.info(`input props: ${JSON.stringify(inputs.props)}`);
     } else {
-      logger.debug(`input: ${JSON.stringify(inputs)}`);
+      logger.debug(`input props: ${JSON.stringify(inputs.props)}`);
     }
     this.opts = parseArgv(inputs.args, {
       alias: {

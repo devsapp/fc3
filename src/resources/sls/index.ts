@@ -5,6 +5,7 @@ import { IRegion } from '../../interface';
 import { PROJECT, LOG_STORE } from '../../default/resources';
 import logger from '../../logger';
 import getUuid from 'uuid-by-string';
+import { isAppCenter } from '../../utils/index';
 
 export default class Sls {
   static generateProjectName = (region: IRegion, accountID: string): string => {
@@ -51,18 +52,27 @@ export default class Sls {
     });
 
     logger.debug(`init sls: ${JSON.stringify(request)}`);
-
-    logger.spin(
-      'creating',
-      'sls',
-      `region: ${this.region}; project: ${project}; logstore: ${logstore}`,
-    );
+    if (isAppCenter()) {
+      logger.info(
+        `creating sls region: ${this.region}; project: ${project}; logstore: ${logstore}`,
+      );
+    } else {
+      logger.spin(
+        'creating',
+        'sls',
+        `region: ${this.region}; project: ${project}; logstore: ${logstore}`,
+      );
+    }
     await this.client.initSls(request);
-    logger.spin(
-      'created',
-      'sls',
-      `region: ${this.region}; project: ${project}; logstore: ${logstore}`,
-    );
+    if (isAppCenter()) {
+      logger.info(`created sls region: ${this.region}; project: ${project}; logstore: ${logstore}`);
+    } else {
+      logger.spin(
+        'created',
+        'sls',
+        `region: ${this.region}; project: ${project}; logstore: ${logstore}`,
+      );
+    }
     return { project, logstore };
   }
 }
