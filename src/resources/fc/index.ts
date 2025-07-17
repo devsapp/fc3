@@ -286,14 +286,20 @@ export default class FC extends FC_Client {
           throw ex;
         }
         retry += 1;
-
-        logger.spin(
-          'retrying',
-          'function',
-          needUpdate ? 'update' : 'create',
-          `${this.region}/${config.functionName}`,
-          retry,
-        );
+        if (isAppCenter()) {
+          const action = needUpdate ? 'update' : 'create';
+          logger.info(
+            `retrying ${action} function ${this.region}/${config.functionName} ${retry} times`,
+          );
+        } else {
+          logger.spin(
+            'retrying',
+            'function',
+            needUpdate ? 'update' : 'create',
+            `${this.region}/${config.functionName}`,
+            retry,
+          );
+        }
         await sleep(retryTime);
       }
     }
@@ -364,14 +370,18 @@ export default class FC extends FC_Client {
           throw ex;
         }
         retry += 1;
-
-        logger.spin(
-          'retrying',
-          'trigger',
-          needUpdate ? 'update' : 'create',
-          `${this.region}/${id}`,
-          retry,
-        );
+        if (isAppCenter()) {
+          const action = needUpdate ? 'update' : 'create';
+          logger.info(`retrying ${action} trigger ${this.region}/${id} ${retry} times`);
+        } else {
+          logger.spin(
+            'retrying',
+            'trigger',
+            needUpdate ? 'update' : 'create',
+            `${this.region}/${id}`,
+            retry,
+          );
+        }
 
         await sleep(3);
       }
