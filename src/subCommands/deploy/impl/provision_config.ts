@@ -75,11 +75,18 @@ export default class ProvisionConfig extends Base {
               await logs.run();
               logger.warn('=========== LAST 10 MINUTES END =========== ');
               */
-              getCurrentErrorCount++;
-              if (getCurrentErrorCount > 3 || (index > 6 && getCurrentErrorCount > 0)) {
-                throw new Error(
-                  `get ${this.functionName}/${qualifier} provision config error: ${currentError}`,
-                );
+              // 如果是系统内部错误，则继续尝试
+              if (!currentError.includes('an internal error has occurred')) {
+                // 不是系统内部错误，满足一定的重试次数则退出
+                getCurrentErrorCount++;
+                if (getCurrentErrorCount > 3 || (index > 6 && getCurrentErrorCount > 0)) {
+                  logger.error(
+                    `get ${this.functionName}/${qualifier} provision config getCurrentErrorCount=${getCurrentErrorCount}`,
+                  );
+                  throw new Error(
+                    `get ${this.functionName}/${qualifier} provision config error: ${currentError}`,
+                  );
+                }
               }
             }
             logger.info(
