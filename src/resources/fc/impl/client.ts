@@ -96,8 +96,13 @@ export default class FC_Client {
     this.customEndpoint = options.endpoint;
     const { timeout, userAgent } = options || {};
 
-    const { host: endpoint = `${accountID}.${region}.fc.aliyuncs.com`, protocol = 'http' } =
+    let { host: endpoint = `${accountID}.${region}.fc.aliyuncs.com`, protocol = 'http' } =
       getCustomEndpoint(options.endpoint);
+
+    // 河源地域，fc 走内网
+    if (region === 'cn-heyuan-acdr-1') {
+      endpoint = endpoint.replace('.fc.aliyuncs.com', '-internal.fc.aliyuncs.com')
+    }
 
     logger.debug(`endpoint=${endpoint};  protocol=${protocol}`);
 
