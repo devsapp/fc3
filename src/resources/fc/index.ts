@@ -20,7 +20,11 @@ import { RuntimeOptions } from '@alicloud/tea-util';
 
 import logger from '../../logger';
 import { sleep, removeNullValues, isAppCenter } from '../../utils/index';
-import { FC_DEPLOY_RETRY_COUNT, FC_INSTANCE_EXEC_TIMEOUT } from '../../default/config';
+import {
+  FC_DEPLOY_RETRY_COUNT,
+  FC_INSTANCE_EXEC_TIMEOUT,
+  FC_CONTAINER_ACCELERATED_TIMEOUT,
+} from '../../default/config';
 
 import FC_Client, { fc2Client } from './impl/client';
 import {
@@ -58,10 +62,16 @@ export default class FC extends FC_Client {
   static replaceFunctionConfig = replaceFunctionConfig;
 
   async untilFunctionStateOK(config: IFunction, reason: string) {
-    const retryTime = 2;
+    const retryInterval = 2;
     const startTime = new Date().getTime();
     const calculateRetryTime = (minute: number) =>
       new Date().getTime() - startTime > minute * 60 * 1000;
+
+    // 默认重试 3 min
+    let maxRetryContainerAcceleratedTime = FC_CONTAINER_ACCELERATED_TIMEOUT;
+    if (isAppCenter()) {
+      maxRetryContainerAcceleratedTime = FC_CONTAINER_ACCELERATED_TIMEOUT * 7;
+    }
     const retryContainerAccelerated = FC.isCustomContainerRuntime(config.runtime);
     // 部署镜像需要重试 3min, 直到达到!(State == Pending || LastUpdateStatus == InProgress)
     if (retryContainerAccelerated) {
@@ -103,12 +113,12 @@ export default class FC extends FC_Client {
           `untilFunctionStateOK ==>  function State=${state},  LastUpdateStatus=${lastUpdateStatus}`,
         );
         if (state === 'Pending' || lastUpdateStatus === 'InProgress') {
-          if (calculateRetryTime(3)) {
+          if (calculateRetryTime(maxRetryContainerAcceleratedTime)) {
             throw new Error(
               `retry to wait function state ok timeout, function State=${state},  LastUpdateStatus=${lastUpdateStatus}`,
             );
           }
-          await sleep(retryTime);
+          await sleep(retryInterval);
           if (isAppCenter()) {
             logger.info(
               `${
@@ -135,7 +145,7 @@ export default class FC extends FC_Client {
               `retry to wait function state ok failed reach 3 times, function State=${state},  LastUpdateStatus=${lastUpdateStatus}`,
             );
           }
-          await sleep(retryTime);
+          await sleep(retryInterval);
         } else {
           if (isAppCenter()) {
             logger.info(`${config.customContainerConfig.image} optimization is ready`);
@@ -171,7 +181,7 @@ export default class FC extends FC_Client {
     }
 
     let retry = 0;
-    let retryTime = 3;
+    let retryInterval = 3;
 
     // 计算是否超时
     const startTime = new Date().getTime();
@@ -279,7 +289,7 @@ export default class FC extends FC_Client {
           if (calculateRetryTime(3)) {
             throw ex;
           }
-          retryTime = 5;
+          retryInterval = 5;
         } else if (isAccessDenied(ex) || isInvalidArgument(ex) || isFailedState(ex)) {
           throw ex;
         } else if (retry > FC_DEPLOY_RETRY_COUNT) {
@@ -300,7 +310,7 @@ export default class FC extends FC_Client {
             retry,
           );
         }
-        await sleep(retryTime);
+        await sleep(retryInterval);
       }
     }
   }

@@ -79,4 +79,9 @@ export const FC_INSTANCE_EXEC_TIMEOUT: number = parseInt(
   10,
 );
 
+export const FC_CONTAINER_ACCELERATED_TIMEOUT: number = parseInt(
+  process.env.FC_CONTAINER_ACCELERATED_TIMEOUT || '3',
+  10,
+);
+
 export const FC_DEPLOY_RETRY_COUNT = 3;

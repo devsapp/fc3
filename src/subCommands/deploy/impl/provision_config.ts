@@ -15,6 +15,7 @@ interface IOpts {
 export default class ProvisionConfig extends Base {
   local: any;
   remote: any;
+  ProvisionMode: string;
   readonly functionName: string;
 
   constructor(inputs: IInputs, opts: IOpts) {
@@ -23,6 +24,9 @@ export default class ProvisionConfig extends Base {
 
     const provisionConfig = _.get(inputs, 'props.provisionConfig', {});
     this.local = _.cloneDeep(provisionConfig);
+
+    this.ProvisionMode = _.get(this.local, 'mode', 'sync');
+    _.unset(this.local, 'mode');
     logger.debug(`need deploy provisionConfig: ${JSON.stringify(provisionConfig)}`);
   }
 
@@ -42,26 +46,30 @@ export default class ProvisionConfig extends Base {
     if (!_.isEmpty(localConfig)) {
       if (this.needDeploy) {
         await this.fcSdk.putFunctionProvisionConfig(this.functionName, qualifier, localConfig);
-        const { defaultTarget, target } = localConfig;
-        let realTarget = defaultTarget;
-        if (!defaultTarget) {
-          realTarget = target;
-        }
-        let getCurrentErrorCount = 0;
-        if (realTarget && realTarget > 0) {
-          const maxRetries = 180;
-          for (let index = 0; index < maxRetries; index++) {
-            // eslint-disable-next-line no-await-in-loop
-            const result = await this.fcSdk.getFunctionProvisionConfig(
-              this.functionName,
-              qualifier,
-            );
-            const { current, currentError } = result || {};
-            if (current && current === realTarget) {
-              break;
-            }
-            if (currentError && currentError.length > 0) {
-              /*
+        if (this.ProvisionMode === 'sync') {
+          logger.info(
+            `Waiting for provisionConfig of  ${this.functionName}/${qualifier} to instance up ...`,
+          );
+          const { defaultTarget, target } = localConfig;
+          let realTarget = defaultTarget;
+          if (!defaultTarget) {
+            realTarget = target;
+          }
+          let getCurrentErrorCount = 0;
+          if (realTarget && realTarget > 0) {
+            const maxRetries = 180;
+            for (let index = 0; index < maxRetries; index++) {
+              // eslint-disable-next-line no-await-in-loop
+              const result = await this.fcSdk.getFunctionProvisionConfig(
+                this.functionName,
+                qualifier,
+              );
+              const { current, currentError } = result || {};
+              if (current && current === realTarget) {
+                break;
+              }
+              if (currentError && currentError.length > 0) {
+                /*
               logger.warn('=========== LAST 10 MINUTES LOGS START ==========');
               const iInput = _.cloneDeep(this.inputs);
               iInput.args = [
@@ -75,26 +83,31 @@ export default class ProvisionConfig extends Base {
               await logs.run();
               logger.warn('=========== LAST 10 MINUTES END =========== ');
               */
-              // 如果是系统内部错误，则继续尝试
-              if (!currentError.includes('an internal error has occurred')) {
-                // 不是系统内部错误，满足一定的重试次数则退出
-                getCurrentErrorCount++;
-                if (getCurrentErrorCount > 3 || (index > 6 && getCurrentErrorCount > 0)) {
-                  logger.error(
-                    `get ${this.functionName}/${qualifier} provision config getCurrentErrorCount=${getCurrentErrorCount}`,
-                  );
-                  throw new Error(
-                    `get ${this.functionName}/${qualifier} provision config error: ${currentError}`,
-                  );
+                // 如果是系统内部错误，则继续尝试
+                if (!currentError.includes('an internal error has occurred')) {
+                  // 不是系统内部错误，满足一定的重试次数则退出
+                  getCurrentErrorCount++;
+                  if (getCurrentErrorCount > 3 || (index > 6 && getCurrentErrorCount > 0)) {
+                    logger.error(
+                      `get ${this.functionName}/${qualifier} provision config getCurrentErrorCount=${getCurrentErrorCount}`,
+                    );
+                    throw new Error(
+                      `get ${this.functionName}/${qualifier} provision config error: ${currentError}`,
+                    );
+                  }
                 }
               }
+              logger.info(
+                `waiting ${this.functionName}/${qualifier} provision OK: current: ${current}, target: ${realTarget}`,
+              );
+              // eslint-disable-next-line no-await-in-loop
+              await sleep(5);
             }
-            logger.info(
-              `waiting ${this.functionName}/${qualifier} provision OK: current: ${current}, target: ${realTarget}`,
-            );
-            // eslint-disable-next-line no-await-in-loop
-            await sleep(5);
           }
+        } else {
+          logger.info(
+            `Skip wait provisionConfig of ${this.functionName}/${qualifier} to instance up`,
+          );
         }
       } else if (_.isEmpty(remoteConfig)) {
         // 如果不需要部署，但是远端资源不存在，则尝试创建一下

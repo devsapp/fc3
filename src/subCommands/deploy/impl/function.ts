@@ -142,6 +142,10 @@ export default class Service extends Base {
       _.unset(this.remote, 'disableOndemand');
     }
 
+    if (_.get(this.remote, 'resourceGroupId')) {
+      _.unset(this.remote, 'resourceGroupId');
+    }
+
     _.unset(this.local, 'endpoint');
     const { code } = this.local;
     _.unset(this.local, 'code');

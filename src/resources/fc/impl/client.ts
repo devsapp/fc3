@@ -58,6 +58,7 @@ import logger from '../../../logger';
 import { IAlias } from '../../../interface/cli-config/alias';
 import { IProvision } from '../../../interface/cli-config/provision';
 import * as $Util from '@alicloud/tea-util';
+import { isAppCenter } from '../../../utils';
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const httpx = require('httpx');
@@ -84,6 +85,7 @@ export const fc2Client = (region: IRegion, credentials: ICredentials, customEndp
 
 export default class FC_Client {
   readonly fc20230330Client: FCClient;
+  readonly fc20230330InvokeClient: FCClient;
   customEndpoint: string;
 
   constructor(readonly region: IRegion, readonly credentials: ICredentials, options: IOptions) {
@@ -95,17 +97,24 @@ export default class FC_Client {
     } = credentials;
     this.customEndpoint = options.endpoint;
     const { timeout, userAgent } = options || {};
+    const hostAddrInfo = getCustomEndpoint(options.endpoint);
+    const { protocol } = hostAddrInfo;
+    let { endpoint } = hostAddrInfo;
+    let invokeEndpoint = endpoint;
 
-    let { host: endpoint = `${accountID}.${region}.fc.aliyuncs.com`, protocol = 'http' } =
-      getCustomEndpoint(options.endpoint);
-
+    if (_.isEmpty(endpoint)) {
+      endpoint = `fcv3.${region}.aliyuncs.com`;
+      invokeEndpoint = `${accountID}.${region}.fc.aliyuncs.com`;
+    }
     // 河源地域，fc 走内网
     if (region === 'cn-heyuan-acdr-1') {
-      endpoint = endpoint.replace('.fc.aliyuncs.com', '-internal.fc.aliyuncs.com')
+      endpoint = `${accountID}.${region}-internal.fc.aliyuncs.com`;
+      invokeEndpoint = endpoint;
     }
 
-    logger.debug(`endpoint=${endpoint};  protocol=${protocol}`);
+    logger.debug(`endpoint=${endpoint}; invokeEndpoint=${invokeEndpoint}; protocol=${protocol}`);
 
+    // Main client with new endpoint format
     const config = new Config({
       accessKeyId,
       accessKeySecret,
@@ -117,7 +126,20 @@ export default class FC_Client {
       userAgent,
     });
 
+    // Invoke client with old endpoint format
+    const invokeConfig = new Config({
+      accessKeyId,
+      accessKeySecret,
+      securityToken,
+      protocol,
+      endpoint: invokeEndpoint,
+      readTimeout: timeout || FC_CLIENT_READ_TIMEOUT,
+      connectTimeout: timeout || FC_CLIENT_CONNECT_TIMEOUT,
+      userAgent,
+    });
+
     this.fc20230330Client = new FCClient(config);
+    this.fc20230330InvokeClient = new FCClient(invokeConfig);
   }
 
   async createFunction(config: IFunction): Promise<CreateFunctionResponse> {
@@ -129,6 +151,9 @@ export default class FC_Client {
     } = {
       ...config?.annotations?.headers,
     };
+    if (isAppCenter()) {
+      headers.function_ai_model_skip_gpu_whitelist = 'card_number_limit_ada,fold_spec_ada';
+    }
     const runtime = new $Util.RuntimeOptions({});
 
     return await this.fc20230330Client.createFunctionWithOptions(request, headers, runtime);
@@ -143,6 +168,9 @@ export default class FC_Client {
     } = {
       ...config?.annotations?.headers,
     };
+    if (isAppCenter()) {
+      headers.function_ai_model_skip_gpu_whitelist = 'card_number_limit_ada,fold_spec_ada';
+    }
     const runtime = new $Util.RuntimeOptions({});
 
     return await this.fc20230330Client.updateFunctionWithOptions(
@@ -217,7 +245,7 @@ export default class FC_Client {
       body: payload ? Readable.from(Buffer.from(payload, 'utf8')) : undefined,
     });
 
-    const result = await this.fc20230330Client.invokeFunctionWithOptions(
+    const result = await this.fc20230330InvokeClient.invokeFunctionWithOptions(
       functionName,
       request,
       headers,

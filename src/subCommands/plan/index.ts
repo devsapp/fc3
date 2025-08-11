@@ -118,6 +118,9 @@ export default class Plan {
     if (_.get(remote, 'disableOndemand') === false) {
       _.unset(remote, 'disableOndemand');
     }
+    if (_.get(remote, 'resourceGroupId')) {
+      _.unset(remote, 'resourceGroupId');
+    }
     const config = FC.replaceFunctionConfig(local, remote);
     return diffConvertPlanYaml(config.remote, config.local, { deep: 0, complete: true });
   }
@@ -207,7 +210,10 @@ export default class Plan {
       const provisionConfig = _.get(this.inputs, 'props.provisionConfig', {});
       const qualifier = _.get(provisionConfig, 'qualifier', 'LATEST');
       const result = await this.fcSdk.getFunctionProvisionConfig(this.functionName, qualifier);
-      const r = _.omit(result, ['current', 'functionArn', 'currentError']);
+      let r = _.omit(result, ['current', 'functionArn', 'currentError']);
+      if ('target' in r && 'defaultTarget' in r) {
+        r = _.omit(r, ['target']);
+      }
       remote = r;
     } catch (ex) {
       logger.debug(
@@ -217,6 +223,7 @@ export default class Plan {
 
     // eslint-disable-next-line prefer-const
     let local = _.cloneDeep(_.get(this.inputs.props, 'provisionConfig', {})) as any;
+    _.unset(local, 'mode');
     return diffConvertPlanYaml(remote, local, { deep: 1, complete: true });
   }
 
