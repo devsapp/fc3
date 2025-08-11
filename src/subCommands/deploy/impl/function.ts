@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import _, { isEmpty } from 'lodash';
 import { diffConvertYaml } from '@serverless-devs/diff';
 import inquirer from 'inquirer';
 import fs from 'fs';
@@ -319,7 +319,7 @@ export default class Service extends Base {
    * 生成 auto 资源，非 FC 资源，主要指 vpc、nas、log、role（oss mount 挂载点才有）
    */
   private async _deployAuto() {
-    const { region } = this.inputs.props;
+    const { region, supplement } = this.inputs.props;
     const { credential } = this.inputs;
     const { functionName } = this.local;
 
@@ -390,14 +390,19 @@ vpcConfig:
         _.set(this.local, 'vpcConfig', vpcConfig);
       }
       if (nasAuto) {
+        let modelConfig;
+        if (!isEmpty(supplement)) {
+          modelConfig = supplement.modelConfig;
+        }
+
         logger.write(
           yellow(`Created nas resource succeeded, please replace nasConfig: auto in yaml with:
 nasConfig:
   groupId: 0
   userId: 0
   mountPoints:
-    - serverAddr: ${mountTargetDomain}:/${functionName}
-      mountDir: /mnt/${functionName}
+    - serverAddr: ${mountTargetDomain}:/${functionName}${isEmpty(modelConfig) ? '' : '/' + modelConfig.id}
+      mountDir: /mnt/${functionName}${isEmpty(modelConfig) ? '' : '/' + modelConfig.id}
       enableTLS: false\n`),
         );
         this.createResource.nas = { mountTargetDomain, fileSystemId };
@@ -406,8 +411,8 @@ nasConfig:
           userId: 0,
           mountPoints: [
             {
-              serverAddr: `${mountTargetDomain}:/${functionName}`,
-              mountDir: `/mnt/${functionName}`,
+              serverAddr: `${mountTargetDomain}:/${functionName}${isEmpty(modelConfig) ? '' : '/' + modelConfig.id}`,
+              mountDir: `/mnt/${functionName}${isEmpty(modelConfig) ? '' : '/' + modelConfig.id}`,
               enableTLS: false,
             },
           ],

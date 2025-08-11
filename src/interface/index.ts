@@ -19,6 +19,7 @@ export interface IProps extends IFunction {
   concurrencyConfig?: IConcurrencyConfig;
   provisionConfig?: IProvisionConfig;
   endpoint?: string;
+  supplement?: any;
 }
 
 export interface IInputs extends _IInputs {

@@ -25,6 +25,7 @@ import SYaml2To3 from './subCommands/2to3';
 import Logs from './subCommands/logs';
 import { SCHEMA_FILE_PATH } from './constant';
 import { checkDockerIsOK, isAppCenter, isYunXiao } from './utils';
+import { Model } from './subCommands/model';
 
 export default class Fc extends Base {
   // 部署函数
@@ -166,6 +167,13 @@ export default class Fc extends Base {
     await super.handlePreRun(inputs, true);
     const logs = new Logs(inputs);
     return await logs.run();
+  }
+
+  public async model(inputs: IInputs) {
+    await super.handlePreRun(inputs, false);
+    const model = new Model(inputs);
+    logger.debug(`model inputs: ${model.subCommand}`);
+    return await model[model.subCommand]();
   }
 
   public async getSchema(inputs: IInputs) {
