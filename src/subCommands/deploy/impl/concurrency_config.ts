@@ -47,7 +47,7 @@ export default class ConcurrencyConfig extends Base {
           `Online concurrencyConfig exists, specified not to deploy, skipping deployment ${id}`,
         );
       }
-    } else {
+    } else if (this.needDeploy) {
       try {
         if (!_.isEmpty(this.remote)) {
           logger.info(`Remove remote concurrencyConfig of  ${this.functionName}`);
