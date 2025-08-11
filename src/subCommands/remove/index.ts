@@ -442,7 +442,50 @@ export default class Remove {
     }
 
     logger.spin('removing', 'function', `${this.region}/${this.functionName}`);
-    await this.fcSdk.fc20230330Client.deleteFunction(this.functionName);
+    try {
+      await this.fcSdk.fc20230330Client.deleteFunction(this.functionName);
+    } catch (ex) {
+      // 如果是 ProvisionConfigExist 错误，尝试重试
+      if (ex.code === FC_API_ERROR_CODE.ProvisionConfigExist) {
+        logger.warn(
+          `Remove function ${this.functionName} failed with ProvisionConfigExist error, retrying...`,
+        );
+
+        // 重试 20 次，每次间隔 2 秒
+        for (let i = 1; i <= 20; i++) {
+          logger.info(`Retry attempt ${i}/20...`);
+          await sleep(2);
+
+          try {
+            await this.fcSdk.fc20230330Client.deleteFunction(this.functionName);
+            logger.info(`Function ${this.functionName} removed successfully on retry attempt ${i}`);
+            break;
+          } catch (retryEx) {
+            if (i === 20) {
+              // 最后一次重试仍然失败
+              logger.error(
+                `Remove function ${this.functionName} error after 20 retries: ${retryEx.message}`,
+              );
+              throw retryEx;
+            }
+
+            // 如果不是 ProvisionConfigExist 错误，直接抛出
+            if (retryEx.code !== FC_API_ERROR_CODE.ProvisionConfigExist) {
+              logger.error(`Remove function ${this.functionName} error: ${retryEx.message}`);
+              throw retryEx;
+            }
+
+            // 如果是 ProvisionConfigExist 错误，继续重试
+            logger.warn(
+              `Remove function ${this.functionName} still failed with ProvisionConfigExist error, continuing retries...`,
+            );
+          }
+        }
+      } else {
+        logger.error(`Remove function ${this.functionName} error: ${ex.message}`);
+        throw ex;
+      }
+    }
     logger.spin('removed', 'function', `${this.region}/${this.functionName}`);
   }
 

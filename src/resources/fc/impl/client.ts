@@ -543,7 +543,7 @@ export default class FC_Client {
   }
 
   async getLayerVersionByArn(arn: string) {
-    const result = await this.fc20230330Client.getLayerVersionByArn(arn);
+    const result = await this.fc20230330InvokeClient.getLayerVersionByArn(arn);
     const { body } = result.toMap();
     logger.debug(`getLayerVersionByArn response  body: ${JSON.stringify(body)}`);
     return body;
