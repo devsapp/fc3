@@ -14,7 +14,7 @@ import assert from 'assert';
 import { sleep } from '../../utils';
 
 export const NEW_MODEL_SERVICE_CLIENT_CONNECT_TIMEOUT: number =
-  parseInt(process.env.NEW_MODEL_SERVICE_CLIENT_CONNECT_TIMEOUT as string, 10) || 5 * 1000;
+  parseInt(process.env.NEW_MODEL_SERVICE_CLIENT_CONNECT_TIMEOUT as string, 10) || 10 * 1000;
 export const NEW_MODEL_SERVICE_CLIENT_READ_TIMEOUT: number =
   parseInt(process.env.NEW_MODEL_SERVICE_CLIENT_READ_TIMEOUT as string, 10) || 86400 * 1000;
 export const MODEL_DOWNLOAD_TIMEOUT: number =
@@ -111,7 +111,7 @@ groupId: 0
 userId: 0
 mountPoints:
   - serverAddr: ${mountTargetDomain}:/${functionName}/${supplement.modelConfig.id}
-    mountDir: /mnt/${functionName}/${supplement.modelConfig.id}
+    mountDir: /mnt/${functionName}
     enableTLS: false\n`),
         );
         this.createResource.nas = { mountTargetDomain, fileSystemId };
@@ -121,7 +121,7 @@ mountPoints:
           mountPoints: [
             {
               serverAddr: `${mountTargetDomain}:/${functionName}/${supplement.modelConfig.id}`,
-              mountDir: `/mnt/${functionName}/${supplement.modelConfig.id}`,
+              mountDir: `/mnt/${functionName}`,
               enableTLS: false,
             },
           ],
