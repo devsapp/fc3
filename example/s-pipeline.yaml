@@ -8,7 +8,7 @@ resources:
     props:
       region: cn-shanghai
       runtime: custom-container
-      functionName: ${env('fc_component_function_name', 'ai-model-test-qwen')}  
+      functionName: ${env('fc_component_function_name', 'ai-model-test-qwen-pipeline')}  
       description: model service from functionai test
       logConfig: auto
       vpcConfig: auto
@@ -23,22 +23,15 @@ resources:
         gpuType: fc.gpu.ada.1
       customContainerConfig:
         image: >-
-          serverless-registry.cn-hangzhou.cr.aliyuncs.com/functionai/dms-vllm:openai_v0.10.0
+          serverless-registry.cn-hangzhou.cr.aliyuncs.com/functionai/modelscope:ubuntu22.04-cuda12.1.0-py311-torch2.3.1-tf2.16.1-1.26.0
         port: 9000
         entrypoint:
-          - vllm
-          - serve 
-          - /mnt/${env('fc_component_function_name', 'ai-model-test-qwen')}/${env('MODEL_ID', 'Qwen/Qwen3-32B-AWQ')}
-          - --port 
-          - "9000" 
-          - --served-model-name
-          - ${env('MODEL_ID', 'Qwen/Qwen3-32B-AWQ')}
-          # - Qwen/Qwen3-14B
-          - --tensor-parallel-size 
-          - "1"
-          - --trust-remote-code  # 添加这个参数
-          - --max-model-len
-          - "4096" 
+          - sh
+          - '-c'
+          - >-
+            mkdir -p /.function_model && curl -fL --retry 3 -o
+            /.function_model/server.py 
+            https://images.devsapp.cn/modelscope/server.py &&  MODEL_ID="${env('MODEL_ID', 'iic/SenseVoiceSmall')}"  MODEL_VERSION="${env('MODEL_VERSION', 'master')}" MODEL_PATH="/mnt/${env('fc_component_function_name', 'ai-model-test-qwen-pipeline')} /${env('MODEL_ID', 'iic/SenseVoiceSmall')}"  TASK="${env('TASK')}" python3 -u /.function_model/server.py 
       triggers: # 默认，用户可能关注的是开启 authType 是 bear token
         - triggerConfig:
             methods:
@@ -61,8 +54,8 @@ resources:
       supplement:
         modelConfig:
           source: modelscope
-          id: ${env('MODEL_ID', 'Qwen/Qwen3-32B-AWQ')}
+          id: ${env('MODEL_ID', 'iic/SenseVoiceSmall')}
           # id: Qwen/Qwen3-14B
           storage: nas
           role: acs:ram::${config('AccountID')}:role/aliyundevsdefaultrole
-
+          

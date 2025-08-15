@@ -402,7 +402,7 @@ nasConfig:
   userId: 0
   mountPoints:
     - serverAddr: ${mountTargetDomain}:/${functionName}${isEmpty(modelConfig) ? '' : '/' + modelConfig.id}
-      mountDir: /mnt/${functionName}${isEmpty(modelConfig) ? '' : '/' + modelConfig.id}
+      mountDir: /mnt/${functionName}
       enableTLS: false\n`),
         );
         this.createResource.nas = { mountTargetDomain, fileSystemId };
@@ -412,7 +412,7 @@ nasConfig:
           mountPoints: [
             {
               serverAddr: `${mountTargetDomain}:/${functionName}${isEmpty(modelConfig) ? '' : '/' + modelConfig.id}`,
-              mountDir: `/mnt/${functionName}${isEmpty(modelConfig) ? '' : '/' + modelConfig.id}`,
+              mountDir: `/mnt/${functionName}`,
               enableTLS: false,
             },
           ],
