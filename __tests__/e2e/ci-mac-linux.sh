@@ -81,6 +81,10 @@ s deploy -y -t ./s_tags2.yaml
 s deploy -y -t ./s_tags3.yaml
 s remove -y -t ./s_tags3.yaml
 
+echo "test nodejs runtime with custom endpoint ..."
+s deploy -y -t ./s_custom_endpoint.yaml
+s remove -y -t ./s_custom_endpoint.yaml
+
 echo "test deploy with alias"
 export fc_component_function_name=nodejs18-$(uname)-$(uname -m)-$RANDSTR
 s deploy --function -t s2.yaml

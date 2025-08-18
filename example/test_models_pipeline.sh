@@ -76,10 +76,10 @@ for MODEL_INFO in "${MODEL_LIST[@]}"; do
     if [ -z $SYSTEM_URL ]; then
         log "Failed to extract system_url for model: $MODEL_ID"
         # 清理资源
-        REMOVE_OUTPUT=$(s model remove -y 2>&1)
+        REMOVE_OUTPUT=$(s model remove -t s-pipeline.yaml -y 2>&1)
         echo "$REMOVE_OUTPUT" >> "$LOG_FILE"
         echo "$REMOVE_OUTPUT"
-        REMOVE_OUTPUT=$(s remove -y 2>&1)
+        REMOVE_OUTPUT=$(s remove -t s-pipeline.yaml -y 2>&1)
         echo "$REMOVE_OUTPUT" >> "$LOG_FILE"
         echo "$REMOVE_OUTPUT"
         continue
@@ -105,10 +105,10 @@ for MODEL_INFO in "${MODEL_LIST[@]}"; do
     
     # 清理资源
     log "Removing resources..."
-    REMOVE_OUTPUT=$(s model remove -y 2>&1)
+    REMOVE_OUTPUT=$(s model remove -t s-pipeline.yaml -y 2>&1)
     echo "$REMOVE_OUTPUT" >> "$LOG_FILE"
     echo "$REMOVE_OUTPUT"
-    REMOVE_OUTPUT=$(s remove -y 2>&1)
+    REMOVE_OUTPUT=$(s remove -t s-pipeline.yaml -y 2>&1)
     echo "$REMOVE_OUTPUT" >> "$LOG_FILE"
     echo "$REMOVE_OUTPUT"
     
