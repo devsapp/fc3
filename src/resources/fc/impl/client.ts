@@ -99,7 +99,7 @@ export default class FC_Client {
     const { timeout, userAgent } = options || {};
     const hostAddrInfo = getCustomEndpoint(options.endpoint);
     const { protocol } = hostAddrInfo;
-    let { endpoint } = hostAddrInfo;
+    let { host: endpoint } = hostAddrInfo;
     let invokeEndpoint = endpoint;
 
     if (_.isEmpty(endpoint)) {
