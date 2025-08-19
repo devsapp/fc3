@@ -20,6 +20,7 @@ export interface IProps extends IFunction {
   provisionConfig?: IProvisionConfig;
   endpoint?: string;
   supplement?: any;
+  annotations?: any;
 }
 
 export interface IInputs extends _IInputs {
