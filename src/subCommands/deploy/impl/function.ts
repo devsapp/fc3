@@ -319,7 +319,7 @@ export default class Service extends Base {
    * 生成 auto 资源，非 FC 资源，主要指 vpc、nas、log、role（oss mount 挂载点才有）
    */
   private async _deployAuto() {
-    const { region, supplement } = this.inputs.props;
+    const { region, supplement, annotations } = this.inputs.props;
     const { credential } = this.inputs;
     const { functionName } = this.local;
 
@@ -390,10 +390,7 @@ vpcConfig:
         _.set(this.local, 'vpcConfig', vpcConfig);
       }
       if (nasAuto) {
-        let modelConfig;
-        if (!isEmpty(supplement)) {
-          modelConfig = supplement.modelConfig;
-        }
+        let modelConfig = supplement?.modelConfig || annotations?.modelConfig;
 
         logger.write(
           yellow(`Created nas resource succeeded, please replace nasConfig: auto in yaml with:

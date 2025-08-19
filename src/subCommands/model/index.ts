@@ -57,9 +57,9 @@ export class Model {
     // 2. 调用 download 接口，若返回一个错误是下载服务已经存在，继续等待 get 轮询。
     // 3. 轮询 get 接口
     const { credential } = this.inputs;
-    const { region, supplement } = this.inputs.props;
+    const { region, supplement, annotations } = this.inputs.props;
     const { functionName } = this.local;
-    const { modelConfig } = supplement;
+    const modelConfig = supplement?.modelConfig || annotations?.modelConfig;
 
     if (isEmpty(modelConfig)) {
       logger.error(`[Download-model] modelConfig is empty.`);
@@ -110,7 +110,7 @@ nasConfig:
 groupId: 0
 userId: 0
 mountPoints:
-  - serverAddr: ${mountTargetDomain}:/${functionName}/${supplement.modelConfig.id}
+  - serverAddr: ${mountTargetDomain}:/${functionName}/${modelConfig.id}
     mountDir: /mnt/${functionName}
     enableTLS: false\n`),
         );
@@ -120,7 +120,7 @@ mountPoints:
           userId: 0,
           mountPoints: [
             {
-              serverAddr: `${mountTargetDomain}:/${functionName}/${supplement.modelConfig.id}`,
+              serverAddr: `${mountTargetDomain}:/${functionName}/${modelConfig.id}`,
               mountDir: `/mnt/${functionName}`,
               enableTLS: false,
             },

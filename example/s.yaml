@@ -58,7 +58,7 @@ resources:
         alwaysAllocateGPU: false
         mode: sync
 
-      supplement:
+      annotations:
         modelConfig:
           source: modelscope
           id: ${env('MODEL_ID', 'Qwen/Qwen3-32B-AWQ')}
