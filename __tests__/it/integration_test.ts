@@ -87,6 +87,8 @@ describe('Integration Tests', () => {
       role: '',
       runtime: 'python3.9',
       timeout: 60,
+      instanceIsolationMode: "SHARE",
+      sessionAffinity: "NONE",
       asyncInvokeConfig: undefined,
       concurrencyConfig: undefined,
       customDomain: undefined,
@@ -129,6 +131,8 @@ describe('Integration Tests', () => {
       runtime: 'python3.9',
       timeout: 60,
       disableOndemand: false,
+      instanceIsolationMode: "SHARE",
+      sessionAffinity: "NONE",
       triggers: [
         {
           description: 'xxxx',

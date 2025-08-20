@@ -47,6 +47,13 @@ s remove -y
 rm -rf ./target
 cd ..
 
+echo "test php runtime with session config"
+cd php
+export fc_component_function_name=php-$(uname)-$(uname -m)-$RANDSTR
+s deploy -y
+s info
+s remove -y
+cd ..
 
 echo "test custom go runtime ..."
 cd custom

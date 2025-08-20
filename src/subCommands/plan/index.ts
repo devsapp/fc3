@@ -121,6 +121,12 @@ export default class Plan {
     if (_.get(remote, 'resourceGroupId')) {
       _.unset(remote, 'resourceGroupId');
     }
+    if (_.get(remote, 'instanceIsolationMode') === 'SHARE') {
+      _.unset(remote, 'instanceIsolationMode');
+    }
+    if (_.get(remote, 'sessionAffinity') === 'NONE') {
+      _.unset(remote, 'sessionAffinity');
+    }
     const config = FC.replaceFunctionConfig(local, remote);
     return diffConvertPlanYaml(config.remote, config.local, { deep: 0, complete: true });
   }

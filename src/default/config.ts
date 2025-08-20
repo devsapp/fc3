@@ -40,6 +40,8 @@ export const FC_RESOURCES_EMPTY_CONFIG = {
   },
   environmentVariables: {},
   layers: [],
+  instanceIsolationMode: 'SHARE',
+  sessionAffinity: 'NONE',
 };
 
 export const FC_TRIGGER_DEFAULT_CONFIG = {

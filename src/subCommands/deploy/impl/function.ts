@@ -110,9 +110,15 @@ export default class Service extends Base {
         await this._pushImage();
       }
     }
-
     // 部署函数
     const config = _.defaults(this.local, FC_RESOURCES_EMPTY_CONFIG);
+    if (
+      !_.isEmpty(config.sessionAffinityConfig) &&
+      typeof config.sessionAffinityConfig !== 'string'
+    ) {
+      logger.debug('sessionAffinityConfig', config.sessionAffinityConfig);
+      config.sessionAffinityConfig = JSON.stringify(config.sessionAffinityConfig);
+    }
     await this.fcSdk.deployFunction(config, {
       slsAuto: !_.isEmpty(this.createResource.sls),
       type: this.type,
@@ -144,6 +150,14 @@ export default class Service extends Base {
 
     if (_.get(this.remote, 'resourceGroupId')) {
       _.unset(this.remote, 'resourceGroupId');
+    }
+
+    if (_.get(this.remote, 'instanceIsolationMode') === 'SHARE') {
+      _.unset(this.remote, 'instanceIsolationMode');
+    }
+
+    if (_.get(this.remote, 'sessionAffinity') === 'NONE') {
+      _.unset(this.remote, 'sessionAffinity');
     }
 
     _.unset(this.local, 'endpoint');
@@ -390,7 +404,7 @@ vpcConfig:
         _.set(this.local, 'vpcConfig', vpcConfig);
       }
       if (nasAuto) {
-        let modelConfig = supplement?.modelConfig || annotations?.modelConfig;
+        const modelConfig = supplement?.modelConfig || annotations?.modelConfig;
 
         logger.write(
           yellow(`Created nas resource succeeded, please replace nasConfig: auto in yaml with:

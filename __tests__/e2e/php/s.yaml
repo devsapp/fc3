@@ -16,4 +16,10 @@ resources:
       code: ./code
       timeout: 30
       handler: index.handler
-      memorySize: 128
+      memorySize: 2048
+      instanceIsolationMode: SESSION_EXCLUSIVE
+      sessionAffinity: GENERATED_COOKIE
+      sessionAffinityConfig:
+        sessionConcurrencyPerInstance: 1
+        sessionIdleTimeoutInSeconds: 1800
+        sessionTTLInSeconds: 21600
