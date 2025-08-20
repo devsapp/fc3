@@ -28,10 +28,7 @@ resources:
         entrypoint:
           - sh
           - '-c'
-          - >-
-            mkdir -p /.function_model && curl -fL --retry 3 -o
-            /.function_model/server.py 
-            https://images.devsapp.cn/modelscope/server.py &&  MODEL_ID="${env('MODEL_ID', 'iic/SenseVoiceSmall')}"  MODEL_VERSION="${env('MODEL_VERSION', 'master')}" MODEL_PATH="/mnt/${env('fc_component_function_name', 'ai-model-test-qwen-pipeline')} /${env('MODEL_ID', 'iic/SenseVoiceSmall')}"  TASK="${env('TASK')}" python3 -u /.function_model/server.py 
+          - mkdir -p /.function_model && curl -fL --retry 3 -o /.function_model/server.py https://images.devsapp.cn/modelscope/server.py && exec python3 -u /.function_model/server.py --task "${env('TASK')}" --model-id "${env('MODEL_ID', 'iic/SenseVoiceSmall')}" --model-revision "${env('MODEL_VERSION', 'master')}" --model-path "/mnt/${env('fc_component_function_name', 'ai-model-test-qwen-pipeline')}/${env('MODEL_ID', 'iic/SenseVoiceSmall')}"
       triggers: # 默认，用户可能关注的是开启 authType 是 bear token
         - triggerConfig:
             methods:

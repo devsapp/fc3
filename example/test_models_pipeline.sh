@@ -13,7 +13,7 @@ log() {
 
 # 定义模型列表 (每个元素包含model_version, model_id, task)
 MODEL_LIST=(
-    '{"model_version": "v2.4.0", "model_id": "iic/cv_convnextTiny_ocr-recognition-general_damo", "task": "ocr-recognition", "input":{"image":"http://modelscope.oss-cn-beijing.aliyuncs.com/demo/images/image_ocr_recognition.jpg"}'
+    '{"model_version": "v2.4.0", "model_id": "iic/cv_convnextTiny_ocr-recognition-general_damo", "task": "ocr-recognition", "input":{"image":"http://modelscope.oss-cn-beijing.aliyuncs.com/demo/images/image_ocr_recognition.jpg"}}'
     '{"model_version": "master", "model_id": "iic/SenseVoiceSmall", "task": "auto-speech-recognition", "input": "https://isv-data.oss-cn-hangzhou.aliyuncs.com/ics/MaaS/ASR/test_audio/asr_example_zh.wav"}'
 )
 

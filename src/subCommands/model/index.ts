@@ -14,7 +14,7 @@ import assert from 'assert';
 import { sleep } from '../../utils';
 
 export const NEW_MODEL_SERVICE_CLIENT_CONNECT_TIMEOUT: number =
-  parseInt(process.env.NEW_MODEL_SERVICE_CLIENT_CONNECT_TIMEOUT as string, 10) || 10 * 1000;
+  parseInt(process.env.NEW_MODEL_SERVICE_CLIENT_CONNECT_TIMEOUT as string, 10) || 60 * 1000;
 export const NEW_MODEL_SERVICE_CLIENT_READ_TIMEOUT: number =
   parseInt(process.env.NEW_MODEL_SERVICE_CLIENT_READ_TIMEOUT as string, 10) || 86400 * 1000;
 export const MODEL_DOWNLOAD_TIMEOUT: number =
@@ -317,11 +317,11 @@ mountPoints:
         logger.info(`[Remove-model] delete model requestId: ${rb.requestId}`);
         logger.info(`[Remove-model] Remove model succeeded.`);
         return true;
-      } else {
-        throw new Error(
-          `[Remove-model] delete model service biz failed, errCode: ${rb.errCode}, errMsg: ${rb.errMsg}`,
-        );
-      }
+      } else if (!rb.errMsg.includes(`${name} is not exist`)) {
+          throw new Error(
+            `[Remove-model] delete model service biz failed, errCode: ${rb.errCode}, errMsg: ${rb.errMsg}`,
+          );
+        }
     } catch (e) {
       logger.error(`[Remove-model] delete model invocation error: ${e.message}`);
       throw new Error(`[Remove-model] delete model error: ${e.message}`);
