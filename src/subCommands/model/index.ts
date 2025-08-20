@@ -278,9 +278,9 @@ mountPoints:
 
   private parseNasConfig(nasConfig: any) {
     let nasMountDomain: string;
-    let nasMountPath: string = '';
+    let nasMountPath = '';
 
-    let serverAddr = nasConfig.mountPoints[0].serverAddr;
+    const { serverAddr } = nasConfig.mountPoints[0];
     const parts = serverAddr.split(':', 2);
 
     if (parts.length === 2) {

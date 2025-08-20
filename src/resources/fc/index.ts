@@ -517,6 +517,10 @@ export default class FC extends FC_Client {
       _.unset(body.customContainerConfig, 'entrypoint');
     }
 
+    if (body.sessionAffinityConfig) {
+      body.sessionAffinityConfig = JSON.parse(body.sessionAffinityConfig);
+    }
+
     if (body.layers) {
       logger.debug(body.layers);
       const newLayers = [];

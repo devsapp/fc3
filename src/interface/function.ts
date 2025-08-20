@@ -102,6 +102,14 @@ export interface ITracingConfig {
   type?: string;
 }
 
+export interface ISessionAffinityConfig {
+  sessionConcurrencyPerInstance?: number;
+  sessionIdleTimeoutInSeconds?: number;
+  sessionTTLInSeconds?: number;
+  affinityHeaderFieldName?: string;
+  sseEndpointPath?: string;
+}
+
 export interface IVpcConfig {
   securityGroupId: string;
   vSwitchIds: string[] | 'auto';
@@ -126,6 +134,8 @@ export interface IFunction {
   memorySize?: number;
   timeout?: number;
   sessionAffinity?: string;
+  sessionAffinityConfig?: ISessionAffinityConfig | string;
+  instanceIsolationMode?: string;
   enableLongLiving?: boolean;
 
   logConfig?: 'auto' | ILogConfig;
