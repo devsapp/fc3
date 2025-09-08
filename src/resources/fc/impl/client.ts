@@ -152,7 +152,7 @@ export default class FC_Client {
       ...config?.annotations?.headers,
     };
     if (isAppCenter()) {
-      headers.function_ai_model_skip_gpu_whitelist = 'card_number_limit_ada,fold_spec_ada';
+      headers.function_ai_model_skip_gpu_whitelist = 'card_number_limit_ada,fold_spec_ada,allow_large_disk_size';
     }
     const runtime = new $Util.RuntimeOptions({});
 
@@ -169,7 +169,7 @@ export default class FC_Client {
       ...config?.annotations?.headers,
     };
     if (isAppCenter()) {
-      headers.function_ai_model_skip_gpu_whitelist = 'card_number_limit_ada,fold_spec_ada';
+      headers.function_ai_model_skip_gpu_whitelist = 'card_number_limit_ada,fold_spec_ada,allow_large_disk_size';
     }
     const runtime = new $Util.RuntimeOptions({});
 
