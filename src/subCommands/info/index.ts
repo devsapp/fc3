@@ -80,6 +80,10 @@ export default class Info {
             system_url: t2.httpTrigger.urlInternet,
             system_intranet_url: t2.httpTrigger.urlIntranet,
           };
+          if (t2.triggerConfig.disableURLInternet) {
+            info.triggers[i]?.httpTrigger && delete info.triggers[i]?.httpTrigger?.urlInternet;
+            delete info.url.system_url;
+          }
         }
       }
     }
