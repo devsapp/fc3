@@ -178,21 +178,49 @@ mountPoints:
             const modelStatus = await this.getModelStatus(devClient, name);
 
             if (modelStatus.finished) {
+              // 清除进度条并换行
+              process.stdout.write('\n');
               const durationMs = modelStatus.finishedTime - modelStatus.startTime;
-              logger.warn(`Time taken for model download: ${durationMs}.`);
+              const durationSeconds = Math.floor(durationMs / 1000);
+              logger.info(`Time taken for model download: ${durationSeconds}s.`);
               logger.info(`[Download-model] Download model finished.`);
               return true;
             }
+            // 显示下载进度
+            if (modelStatus.currentBytes !== undefined && modelStatus.fileSize !== undefined) {
+              const percentage = (modelStatus.currentBytes / modelStatus.fileSize) * 100;
+              const currentMB = (modelStatus.currentBytes / 1024 / 1024).toFixed(1);
+              const totalMB = (modelStatus.fileSize / 1024 / 1024).toFixed(1);
+
+              // 每个等号代表2%，向下取整计算等号数量
+              const totalBars = 50; // 总共50个字符位置
+              const filledBars = Math.round(percentage / 2); // 每个等号代表2%
+              const emptyBars = totalBars - filledBars;
+
+              const progressBar = '='.repeat(filledBars) + '.'.repeat(emptyBars);
+
+              process.stdout.write(
+                `\r[Download-model] [${progressBar}] ${percentage.toFixed(2)}% (${currentMB}MB/${totalMB}MB)`
+              );
+            }
+
 
             if (Date.now() - modelStatus.startTime > MODEL_DOWNLOAD_TIMEOUT) {
-              const errorMessage = `[Model-download] Download timeout after ${
-                MODEL_DOWNLOAD_TIMEOUT / 1000 / 60
-              } minutes`;
+              // 清除进度条并换行
+              process.stdout.write('\n');
+              const errorMessage = `[Model-download] Download timeout after ${MODEL_DOWNLOAD_TIMEOUT / 1000 / 60
+                } minutes`;
               throw new Error(errorMessage);
             }
 
-            logger.warn(`[Download-model] Download task not finished yet, polling in 10 seconds`);
-            await sleep(10);
+            // 根据文件大小调整轮询间隔
+            let sleepTime = 2; // 默认2秒
+            if (modelStatus.fileSize !== undefined && modelStatus.fileSize > 1024 * 1024 * 1024) {
+              // 文件大于1GB时，轮询间隔为10秒
+              sleepTime = 10;
+            }
+
+            await sleep(sleepTime);
           }
         } else {
           throw new Error(

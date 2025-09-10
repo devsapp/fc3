@@ -4,7 +4,7 @@ access: quanxi
 
 resources:
   modelDemo:
-    component: fc3
+    component: ${path('../')}
     props:
       region: cn-shanghai
       runtime: custom-container
