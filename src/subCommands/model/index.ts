@@ -153,6 +153,7 @@ mountPoints:
           role: modelConfig.role,
           nasMountPoint: nasMountDomain,
           vpcConfig,
+          syncStrategy: process.env.MODEL_DOWNLOAD_STRATEGY || 'incremental_once',
         };
         try {
           const req = new devs.DownloadModelRequest(params);
@@ -178,11 +179,27 @@ mountPoints:
             const modelStatus = await this.getModelStatus(devClient, name);
 
             if (modelStatus.finished) {
+              if (!!modelStatus.total && modelStatus.currentBytes !== undefined && modelStatus.fileSize !== undefined) {
+                const currentMB = (modelStatus.currentBytes / 1024 / 1024).toFixed(1);
+                const totalMB = (modelStatus.fileSize / 1024 / 1024).toFixed(1);
+                
+                const totalBars = 50;
+                const progressBar = '='.repeat(totalBars);
+                
+                process.stdout.write(
+                  `\r[Download-model] [${progressBar}] 100.00% (${currentMB}MB/${totalMB}MB)\n`
+                );
+                
+              } else {
+                process.stdout.write('\n');
+              }
               // 清除进度条并换行
               process.stdout.write('\n');
-              const durationMs = modelStatus.finishedTime - modelStatus.startTime;
-              const durationSeconds = Math.floor(durationMs / 1000);
-              logger.info(`Time taken for model download: ${durationSeconds}s.`);
+              if (!!modelStatus.total) {
+                const durationMs = modelStatus.finishedTime - modelStatus.startTime;
+                const durationSeconds = Math.floor(durationMs / 1000);
+                logger.info(`Time taken for model download: ${durationSeconds}s.`);
+              }
               logger.info(`[Download-model] Download model finished.`);
               return true;
             }
@@ -194,7 +211,7 @@ mountPoints:
 
               // 每个等号代表2%，向下取整计算等号数量
               const totalBars = 50; // 总共50个字符位置
-              const filledBars = Math.round(percentage / 2); // 每个等号代表2%
+              const filledBars = Math.min(totalBars, Math.floor(percentage / 2)); // 每个等号代表2%
               const emptyBars = totalBars - filledBars;
 
               const progressBar = '='.repeat(filledBars) + '.'.repeat(emptyBars);
