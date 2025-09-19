@@ -104,13 +104,17 @@ vpcConfig:
         logger.info('[nasAuto] vpcAuto finished.');
       }
       if (nasAuto) {
+        let serverAddr= `${mountTargetDomain}:/${functionName}/${modelConfig.id}`;
+        if (serverAddr.length > 128){
+           serverAddr = serverAddr.substring(0, 128);
+        }
         logger.write(
           yellow(`[nasAuto] Created nas resource succeeded, please replace nasConfig: auto in yaml with:
 nasConfig:
 groupId: 0
 userId: 0
 mountPoints:
-  - serverAddr: ${mountTargetDomain}:/${functionName}/${modelConfig.id}
+  - serverAddr: ${serverAddr}
     mountDir: /mnt/${functionName}
     enableTLS: false\n`),
         );
@@ -120,7 +124,7 @@ mountPoints:
           userId: 0,
           mountPoints: [
             {
-              serverAddr: `${mountTargetDomain}:/${functionName}/${modelConfig.id}`,
+              serverAddr,
               mountDir: `/mnt/${functionName}`,
               enableTLS: false,
             },
