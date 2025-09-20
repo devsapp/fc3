@@ -10,6 +10,7 @@ import { promptForConfirmOrDetails, sleep, transformCustomDomainProps } from '..
 import loadComponent from '@serverless-devs/load-component';
 import { IInputs as _IInputs } from '@serverless-devs/component-interface';
 import { FC3_DOMAIN_COMPONENT_NAME } from '../../constant';
+import { DisableFunctionInvocationRequest } from '@alicloud/fc20230330';
 
 export default class Remove {
   private region: IRegion;
@@ -451,9 +452,10 @@ export default class Remove {
           `Remove function ${this.functionName} failed with ProvisionConfigExist error, retrying...`,
         );
 
+        const retryCount = 25;
         // 重试 20 次，每次间隔 2 秒
-        for (let i = 1; i <= 20; i++) {
-          logger.info(`Retry attempt ${i}/20...`);
+        for (let i = 1; i <= retryCount; i++) {
+          logger.info(`Retry attempt ${i}/${retryCount}...`);
           await sleep(2);
 
           try {
@@ -461,7 +463,7 @@ export default class Remove {
             logger.info(`Function ${this.functionName} removed successfully on retry attempt ${i}`);
             break;
           } catch (retryEx) {
-            if (i === 20) {
+            if (i === retryCount) {
               // 最后一次重试仍然失败
               logger.error(
                 `Remove function ${this.functionName} error after 20 retries: ${retryEx.message}`,
@@ -473,6 +475,13 @@ export default class Remove {
             if (retryEx.code !== FC_API_ERROR_CODE.ProvisionConfigExist) {
               logger.error(`Remove function ${this.functionName} error: ${retryEx.message}`);
               throw retryEx;
+            }
+
+            if (i === 5) {
+              logger.warn(`Remove function ${this.functionName} error after 5 retries, disable function invocation.`);
+              const disableFunctionInvocationRequest = new DisableFunctionInvocationRequest({ reason: 'functionai-delete', abortOngoingRequest: true })
+              const res = await this.fcSdk.fc20230330Client.disableFunctionInvocation(this.functionName, disableFunctionInvocationRequest);
+              logger.debug(`DisableFunctionInvocation: ${(JSON.stringify(res, null, 2))}`)
             }
 
             // 如果是 ProvisionConfigExist 错误，继续重试
