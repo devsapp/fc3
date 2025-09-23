@@ -104,9 +104,9 @@ vpcConfig:
         logger.info('[nasAuto] vpcAuto finished.');
       }
       if (nasAuto) {
-        let serverAddr= `${mountTargetDomain}:/${functionName}/${modelConfig.id}`;
-        if (serverAddr.length > 128){
-           serverAddr = serverAddr.substring(0, 128);
+        let serverAddr = `${mountTargetDomain}:/${functionName}/${modelConfig.id}`;
+        if (serverAddr.length > 128) {
+          serverAddr = serverAddr.substring(0, 128);
         }
         logger.write(
           yellow(`[nasAuto] Created nas resource succeeded, please replace nasConfig: auto in yaml with:
@@ -183,23 +183,26 @@ mountPoints:
             const modelStatus = await this.getModelStatus(devClient, name);
 
             if (modelStatus.finished) {
-              if (!!modelStatus.total && modelStatus.currentBytes !== undefined && modelStatus.fileSize !== undefined) {
+              if (
+                !!modelStatus.total &&
+                modelStatus.currentBytes !== undefined &&
+                modelStatus.fileSize !== undefined
+              ) {
                 const currentMB = (modelStatus.currentBytes / 1024 / 1024).toFixed(1);
                 const totalMB = (modelStatus.fileSize / 1024 / 1024).toFixed(1);
-                
+
                 const totalBars = 50;
                 const progressBar = '='.repeat(totalBars);
-                
+
                 process.stdout.write(
-                  `\r[Download-model] [${progressBar}] 100.00% (${currentMB}MB/${totalMB}MB)\n`
+                  `\r[Download-model] [${progressBar}] 100.00% (${currentMB}MB/${totalMB}MB)\n`,
                 );
-                
               } else {
                 process.stdout.write('\n');
               }
               // 清除进度条并换行
               process.stdout.write('\n');
-              if (!!modelStatus.total) {
+              if (modelStatus.total) {
                 const durationMs = modelStatus.finishedTime - modelStatus.startTime;
                 const durationSeconds = Math.floor(durationMs / 1000);
                 logger.info(`Time taken for model download: ${durationSeconds}s.`);
@@ -221,16 +224,18 @@ mountPoints:
               const progressBar = '='.repeat(filledBars) + '.'.repeat(emptyBars);
 
               process.stdout.write(
-                `\r[Download-model] [${progressBar}] ${percentage.toFixed(2)}% (${currentMB}MB/${totalMB}MB)`
+                `\r[Download-model] [${progressBar}] ${percentage.toFixed(
+                  2,
+                )}% (${currentMB}MB/${totalMB}MB)`,
               );
             }
-
 
             if (Date.now() - modelStatus.startTime > MODEL_DOWNLOAD_TIMEOUT) {
               // 清除进度条并换行
               process.stdout.write('\n');
-              const errorMessage = `[Model-download] Download timeout after ${MODEL_DOWNLOAD_TIMEOUT / 1000 / 60
-                } minutes`;
+              const errorMessage = `[Model-download] Download timeout after ${
+                MODEL_DOWNLOAD_TIMEOUT / 1000 / 60
+              } minutes`;
               throw new Error(errorMessage);
             }
 
@@ -367,10 +372,10 @@ mountPoints:
         logger.info(`[Remove-model] Remove model succeeded.`);
         return true;
       } else if (!rb.errMsg.includes(`${name} is not exist`)) {
-          throw new Error(
-            `[Remove-model] delete model service biz failed, errCode: ${rb.errCode}, errMsg: ${rb.errMsg}`,
-          );
-        }
+        throw new Error(
+          `[Remove-model] delete model service biz failed, errCode: ${rb.errCode}, errMsg: ${rb.errMsg}`,
+        );
+      }
     } catch (e) {
       logger.error(`[Remove-model] delete model invocation error: ${e.message}`);
       throw new Error(`[Remove-model] delete model error: ${e.message}`);

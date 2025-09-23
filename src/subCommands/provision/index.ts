@@ -109,9 +109,10 @@ export default class Provision {
       throw new Error('Qualifier not specified, please specify --qualifier');
     }
 
-    if (!_.isNumber(this.defaultTarget || this.target)) {
+    const targetValue = this.defaultTarget || this.target;
+    if (!_.isNumber(targetValue) || isNaN(targetValue)) {
       throw new Error(
-        `Target or defaultTarget must be a number, got ${this.target}. Please specify a number through --target <number>`,
+        `Target or defaultTarget must be a number, got ${targetValue}. Please specify a number through --target <number>`,
       );
     }
 

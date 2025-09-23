@@ -478,10 +478,18 @@ export default class Remove {
             }
 
             if (i === 5) {
-              logger.warn(`Remove function ${this.functionName} error after 5 retries, disable function invocation.`);
-              const disableFunctionInvocationRequest = new DisableFunctionInvocationRequest({ reason: 'functionai-delete', abortOngoingRequest: true })
-              const res = await this.fcSdk.fc20230330Client.disableFunctionInvocation(this.functionName, disableFunctionInvocationRequest);
-              logger.debug(`DisableFunctionInvocation: ${(JSON.stringify(res, null, 2))}`)
+              logger.warn(
+                `Remove function ${this.functionName} error after 5 retries, disable function invocation.`,
+              );
+              const disableFunctionInvocationRequest = new DisableFunctionInvocationRequest({
+                reason: 'functionai-delete',
+                abortOngoingRequest: true,
+              });
+              const res = await this.fcSdk.fc20230330Client.disableFunctionInvocation(
+                this.functionName,
+                disableFunctionInvocationRequest,
+              );
+              logger.debug(`DisableFunctionInvocation: ${JSON.stringify(res, null, 2)}`);
             }
 
             // 如果是 ProvisionConfigExist 错误，继续重试

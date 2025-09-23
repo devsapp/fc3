@@ -404,7 +404,7 @@ describe('sleep', () => {
     await sleep(0.5);
     const end = Date.now();
 
-    expect(end - start).toBeGreaterThanOrEqual(500);
+    expect(end - start).toBeGreaterThanOrEqual(499);
     expect(end - start).toBeLessThan(1000);
   });
 

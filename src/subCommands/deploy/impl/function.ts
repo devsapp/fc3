@@ -405,9 +405,11 @@ vpcConfig:
       }
       if (nasAuto) {
         const modelConfig = supplement?.modelConfig || annotations?.modelConfig;
-        let serverAddr= `${mountTargetDomain}:/${functionName}${isEmpty(modelConfig) ? '' : '/' + modelConfig.id}`;
-        if (serverAddr.length > 128){
-           serverAddr = serverAddr.substring(0, 128);
+        let serverAddr = `${mountTargetDomain}:/${functionName}${
+          isEmpty(modelConfig) ? '' : `/${  modelConfig.id}`
+        }`;
+        if (serverAddr.length > 128) {
+          serverAddr = serverAddr.substring(0, 128);
         }
         logger.write(
           yellow(`Created nas resource succeeded, please replace nasConfig: auto in yaml with:
