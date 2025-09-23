@@ -406,7 +406,7 @@ vpcConfig:
       if (nasAuto) {
         const modelConfig = supplement?.modelConfig || annotations?.modelConfig;
         let serverAddr = `${mountTargetDomain}:/${functionName}${
-          isEmpty(modelConfig) ? '' : `/${  modelConfig.id}`
+          isEmpty(modelConfig) ? '' : `/${modelConfig.id}`
         }`;
         if (serverAddr.length > 128) {
           serverAddr = serverAddr.substring(0, 128);

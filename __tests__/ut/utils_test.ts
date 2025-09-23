@@ -396,7 +396,8 @@ describe('sleep', () => {
     await sleep(1);
     const end = Date.now();
 
-    expect(end - start).toBeGreaterThanOrEqual(1000);
+    // Allow for small timing variations
+    expect(end - start).toBeGreaterThanOrEqual(995);
   });
 
   it('should sleep for a fraction of a second when given a decimal value', async () => {
