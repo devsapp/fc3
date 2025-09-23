@@ -62,3 +62,4 @@ __tests__/e2e/apt/code/package-lock.json
 .env_test
 
 CLAUDE.md
+agent-prompt.md

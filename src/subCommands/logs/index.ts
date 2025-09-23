@@ -349,6 +349,50 @@ export default class Logs {
   }
 
   /**
+   * 单次实时日志获取（用于测试）
+   */
+  async _realtimeOnce({
+    projectName,
+    logStoreName,
+    topic,
+    query,
+    search,
+    qualifier,
+    match,
+  }: IRealtime) {
+    const timeStart = moment().subtract(10, 'seconds').unix();
+    const timeEnd = moment().unix();
+    this.logger.debug(`realtime: 1, start: ${timeStart}, end: ${timeEnd}`);
+
+    const pulledlogs = await this.getLogs({
+      projectName,
+      logStoreName,
+      topic,
+      query: this.getSlsQuery(query, search, qualifier),
+      from: timeStart,
+      to: timeEnd,
+    });
+
+    if (!_.isEmpty(pulledlogs)) {
+      const consumedTimeStamps = [];
+      let showTimestamp = '';
+
+      const notConsumedLogs = _.filter(pulledlogs, (data) => {
+        const { timestamp } = data;
+        if (consumedTimeStamps.includes(timestamp)) {
+          return showTimestamp === timestamp;
+        }
+
+        showTimestamp = data.timestamp;
+        consumedTimeStamps.push(data.timestamp);
+        return true;
+      });
+
+      this.printLogs(notConsumedLogs, match);
+    }
+  }
+
+  /**
    * 获取历史日志
    */
   async history({

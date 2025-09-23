@@ -67,7 +67,7 @@ export default class Concurrency {
   }
 
   async put() {
-    if (!_.isNumber(this.reservedConcurrency)) {
+    if (!_.isNumber(this.reservedConcurrency) || isNaN(this.reservedConcurrency)) {
       throw new Error(
         `ReservedConcurrency must be a number, got ${this.reservedConcurrency}. Please specify a number through --reserved-concurrency <number>`,
       );
