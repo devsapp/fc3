@@ -1,4 +1,5 @@
 import { isAuto, isAutoVpcConfig, getTimeZone, sleep } from '../../src/utils/index';
+import { computeLocalAuto } from '../../src/resources/fc/impl/utils';
 import log from '../../src/logger';
 log._set(console);
 
@@ -21,6 +22,90 @@ describe('Utils functions', () => {
       expect(isAuto(undefined)).toBe(false);
       expect(isAuto({})).toBe(false);
       expect(isAuto([])).toBe(false);
+    });
+  });
+
+  describe('computeLocalAuto', () => {
+    it('should compute auto resources correctly', () => {
+      const local = {
+        nasConfig: 'auto',
+        vpcConfig: 'auto',
+        logConfig: 'auto',
+        ossMountConfig: 'auto',
+        role: 'auto',
+      };
+
+      const result = computeLocalAuto(local);
+
+      expect(result).toEqual({
+        nasAuto: true,
+        vpcAuto: true,
+        slsAuto: true,
+        roleAuto: true,
+        ossAuto: true,
+      });
+    });
+
+    it('should compute auto resources correctly when ossMountConfig is auto', () => {
+      const local = {
+        ossMountConfig: 'auto',
+      };
+
+      const result = computeLocalAuto(local);
+
+      expect(result).toEqual({
+        nasAuto: false,
+        vpcAuto: false,
+        slsAuto: false,
+        roleAuto: false,
+        ossAuto: true,
+      });
+    });
+
+    it('should compute auto resources correctly when ossMountConfig has mountPoints', () => {
+      const local = {
+        ossMountConfig: {
+          mountPoints: [
+            {
+              mountDir: '/mnt/oss',
+              bucketName: 'test-bucket',
+              endpoint: 'https://oss-cn-hangzhou.aliyuncs.com',
+              bucketPath: '/test-path',
+              readOnly: false,
+            },
+          ],
+        },
+      };
+
+      const result = computeLocalAuto(local);
+
+      expect(result).toEqual({
+        nasAuto: false,
+        vpcAuto: false,
+        slsAuto: false,
+        roleAuto: true,
+        ossAuto: false,
+      });
+    });
+
+    it('should compute auto resources correctly when ossMountConfig is not auto', () => {
+      const local = {
+        nasConfig: 'manual',
+        vpcConfig: 'manual',
+        logConfig: 'manual',
+        ossMountConfig: 'manual',
+        role: 'manual',
+      };
+
+      const result = computeLocalAuto(local);
+
+      expect(result).toEqual({
+        nasAuto: false,
+        vpcAuto: false,
+        slsAuto: false,
+        roleAuto: false,
+        ossAuto: false,
+      });
     });
   });
 

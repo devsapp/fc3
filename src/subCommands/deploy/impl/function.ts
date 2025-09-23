@@ -19,6 +19,7 @@ import VPC_NAS from '../../../resources/vpc-nas';
 import Base from './base';
 import { ICredentials } from '@serverless-devs/component-interface';
 import { calculateCRC64, getFileSize } from '../../../utils';
+import OSS from '../../../resources/oss';
 
 type IType = 'code' | 'config' | boolean;
 interface IOpts {
@@ -337,9 +338,9 @@ export default class Service extends Base {
     const { credential } = this.inputs;
     const { functionName } = this.local;
 
-    const { nasAuto, vpcAuto, slsAuto, roleAuto } = FC.computeLocalAuto(this.local);
+    const { nasAuto, vpcAuto, slsAuto, roleAuto, ossAuto } = FC.computeLocalAuto(this.local);
     logger.debug(
-      `Deploy auto compute local auto, nasAuto: ${nasAuto}; vpcAuto: ${vpcAuto}; slsAuto: ${slsAuto}; roleAuto: ${roleAuto}`,
+      `Deploy auto compute local auto, nasAuto: ${nasAuto}; vpcAuto: ${vpcAuto}; slsAuto: ${slsAuto}; roleAuto: ${roleAuto}; ossAuto: ${ossAuto}`,
     );
 
     if (slsAuto) {
@@ -361,6 +362,38 @@ logConfig:
         logBeginRule: 'DefaultRegex',
         logstore,
         project,
+      });
+    }
+
+    if (ossAuto) {
+      let ossEndpoint = `https://oss-${region}.aliyuncs.com`;
+      if (process.env.FC_REGION === region) {
+        ossEndpoint = `oss-${region}-internal.aliyuncs.com`;
+      }
+      logger.info(`ossAuto code to ${ossEndpoint}`);
+      const oss = new OSS(region, credential as ICredentials, ossEndpoint);
+      const { ossBucket } = await oss.deploy();
+      logger.write(
+        yellow(`Created oss resource succeeded, please replace ossMountConfig: auto in yaml with:
+ossMountConfig:
+  mountPoints:
+    - mountDir: /mnt/oss_${functionName}
+      bucketName: ${ossBucket}
+      endpoint: http://oss-${region}-internal.aliyuncs.com
+      bucketPath: /${functionName}
+      readOnly: false\n`),
+      );
+      this.createResource.oss = { ossBucket };
+      _.set(this.local, 'ossMountConfig', {
+        mountPoints: [
+          {
+            mountDir: `/mnt/oss_${functionName}`,
+            bucketName: ossBucket,
+            endpoint: `http://oss-${region}-internal.aliyuncs.com`,
+            bucketPath: `/${functionName}`,
+            readOnly: false,
+          },
+        ],
       });
     }
 
