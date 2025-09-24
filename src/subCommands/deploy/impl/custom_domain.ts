@@ -53,7 +53,10 @@ export default class CustomDomain extends Base {
     try {
       const onlineCustomDomain = await this.domainInstance.info(infoInput);
       // console.log(JSON.stringify(onlineCustomDomain, null, 2));
-      const routes = onlineCustomDomain?.routeConfig?.routes;
+      let routes = onlineCustomDomain?.routeConfig?.routes;
+      if (!routes) {
+        routes = [];
+      }
       let found = false;
       if (routes) {
         domainName = onlineCustomDomain.domainName;
@@ -77,6 +80,9 @@ export default class CustomDomain extends Base {
         const myRoute = _.cloneDeep(this.local.route);
         myRoute.functionName = this.functionName;
         routes.push(myRoute);
+      }
+      if (!deployInput.props.routeConfig) {
+        deployInput.props.routeConfig = { routes: [] };
       }
       deployInput.props.routeConfig.routes = routes;
 
