@@ -16,9 +16,9 @@ export default function (_local: any, _remote: any) {
 
   // 线上配置如果存在，则需要将 auto 资源替换为线上资源配置
   if (remote) {
-    const { remoteNasConfig, remoteVpcConfig, remoteLogConfig, remoteRole } =
+    const { remoteNasConfig, remoteVpcConfig, remoteLogConfig, remoteRole, remoteOssConfig } =
       getRemoteResourceConfig(remote);
-    const { nasAuto, vpcAuto, slsAuto, roleAuto } = computeLocalAuto(local);
+    const { nasAuto, vpcAuto, slsAuto, roleAuto, ossAuto } = computeLocalAuto(local);
     logger.debug(
       `Init local compute local auto, nasAuto: ${nasAuto}; vpcAuto: ${vpcAuto}; slsAuto: ${slsAuto}; roleAuto: ${roleAuto}`,
     );
@@ -71,6 +71,10 @@ export default function (_local: any, _remote: any) {
 
     if (slsAuto && !_.isEmpty(remoteLogConfig?.project)) {
       _.set(local, 'logConfig', remoteLogConfig);
+    }
+
+    if (ossAuto && !_.isEmpty(remoteOssConfig?.mountPoints)) {
+      _.set(local, 'ossMountConfig', remoteOssConfig);
     }
 
     if (!local.role) {

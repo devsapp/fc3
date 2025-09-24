@@ -20,6 +20,7 @@ jest.mock('../../../../../src/resources/acr');
 jest.mock('../../../../../src/resources/sls');
 jest.mock('../../../../../src/resources/ram');
 jest.mock('../../../../../src/resources/vpc-nas');
+jest.mock('../../../../../src/resources/oss');
 
 const getRootHomeMock = jest.requireMock('@serverless-devs/utils').getRootHome;
 const calculateCRC64Mock = utils.calculateCRC64 as jest.Mock;
@@ -549,6 +550,7 @@ describe('Service', () => {
         vpcAuto: true,
         slsAuto: false,
         roleAuto: false,
+        ossAuto: false,
       });
 
       // Mock RamClient
@@ -601,84 +603,247 @@ describe('Service', () => {
     });
   });
 
-  describe('_assertNeedZip', () => {
-    it('should return false for .jar file with official runtime', () => {
+  describe('_deployAuto', () => {
+    it('should deploy SLS resources when slsAuto is true', async () => {
       service = new Service(mockInputs, mockOpts);
-      service.local = {
-        ...service.local,
-        runtime: 'nodejs12',
-      } as IFunction;
 
-      const result = (service as any)._assertNeedZip('test.jar');
+      // Mock FC.computeLocalAuto
+      FC.computeLocalAuto = jest.fn().mockReturnValue({
+        nasAuto: false,
+        vpcAuto: false,
+        slsAuto: true,
+        roleAuto: false,
+      });
 
-      expect(result).toBe(false);
+      // Mock Sls
+      const mockSls = {
+        deploy: jest.fn().mockResolvedValue({ project: 'project', logstore: 'logstore' }),
+      };
+      jest.mock('../../../../../src/resources/sls');
+      (Sls as any).mockImplementation(() => mockSls);
+
+      await (service as any)._deployAuto();
+
+      expect(mockSls.deploy).toHaveBeenCalled();
+      expect(service.createResource.sls).toEqual({ project: 'project', logstore: 'logstore' });
+      expect(service.local.logConfig).toEqual({
+        enableInstanceMetrics: true,
+        enableRequestMetrics: true,
+        logBeginRule: 'DefaultRegex',
+        logstore: 'logstore',
+        project: 'project',
+      });
     });
 
-    it('should return true for .jar file with custom runtime and java -jar command', () => {
+    it('should deploy RAM role when roleAuto is true', async () => {
       service = new Service(mockInputs, mockOpts);
-      service.local = {
-        ...service.local,
-        runtime: Runtime.custom,
-        customRuntimeConfig: {
-          command: ['java'],
-          args: ['-jar', 'app.jar'],
-        },
-      } as IFunction;
 
-      // Mock FC.isCustomRuntime
-      FC.isCustomRuntime = jest.fn().mockReturnValue(true);
+      // Mock FC.computeLocalAuto
+      FC.computeLocalAuto = jest.fn().mockReturnValue({
+        nasAuto: false,
+        vpcAuto: false,
+        slsAuto: false,
+        roleAuto: true,
+      });
 
-      const result = (service as any)._assertNeedZip('test.jar');
+      // Mock RamClient
+      const mockRamClient = {
+        initFcDefaultServiceRole: jest.fn().mockResolvedValue('arn:role'),
+        initSlrRole: jest.fn().mockResolvedValue(undefined),
+      };
+      jest.mock('../../../../../src/resources/ram');
+      (RamClient as any).mockImplementation(() => mockRamClient);
 
-      expect(result).toBe(true);
+      await (service as any)._deployAuto();
+
+      expect(mockRamClient.initFcDefaultServiceRole).toHaveBeenCalled();
+      expect(service.createResource.role).toEqual({ arn: 'arn:role' });
+      expect(service.local.role).toBe('arn:role');
     });
 
-    it('should return false for .zip file', () => {
+    it.skip('should deploy VPC and NAS resources when nasAuto or vpcAuto is true', async () => {
       service = new Service(mockInputs, mockOpts);
 
-      const result = (service as any)._assertNeedZip('test.zip');
+      // Mock FC.computeLocalAuto
+      FC.computeLocalAuto = jest.fn().mockReturnValue({
+        nasAuto: true,
+        vpcAuto: true,
+        slsAuto: false,
+        roleAuto: false,
+        ossAuto: false,
+      });
 
-      expect(result).toBe(false);
+      // Mock RamClient
+      const initSlrRoleSpy = jest
+        .spyOn(RamClient.prototype, 'initSlrRole')
+        .mockResolvedValue(undefined);
+
+      // Mock VPC_NAS
+      const mockVpcNas = {
+        deploy: jest.fn().mockResolvedValue({
+          vpcConfig: { vpcId: 'vpc-id', securityGroupId: 'sg-id', vSwitchIds: ['vsw-id'] },
+          mountTargetDomain: 'mount-target',
+          fileSystemId: 'fs-id',
+        }),
+      };
+      (VPC_NAS as jest.Mock).mockImplementation(() => mockVpcNas);
+
+      await (service as any)._deployAuto();
+
+      expect(initSlrRoleSpy).toHaveBeenCalledWith('FC');
+      expect(mockVpcNas.deploy).toHaveBeenCalledWith({
+        nasAuto: true,
+        vpcConfig: undefined,
+      });
+      expect(service.createResource.vpc).toEqual({
+        vpcId: 'vpc-id',
+        securityGroupId: 'sg-id',
+        vSwitchIds: ['vsw-id'],
+      });
+      expect(service.local.vpcConfig).toEqual({
+        vpcId: 'vpc-id',
+        securityGroupId: 'sg-id',
+        vSwitchIds: ['vsw-id'],
+      });
+      expect(service.createResource.nas).toEqual({
+        mountTargetDomain: 'mount-target',
+        fileSystemId: 'fs-id',
+      });
+      expect(service.local.nasConfig).toEqual({
+        groupId: 0,
+        userId: 0,
+        mountPoints: [
+          {
+            serverAddr: 'mount-target:/test-function',
+            mountDir: '/mnt/test-function',
+            enableTLS: false,
+          },
+        ],
+      });
     });
 
-    it('should return false for .war file', () => {
+    it('should deploy OSS resources when ossAuto is true', async () => {
       service = new Service(mockInputs, mockOpts);
 
-      const result = (service as any)._assertNeedZip('test.war');
+      // Mock FC.computeLocalAuto
+      FC.computeLocalAuto = jest.fn().mockReturnValue({
+        nasAuto: false,
+        vpcAuto: false,
+        slsAuto: false,
+        roleAuto: false,
+        ossAuto: true,
+      });
 
-      expect(result).toBe(false);
-    });
+      // Mock OSS
+      const mockOss = {
+        deploy: jest.fn().mockResolvedValue({ ossBucket: 'test-oss-bucket' }),
+      };
 
-    it('should return true for other file types', () => {
-      service = new Service(mockInputs, mockOpts);
+      // Mock the OSS constructor to return our mock instance
+      const OssMock = jest.requireMock('../../../../../src/resources/oss').default;
+      OssMock.mockImplementation(() => mockOss);
 
-      const result = (service as any)._assertNeedZip('test.js');
+      await (service as any)._deployAuto();
 
-      expect(result).toBe(true);
-    });
-  });
-
-  describe('_assertArrayOfStrings', () => {
-    it('should not throw error for array of strings', () => {
-      service = new Service(mockInputs, mockOpts);
-
-      expect(() => (service as any)._assertArrayOfStrings(['a', 'b', 'c'])).not.toThrow();
-    });
-
-    it('should throw error for non-array', () => {
-      service = new Service(mockInputs, mockOpts);
-
-      expect(() => (service as any)._assertArrayOfStrings('not-array')).toThrow(
-        'Variable must be an array',
+      expect(OssMock).toHaveBeenCalledWith(
+        'cn-hangzhou',
+        mockInputs.credential,
+        'https://oss-cn-hangzhou.aliyuncs.com',
       );
+      expect(mockOss.deploy).toHaveBeenCalled();
+      expect(service.createResource.oss).toEqual({ ossBucket: 'test-oss-bucket' });
+      expect(service.local.ossMountConfig).toEqual({
+        mountPoints: [
+          {
+            mountDir: `/mnt/oss_test-function`,
+            bucketName: 'test-oss-bucket',
+            endpoint: 'http://oss-cn-hangzhou-internal.aliyuncs.com',
+            bucketPath: `/test-function`,
+            readOnly: false,
+          },
+        ],
+      });
     });
 
-    it('should throw error for array with non-string elements', () => {
-      service = new Service(mockInputs, mockOpts);
+    describe('_assertNeedZip', () => {
+      it('should return false for .jar file with official runtime', () => {
+        service = new Service(mockInputs, mockOpts);
+        service.local = {
+          ...service.local,
+          runtime: 'nodejs12',
+        } as IFunction;
 
-      expect(() => (service as any)._assertArrayOfStrings(['a', 1, 'c'])).toThrow(
-        'Variable must contain only strings',
-      );
+        const result = (service as any)._assertNeedZip('test.jar');
+
+        expect(result).toBe(false);
+      });
+
+      it('should return true for .jar file with custom runtime and java -jar command', () => {
+        service = new Service(mockInputs, mockOpts);
+        service.local = {
+          ...service.local,
+          runtime: Runtime.custom,
+          customRuntimeConfig: {
+            command: ['java'],
+            args: ['-jar', 'app.jar'],
+          },
+        } as IFunction;
+
+        // Mock FC.isCustomRuntime
+        FC.isCustomRuntime = jest.fn().mockReturnValue(true);
+
+        const result = (service as any)._assertNeedZip('test.jar');
+
+        expect(result).toBe(true);
+      });
+
+      it('should return false for .zip file', () => {
+        service = new Service(mockInputs, mockOpts);
+
+        const result = (service as any)._assertNeedZip('test.zip');
+
+        expect(result).toBe(false);
+      });
+
+      it('should return false for .war file', () => {
+        service = new Service(mockInputs, mockOpts);
+
+        const result = (service as any)._assertNeedZip('test.war');
+
+        expect(result).toBe(false);
+      });
+
+      it('should return true for other file types', () => {
+        service = new Service(mockInputs, mockOpts);
+
+        const result = (service as any)._assertNeedZip('test.js');
+
+        expect(result).toBe(true);
+      });
+    });
+
+    describe('_assertArrayOfStrings', () => {
+      it('should not throw error for array of strings', () => {
+        service = new Service(mockInputs, mockOpts);
+
+        expect(() => (service as any)._assertArrayOfStrings(['a', 'b', 'c'])).not.toThrow();
+      });
+
+      it('should throw error for non-array', () => {
+        service = new Service(mockInputs, mockOpts);
+
+        expect(() => (service as any)._assertArrayOfStrings('not-array')).toThrow(
+          'Variable must be an array',
+        );
+      });
+
+      it('should throw error for array with non-string elements', () => {
+        service = new Service(mockInputs, mockOpts);
+
+        expect(() => (service as any)._assertArrayOfStrings(['a', 1, 'c'])).toThrow(
+          'Variable must contain only strings',
+        );
+      });
     });
   });
 });

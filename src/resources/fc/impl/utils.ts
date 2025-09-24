@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { INasConfig, IVpcConfig, ILogConfig, Runtime } from '../../../interface';
+import { INasConfig, IVpcConfig, ILogConfig, Runtime, IOssMountConfig } from '../../../interface';
 import { isAuto, isAutoVpcConfig } from '../../../utils';
 import logger from '../../../logger';
 import { isDebugMode } from '@serverless-devs/utils';
@@ -24,8 +24,9 @@ export function getRemoteResourceConfig(remote) {
   const remoteNasConfig = _.get(remote, 'nasConfig') as INasConfig;
   const remoteVpcConfig = _.get(remote, 'vpcConfig') as IVpcConfig;
   const remoteLogConfig = _.get(remote, 'logConfig') as ILogConfig;
+  const remoteOssConfig = _.get(remote, 'ossMountConfig') as IOssMountConfig;
   const remoteRole = _.get(remote, 'role');
-  return { remoteNasConfig, remoteVpcConfig, remoteLogConfig, remoteRole };
+  return { remoteNasConfig, remoteVpcConfig, remoteLogConfig, remoteRole, remoteOssConfig };
 }
 
 /**
@@ -36,11 +37,12 @@ export function computeLocalAuto(local) {
   const nasAuto = isAuto(local.nasConfig);
   const vpcAuto = isAutoVpcConfig(local.vpcConfig) || (!local.vpcConfig && nasAuto);
   const slsAuto = isAuto(local.logConfig);
+  const ossAuto = isAuto(local.ossMountConfig);
   // auto 是在 preDeploy 和 plan 之间的阶段设置的，用于提示
   // 如果用户设置了 auto 会在 handlePreRun 方法变成 arn
   const roleAuto =
     isAuto(local.role) || (_.isNil(local.role) && !_.isEmpty(local?.ossMountConfig?.mountPoints));
-  return { nasAuto, vpcAuto, slsAuto, roleAuto };
+  return { nasAuto, vpcAuto, slsAuto, roleAuto, ossAuto };
 }
 
 /**

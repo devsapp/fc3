@@ -1,0 +1,44 @@
+name: Check Code Formatting
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  check-format:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '16.x'
+
+      - name: Configure NPM
+        run: |
+            npm config set registry https://registry.npmjs.org
+            npm config set '//packages.aliyun.com/670e108663cd360abfe4be65/npm/npm-registry/:_authToken' ${{secrets.NPM_TOKEN}}
+      
+      - name: Install dependencies
+        run: npm install
+      
+      - name: Run fix command
+        run: npm run fix
+      
+      - name: Check for uncommitted changes
+        id: check_changes
+        run: |
+          git diff --exit-code -- '*.ts' '*.tsx'
+        continue-on-error: true
+      
+      - name: Fail if changes detected
+        if: steps.check_changes.outcome == 'failure'
+        run: |
+          echo "Error: TypeScript files were modified by 'npm run fix'. Please run 'npm run fix' locally and commit the changes."
+          echo "Modified files:"
+          git diff --name-only -- '*.ts' '*.tsx'
+          exit 1

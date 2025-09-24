@@ -20,10 +20,12 @@ resources:
         initializer:
           handler: index.initializer
           timeout: 10
+      role: acs:ram::${config('AccountID')}:role/aliyunaliyunfcdefaultrole
 
       vpcConfig: auto
       nasConfig: auto
       logConfig: auto
+      ossMountConfig: auto
 
       asyncInvokeConfig:
         destinationConfig:

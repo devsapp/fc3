@@ -169,7 +169,7 @@ mountPoints:
           throw new Error(`download model error: ${e.message}`);
         }
 
-        if (resp.statusCode != 200 && resp.statusCode != 202) {
+        if (resp.statusCode !== 200 && resp.statusCode !== 202) {
           logger.info({ status: resp.statusCode, body: resp.body });
           throw new Error(
             `download model connection error, statusCode: ${resp.statusCode}, body: ${resp.body}`,
@@ -179,12 +179,14 @@ mountPoints:
         const rb = resp.body;
         if (rb.success || rb.errMsg.includes('is already exist')) {
           logger.info(`download model requestId: ${rb.requestId}`);
-          while (true) {
+          const shouldContinue = true;
+          while (shouldContinue) {
+            // eslint-disable-next-line no-await-in-loop
             const modelStatus = await this.getModelStatus(devClient, name);
 
             if (modelStatus.finished) {
               if (
-                !!modelStatus.total &&
+                modelStatus.total &&
                 modelStatus.currentBytes !== undefined &&
                 modelStatus.fileSize !== undefined
               ) {
@@ -246,6 +248,7 @@ mountPoints:
               sleepTime = 10;
             }
 
+            // eslint-disable-next-line no-await-in-loop
             await sleep(sleepTime);
           }
         } else {
@@ -295,14 +298,6 @@ mountPoints:
     return new DevClient(config);
   }
 
-  private _assertArrayOfStrings(variable: any) {
-    assert(Array.isArray(variable), 'Variable must be an array');
-    assert(
-      variable.every((item) => typeof item === 'string'),
-      'Variable must contain only strings',
-    );
-  }
-
   async getModelStatus(client: DevClient, name: string) {
     let resp;
     try {
@@ -313,7 +308,7 @@ mountPoints:
       throw new Error(`[Download-model] get model status error: ${e.message} for model ${name}`);
     }
 
-    if (resp.statusCode != 200 && resp.statusCode != 202) {
+    if (resp.statusCode !== 200 && resp.statusCode !== 202) {
       logger.info({ status: resp.statusCode, body: resp.body });
       throw new Error(
         `[Download-model] get model status connection error, statusCode: ${resp.statusCode}, body: ${resp.body}`,
@@ -328,22 +323,6 @@ mountPoints:
         `[Download-model] get model status biz failed, errCode: ${rb.errCode}, errMsg: ${rb.errMsg}`,
       );
     }
-  }
-
-  private parseNasConfig(nasConfig: any) {
-    let nasMountDomain: string;
-    let nasMountPath = '';
-
-    const { serverAddr } = nasConfig.mountPoints[0];
-    const parts = serverAddr.split(':', 2);
-
-    if (parts.length === 2) {
-      [nasMountDomain, nasMountPath] = parts;
-    } else {
-      throw new Error('nasConfig serverAddr string does not contain a colon');
-    }
-
-    return { nasMountDomain, nasMountPath };
   }
 
   async remove() {
@@ -380,5 +359,29 @@ mountPoints:
       logger.error(`[Remove-model] delete model invocation error: ${e.message}`);
       throw new Error(`[Remove-model] delete model error: ${e.message}`);
     }
+  }
+
+  private _assertArrayOfStrings(variable: any) {
+    assert(Array.isArray(variable), 'Variable must be an array');
+    assert(
+      variable.every((item) => typeof item === 'string'),
+      'Variable must contain only strings',
+    );
+  }
+
+  private parseNasConfig(nasConfig: any) {
+    let nasMountDomain: string;
+    let nasMountPath = '';
+
+    const { serverAddr } = nasConfig.mountPoints[0];
+    const parts = serverAddr.split(':', 2);
+
+    if (parts.length === 2) {
+      [nasMountDomain, nasMountPath] = parts;
+    } else {
+      throw new Error('nasConfig serverAddr string does not contain a colon');
+    }
+
+    return { nasMountDomain, nasMountPath };
   }
 }
