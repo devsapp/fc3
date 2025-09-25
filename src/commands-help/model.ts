@@ -11,7 +11,7 @@ export default {
         option: [],
       },
     },
-    reomve: {
+    remove: {
       help: {
         description: `Remove model`,
         summary: 'Remove model',

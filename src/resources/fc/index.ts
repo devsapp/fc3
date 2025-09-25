@@ -630,8 +630,8 @@ export default class FC extends FC_Client {
     if (!needUpdate) {
       logger.debug(`Need create alias ${functionName} alias ${aliasName}`);
       try {
-        await this.createAlias(functionName, config);
-        return;
+        const ret = await this.createAlias(functionName, config);
+        return ret.body;
       } catch (ex) {
         logger.debug(`Create function error: ${ex.message}`);
         if (ex.code !== FC_API_ERROR_CODE.AliasAlreadyExists) {
