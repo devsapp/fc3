@@ -27,6 +27,11 @@ export default class Plan {
     this.region = _.get(this.inputs, 'props.region');
     this.functionName = _.get(inputs, 'props.functionName');
 
+    // 验证scalingConfig和provisionConfig不能同时存在
+    if (inputs.props.scalingConfig && inputs.props.provisionConfig) {
+      throw new Error('scalingConfig and provisionConfig cannot be used at the same time');
+    }
+
     if (!this.region) {
       throw new Error('Region not specified');
     }
@@ -61,34 +66,29 @@ export default class Plan {
     const asyncInvokeConfig = await this.planAsyncInvokeConfig();
     const vpcBindingConfig = await this.planVpcBinding();
     const provisionConfig = await this.planProvisionConfig();
+    const scalingConfig = await this.planScalingConfig();
     const concurrencyConfig = await this.planConcurrencyConfig();
-
     let showDiff = `region: ${this.region}\n${functionConfig.show}`;
-
     if (!_.isEmpty(this.triggers)) {
       showDiff += `\ntriggers:\n${triggersConfig.show}`;
     }
-
     if (_.get(this.inputs.props, 'asyncInvokeConfig')) {
       showDiff += `\nasyncInvokeConfig:\n${asyncInvokeConfig.show}`;
     }
-
     if (_.get(this.inputs.props, 'vpcBinding')) {
       showDiff += `\nvpcBinding:\n${vpcBindingConfig.show}`;
     }
-
     if (_.get(this.inputs.props, 'provisionConfig')) {
       showDiff += `\nprovisionConfig:\n${provisionConfig.show}`;
     }
-
+    if (_.get(this.inputs.props, 'scalingConfig')) {
+      showDiff += `\nscalingConfig:\n${scalingConfig.show}`;
+    }
     if (_.get(this.inputs.props, 'concurrencyConfig')) {
       showDiff += `\nconcurrencyConfig:\n${concurrencyConfig.show}`;
     }
-
     showDiff = showDiff.replace(/^/gm, '    ');
-
     logger.write(`${this.inputs.resource.name}:\n${showDiff}`);
-
     await this.planCustomDomain();
   }
 
@@ -111,6 +111,7 @@ export default class Plan {
     _.unset(local, 'endpoint');
     _.unset(local, 'vpcBinding');
     _.unset(local, 'customDomain');
+    _.unset(local, 'scalingConfig');
     _.unset(local, 'provisionConfig');
     _.unset(local, 'concurrencyConfig');
     _.unset(local, 'customContainerConfig.registryConfig');
@@ -230,6 +231,29 @@ export default class Plan {
     // eslint-disable-next-line prefer-const
     let local = _.cloneDeep(_.get(this.inputs.props, 'provisionConfig', {})) as any;
     _.unset(local, 'mode');
+    return diffConvertPlanYaml(remote, local, { deep: 1, complete: true });
+  }
+
+  private async planScalingConfig() {
+    let remote: any = {};
+    try {
+      const scalingConfig = _.get(this.inputs, 'props.scalingConfig', {});
+      const qualifier = _.get(scalingConfig, 'qualifier', 'LATEST');
+      const result = await this.fcSdk.getFunctionScalingConfig(this.functionName, qualifier);
+      remote = _.omit(result, [
+        'current',
+        'functionArn',
+        'currentError',
+        'targetInstances',
+        'currentInstances',
+      ]);
+    } catch (ex) {
+      logger.debug(
+        `planScalingConfig ==> Get remote scalingConfig of  ${this.functionName} error: ${ex.message}`,
+      );
+    }
+    // eslint-disable-next-line prefer-const
+    let local = _.cloneDeep(_.get(this.inputs.props, 'scalingConfig', {})) as any;
     return diffConvertPlanYaml(remote, local, { deep: 1, complete: true });
   }
 

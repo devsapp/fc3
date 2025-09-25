@@ -9,6 +9,7 @@ export enum FC_API_ERROR_CODE {
   AliasNotFound = 'AliasNotFound', // 别名不存在
   AliasAlreadyExists = 'AliasAlreadyExists', // 别名已存在
   ProvisionConfigExist = 'ProvisionConfigExist', // 预配置存在
+  ResidentScalingConfigExists = 'ResidentScalingConfigExists', // 常驻资源池预配置存在
 }
 
 export const isSlsNotExistException = (project: string, logstore: string, ex) => {

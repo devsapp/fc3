@@ -7,6 +7,7 @@ import * as fs from 'fs';
 import logger from '../logger';
 import { execSync } from 'child_process';
 import axios from 'axios';
+import { FC_API_ERROR_CODE } from '../resources/fc/error-code';
 
 export { default as verify } from './verify';
 export { default as runCommand } from './run-command';
@@ -195,4 +196,13 @@ export function transformCustomDomainProps(local: any, region: string, functionN
   };
   const props = _.pickBy(_props, (value) => value !== undefined);
   return props;
+}
+
+const PROVISION_ERROR_CODES = [
+  FC_API_ERROR_CODE.ProvisionConfigExist,
+  FC_API_ERROR_CODE.ResidentScalingConfigExists,
+];
+
+export function isProvisionConfigError(error) {
+  return error && error.code && PROVISION_ERROR_CODES.includes(error.code);
 }

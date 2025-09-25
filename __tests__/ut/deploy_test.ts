@@ -46,6 +46,13 @@ describe('Deploy', () => {
         runtime: 'nodejs18',
         handler: 'index.handler',
         code: './code',
+        provisionConfig: {
+          defaultTarget: 10,
+          alwaysAllocateCPU: false,
+          alwaysAllocateGPU: false,
+          scheduledActions: [],
+          targetTrackingPolicies: [],
+        },
       },
       command: 'deploy',
       args: [],
@@ -58,10 +65,17 @@ describe('Deploy', () => {
         access: 'default',
       },
       outputs: {},
+      credential: {
+        AccountID: '123456789',
+        AccessKeyID: 'test-key',
+        AccessKeySecret: 'test-secret',
+        SecurityToken: 'test-token',
+      },
       getCredential: jest.fn().mockResolvedValue({
         AccountID: '123456789',
         AccessKeyID: 'test-key',
         AccessKeySecret: 'test-secret',
+        SecurityToken: 'test-token',
       }),
     };
 

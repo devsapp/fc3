@@ -24,6 +24,11 @@ export default class Info {
     });
     logger.debug(`layer opts: ${JSON.stringify(opts)}`);
 
+    // 验证scalingConfig和provisionConfig不能同时存在
+    if (inputs.props.scalingConfig && inputs.props.provisionConfig) {
+      throw new Error('scalingConfig and provisionConfig cannot be used at the same time');
+    }
+
     const { region, 'function-name': functionName } = opts;
     this.region = region || _.get(inputs, 'props.region', '');
     logger.debug(`${this.region}`);
@@ -54,6 +59,7 @@ export default class Info {
     const vpcBindingConfig = await this.getVpcBing();
     const customDomain = await this.getCustomDomain();
     const provisionConfig = await this.getProvisionConfig();
+    const scalingConfig = await this.getScalingConfig();
     const concurrencyConfig = await this.getConcurrencyConfig();
     let info: any = {
       region: this.region,
@@ -65,6 +71,7 @@ export default class Info {
       vpcBinding: isEmpty(vpcBindingConfig) ? undefined : vpcBindingConfig,
       customDomain: isEmpty(customDomain) ? undefined : customDomain,
       provisionConfig: isEmpty(provisionConfig) ? undefined : provisionConfig,
+      scalingConfig: isEmpty(scalingConfig) ? undefined : scalingConfig,
       concurrencyConfig: isEmpty(concurrencyConfig) ? undefined : concurrencyConfig,
     });
     if (!_.isEmpty(triggers)) {
@@ -158,6 +165,13 @@ export default class Info {
       return {};
     }
     return await this.fcSdk.getFunctionProvisionConfig(this.functionName, 'LATEST');
+  }
+
+  async getScalingConfig(): Promise<any> {
+    if (_.isEmpty(_.get(this.inputs.props, 'scalingConfig'))) {
+      return {};
+    }
+    return await this.fcSdk.getFunctionScalingConfig(this.functionName, 'LATEST');
   }
 
   async getConcurrencyConfig(): Promise<any> {

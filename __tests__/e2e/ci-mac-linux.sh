@@ -111,6 +111,9 @@ s info -t s2.yaml
 s remove -y -t s2.yaml
 cd ..
 
+echo " *********  test scaling config *********"
+cd scaling && ./run && cd -
+
 echo " *********  command-api *********"
 cd command-api && ./run && cd -
 cd command-api && ./run_cli_mode && cd -

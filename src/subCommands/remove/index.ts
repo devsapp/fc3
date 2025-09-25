@@ -6,7 +6,12 @@ import logger from '../../logger';
 import FC, { GetApiType } from '../../resources/fc';
 import { FC_API_ERROR_CODE } from '../../resources/fc/error-code';
 import { parseArgv } from '@serverless-devs/utils';
-import { promptForConfirmOrDetails, sleep, transformCustomDomainProps } from '../../utils';
+import {
+  promptForConfirmOrDetails,
+  sleep,
+  transformCustomDomainProps,
+  isProvisionConfigError,
+} from '../../utils';
 import loadComponent from '@serverless-devs/load-component';
 import { IInputs as _IInputs } from '@serverless-devs/component-interface';
 import { FC3_DOMAIN_COMPONENT_NAME } from '../../constant';
@@ -176,8 +181,9 @@ export default class Remove {
     }
 
     try {
-      const provision = await this.fcSdk.listFunctionProvisionConfig(this.functionName);
-      this.resources.provision = provision.map((item) => {
+      // 获取ScalingConfig信息
+      const scalingConfigs = await this.fcSdk.listFunctionScalingConfig(this.functionName);
+      this.resources.scalingConfigs = scalingConfigs.map((item) => {
         const li = item.functionArn.split('/');
         let qualifier = 'LATEST';
         if (li.length > 2) {
@@ -185,16 +191,19 @@ export default class Remove {
         }
         return {
           qualifier,
-          current: item.current,
-          target: item.target,
+          currentInstances: item.currentInstances,
+          minInstances: item.minInstances,
+          residentPoolId: item.residentPoolId,
         };
       });
-      logger.write(`Remove function ${this.region}/${this.functionName} provision:`);
-      logger.output(this.resources.provision, 2);
-      console.log();
+      if (!_.isEmpty(this.resources.scalingConfigs)) {
+        logger.write(`Remove function ${this.region}/${this.functionName} scalingConfigs:`);
+        logger.output(this.resources.scalingConfigs, 2);
+        console.log();
+      }
     } catch (ex) {
       logger.debug(
-        `List function ${this.region}/${this.functionName}provision error: ${ex.message}`,
+        `List function ${this.region}/${this.functionName} scalingConfigs error: ${ex.message}`,
       );
     }
 
@@ -372,38 +381,37 @@ export default class Remove {
       }
     }
 
-    if (!_.isEmpty(this.resources.provision)) {
-      for (const { qualifier } of this.resources.provision) {
+    // 删除ScalingConfig
+    if (!_.isEmpty(this.resources.scalingConfigs)) {
+      for (const { qualifier } of this.resources.scalingConfigs) {
         logger.spin(
           'removing',
-          'function provision',
+          'function scalingConfig',
           `${this.region}/${this.functionName}/${qualifier}`,
         );
-        await this.fcSdk.removeFunctionProvisionConfig(this.functionName, qualifier);
+        await this.fcSdk.removeFunctionScalingConfig(this.functionName, qualifier);
         logger.spin(
           'removed',
-          'function provision',
+          'function scalingConfig',
           `${this.region}/${this.functionName}/${qualifier}`,
         );
       }
-    }
-
-    if (!_.isEmpty(this.resources.provision)) {
-      for (const { qualifier } of this.resources.provision) {
+      for (const { qualifier } of this.resources.scalingConfigs) {
         logger.spin(
           'checking',
-          'remove function provision',
+          'remove function scalingConfig',
           `${this.region}/${this.functionName}/${qualifier}`,
         );
         // eslint-disable-next-line no-constant-condition
         while (true) {
           await sleep(1);
-          const { current } =
-            (await this.fcSdk.getFunctionProvisionConfig(this.functionName, qualifier)) || {};
-          if (current === 0 || !current) {
+          const scalingConfig =
+            (await this.fcSdk.getFunctionScalingConfig(this.functionName, qualifier)) || {};
+          // 检查scaling config是否已完全删除
+          if (_.isEmpty(scalingConfig) || scalingConfig.currentInstances === 0) {
             logger.spin(
               'checked',
-              'remove function provision',
+              'remove function scalingConfig',
               `${this.region}/${this.functionName}/${qualifier}`,
             );
             break;
@@ -444,64 +452,10 @@ export default class Remove {
 
     logger.spin('removing', 'function', `${this.region}/${this.functionName}`);
     try {
-      await this.fcSdk.fc20230330Client.deleteFunction(this.functionName);
-    } catch (ex) {
-      // 如果是 ProvisionConfigExist 错误，尝试重试
-      if (ex.code === FC_API_ERROR_CODE.ProvisionConfigExist) {
-        logger.warn(
-          `Remove function ${this.functionName} failed with ProvisionConfigExist error, retrying...`,
-        );
-
-        const retryCount = 25;
-        // 重试 20 次，每次间隔 2 秒
-        for (let i = 1; i <= retryCount; i++) {
-          logger.info(`Retry attempt ${i}/${retryCount}...`);
-          await sleep(2);
-
-          try {
-            await this.fcSdk.fc20230330Client.deleteFunction(this.functionName);
-            logger.info(`Function ${this.functionName} removed successfully on retry attempt ${i}`);
-            break;
-          } catch (retryEx) {
-            if (i === retryCount) {
-              // 最后一次重试仍然失败
-              logger.error(
-                `Remove function ${this.functionName} error after 20 retries: ${retryEx.message}`,
-              );
-              throw retryEx;
-            }
-
-            // 如果不是 ProvisionConfigExist 错误，直接抛出
-            if (retryEx.code !== FC_API_ERROR_CODE.ProvisionConfigExist) {
-              logger.error(`Remove function ${this.functionName} error: ${retryEx.message}`);
-              throw retryEx;
-            }
-
-            if (i === 5) {
-              logger.warn(
-                `Remove function ${this.functionName} error after 5 retries, disable function invocation.`,
-              );
-              const disableFunctionInvocationRequest = new DisableFunctionInvocationRequest({
-                reason: 'functionai-delete',
-                abortOngoingRequest: true,
-              });
-              const res = await this.fcSdk.fc20230330Client.disableFunctionInvocation(
-                this.functionName,
-                disableFunctionInvocationRequest,
-              );
-              logger.debug(`DisableFunctionInvocation: ${JSON.stringify(res, null, 2)}`);
-            }
-
-            // 如果是 ProvisionConfigExist 错误，继续重试
-            logger.warn(
-              `Remove function ${this.functionName} still failed with ProvisionConfigExist error, continuing retries...`,
-            );
-          }
-        }
-      } else {
-        logger.error(`Remove function ${this.functionName} error: ${ex.message}`);
-        throw ex;
-      }
+      await this.removeFunctionWithRetry();
+    } catch (error) {
+      logger.error(`Final failure removing function ${this.functionName}: ${error.message}`);
+      throw error;
     }
     logger.spin('removed', 'function', `${this.region}/${this.functionName}`);
   }
@@ -562,6 +516,99 @@ export default class Remove {
       }
     } catch (error) {
       logger.warn(`removeCustomDomain error: ${error}`);
+    }
+  }
+
+  private async removeFunctionWithRetry() {
+    const RETRY_CONFIG = {
+      maxRetries: 25,
+      interval: 2, // 2秒
+      disableInvocationThreshold: 5, // 在第5次重试后禁用函数调用
+    };
+    const disableFunctionInvocation = async () => {
+      try {
+        logger.warn(`Attempting to disable function invocation for ${this.functionName}`);
+
+        const disableFunctionInvocationRequest = new DisableFunctionInvocationRequest({
+          reason: 'functionai-delete',
+          abortOngoingRequest: true,
+        });
+
+        const response = await this.fcSdk.fc20230330Client.disableFunctionInvocation(
+          this.functionName,
+          disableFunctionInvocationRequest,
+        );
+
+        logger.debug(`DisableFunctionInvocation response: ${JSON.stringify(response, null, 2)}`);
+        logger.info(`Function invocation disabled for ${this.functionName}`);
+      } catch (disableError) {
+        logger.error(
+          `Failed to disable function invocation for ${this.functionName}: ${disableError.message}`,
+        );
+        // 禁用调用失败不应该阻止删除操作继续进行
+      }
+    };
+    const performDelete = async () => {
+      try {
+        await this.fcSdk.fc20230330Client.deleteFunction(this.functionName);
+        logger.info(`Function ${this.functionName} removed successfully`);
+        return true; // 成功删除
+      } catch (error) {
+        logger.warn(`Delete function ${this.functionName} failed: ${error.message}`);
+
+        if (!isProvisionConfigError(error)) {
+          logger.error(
+            `Non-provision error occurred while deleting ${this.functionName}: ${error.message}`,
+          );
+          throw error; // 非预置配置错误，直接抛出
+        }
+
+        logger.warn(
+          `Function ${this.functionName} still has provision configuration, continuing retry...`,
+        );
+        return false; // 删除失败，需要重试
+      }
+    };
+
+    // 首次尝试删除
+    logger.info(`Attempting to remove function ${this.functionName}`);
+    if (await performDelete()) {
+      return; // 成功删除，直接返回
+    }
+
+    // 如果首次删除失败且是预置配置错误，开始重试逻辑
+    logger.warn(
+      `Remove function ${this.functionName} failed with provision configuration error, starting retry sequence...`,
+    );
+
+    // 循环重试删除
+    for (let attempt = 1; attempt <= RETRY_CONFIG.maxRetries; attempt++) {
+      logger.info(
+        `Retry attempt ${attempt}/${RETRY_CONFIG.maxRetries} for function ${this.functionName}`,
+      );
+
+      // 在指定阈值时尝试禁用函数调用
+      if (attempt === RETRY_CONFIG.disableInvocationThreshold) {
+        await disableFunctionInvocation();
+      }
+
+      // 等待一段时间后重试
+      await sleep(RETRY_CONFIG.interval);
+
+      // 尝试删除
+      if (await performDelete()) {
+        logger.info(
+          `Function ${this.functionName} removed successfully on retry attempt ${attempt}`,
+        );
+        return;
+      }
+
+      // 如果是最后一次重试仍然失败
+      if (attempt === RETRY_CONFIG.maxRetries) {
+        const errorMessage = `Failed to remove function ${this.functionName} after ${RETRY_CONFIG.maxRetries} retries`;
+        logger.error(errorMessage);
+        throw new Error(errorMessage);
+      }
     }
   }
 }

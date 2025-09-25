@@ -5,6 +5,7 @@ import { IRegion } from './region';
 import { IAsyncInvokeConfig } from './async_invoke_config';
 import { IConcurrencyConfig } from './concurrency_config';
 import { IProvisionConfig } from './provison_config';
+import { IScalingConfig } from './scaling_config';
 
 export * from './region';
 export * from './function';
@@ -18,6 +19,7 @@ export interface IProps extends IFunction {
   asyncInvokeConfig?: IAsyncInvokeConfig;
   concurrencyConfig?: IConcurrencyConfig;
   provisionConfig?: IProvisionConfig;
+  scalingConfig?: IScalingConfig;
   endpoint?: string;
   supplement?: any;
   annotations?: any;

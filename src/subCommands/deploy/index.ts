@@ -7,6 +7,7 @@ import VpcBinding from './impl/vpc_binding';
 import CustomDomain from './impl/custom_domain';
 import ProvisionConfig from './impl/provision_config';
 import ConcurrencyConfig from './impl/concurrency_config';
+import ScalingConfig from './impl/scaling_config';
 import logger from '../../logger';
 import { verify, isAppCenter } from '../../utils';
 import { IInputs } from '../../interface';
@@ -23,6 +24,7 @@ export default class Deploy {
   readonly customDomain?: CustomDomain;
   readonly provisionConfig?: ProvisionConfig;
   readonly concurrencyConfig?: ConcurrencyConfig;
+  readonly scalingConfig?: ScalingConfig;
 
   constructor(readonly inputs: IInputs) {
     if (isAppCenter()) {
@@ -39,6 +41,11 @@ export default class Deploy {
 
     // TODO: 更完善的验证
     verify(inputs.props);
+
+    // 验证scalingConfig和provisionConfig不能同时存在
+    if (inputs.props.scalingConfig && inputs.props.provisionConfig) {
+      throw new Error('scalingConfig and provisionConfig cannot be used at the same time');
+    }
 
     const {
       function: type,
@@ -69,6 +76,7 @@ export default class Deploy {
       this.vpcBinding = new VpcBinding(inputs, { yes });
       this.customDomain = new CustomDomain(inputs, { yes });
       this.provisionConfig = new ProvisionConfig(inputs, { yes });
+      this.scalingConfig = new ScalingConfig(inputs, { yes });
       this.concurrencyConfig = new ConcurrencyConfig(inputs, { yes });
     }
   }
@@ -80,7 +88,11 @@ export default class Deploy {
     await this.asyncInvokeConfig?.before();
     await this.vpcBinding?.before();
     await this.customDomain?.before();
-    await this.provisionConfig?.before();
+    if (this.inputs.props.provisionConfig) {
+      await this.provisionConfig?.before();
+    } else {
+      await this.scalingConfig?.before();
+    }
     await this.concurrencyConfig?.before();
 
     // 调用运行
@@ -89,7 +101,12 @@ export default class Deploy {
     const run3 = await this.asyncInvokeConfig?.run();
     const run4 = await this.vpcBinding?.run();
     const run5 = await this.customDomain?.run();
-    const run6 = await this.provisionConfig?.run();
+    let run6;
+    if (this.inputs.props.provisionConfig) {
+      run6 = await this.provisionConfig?.run();
+    } else {
+      run6 = await this.scalingConfig?.run();
+    }
     const run7 = await this.concurrencyConfig?.run();
     // 获取输出
     if (run1 && run2 && run3 && run4 && run5 && run6 && run7) {
