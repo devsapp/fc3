@@ -56,6 +56,12 @@ s cli $fc3_dir provision remove --qualifier test -y --region $REGION --function-
 s cli $fc3_dir provision list --region $REGION --function-name $functionName  -a quanxi
 s cli $fc3_dir provision put --qualifier test --target 2  --region $REGION --function-name $functionName  -a quanxi
 
+
+s cli $fc3_dir scaling put --qualifier test --min-instances 1 --region $REGION --function-name $functionName  -a quanxi
+s cli $fc3_dir scaling list --region $REGION --function-name $functionName  -a quanxi
+s cli $fc3_dir scaling list --region $REGION --function-name $functionName  -a quanxi
+s cli $fc3_dir scaling remove -y --region $REGION --function-name $functionName  -a quanxi
+
 s cli $fc3_dir remove -y  --region $REGION --function-name $functionName  -a quanxi
 
 

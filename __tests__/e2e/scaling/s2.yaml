@@ -1,0 +1,36 @@
+edition: 3.0.0
+name: test-scaling-config
+access: quanxi
+
+resources:
+  fcDemo:
+    component: ${env('fc_component_version', path('../../../'))}
+    props:
+      region: cn-shanghai
+      functionName: fc3-scaling-pool-${env('fc_component_function_name', 'scaling')}
+      code: ./code
+      handler: index.handler
+      timeout: 60
+      logConfig: auto
+      gpuConfig:
+        gpuMemorySize: 49152
+        gpuType: fc.gpu.ada.1
+      runtime: custom-container
+      cpu: 8
+      customContainerConfig:
+        image: >-
+          registry.cn-shanghai.aliyuncs.com/serverless_devs/custom-container-http-examples:springboot
+        port: 9000
+      instanceConcurrency: 20
+      memorySize: 65536
+      diskSize: 10240
+
+      provisionConfig:
+        defaultTarget: 1
+      #   alwaysAllocateCPU: false
+      #   alwaysAllocateGPU: false
+      
+      # scalingConfig:
+      #   # residentPoolId: fc-pool-5f044a31f87171jkwaraws
+      #   minInstances: 1
+        

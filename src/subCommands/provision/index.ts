@@ -74,7 +74,7 @@ export default class Provision {
     if (!this.functionName) {
       throw new Error('Function name not specified, please specify --function-name');
     }
-    this.qualifier = qualifier;
+    this.qualifier = qualifier || 'LATEST';
     this.yes = !!yes;
     this.subCommand = subCommand;
     this.alwaysAllocateCPU = alwaysAllocateCPU;

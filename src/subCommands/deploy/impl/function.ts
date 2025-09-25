@@ -56,6 +56,7 @@ export default class Service extends Base {
     _.unset(this.local, 'vpcBinding');
     _.unset(this.local, 'customDomain');
     _.unset(this.local, 'provisionConfig');
+    _.unset(this.local, 'scalingConfig');
     _.unset(this.local, 'concurrencyConfig');
   }
 

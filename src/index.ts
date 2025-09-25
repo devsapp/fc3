@@ -14,6 +14,7 @@ import Info from './subCommands/info';
 import Plan from './subCommands/plan';
 import Invoke from './subCommands/invoke';
 import Provision from './subCommands/provision';
+import Scaling from './subCommands/scaling';
 import Layer from './subCommands/layer';
 import Instance from './subCommands/instance';
 import Remove from './subCommands/remove';
@@ -99,6 +100,12 @@ export default class Fc extends Base {
     await super.handlePreRun(inputs, true);
     const provision = new Provision(inputs);
     return await provision[provision.subCommand]();
+  }
+
+  public async scaling(inputs: IInputs) {
+    await super.handlePreRun(inputs, true);
+    const scaling = new Scaling(inputs);
+    return await scaling[scaling.subCommand]();
   }
 
   public async layer(inputs: IInputs) {

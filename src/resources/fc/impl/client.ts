@@ -17,6 +17,7 @@ import FCClient, {
   ListAliasesRequest,
   ListFunctionsRequest,
   ListProvisionConfigsRequest,
+  ListScalingConfigsRequest,
   PublishFunctionVersionRequest,
   PublishVersionInput,
   PutConcurrencyConfigRequest,
@@ -43,6 +44,10 @@ import FCClient, {
   ListLayersRequest,
   CreateVpcBindingRequest,
   CreateVpcBindingInput,
+  PutScalingConfigRequest,
+  PutScalingConfigInput,
+  GetScalingConfigRequest,
+  DeleteScalingConfigRequest,
 } from '@alicloud/fc20230330';
 import { ICredentials } from '@serverless-devs/component-interface';
 import { RuntimeOptions } from '@alicloud/tea-util';
@@ -59,6 +64,7 @@ import { IAlias } from '../../../interface/cli-config/alias';
 import { IProvision } from '../../../interface/cli-config/provision';
 import * as $Util from '@alicloud/tea-util';
 import { isAppCenter } from '../../../utils';
+import { IScalingConfig } from '../../../interface/scaling_config';
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const httpx = require('httpx');
@@ -584,5 +590,53 @@ export default class FC_Client {
       layerName,
       new PutLayerACLRequest({ public: isPublic }),
     );
+  }
+
+  // ScalingConfig相关方法
+  async listFunctionScalingConfig(functionName: string) {
+    const request = new ListScalingConfigsRequest({ functionName, limit: 100 });
+    const result = await this.fc20230330Client.listScalingConfigs(request);
+    const { body } = result.toMap();
+    logger.debug(`List ${functionName} scaling config body: ${JSON.stringify(body)}`);
+    return body.scalingConfigs;
+  }
+
+  async getFunctionScalingConfig(functionName: string, qualifier?: string) {
+    const request = new GetScalingConfigRequest({ qualifier });
+    try {
+      const result = await this.fc20230330Client.getScalingConfig(functionName, request);
+      const { body } = result.toMap();
+      logger.debug(
+        `Get ${functionName}(${qualifier}) scaling config body: ${JSON.stringify(body)}`,
+      );
+      if (_.isEmpty(body.functionArn)) {
+        return {};
+      }
+      return body;
+    } catch (ex) {
+      logger.debug(`Get ${functionName}(${qualifier}) scaling config error: ${ex.message}`);
+      return {};
+    }
+  }
+
+  async putFunctionScalingConfig(functionName: string, qualifier: string, config: IScalingConfig) {
+    logger.debug(`put ${functionName}(${qualifier}) scaling config: ${JSON.stringify(config)}`);
+    const request = new PutScalingConfigRequest({
+      qualifier,
+      body: new PutScalingConfigInput(config),
+    });
+    const result = await this.fc20230330Client.putScalingConfig(functionName, request);
+    const { body } = result.toMap();
+    return body;
+  }
+
+  async removeFunctionScalingConfig(functionName: string, qualifier: string) {
+    const request = new DeleteScalingConfigRequest({ qualifier });
+    const result = await this.fc20230330Client.deleteScalingConfig(functionName, request);
+    const { body } = result.toMap();
+    logger.debug(
+      `Delete ${functionName}(${qualifier}) scaling config result body: ${JSON.stringify(body)}`,
+    );
+    return body;
   }
 }

@@ -168,11 +168,14 @@ describe('Provision', () => {
       );
     });
 
-    it('should throw error when qualifier is not specified', async () => {
+    it('should use default qualifier when qualifier is not specified', async () => {
       mockInputs.args = ['get'];
       provision = new Provision(mockInputs);
-      await expect(provision.get()).rejects.toThrow(
-        'Qualifier not specified, please specify --qualifier',
+      // The current implementation uses 'LATEST' as default when qualifier is not specified
+      await expect(provision.get()).resolves.toEqual({ target: 10 });
+      expect(mockFcInstance.getFunctionProvisionConfig).toHaveBeenCalledWith(
+        'test-function',
+        'LATEST', // Default qualifier
       );
     });
   });
@@ -195,11 +198,17 @@ describe('Provision', () => {
       );
     });
 
-    it('should throw error when qualifier is not specified', async () => {
+    it('should use default qualifier when qualifier is not specified', async () => {
       mockInputs.args = ['put', '--target', '10'];
       provision = new Provision(mockInputs);
-      await expect(provision.put()).rejects.toThrow(
-        'Qualifier not specified, please specify --qualifier',
+      // The current implementation uses 'LATEST' as default when qualifier is not specified
+      await expect(provision.put()).resolves.toEqual({ success: true });
+      expect(mockFcInstance.putFunctionProvisionConfig).toHaveBeenCalledWith(
+        'test-function',
+        'LATEST', // Default qualifier
+        expect.objectContaining({
+          target: 10,
+        }),
       );
     });
 
@@ -304,11 +313,14 @@ describe('Provision', () => {
       );
     });
 
-    it('should throw error when qualifier is not specified', async () => {
+    it('should use default qualifier when qualifier is not specified', async () => {
       mockInputs.args = ['remove', '--assume-yes'];
       provision = new Provision(mockInputs);
-      await expect(provision.remove()).rejects.toThrow(
-        'Qualifier not specified, please specify --qualifier',
+      // The current implementation uses 'LATEST' as default when qualifier is not specified
+      await expect(provision.remove()).resolves.toBeUndefined();
+      expect(mockFcInstance.removeFunctionProvisionConfig).toHaveBeenCalledWith(
+        'test-function',
+        'LATEST', // Default qualifier
       );
     });
 

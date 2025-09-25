@@ -1,0 +1,37 @@
+edition: 3.0.0
+name: test-scaling-config
+access: quanxi
+
+vars: 
+  region: ${env('REGION', 'cn-hongkong')}
+
+resources:
+  fcDemo:
+    component: ${env('fc_component_version', path('../../../'))}
+    props:
+      region: ${vars.region}
+      functionName: fc3-scaling-${env('fc_component_function_name', 'scaling')}
+      runtime: nodejs18
+      code: ./code
+      handler: index.handler
+      memorySize: 128
+      timeout: 60
+      logConfig: auto
+      
+      scalingConfig:
+        minInstances: 1
+        horizontalScalingPolicies:
+          - name: test-policy
+            metricType: CPUUtilization
+            metricTarget: 0.6
+            minInstances: 1
+            maxInstances: 10
+        scheduledPolicies:
+          - name: test-scheduled
+            scheduleExpression: cron(0 0 4 * * *)
+            target: 5
+            startTime: '2023-08-15T02:04:00.000Z'
+            endTime: '2033-08-15T03:04:00.000Z'
+      
+      concurrencyConfig:
+        reservedConcurrency: 100

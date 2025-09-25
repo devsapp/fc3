@@ -1,0 +1,41 @@
+#!/bin/bash
+
+set -e
+set -v
+
+export fc_component_function_name=nodejs-$(uname)-$(uname -m)-$RANDSTR
+
+echo "test command scaling config..."
+
+# 部署函数
+s deploy -y
+
+# 测试scaling config相关命令
+echo "Testing scaling config commands..."
+
+# 发布版本
+s version publish --description test
+s version list
+
+# 创建别名
+s alias publish --alias-name test --version-id latest
+s alias list
+
+# 测试scaling config
+s scaling put --qualifier test --min-instances 2 --horizontal-scaling-policies '[{"name":"test-policy","metricType":"CPUUtilization","metricTarget":0.7,"minInstances":2,"maxInstances":15}]' --scheduled-policies '[{"name":"test-scheduled","scheduleExpression":"cron(0 0 5 * * *)","target":8,"startTime":"2023-08-15T02:04:00.000Z","endTime":"2033-08-15T03:04:00.000Z"}]'
+s scaling put --min-instances 2
+s scaling list
+
+# # 删除scaling config
+s scaling remove --qualifier test -y
+s scaling list
+
+# 使用配置文件部署
+s deploy -y
+
+# 再次检查
+s scaling get
+s scaling list
+
+# 清理
+s remove -y
