@@ -1,0 +1,7 @@
+access: quanxi
+edition: 3.0.0
+name: hello-world-app
+resources:
+  test_func:
+    component: ${env('fc_component_version', path('../../../'))}
+    props: {}

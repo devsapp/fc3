@@ -26,6 +26,15 @@ else
     echo "skip test trigger"
 fi
 
+
+echo "test model download"
+cd model
+pip install -r requirements.txt
+export fc_component_function_name=model-$(uname)-$(uname -m)-$RANDSTR
+python deploy_and_test_model.py --model-id iic/cv_LightweightEdge_ocr-recognitoin-general_damo --region cn-shanghai --auto-cleanup
+python deploy_and_test_model.py --model-id Qwen/Qwen2.5-0.5B-Instruct --region cn-shanghai --auto-cleanup
+cd ..
+
 echo "test go runtime"
 cd go
 export fc_component_function_name=go1-$(uname)-$(uname -m)-$RANDSTR

@@ -1,4 +1,4 @@
-import _, { isEmpty } from 'lodash';
+import _ from 'lodash';
 import { diffConvertYaml } from '@serverless-devs/diff';
 import inquirer from 'inquirer';
 import fs from 'fs';
@@ -335,7 +335,7 @@ export default class Service extends Base {
    * 生成 auto 资源，非 FC 资源，主要指 vpc、nas、log、role（oss mount 挂载点才有）
    */
   private async _deployAuto() {
-    const { region, supplement, annotations } = this.inputs.props;
+    const { region } = this.inputs.props;
     const { credential } = this.inputs;
     const { functionName } = this.local;
 
@@ -378,20 +378,18 @@ logConfig:
         yellow(`Created oss resource succeeded, please replace ossMountConfig: auto in yaml with:
 ossMountConfig:
   mountPoints:
-    - mountDir: /mnt/oss_${functionName}
+    - mountDir: /mnt/${ossBucket}
       bucketName: ${ossBucket}
       endpoint: http://oss-${region}-internal.aliyuncs.com
-      bucketPath: /${functionName}
       readOnly: false\n`),
       );
       this.createResource.oss = { ossBucket };
       _.set(this.local, 'ossMountConfig', {
         mountPoints: [
           {
-            mountDir: `/mnt/oss_${functionName}`,
+            mountDir: `/mnt/${ossBucket}`,
             bucketName: ossBucket,
             endpoint: `http://oss-${region}-internal.aliyuncs.com`,
-            bucketPath: `/${functionName}`,
             readOnly: false,
           },
         ],
@@ -438,10 +436,7 @@ vpcConfig:
         _.set(this.local, 'vpcConfig', vpcConfig);
       }
       if (nasAuto) {
-        const modelConfig = supplement?.modelConfig || annotations?.modelConfig;
-        let serverAddr = `${mountTargetDomain}:/${functionName}${
-          isEmpty(modelConfig) ? '' : `/${modelConfig.id}`
-        }`;
+        let serverAddr = `${mountTargetDomain}:/${functionName}`;
         if (serverAddr.length > 128) {
           serverAddr = serverAddr.substring(0, 128);
         }
