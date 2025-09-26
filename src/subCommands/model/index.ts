@@ -104,7 +104,7 @@ vpcConfig:
         logger.info('[nasAuto] vpcAuto finished.');
       }
       if (nasAuto) {
-        let serverAddr = `${mountTargetDomain}:/${functionName}/${modelConfig.id}`;
+        let serverAddr = `${mountTargetDomain}:/${functionName}`;
         if (serverAddr.length > 128) {
           serverAddr = serverAddr.substring(0, 128);
         }

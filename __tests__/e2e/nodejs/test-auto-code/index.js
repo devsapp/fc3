@@ -11,7 +11,7 @@ module.exports.handler = function (event, context, callback) {
   const functionName = context.function.name;
   console.log(`functionName: ${functionName}`);
   const nasDir = `/mnt/${functionName}`;
-  const ossDir = `/mnt/oss_${functionName}`;
+  const ossDir = `/mnt/${functionName}`;
   const nasFile = `${nasDir}/test.txt`;
   const ossFile = `${ossDir}/test.txt`;
   if (fs.existsSync(nasFile)) {

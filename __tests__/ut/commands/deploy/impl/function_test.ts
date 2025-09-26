@@ -755,10 +755,9 @@ describe('Service', () => {
       expect(service.local.ossMountConfig).toEqual({
         mountPoints: [
           {
-            mountDir: `/mnt/oss_test-function`,
+            mountDir: `/mnt/test-oss-bucket`,
             bucketName: 'test-oss-bucket',
             endpoint: 'http://oss-cn-hangzhou-internal.aliyuncs.com',
-            bucketPath: `/test-function`,
             readOnly: false,
           },
         ],
