@@ -22,7 +22,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@alicloud/devs20230714": "^2.4.5",
+    "@alicloud/devs20230714": "^2.4.6-alpha.2",
     "@alicloud/fc2": "^2.6.6",
     "@alicloud/fc20230330": "4.6.0",
     "@alicloud/pop-core": "^1.8.0",

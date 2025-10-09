@@ -42,7 +42,7 @@ def simple_hash(input_string: str) -> str:
     return sha256_hash[:8] + sha256_hash[-8:]
 
 
-def deploy_model(model_id: str, region: str = "cn-hangzhou"):
+def deploy_model(model_id: str, region: str = "cn-hangzhou", storage: str = "nas"):
     """
     部署模型到函数计算
 
@@ -71,9 +71,7 @@ def deploy_model(model_id: str, region: str = "cn-hangzhou"):
     encoded_model_id = urllib.parse.quote(model_id, safe="")
 
     # 调用部署接口
-    model_registry_url = os.getenv(
-        "MODEL_REGISTRY_URL", "model-registry.devsapp.cn"
-    )
+    model_registry_url = os.getenv("MODEL_REGISTRY_URL", "model-registry.devsapp.cn")
     deploy_url = (
         f"http://{model_registry_url}/api/v1/models/{encoded_model_id}/deploy-info"
     )
@@ -107,6 +105,28 @@ def deploy_model(model_id: str, region: str = "cn-hangzhou"):
 
     # 更新resources中的props
     s_yaml["resources"]["test_func"]["props"] = deploy_info
+
+    # 下载到 oss
+    if storage == "oss":
+        s_yaml["resources"]["test_func"]["props"].pop("nasConfig", None)
+        s_yaml["resources"]["test_func"]["props"].pop("vpcConfig", None)
+        s_yaml["resources"]["test_func"]["props"]["ossMountConfig"] = "auto"
+        s_yaml["resources"]["test_func"]["props"][
+            "role"
+        ] = "acs:ram::${config('AccountID')}:role/aliyunfcdefaultrole"
+        s_yaml["resources"]["test_func"]["props"]["annotations"]["modelConfig"][
+            "storage"
+        ] = storage
+        # 修改 customContainerConfig.entrypoint 中的路径
+        custom_container_config = s_yaml["resources"]["test_func"]["props"].get("customContainerConfig", {})
+        if "entrypoint" in custom_container_config:
+            entrypoint = custom_container_config["entrypoint"]
+            if isinstance(entrypoint, list):
+                # 遍历 entrypoint 数组，替换包含 /mnt/ 的路径
+                for i, item in enumerate(entrypoint):
+                    if isinstance(item, str) and "/mnt/" in item and not item.startswith("vllm") and not item.isdigit() and item not in ["--port", "--served-model-name", "--trust-remote-code"]:
+                        entrypoint[i] = f"/mnt/serverless-{region}-d5d4cd07-616a-5428-91b7-ec2d0257b3a2"
+            custom_container_config["entrypoint"] = entrypoint
 
     # 保存配置到临时文件
     s_yaml_file = f"s.yaml"
@@ -326,14 +346,9 @@ def cleanup_deployment(s_yaml_file: str):
     try:
         print(f"正在清除部署资源: {s_yaml_file}")
         # 清除模型
-        subprocess.check_call(
-            f"echo 123456 | sudo -S s model remove -y -t {s_yaml_file}", shell=True
-        )
+        subprocess.check_call(f"s model remove -y -t {s_yaml_file}", shell=True)
         # 清除函数
-        subprocess.check_call(
-            f"echo 123456 | sudo -S s remove -y -t {s_yaml_file} --skip-push",
-            shell=True,
-        )
+        subprocess.check_call(f"s remove -y -t {s_yaml_file} --skip-push", shell=True)
         print("部署资源清除完成!")
     except subprocess.CalledProcessError as e:
         print(f"清除部署资源失败: {e}")
@@ -354,6 +369,7 @@ def main():
     parser.add_argument(
         "--auto-cleanup", action="store_true", help="部署和测试完成后自动执行清理操作"
     )
+    parser.add_argument("--storage", help="存储区域", default="nas")
 
     args = parser.parse_args()
 
@@ -364,7 +380,9 @@ def main():
             return 0
         elif args.model_id:
             # 部署和测试模型
-            deploy_url, s_yaml_file = deploy_model(args.model_id, args.region)
+            deploy_url, s_yaml_file = deploy_model(
+                args.model_id, args.region, args.storage
+            )
 
             # 测试模型
             test_model(args.model_id, deploy_url, s_yaml_file)
