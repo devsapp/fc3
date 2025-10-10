@@ -44,5 +44,5 @@ update-version:
 	sed -i "s/^Version: .*/Version: $$new_version/" publish.yaml; \
 	git diff --exit-code || true
 
-release-prod: update-version
+release-prod: 
 	npm run publish
