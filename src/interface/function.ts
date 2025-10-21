@@ -140,7 +140,7 @@ export interface IFunction {
 
   logConfig?: 'auto' | ILogConfig;
   nasConfig?: 'auto' | INasConfig;
-  ossMountConfig?: IOssMountConfig;
+  ossMountConfig?: 'auto' | IOssMountConfig;
   role?: 'auto' | string;
   vpcConfig?: 'auto' | IVpcConfig;
   vpcBinding?: {

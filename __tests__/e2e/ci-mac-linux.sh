@@ -85,6 +85,13 @@ s invoke -e '{"hello":"fc nodejs with auto"}' -t s_auto.yaml
 s info -y -t s_auto.yaml
 s remove -y -t s_auto.yaml
 
+echo "test nodejs runtime with oss config auto ..."
+export fc_component_function_name=nodejs18-$(uname)-$(uname -m)-$RANDSTR
+s deploy -y -t ./s_oss_config_auto.yaml
+s invoke -e '{"hello":"fc nodejs with oss config auto"}' -t ./s_oss_config_auto.yaml
+s info -y -t ./s_oss_config_auto.yaml
+s remove -y -t ./s_oss_config_auto.yaml
+
 echo "test nodejs runtime with more vpc and nas auto ..."
 export fc_component_function_name=nodejs16-$(uname)-$(uname -m)-$RANDSTR
 s deploy -y -t ./s_lock_auto.yaml
