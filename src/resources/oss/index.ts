@@ -22,9 +22,9 @@ export default class OSS {
     this.client = new Oss();
   }
 
-  async deploy(): Promise<{ ossBucket: string }> {
+  async deploy(ossMountConfig = 'auto'): Promise<{ ossBucket: string }> {
     logger.debug(`init oss: ${JSON.stringify(this.config)}`);
-    const result = await this.client.initOss(this.config);
+    const result = await this.client.initOss(this.config, ossMountConfig);
     const ossBucket = result?.ossBucket || '';
     if (isAppCenter()) {
       logger.info(`created oss region: ${this.region};`);

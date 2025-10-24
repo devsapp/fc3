@@ -42,7 +42,11 @@ export const isAuto = (config: unknown): boolean => {
     return false;
   }
 
-  return _.toUpper(config) === 'AUTO';
+  if (_.toUpper(config) === 'AUTO') {
+    return true;
+  }
+  const autoConfig = config.split('|')[0];
+  return _.toUpper(autoConfig) === 'AUTO';
 };
 
 export const isAutoVpcConfig = (config: unknown): boolean => {
