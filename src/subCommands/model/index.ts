@@ -58,6 +58,7 @@ export class Model {
     // 1. auto ---> auto 包， 有 nasConfig
     // 2. 调用 download 接口，若返回一个错误是下载服务已经存在，继续等待 get 轮询。
     // 3. 轮询 get 接口
+    const { AccountID: accountID } = await this.inputs.getCredential();
     const { credential } = this.inputs;
     const { region, supplement, annotations } = this.inputs.props;
     const { functionName } = this.local;
@@ -186,7 +187,8 @@ mountPoints:
           region: modelConfig.ossRegion,
         },
         region,
-        role: modelConfig.role,
+        // 使用固定的默认角色ARN，确保权限一致性
+        role: `acs:ram::${accountID}:role/aliyundevsdefaultrole`,
         syncStrategy: process.env.MODEL_DOWNLOAD_STRATEGY || 'incremental_once',
       };
 
@@ -232,6 +234,12 @@ mountPoints:
           const modelStatus = await this.getModelStatus(devClient, name);
 
           if (modelStatus.finished) {
+            // 如果存在错误信息，则抛出异常
+            if (modelStatus.errMsg) {
+              logger.error(`[Download-model] ${modelStatus.errMsg}`);
+              throw new Error(`[Download-model] ${modelStatus.errMsg}`);
+            }
+            // 下载成功完成
             if (
               modelStatus.total &&
               modelStatus.currentBytes !== undefined &&
