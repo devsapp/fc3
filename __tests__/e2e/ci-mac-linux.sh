@@ -77,30 +77,38 @@ s remove -y -t ./go/s.yaml
 rm -rf ./go/code/target
 cd ..
 
-echo "test nodejs runtime with auto ..."
+
+echo "test nodejs runtime with provision config mode=drain  ..."
 cd nodejs
-export fc_component_function_name=nodejs18-$(uname)-$(uname -m)-$RANDSTR
+export fc_component_function_name=nodejs18-provision-drain-$(uname)-$(uname -m)-$RANDSTR
+s deploy -y -t s_provision_drain.yaml
+s invoke -e '{"hello":"fc nodejs provision config mode=drain"}' -t s_provision_drain.yaml
+s info -y -t s_provision_drain.yaml
+s remove -y -t s_provision_drain.yaml
+
+echo "test nodejs runtime with auto ..."
+export fc_component_function_name=nodejs18-nas-auto-$(uname)-$(uname -m)-$RANDSTR
 s deploy -y -t s_auto.yaml
 s invoke -e '{"hello":"fc nodejs with auto"}' -t s_auto.yaml
 s info -y -t s_auto.yaml
 s remove -y -t s_auto.yaml
 
 echo "test nodejs runtime with oss config auto ..."
-export fc_component_function_name=nodejs18-$(uname)-$(uname -m)-$RANDSTR
+export fc_component_function_name=nodejs18-oss-auto-$(uname)-$(uname -m)-$RANDSTR
 s deploy -y -t ./s_oss_config_auto.yaml
 s invoke -e '{"hello":"fc nodejs with oss config auto"}' -t ./s_oss_config_auto.yaml
 s info -y -t ./s_oss_config_auto.yaml
 s remove -y -t ./s_oss_config_auto.yaml
 
 echo "test nodejs runtime with more vpc and nas auto ..."
-export fc_component_function_name=nodejs16-$(uname)-$(uname -m)-$RANDSTR
+export fc_component_function_name=nodejs16-multi-nas-auto-$(uname)-$(uname -m)-$RANDSTR
 s deploy -y -t ./s_lock_auto.yaml
 s invoke -e '{"hello":"fc nodejs with more vpc and nas auto"}' -t ./s_lock_auto.yaml
 s info -y -t ./s_lock_auto.yaml
 s remove -y -t ./s_lock_auto.yaml
 
 echo "test nodejs runtime with tags ..."
-export fc_component_function_name=nodejs16-$(uname)-$(uname -m)-$RANDSTR
+export fc_component_function_name=nodejs16-tags-$(uname)-$(uname -m)-$RANDSTR
 s deploy -y -t ./s_tags.yaml
 s deploy -y -t ./s_tags2.yaml
 s deploy -y -t ./s_tags3.yaml

@@ -48,6 +48,7 @@ import FCClient, {
   PutScalingConfigInput,
   GetScalingConfigRequest,
   DeleteScalingConfigRequest,
+  DisableFunctionInvocationRequest,
 } from '@alicloud/fc20230330';
 import { ICredentials } from '@serverless-devs/component-interface';
 import { RuntimeOptions } from '@alicloud/tea-util';
@@ -637,6 +638,27 @@ export default class FC_Client {
     logger.debug(
       `Delete ${functionName}(${qualifier}) scaling config result body: ${JSON.stringify(body)}`,
     );
+    return body;
+  }
+
+  async disableFunctionInvocation(
+    functionName: string,
+    abortOngoingRequest: boolean,
+    reason: string,
+  ) {
+    const request = new DisableFunctionInvocationRequest({
+      reason,
+      abortOngoingRequest,
+    });
+    const result = await this.fc20230330Client.disableFunctionInvocation(functionName, request);
+    const { body } = result.toMap();
+    logger.debug(`DisableFunction ${functionName} result body: ${JSON.stringify(body)}`);
+    return body;
+  }
+  async enableFunctionInvocation(functionName: string) {
+    const result = await this.fc20230330Client.enableFunctionInvocation(functionName);
+    const { body } = result.toMap();
+    logger.debug(`EnableFunction ${functionName} result body: ${JSON.stringify(body)}`);
     return body;
   }
 }
