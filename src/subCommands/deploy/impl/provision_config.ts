@@ -48,7 +48,7 @@ export default class ProvisionConfig extends Base {
       if (this.needDeploy) {
         await this.fcSdk.putFunctionProvisionConfig(this.functionName, qualifier, localConfig);
 
-        if (this.ProvisionMode === 'sync') {
+        if (this.ProvisionMode === 'sync' || this.ProvisionMode === 'drain') {
           await this.waitForProvisionReady(qualifier, localConfig);
         } else {
           logger.info(
@@ -86,7 +86,16 @@ export default class ProvisionConfig extends Base {
 
     // 如果没有目标值或目标值为0，则无需等待
     if (!realTarget || realTarget <= 0) {
-      return;
+      if (this.ProvisionMode !== 'drain') {
+        return;
+      } else {
+        logger.info(`disableFunctionInvocation ${this.functionName} ...`);
+        await this.fcSdk.disableFunctionInvocation(this.functionName, true, 'Fast scale-to-zero');
+        await sleep(5);
+        logger.info(`enableFunctionInvocation ${this.functionName} ...`);
+        await this.fcSdk.enableFunctionInvocation(this.functionName);
+        return;
+      }
     }
 
     let getCurrentErrorCount = 0;
@@ -143,7 +152,6 @@ export default class ProvisionConfig extends Base {
       // eslint-disable-next-line no-await-in-loop
       await sleep(5);
     }
-
     logger.warn(
       `Timeout waiting for provisionConfig of ${this.functionName}/${qualifier} to be ready`,
     );

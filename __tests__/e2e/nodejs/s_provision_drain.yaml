@@ -1,0 +1,22 @@
+edition: 3.0.0
+name: test-node-app
+access: quanxi
+
+vars: 
+  region: ${env('REGION', 'cn-hongkong')}
+
+resources:
+  fcDemo: # 业务名称/模块名称
+    component: ${env('fc_component_version', path('../../../'))}
+    props: # 组件的属性值
+      region: ${vars.region}
+      functionName: fc3-event-test-drain-${env('fc_component_function_name', 'nodejs18')}
+      runtime: ${env('fc_component_runtime', 'nodejs18')}
+      code: ./hello-code
+      handler: index.handler
+      memorySize: 128
+      timeout: 60
+
+      provisionConfig:
+        defaultTarget: 0
+        mode: drain

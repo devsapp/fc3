@@ -493,6 +493,10 @@ export default class FC extends FC_Client {
       _.unset(body, 'ossMountConfig');
     }
 
+    if (_.isEmpty(body.polarFsConfig?.mountPoints)) {
+      _.unset(body, 'polarFsConfig');
+    }
+
     if (_.isEmpty(body.tracingConfig)) {
       _.unset(body, 'tracingConfig');
     }
