@@ -14,6 +14,7 @@ import build from './build';
 import local from './local';
 import s2tos3 from './s2tos3';
 import logs from './logs';
+import scaling from './scaling';
 
 export default {
   deploy,
@@ -32,4 +33,5 @@ export default {
   local,
   s2tos3,
   logs,
+  scaling,
 };
