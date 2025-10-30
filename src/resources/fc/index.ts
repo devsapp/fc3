@@ -15,6 +15,15 @@ import {
   ListAsyncInvokeConfigsRequest,
   TagResourcesRequest,
   UntagResourcesRequest,
+  CreateSessionRequest,
+  CreateSessionInput,
+  NASConfig,
+  NASMountConfig,
+  DeleteSessionRequest,
+  GetSessionRequest,
+  ListSessionsRequest,
+  UpdateSessionRequest,
+  UpdateSessionInput,
 } from '@alicloud/fc20230330';
 import { RuntimeOptions } from '@alicloud/tea-util';
 
@@ -925,6 +934,99 @@ export default class FC extends FC_Client {
         conn.sendMessage(new Uint8Array(arr));
       });
     });
+  }
+
+  async createFunctionSession(functionName: string, config: any) {
+    let createSessionInput: CreateSessionInput;
+    if (config.nasConfig && !_.isEmpty(config.nasConfig.mountPoints)) {
+      const mountPoints = config.nasConfig.mountPoints.map(
+        (mountPoint: any) =>
+          new NASMountConfig({
+            enableTLS: mountPoint.enableTLS,
+            mountDir: mountPoint.mountDir,
+            serverAddr: mountPoint.serverAddr,
+          }),
+      );
+      const nasConfig = new NASConfig({
+        groupId: config.nasConfig.groupId,
+        mountPoints,
+        userId: config.nasConfig.userId,
+      });
+      createSessionInput = new CreateSessionInput({
+        sessionTTLInSeconds: config.sessionTTLInSeconds,
+        sessionIdleTimeoutInSeconds: config.sessionIdleTimeoutInSeconds,
+        nasConfig,
+      });
+    } else {
+      createSessionInput = new CreateSessionInput({
+        sessionTTLInSeconds: config.sessionTTLInSeconds,
+        sessionIdleTimeoutInSeconds: config.sessionIdleTimeoutInSeconds,
+      });
+    }
+
+    const createSessionRequest = new CreateSessionRequest({
+      qualifier: config.qualifier,
+      body: createSessionInput,
+    });
+    const response = await this.fc20230330Client.createSession(functionName, createSessionRequest);
+    const { body } = response.toMap();
+    return body;
+  }
+
+  async getFunctionSession(functionName: string, sessionId: string, qualifier: string) {
+    const getSessionRequest = new GetSessionRequest({ qualifier });
+    const response = await this.fc20230330Client.getSession(
+      functionName,
+      sessionId,
+      getSessionRequest,
+    );
+    const { body } = response.toMap();
+    return body;
+  }
+
+  async updateFunctionSession(functionName: string, sessionId: string, config: any) {
+    const updateSessionInput = new UpdateSessionInput({
+      sessionTTLInSeconds: config.sessionTTLInSeconds,
+      sessionIdleTimeoutInSeconds: config.sessionIdleTimeoutInSeconds,
+    });
+    const updateSessionRequest = new UpdateSessionRequest({
+      qualifier: config.qualifier,
+      body: updateSessionInput,
+    });
+    const response = await this.fc20230330Client.updateSession(
+      functionName,
+      sessionId,
+      updateSessionRequest,
+    );
+    const { body } = response.toMap();
+    return body;
+  }
+
+  async listFunctionSessions(
+    functionName: string,
+    queryParams?: {
+      limit?: number;
+      nextToken?: string;
+      qualifier?: string;
+      sessionId?: string;
+      sessionStatus?: string;
+    },
+  ) {
+    const listSessionsRequest = new ListSessionsRequest(queryParams);
+    const response = await this.fc20230330Client.listSessions(functionName, listSessionsRequest);
+    const { body } = response.toMap();
+    return body;
+  }
+
+  async removeFunctionSession(functionName: string, sessionId: string, qualifier: string) {
+    const deleteSessionRequest = new DeleteSessionRequest({ qualifier });
+    const response = await this.fc20230330Client.deleteSession(
+      functionName,
+      sessionId,
+      deleteSessionRequest,
+    );
+    const { body } = response.toMap();
+    return body;
   }
 
   tagsToLowerCase(tags) {

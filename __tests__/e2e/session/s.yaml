@@ -1,0 +1,23 @@
+edition: 3.0.0
+name: session-test
+access: quanxi
+
+vars:
+  region: ${env('REGION', 'cn-hongkong')}
+
+resources:
+  sessionTest:
+    component: ../../..
+    props:
+      region: ${vars.region}
+      functionName: fc3-session-${env('fc_component_function_name', 'test')}
+      runtime: nodejs18
+      code: ./code
+      handler: index.handler
+      memorySize: 128
+      timeout: 60
+      sessionAffinity: GENERATED_COOKIE
+      instanceLifecycleConfig:
+        initializer:
+          handler: index.initializer
+          timeout: 10
