@@ -30,4 +30,4 @@ resources:
       handler: index.handler
       memorySize: 128
       timeout: 60
-      ossMountConfig: auto|rules=[{"allowedOrigin":"*","allowedMethod":"GET","allowedHeader":"*","exposeHeader":"Content-Length","maxAgeSeconds":30}]
+      ossMountConfig: auto|readOnly=true|mountDir=/mnt/test-oss-bucket|bucketPath=/|rules=[{"allowedOrigin":"*","allowedMethod":["GET","POST","PUT","DELETE","HEAD"],"allowedHeader":"*","exposeHeader":"Content-Length","maxAgeSeconds":30}]
