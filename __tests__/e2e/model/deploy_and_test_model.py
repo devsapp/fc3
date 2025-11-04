@@ -54,7 +54,8 @@ def deploy_model(model_id: str, region: str = "cn-hangzhou", storage: str = "nas
         tuple: (部署的URL, 配置文件路径)
     """
     # 生成函数名称
-    function_name = f"test-{simple_hash(model_id)}"
+    # 加个随机数
+    function_name = f"test-{simple_hash(model_id)}-{secrets.token_hex(4)}"
 
     # 准备请求数据
     deploy_data = {
@@ -177,17 +178,6 @@ def test_model(model_id: str, deploy_url: str, s_yaml_file: str = None):
     model_detail_url = f"{deploy_url}/model/info"
     print(f"正在获取部署后的模型服务详情: {model_detail_url}")
 
-    try:
-        detail_response = requests.get(
-            model_detail_url, headers={"Authorization": f"Bearer {token}"}
-        )
-        if detail_response.status_code == 200:
-            print(f"部署后的模型服务详情: {detail_response.text}")
-        else:
-            print(f"获取部署后的模型服务详情失败: {detail_response.status_code}")
-    except Exception as e:
-        print(f"获取部署后的模型服务详情时出错: {e}")
-
     # 检查是否是vLLM模型（通过配置文件中的启动命令）
     is_vllm_model = False
     if s_yaml_file:
@@ -212,6 +202,22 @@ def test_model(model_id: str, deploy_url: str, s_yaml_file: str = None):
                     print("检测到vLLM模型，将使用专用测试方法")
         except Exception as e:
             print(f"检查模型类型时出错: {e}")
+    
+    # 先调用模型详情接口
+    model_detail_url = f"{deploy_url}/model/info"
+    if is_vllm_model:
+        model_detail_url = f"{deploy_url}/v1/models"
+    print(f"正在获取部署后的模型服务详情: {model_detail_url}")
+    try:
+        detail_response = requests.get(
+            model_detail_url, headers={"Authorization": f"Bearer {token}"}
+        )
+        if detail_response.status_code == 200:
+            print(f"部署后的模型服务详情: {detail_response.text}")
+        else:
+            print(f"获取部署后的模型服务详情失败: {detail_response.status_code}")
+    except Exception as e:
+        print(f"获取部署后的模型服务详情时出错: {e}")
 
     if is_vllm_model:
         # 对于vLLM模型，使用专门的测试方法

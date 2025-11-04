@@ -30,11 +30,18 @@ fi
 echo "test model download"
 cd model
 pip install -r requirements.txt
-export fc_component_function_name=model-$(uname)-$(uname -m)-$RANDSTR
-python deploy_and_test_model.py --model-id iic/cv_LightweightEdge_ocr-recognitoin-general_damo --region cn-shanghai --auto-cleanup
-python deploy_and_test_model.py --model-id Qwen/Qwen2.5-0.5B-Instruct --region cn-shanghai --auto-cleanup
-python deploy_and_test_model.py --model-id iic/cv_LightweightEdge_ocr-recognitoin-general_damo --region cn-shanghai --storage oss --auto-cleanup
-python deploy_and_test_model.py --model-id Qwen/Qwen2.5-0.5B-Instruct --region cn-shanghai --storage oss --auto-cleanup
+export fc_component_function_name=model-$(uname)-$(uname -m)-$RANDSTR-$RANDOM
+python -u deploy_and_test_model.py --model-id iic/cv_LightweightEdge_ocr-recognitoin-general_damo --region cn-shanghai --auto-cleanup
+python -u deploy_and_test_model.py --model-id Qwen/Qwen2.5-0.5B-Instruct --region cn-shanghai --auto-cleanup
+python -u deploy_and_test_model.py --model-id iic/cv_LightweightEdge_ocr-recognitoin-general_damo --region cn-shanghai --storage oss --auto-cleanup
+python -u deploy_and_test_model.py --model-id Qwen/Qwen2.5-0.5B-Instruct --region cn-shanghai --storage oss --auto-cleanup
+
+echo "test model s_file.yaml"
+# python -u test.py
+s model download -t s_file.yaml
+s deploy -y -t s_file.yaml
+s model remove -t s_file.yaml
+s remove -y -t s_file.yaml
 cd ..
 
 echo "test go runtime"
