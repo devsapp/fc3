@@ -884,6 +884,29 @@
             ],
             "type": "string"
         },
+        "IScalingConfig": {
+            "properties": {
+                "horizontalScalingPolicies": {
+                    "items": {
+                        "$ref": "#/definitions/ScalingPolicy"
+                    },
+                    "type": "array"
+                },
+                "minInstances": {
+                    "type": "number"
+                },
+                "residentPoolId": {
+                    "type": "string"
+                },
+                "scheduledPolicies": {
+                    "items": {
+                        "$ref": "#/definitions/ScheduledPolicy"
+                    },
+                    "type": "array"
+                }
+            },
+            "type": "object"
+        },
         "ISessionAffinityConfig": {
             "properties": {
                 "affinityHeaderFieldName": {
@@ -1058,6 +1081,35 @@
             ],
             "type": "object"
         },
+        "ScalingPolicy": {
+            "properties": {
+                "endTime": {
+                    "type": "string"
+                },
+                "maxInstances": {
+                    "type": "number"
+                },
+                "metricTarget": {
+                    "type": "number"
+                },
+                "metricType": {
+                    "type": "string"
+                },
+                "minInstances": {
+                    "type": "number"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "startTime": {
+                    "type": "string"
+                },
+                "timeZone": {
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
         "ScheduledAction": {
             "properties": {
                 "endTime": {
@@ -1087,6 +1139,29 @@
                 "target",
                 "timeZone"
             ],
+            "type": "object"
+        },
+        "ScheduledPolicy": {
+            "properties": {
+                "endTime": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "scheduleExpression": {
+                    "type": "string"
+                },
+                "startTime": {
+                    "type": "string"
+                },
+                "target": {
+                    "type": "number"
+                },
+                "timeZone": {
+                    "type": "string"
+                }
+            },
             "type": "object"
         },
         "TargetTrackingPolicy": {
@@ -1246,7 +1321,15 @@
             ]
         },
         "ossMountConfig": {
-            "$ref": "#/definitions/IOssMountConfig"
+            "anyOf": [
+                {
+                    "$ref": "#/definitions/IOssMountConfig"
+                },
+                {
+                    "const": "auto",
+                    "type": "string"
+                }
+            ]
         },
         "provisionConfig": {
             "$ref": "#/definitions/IProvisionConfig"
@@ -1259,6 +1342,9 @@
         },
         "runtime": {
             "$ref": "#/definitions/IRuntime"
+        },
+        "scalingConfig": {
+            "$ref": "#/definitions/IScalingConfig"
         },
         "sessionAffinity": {
             "type": "string"
@@ -1273,6 +1359,7 @@
                 }
             ]
         },
+        "supplement": {},
         "tags": {
             "items": {
                 "$ref": "#/definitions/ITags"
