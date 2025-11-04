@@ -125,7 +125,7 @@ def deploy_model(model_id: str, region: str = "cn-hangzhou", storage: str = "nas
                 # 遍历 entrypoint 数组，替换包含 /mnt/ 的路径
                 for i, item in enumerate(entrypoint):
                     if isinstance(item, str) and "/mnt/" in item and not item.startswith("vllm") and not item.isdigit() and item not in ["--port", "--served-model-name", "--trust-remote-code"]:
-                        entrypoint[i] = f"/mnt/serverless-{region}-d5d4cd07-616a-5428-91b7-ec2d0257b3a2"
+                        entrypoint[i] = f"/mnt/serverless-{region}-d70a9a8a-c817-5ed1-a293-4be0908f0a5"
             custom_container_config["entrypoint"] = entrypoint
 
     # 保存配置到临时文件

@@ -1,16 +1,15 @@
 import { ICredentials } from '@serverless-devs/component-interface';
 import Oss from '@serverless-cd/srm-aliyun-oss';
-import { Config } from '@alicloud/openapi-client';
 import { IRegion } from '../../interface';
 import logger from '../../logger';
 import { isAppCenter } from '../../utils/index';
 
 export default class OSS {
   readonly client: Oss;
-  private config: Config;
+  private config: any;
 
   constructor(private region: IRegion, credentials: ICredentials, ossEndpoint: string) {
-    this.config = new Config({
+    this.config = {
       accountID: credentials.AccountID,
       accessKeyId: credentials.AccessKeyID,
       accessKeySecret: credentials.AccessKeySecret,
@@ -18,8 +17,8 @@ export default class OSS {
       endpoint: ossEndpoint,
       regionId: region,
       timeout: process.env.OSS_CLIENT_TIMEOUT || 60000,
-    });
-    this.client = new Oss();
+    };
+    this.client = new Oss(logger);
   }
 
   async deploy(ossMountConfig = 'auto'): Promise<{ ossBucket: string }> {
