@@ -21,15 +21,23 @@ export default class OSS {
     this.client = new Oss(logger);
   }
 
-  async deploy(ossMountConfig = 'auto'): Promise<{ ossBucket: string }> {
+  async deploy(ossMountConfig = 'auto'): Promise<{
+    ossBucket: string;
+    readOnly?: boolean;
+    mountDir?: string;
+    bucketPath?: string;
+  }> {
     logger.debug(`init oss: ${JSON.stringify(this.config)}`);
     const result = await this.client.initOss(this.config, ossMountConfig);
     const ossBucket = result?.ossBucket || '';
+    const readOnly = result?.readOnly || false;
+    const mountDir = result?.mountDir || `/mnt/${ossBucket}`;
+    const bucketPath = result?.bucketPath || `/`;
     if (isAppCenter()) {
       logger.info(`created oss region: ${this.region};`);
     } else {
       logger.spin('creating', 'oss', `region: ${this.region}; ossBucket: ${ossBucket}`);
     }
-    return { ossBucket };
+    return { ossBucket, readOnly, mountDir, bucketPath };
   }
 }

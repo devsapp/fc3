@@ -736,7 +736,12 @@ describe('Service', () => {
 
       // Mock OSS
       const mockOss = {
-        deploy: jest.fn().mockResolvedValue({ ossBucket: 'test-oss-bucket' }),
+        deploy: jest.fn().mockResolvedValue({
+          ossBucket: 'test-oss-bucket',
+          readOnly: false,
+          mountDir: '/mnt/test-oss-bucket',
+          bucketPath: '/',
+        }),
       };
 
       // Mock the OSS constructor to return our mock instance
@@ -759,6 +764,7 @@ describe('Service', () => {
             bucketName: 'test-oss-bucket',
             endpoint: 'http://oss-cn-hangzhou-internal.aliyuncs.com',
             readOnly: false,
+            bucketPath: '/',
           },
         ],
       });

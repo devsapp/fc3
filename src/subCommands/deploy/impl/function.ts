@@ -373,25 +373,29 @@ logConfig:
       }
       logger.info(`ossAuto code to ${ossEndpoint}`);
       const oss = new OSS(region, credential as ICredentials, ossEndpoint);
-      const { ossBucket } = await oss.deploy(this.inputs.props.ossMountConfig as string);
+      const { ossBucket, readOnly, mountDir, bucketPath } = await oss.deploy(
+        this.inputs.props.ossMountConfig as string,
+      );
 
       logger.write(
         yellow(`Created oss resource succeeded, please replace ossMountConfig: auto in yaml with:
 ossMountConfig:
   mountPoints:
-    - mountDir: /mnt/${ossBucket}
+    - mountDir: ${mountDir}
       bucketName: ${ossBucket}
       endpoint: http://oss-${region}-internal.aliyuncs.com
-      readOnly: false\n`),
+      readOnly: ${readOnly}
+      bucketPath: ${bucketPath}\n`),
       );
       this.createResource.oss = { ossBucket };
       _.set(this.local, 'ossMountConfig', {
         mountPoints: [
           {
-            mountDir: `/mnt/${ossBucket}`,
+            mountDir,
             bucketName: ossBucket,
             endpoint: `http://oss-${region}-internal.aliyuncs.com`,
-            readOnly: false,
+            readOnly,
+            bucketPath,
           },
         ],
       });
