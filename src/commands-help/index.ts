@@ -14,6 +14,7 @@ import build from './build';
 import local from './local';
 import s2tos3 from './s2tos3';
 import logs from './logs';
+import session from './session';
 import scaling from './scaling';
 
 export default {
@@ -33,5 +34,6 @@ export default {
   local,
   s2tos3,
   logs,
+  session,
   scaling,
 };

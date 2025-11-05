@@ -135,3 +135,9 @@ s plan -t ./s.yaml
 s info -y -t ./s.yaml
 s remove -y -t ./s.yaml
 cd ..
+
+echo "test session operations ..."
+cd session
+export fc_component_function_name=session-$(uname)-$(uname -m)-$RANDSTR
+bash ./run
+cd ..

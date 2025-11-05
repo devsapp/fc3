@@ -16,6 +16,7 @@ import Invoke from './subCommands/invoke';
 import Provision from './subCommands/provision';
 import Scaling from './subCommands/scaling';
 import Layer from './subCommands/layer';
+import Session from './subCommands/session';
 import Instance from './subCommands/instance';
 import Remove from './subCommands/remove';
 import Sync from './subCommands/sync';
@@ -112,6 +113,12 @@ export default class Fc extends Base {
     await super.handlePreRun(inputs, true);
     const layer = new Layer(inputs);
     return await layer[layer.subCommand]();
+  }
+
+  public async session(inputs: IInputs) {
+    await super.handlePreRun(inputs, true);
+    const session = new Session(inputs);
+    return await session[session.subCommand]();
   }
 
   public async instance(inputs: IInputs) {

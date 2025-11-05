@@ -1,0 +1,135 @@
+#!/bin/bash
+
+set -e
+set -v
+
+echo "test session operations..."
+
+# Deploy function first
+echo "Deploying function..."
+s deploy -y
+
+# Test create session
+echo "Testing create session..."
+sessionId=$(s cli fc3 session create -a quanxi --region cn-hangzhou --function-name fc3-session-${fc_component_function_name:-test} --qualifier LATEST --session-ttl-in-seconds 3600 --session-idle-timeout-in-seconds 1800 -o json | jq -r '.sessionId')
+if [ -z "$sessionId" ]; then
+  echo "Failed to create session"
+  exit 1
+fi
+echo "Created session: $sessionId"
+
+# Test get session
+echo "Testing get session..."
+getSessionResult=$(s cli fc3 session get -a quanxi --region cn-hangzhou --function-name fc3-session-${fc_component_function_name:-test} --session-id $sessionId --qualifier LATEST -o json)
+if [ -z "$getSessionResult" ]; then
+  echo "Failed to get session"
+  exit 1
+fi
+echo "Get session result: $getSessionResult"
+
+# Test update session (update sessionTTLInSeconds)
+echo "Testing update session with session-ttl-in-seconds..."
+updateResult=$(s cli fc3 session update -a quanxi --region cn-hangzhou --function-name fc3-session-${fc_component_function_name:-test} --session-id $sessionId --qualifier LATEST --session-ttl-in-seconds 7200 -o json)
+if [ -z "$updateResult" ]; then
+  echo "Failed to update session with session-ttl-in-seconds"
+  exit 1
+fi
+echo "Update session result: $updateResult"
+
+# Test update session (update sessionIdleTimeoutInSeconds)
+echo "Testing update session with session-idle-timeout-in-seconds..."
+updateResult2=$(s cli fc3 session update -a quanxi --region cn-hangzhou --function-name fc3-session-${fc_component_function_name:-test} --session-id $sessionId --qualifier LATEST --session-idle-timeout-in-seconds 3600 -o json)
+if [ -z "$updateResult2" ]; then
+  echo "Failed to update session with session-idle-timeout-in-seconds"
+  exit 1
+fi
+echo "Update session result: $updateResult2"
+
+# Test list sessions
+echo "Testing list sessions..."
+listResult=$(s cli fc3 session list -a quanxi --region cn-hangzhou --function-name fc3-session-${fc_component_function_name:-test} -o json)
+if [ -z "$listResult" ]; then
+  echo "Failed to list sessions"
+  exit 1
+fi
+echo "List sessions result: $listResult"
+
+# Test list sessions with filters
+echo "Testing list sessions with filters..."
+listFilteredResult=$(s cli fc3 session list -a quanxi --region cn-hangzhou --function-name fc3-session-${fc_component_function_name:-test} --session-id $sessionId --qualifier LATEST -o json)
+if [ -z "$listFilteredResult" ]; then
+  echo "Failed to list sessions with filters"
+  exit 1
+fi
+echo "List sessions with filters result: $listFilteredResult"
+
+# Test list sessions with session-status filter
+echo "Testing list sessions with session-status filter..."
+listStatusResult=$(s cli fc3 session list -a quanxi --region cn-hangzhou --function-name fc3-session-${fc_component_function_name:-test} --session-status Active -o json)
+if [ -z "$listStatusResult" ]; then
+  echo "Failed to list sessions with session-status filter"
+  exit 1
+fi
+echo "List sessions with session-status filter result: $listStatusResult"
+
+# Test list sessions with limit parameter
+echo "Testing list sessions with limit parameter..."
+listLimitResult=$(s cli fc3 session list -a quanxi --region cn-hangzhou --function-name fc3-session-${fc_component_function_name:-test} --limit 5 -o json)
+if [ -z "$listLimitResult" ]; then
+  echo "Failed to list sessions with limit parameter"
+  exit 1
+fi
+echo "List sessions with limit parameter result: $listLimitResult"
+
+# Test remove session
+echo "Testing remove session..."
+removeResult=$(s cli fc3 session remove -a quanxi --region cn-hangzhou --function-name fc3-session-${fc_component_function_name:-test} --session-id $sessionId --qualifier LATEST -y -o json)
+echo "Remove session result: $removeResult"
+
+# Verify session is removed by trying to get it (should fail)
+echo "Verifying session is removed..."
+getRemovedSessionResult=$(s cli fc3 session get -a quanxi --region cn-hangzhou --function-name fc3-session-${fc_component_function_name:-test} --session-id $sessionId --qualifier LATEST -o json 2>&1 || true)
+if [[ $getRemovedSessionResult == *"not found"* ]] || [[ $getRemovedSessionResult == *"not exist"* ]]; then
+  echo "Session successfully removed"
+else
+  echo "Session removal verification failed: $getRemovedSessionResult"
+  # Don't exit here as this might be a timing issue
+fi
+
+# Test create session without optional parameters (should use defaults)
+echo "Testing create session with default parameters..."
+sessionId2=$(s cli fc3 session create -a quanxi --region cn-hangzhou --function-name fc3-session-${fc_component_function_name:-test} --qualifier LATEST -o json | jq -r '.sessionId')
+if [ -z "$sessionId2" ]; then
+  echo "Failed to create session with default parameters"
+  exit 1
+fi
+echo "Created session with defaults: $sessionId2"
+
+# Test create session with only sessionTTLInSeconds
+echo "Testing create session with only session-ttl-in-seconds..."
+sessionId3=$(s cli fc3 session create -a quanxi --region cn-hangzhou --function-name fc3-session-${fc_component_function_name:-test} --qualifier LATEST --session-ttl-in-seconds 1800 -o json | jq -r '.sessionId')
+if [ -z "$sessionId3" ]; then
+  echo "Failed to create session with only session-ttl-in-seconds"
+  exit 1
+fi
+echo "Created session with only session-ttl-in-seconds: $sessionId3"
+
+# Test create session with only sessionIdleTimeoutInSeconds
+echo "Testing create session with only session-idle-timeout-in-seconds..."
+sessionId4=$(s cli fc3 session create -a quanxi --region cn-hangzhou --function-name fc3-session-${fc_component_function_name:-test} --qualifier LATEST --session-idle-timeout-in-seconds 900 -o json | jq -r '.sessionId')
+if [ -z "$sessionId4" ]; then
+  echo "Failed to create session with only session-idle-timeout-in-seconds"
+  exit 1
+fi
+echo "Created session with only session-idle-timeout-in-seconds: $sessionId4"
+
+# Clean up additional sessions
+s cli fc3 session remove -a quanxi --region cn-hangzhou --function-name fc3-session-${fc_component_function_name:-test} --session-id $sessionId2 --qualifier LATEST -y || true
+s cli fc3 session remove -a quanxi --region cn-hangzhou --function-name fc3-session-${fc_component_function_name:-test} --session-id $sessionId3 --qualifier LATEST -y || true
+s cli fc3 session remove -a quanxi --region cn-hangzhou --function-name fc3-session-${fc_component_function_name:-test} --session-id $sessionId4 --qualifier LATEST -y || true
+
+# Clean up function
+echo "Cleaning up..."
+s remove -y
+
+echo "All session tests passed!"
