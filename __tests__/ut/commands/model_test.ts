@@ -1,11 +1,12 @@
-import { Model } from '../../../src/subCommands/model';
+import { Model } from '../../../src/subCommands/model/index';
 import { IInputs } from '../../../src/interface';
+import { ModelService } from '../../../src/subCommands/model/model';
+import { ArtModelService } from '../../../src/subCommands/model/fileManager';
 import FC from '../../../src/resources/fc';
 import VPC_NAS from '../../../src/resources/vpc-nas';
-import DevClient from '@alicloud/devs20230714';
-import * as $OpenApi from '@alicloud/openapi-client';
-import { getEnvVariable } from '../../../src/default/resources';
-import { sleep } from '../../../src/utils';
+import OSS from '../../../src/resources/oss';
+import getUuid from 'uuid-by-string';
+import { MODEL_DOWNLOAD_TIMEOUT } from '../../../src/subCommands/model/constants';
 
 // Mock dependencies
 jest.mock('../../../src/logger', () => {
@@ -29,12 +30,32 @@ jest.mock('../../../src/logger', () => {
     default: mockLogger,
   };
 });
+
 jest.mock('../../../src/resources/fc');
 jest.mock('../../../src/resources/vpc-nas');
+jest.mock('../../../src/resources/oss');
+jest.mock('../../../src/subCommands/model/model');
+jest.mock('../../../src/subCommands/model/fileManager');
 jest.mock('@alicloud/devs20230714');
 jest.mock('@alicloud/openapi-client');
-jest.mock('../../../src/default/resources');
-jest.mock('../../../src/utils');
+jest.mock('uuid-by-string');
+jest.mock('../../../src/default/resources', () => ({
+  getEnvVariable: jest.fn((key) => {
+    switch (key) {
+      case 'ALIYUN_DEVS_REMOTE_PROJECT_NAME':
+        return 'test-project';
+      case 'ALIYUN_DEVS_REMOTE_ENV_NAME':
+        return 'test-env';
+      default:
+        return undefined;
+    }
+  }),
+}));
+
+// Mock parseArgv to control command parsing
+jest.mock('@serverless-devs/utils', () => ({
+  parseArgv: jest.fn().mockReturnValue({ _: ['download'] }),
+}));
 
 describe('Model', () => {
   let model: Model;
@@ -51,6 +72,25 @@ describe('Model', () => {
         runtime: 'nodejs18',
         handler: 'index.handler',
         code: './code',
+        annotations: {
+          modelConfig: {
+            solution: 'default',
+            id: 'test-model',
+            source: {
+              uri: 'modelscope://test-model',
+            },
+            target: {
+              uri: 'nas://auto',
+            },
+            version: '1.0.0',
+            files: [],
+            downloadStrategy: {
+              conflictResolution: 'overwrite',
+              mode: 'once',
+              timeout: 30,
+            },
+          },
+        },
       },
       command: 'model',
       args: ['download'],
@@ -63,6 +103,12 @@ describe('Model', () => {
         access: 'default',
       },
       outputs: {},
+      credential: {
+        AccountID: '123456789',
+        AccessKeyID: 'test-key',
+        AccessKeySecret: 'test-secret',
+        SecurityToken: 'test-token',
+      },
       getCredential: jest.fn().mockResolvedValue({
         AccountID: '123456789',
         AccessKeyID: 'test-key',
@@ -72,14 +118,12 @@ describe('Model', () => {
       userAgent: 'test-agent',
     };
 
-    // Mock environment variables
-    (getEnvVariable as jest.Mock).mockImplementation((key) => {
-      if (key === 'ALIYUN_DEVS_REMOTE_PROJECT_NAME') return 'test-project';
-      if (key === 'ALIYUN_DEVS_REMOTE_ENV_NAME') return 'test-env';
-      return undefined;
+    (getUuid as jest.Mock).mockReturnValue('uuid-test');
+    (FC.computeLocalAuto as jest.Mock).mockReturnValue({
+      nasAuto: false,
+      vpcAuto: false,
+      ossAuto: false,
     });
-
-    model = new Model(mockInputs);
   });
 
   afterEach(() => {
@@ -87,414 +131,399 @@ describe('Model', () => {
   });
 
   describe('constructor', () => {
-    it('should create Model instance with valid inputs', () => {
-      expect(model).toBeInstanceOf(Model);
+    it('should initialize correctly with valid inputs', () => {
+      model = new Model(mockInputs);
+
       expect(model.subCommand).toBe('download');
+      expect(model.local).toEqual(mockInputs.props);
+      expect(model.name).toBe('123456789$test-project$test-function$uuid-test');
     });
 
-    it('should throw error for invalid subcommand', () => {
-      const invalidInputs = { ...mockInputs, args: ['invalid'] };
-      expect(() => new Model(invalidInputs)).toThrow('Command "invalid" not found');
+    it('should throw error for invalid subCommand', () => {
+      (require('@serverless-devs/utils').parseArgv as jest.Mock).mockReturnValueOnce({
+        _: ['invalid'],
+      });
+
+      expect(() => new Model(mockInputs)).toThrow(
+        'Command "invalid" not found, Please use "s cli fc3 layer -h" to query how to use the command',
+      );
     });
   });
 
   describe('download', () => {
-    let mockDevClient: jest.Mocked<DevClient>;
-
     beforeEach(() => {
-      mockDevClient = {
-        downloadModel: jest.fn(),
-        getModelStatus: jest.fn(),
-        deleteModel: jest.fn(),
-      } as any;
-
-      model.getNewModelServiceClient = jest.fn().mockResolvedValue(mockDevClient);
-      // Mock the private parseNasConfig method by overriding it with a test function
-      (model as any).parseNasConfig = jest.fn().mockReturnValue({
-        nasMountDomain: 'test-domain',
-        nasMountPath: '/mnt/test',
-      });
+      model = new Model(mockInputs);
     });
 
-    it('should throw error when modelConfig is empty', async () => {
-      mockInputs.props.supplement = {};
-      const modelInstance = new Model(mockInputs);
+    it('should call ModelService.downloadModel for default solution', async () => {
+      const mockModelService = {
+        downloadModel: jest.fn().mockResolvedValue(undefined),
+      };
 
-      await expect(modelInstance.download()).rejects.toThrow(
-        '[Download-model] modelConfig is empty.',
-      );
+      (ModelService as jest.Mock).mockImplementation(() => mockModelService);
+
+      await model.download();
+
+      expect(mockModelService.downloadModel).toHaveBeenCalled();
     });
 
-    it('should handle nasAuto and vpcAuto configuration', async () => {
-      mockInputs.props.supplement = {
-        modelConfig: {
-          id: 'test-model',
-          source: 'oss',
-          version: '1.0',
-        },
+    it('should call ArtModelService.downloadModel for funArt solution', async () => {
+      mockInputs.props.annotations.modelConfig.solution = 'funArt';
+      model = new Model(mockInputs);
+
+      const mockArtModelService = {
+        downloadModel: jest.fn().mockResolvedValue(undefined),
       };
 
-      const mockLocal: any = {
-        functionName: 'test-function',
-        runtime: 'nodejs18',
-        vpcConfig: 'auto',
-        nasConfig: 'auto',
-      };
+      (ArtModelService as jest.Mock).mockImplementation(() => mockArtModelService);
 
-      (FC.computeLocalAuto as jest.Mock).mockReturnValue({
-        nasAuto: true,
-        vpcAuto: true,
-      });
+      await model.download();
 
-      const mockVpcNASClient = {
-        deploy: jest.fn().mockResolvedValue({
-          vpcConfig: {
-            vpcId: 'vpc-123',
-            securityGroupId: 'sg-123',
-            vSwitchIds: ['vsw-123'],
-          },
-          mountTargetDomain: 'test-domain',
-          fileSystemId: 'fs-123',
-        }),
-      };
-
-      (VPC_NAS as jest.Mock).mockImplementation(() => mockVpcNASClient);
-
-      model.local = mockLocal;
-      mockDevClient.downloadModel.mockResolvedValue({
-        statusCode: 200,
-        body: new (class {
-          success = true;
-          requestId = 'req-123';
-          data = {};
-          errCode = '';
-          errMsg = '';
-          validate = jest.fn();
-          copyWithoutStream = jest.fn();
-          toMap = jest.fn();
-        })(),
-      } as any);
-
-      mockDevClient.getModelStatus.mockResolvedValue({
-        statusCode: 200,
-        body: new (class {
-          success = true;
-          data = {
-            finished: true,
-            startTime: Date.now() - 1000,
-            finishedTime: Date.now(),
-          };
-          errCode = '';
-          errMsg = '';
-          requestId = 'req-456';
-          validate = jest.fn();
-          copyWithoutStream = jest.fn();
-          toMap = jest.fn();
-        })(),
-      } as any);
-
-      await expect(model.download()).resolves.toBe(true);
+      expect(mockArtModelService.downloadModel).toHaveBeenCalled();
     });
 
-    it('should successfully download model', async () => {
-      mockInputs.props.supplement = {
-        modelConfig: {
-          id: 'test-model',
-          source: 'oss',
-          version: '1.0',
-        },
+    it('should handle download error', async () => {
+      const mockModelService = {
+        downloadModel: jest.fn().mockRejectedValue(new Error('Download failed')),
       };
 
-      model.local = {
-        ...model.local,
-        nasConfig: {
-          userId: 0,
-          groupId: 0,
-          mountPoints: [
-            {
-              serverAddr: 'test-domain:/test/path',
-              mountDir: '/mnt/test',
-            },
-          ],
-        },
-      };
-
-      mockDevClient.downloadModel.mockResolvedValue({
-        statusCode: 200,
-        body: new (class {
-          success = true;
-          requestId = 'req-123';
-          data = {};
-          errCode = '';
-          errMsg = '';
-          validate = jest.fn();
-          copyWithoutStream = jest.fn();
-          toMap = jest.fn();
-        })(),
-      } as any);
-
-      mockDevClient.getModelStatus.mockResolvedValue({
-        statusCode: 200,
-        body: new (class {
-          success = true;
-          data = {
-            finished: true,
-            startTime: Date.now() - 1000,
-            finishedTime: Date.now(),
-            total: true,
-            currentBytes: 1024 * 1024,
-            fileSize: 1024 * 1024,
-          };
-          errCode = '';
-          errMsg = '';
-          requestId = 'req-456';
-          validate = jest.fn();
-          copyWithoutStream = jest.fn();
-          toMap = jest.fn();
-        })(),
-      } as any);
-
-      await expect(model.download()).resolves.toBe(true);
-    });
-
-    it('should handle download model error', async () => {
-      mockInputs.props.supplement = {
-        modelConfig: {
-          id: 'test-model',
-          source: 'oss',
-          version: '1.0',
-        },
-      };
-
-      model.local = {
-        ...model.local,
-        nasConfig: {
-          userId: 0,
-          groupId: 0,
-          mountPoints: [
-            {
-              serverAddr: 'test-domain:/test/path',
-              mountDir: '/mnt/test',
-            },
-          ],
-        },
-      };
-
-      mockDevClient.downloadModel.mockRejectedValue(new Error('Download failed'));
+      (ModelService as jest.Mock).mockImplementation(() => mockModelService);
 
       await expect(model.download()).rejects.toThrow('download model error: Download failed');
-    });
-
-    it('should handle download timeout', async () => {
-      mockInputs.props.supplement = {
-        modelConfig: {
-          id: 'test-model',
-          source: 'oss',
-          version: '1.0',
-        },
-      };
-
-      model.local = {
-        ...model.local,
-        nasConfig: {
-          userId: 0,
-          groupId: 0,
-          mountPoints: [
-            {
-              serverAddr: 'test-domain:/test/path',
-              mountDir: '/mnt/test',
-            },
-          ],
-        },
-      };
-
-      mockDevClient.downloadModel.mockResolvedValue({
-        statusCode: 200,
-        body: new (class {
-          success = true;
-          requestId = 'req-123';
-          data = {};
-          errCode = '';
-          errMsg = '';
-          validate = jest.fn();
-          copyWithoutStream = jest.fn();
-          toMap = jest.fn();
-        })(),
-      } as any);
-
-      mockDevClient.getModelStatus.mockResolvedValue({
-        statusCode: 200,
-        body: new (class {
-          success = true;
-          data = {
-            finished: false,
-            startTime: Date.now() - 50 * 60 * 1000, // 50 minutes ago
-            currentBytes: 1024,
-            fileSize: 1024 * 1024,
-          };
-          errCode = '';
-          errMsg = '';
-          requestId = 'req-456';
-          validate = jest.fn();
-          copyWithoutStream = jest.fn();
-          toMap = jest.fn();
-        })(),
-      } as any);
-
-      (sleep as jest.Mock).mockResolvedValue(undefined);
-
-      await expect(model.download()).rejects.toThrow(
-        '[Model-download] Download timeout after 42 minutes',
-      );
     });
   });
 
   describe('remove', () => {
-    let mockDevClient: jest.Mocked<DevClient>;
-
     beforeEach(() => {
-      mockDevClient = {
-        downloadModel: jest.fn(),
-        getModelStatus: jest.fn(),
-        deleteModel: jest.fn(),
-      } as any;
-
-      model.getNewModelServiceClient = jest.fn().mockResolvedValue(mockDevClient);
+      model = new Model(mockInputs);
     });
 
-    it('should successfully remove model', async () => {
-      mockDevClient.deleteModel.mockResolvedValue({
-        statusCode: 200,
-        body: new (class {
-          success = true;
-          requestId = 'req-123';
-          data = {};
-          errCode = '';
-          errMsg = '';
-          validate = jest.fn();
-          copyWithoutStream = jest.fn();
-          toMap = jest.fn();
-        })(),
-      } as any);
+    it('should call ModelService.removeModel for default solution', async () => {
+      const mockModelService = {
+        removeModel: jest.fn().mockResolvedValue(undefined),
+      };
 
-      await expect(model.remove()).resolves.toBe(true);
+      (ModelService as jest.Mock).mockImplementation(() => mockModelService);
+
+      await model.remove();
+
+      expect(mockModelService.removeModel).toHaveBeenCalled();
     });
 
-    it('should handle remove model error', async () => {
-      mockDevClient.deleteModel.mockRejectedValue(new Error('Delete failed'));
+    it('should call ArtModelService.removeModel for funArt solution', async () => {
+      mockInputs.props.annotations.modelConfig.solution = 'funArt';
+      model = new Model(mockInputs);
+
+      const mockArtModelService = {
+        removeModel: jest.fn().mockResolvedValue(undefined),
+      };
+
+      (ArtModelService as jest.Mock).mockImplementation(() => mockArtModelService);
+
+      await model.remove();
+
+      expect(mockArtModelService.removeModel).toHaveBeenCalled();
+    });
+
+    it('should handle remove error', async () => {
+      const mockModelService = {
+        removeModel: jest.fn().mockRejectedValue(new Error('Remove failed')),
+      };
+
+      (ModelService as jest.Mock).mockImplementation(() => mockModelService);
 
       await expect(model.remove()).rejects.toThrow(
-        '[Remove-model] delete model error: Delete failed',
+        '[Remove-model] delete model error: Remove failed',
       );
-    });
-
-    it('should handle model not exist case', async () => {
-      mockDevClient.deleteModel.mockResolvedValue({
-        statusCode: 200,
-        body: new (class {
-          success = false;
-          errMsg = 'test-project$test-env$test-function is not exist';
-          data = {};
-          errCode = '';
-          requestId = 'req-456';
-          validate = jest.fn();
-          copyWithoutStream = jest.fn();
-          toMap = jest.fn();
-        })(),
-      } as any);
-
-      const result = await model.remove();
-      expect(result).toBeUndefined();
     });
   });
 
-  describe('getNewModelServiceClient', () => {
-    it('should create DevClient with correct configuration', async () => {
-      const mockConfig = {
-        accessKeyId: 'test-key',
-        accessKeySecret: 'test-secret',
-        securityToken: 'test-token',
-        protocol: 'https',
-        endpoint: 'devs.cn-hangzhou.aliyuncs.com',
-        readTimeout: 86400000,
-        connectTimeout: 60000,
-        userAgent: 'test-agent',
-      };
+  describe('getModelService', () => {
+    it('should create and return ModelService instance', async () => {
+      model = new Model(mockInputs);
+      const service = await (model as any).getModelService();
 
-      ($OpenApi.Config as unknown as jest.Mock).mockImplementation((config) => config);
-
-      const client = await model.getNewModelServiceClient();
-
-      expect($OpenApi.Config).toHaveBeenCalledWith(expect.objectContaining(mockConfig));
-      expect(client).toBeInstanceOf(DevClient);
-    });
-
-    it('should use custom endpoint from environment variable', async () => {
-      process.env.ARTIFACT_ENDPOINT = 'custom.endpoint.com';
-
-      ($OpenApi.Config as unknown as jest.Mock).mockImplementation((config) => config);
-
-      await model.getNewModelServiceClient();
-
-      expect($OpenApi.Config).toHaveBeenCalledWith(
-        expect.objectContaining({
-          endpoint: 'custom.endpoint.com',
-        }),
-      );
-
-      delete process.env.ARTIFACT_ENDPOINT;
+      // Since we're mocking the import, we expect an object rather than an instance
+      expect(service).toBeDefined();
     });
   });
 
-  describe('getModelStatus', () => {
-    let mockDevClient: jest.Mocked<DevClient>;
+  describe('getModelArtService', () => {
+    it('should create and return ArtModelService instance', async () => {
+      model = new Model(mockInputs);
+      const service = await (model as any).getModelArtService();
 
+      // Since we're mocking the import, we expect an object rather than an instance
+      expect(service).toBeDefined();
+    });
+  });
+
+  describe('_assertArrayOfStrings', () => {
+    it('should not throw for valid array of strings', () => {
+      model = new Model(mockInputs);
+
+      expect(() => (model as any)._assertArrayOfStrings(['a', 'b', 'c'])).not.toThrow();
+    });
+
+    it('should throw for non-array input', () => {
+      model = new Model(mockInputs);
+
+      expect(() => (model as any)._assertArrayOfStrings('not-an-array')).toThrow(
+        'Variable must be an array',
+      );
+    });
+
+    it('should throw for array with non-string elements', () => {
+      model = new Model(mockInputs);
+
+      expect(() => (model as any)._assertArrayOfStrings(['a', 1, 'c'])).toThrow(
+        'Variable must contain only strings',
+      );
+    });
+  });
+
+  describe('getParams', () => {
     beforeEach(() => {
-      mockDevClient = {
-        downloadModel: jest.fn(),
-        getModelStatus: jest.fn(),
-        deleteModel: jest.fn(),
-      } as any;
+      model = new Model(mockInputs);
     });
 
-    it('should get model status successfully', async () => {
-      const mockResponse = {
-        statusCode: 200,
-        body: {
-          success: true,
-          data: {
-            finished: true,
-          },
-        },
+    it('should throw error for empty modelConfig', async () => {
+      mockInputs.props.annotations.modelConfig = {};
+      model = new Model(mockInputs);
+
+      await expect((model as any).getParams()).rejects.toThrow(
+        '[Download-model] modelConfig is empty.',
+      );
+    });
+
+    it('should handle OSS auto deployment', async () => {
+      (FC.computeLocalAuto as jest.Mock).mockReturnValueOnce({
+        nasAuto: false,
+        vpcAuto: false,
+        ossAuto: true,
+      });
+
+      const mockOSS = {
+        deploy: jest.fn().mockResolvedValue({
+          ossBucket: 'test-bucket',
+          readOnly: true,
+          mountDir: '/mnt/oss',
+          bucketPath: '/',
+        }),
       };
 
-      mockDevClient.getModelStatus.mockResolvedValue(mockResponse as any);
+      (OSS as jest.Mock).mockImplementation(() => mockOSS);
 
-      const result = await model.getModelStatus(mockDevClient, 'test-model');
+      const params = await (model as any).getParams();
 
-      expect(result).toEqual({ finished: true });
+      expect(mockOSS.deploy).toHaveBeenCalled();
+      expect(params.ossMountPoints).toBeDefined();
     });
 
-    it('should handle get model status error', async () => {
-      mockDevClient.getModelStatus.mockRejectedValue(new Error('Get status failed'));
+    it('should handle NAS auto deployment', async () => {
+      (FC.computeLocalAuto as jest.Mock).mockReturnValueOnce({
+        nasAuto: true,
+        vpcAuto: false,
+        ossAuto: false,
+      });
 
-      await expect(model.getModelStatus(mockDevClient, 'test-model')).rejects.toThrow(
-        '[Download-model] get model status error: Get status failed for model test-model',
+      const mockVPCNAS = {
+        deploy: jest.fn().mockResolvedValue({
+          vpcConfig: {
+            vpcId: 'vpc-test',
+            securityGroupId: 'sg-test',
+            vSwitchIds: ['vsw-test'],
+          },
+          mountTargetDomain: 'test-domain',
+          fileSystemId: 'fs-test',
+        }),
+      };
+
+      (VPC_NAS as jest.Mock).mockImplementation(() => mockVPCNAS);
+
+      const params = await (model as any).getParams();
+
+      expect(mockVPCNAS.deploy).toHaveBeenCalled();
+      expect(params.nasMountPoints).toBeDefined();
+    });
+
+    it('should build params correctly', async () => {
+      // Fix the expected reversion format
+      const params = await (model as any).getParams();
+
+      expect(params).toEqual({
+        modelConfig: {
+          model: 'test-model',
+          source: {
+            uri: 'modelscope://test-model',
+          },
+          uri: 'modelscope://test-model',
+          target: {
+            uri: 'nas://auto',
+          },
+          reversion: '1.0.0', // Changed from '@1.0.0' to '1.0.0'
+          files: [],
+          conflictResolution: 'overwrite',
+          mode: 'once',
+          timeout: 30 * 1000,
+        },
+        region: 'cn-hangzhou',
+        functionName: 'test-function',
+        storage: undefined,
+        role: 'acs:ram::123456789:role/aliyundevsdefaultrole',
+        syncStrategy: 'incremental_once',
+      });
+    });
+  });
+
+  describe('_validateModelConfig', () => {
+    it('should not throw for valid modelConfig', () => {
+      model = new Model(mockInputs);
+
+      expect(() => (model as any)._validateModelConfig({ id: 'test' })).not.toThrow();
+    });
+
+    it('should throw for empty modelConfig', () => {
+      model = new Model(mockInputs);
+
+      expect(() => (model as any)._validateModelConfig({})).toThrow(
+        '[Download-model] modelConfig is empty.',
+      );
+      expect(() => (model as any)._validateModelConfig(null)).toThrow(
+        '[Download-model] modelConfig is empty.',
+      );
+      expect(() => (model as any)._validateModelConfig(undefined)).toThrow(
+        '[Download-model] modelConfig is empty.',
       );
     });
   });
 
-  describe('parseNasConfig', () => {
-    it('should parse nasConfig correctly', () => {
-      // Since parseNasConfig is private, we'll test it through the download method
-      // which calls it internally
-      expect(true).toBe(true);
+  describe('_handleOssAutoDeployment', () => {
+    it('should deploy OSS resources correctly', async () => {
+      model = new Model(mockInputs);
+
+      const mockOSS = {
+        deploy: jest.fn().mockResolvedValue({
+          ossBucket: 'test-bucket',
+          readOnly: true,
+          mountDir: '/mnt/oss',
+          bucketPath: '/',
+        }),
+      };
+
+      (OSS as jest.Mock).mockImplementation(() => mockOSS);
+
+      await (model as any)._handleOssAutoDeployment('cn-hangzhou', {});
+
+      expect(mockOSS.deploy).toHaveBeenCalled();
+      expect((model as any).createResource.oss).toEqual({ ossBucket: 'test-bucket' });
+    });
+  });
+
+  describe('_handleNasAutoDeployment', () => {
+    it('should deploy NAS resources correctly', async () => {
+      model = new Model(mockInputs);
+
+      const mockVPCNAS = {
+        deploy: jest.fn().mockResolvedValue({
+          vpcConfig: {
+            vpcId: 'vpc-test',
+            securityGroupId: 'sg-test',
+            vSwitchIds: ['vsw-test'],
+          },
+          mountTargetDomain: 'test-domain',
+          fileSystemId: 'fs-test',
+        }),
+      };
+
+      (VPC_NAS as jest.Mock).mockImplementation(() => mockVPCNAS);
+
+      await (model as any)._handleNasAutoDeployment(
+        'cn-hangzhou',
+        {},
+        true,
+        false,
+        'test-function',
+      );
+
+      expect(mockVPCNAS.deploy).toHaveBeenCalledWith({
+        nasAuto: true,
+        vpcConfig: undefined,
+      });
+
+      expect((model as any).createResource.nas).toEqual({
+        mountTargetDomain: 'test-domain',
+        fileSystemId: 'fs-test',
+      });
+    });
+  });
+
+  describe('_buildParams', () => {
+    it('should build params correctly with OSS mount points', () => {
+      model = new Model(mockInputs);
+
+      const params = (model as any)._buildParams(
+        {
+          id: 'test-model',
+          source: { uri: 'modelscope://test-model' },
+          target: { uri: 'nas://auto' },
+          version: '1.0.0',
+          files: [],
+        },
+        'cn-hangzhou',
+        '123456789',
+        undefined,
+        undefined,
+        { mountPoints: [{ bucketName: 'test-bucket' }] },
+        'test-function',
+      );
+
+      expect(params.ossMountPoints).toEqual([{ bucketName: 'test-bucket' }]);
     });
 
-    it('should throw error for invalid serverAddr', () => {
-      // Since parseNasConfig is private, we'll test it through the download method
-      // which calls it internally
-      expect(true).toBe(true);
+    it('should build params correctly with NAS mount points', () => {
+      model = new Model(mockInputs);
+
+      const params = (model as any)._buildParams(
+        {
+          id: 'test-model',
+          source: { uri: 'modelscope://test-model' },
+          target: { uri: 'nas://auto' },
+          version: '1.0.0',
+          files: [],
+        },
+        'cn-hangzhou',
+        '123456789',
+        { mountPoints: [{ serverAddr: 'test-server' }] },
+        { vpcId: 'vpc-test' },
+        undefined,
+        'test-function',
+      );
+
+      expect(params.nasMountPoints).toEqual([{ serverAddr: 'test-server' }]);
+      expect(params.vpcConfig).toEqual({ vpcId: 'vpc-test' });
+    });
+
+    it('should use default timeout when not specified', () => {
+      model = new Model(mockInputs);
+
+      const params = (model as any)._buildParams(
+        {
+          id: 'test-model',
+          source: { uri: 'modelscope://test-model' },
+          target: { uri: 'nas://auto' },
+          version: '1.0.0',
+          files: [],
+        },
+        'cn-hangzhou',
+        '123456789',
+        undefined,
+        undefined,
+        undefined,
+        'test-function',
+      );
+
+      expect(params.modelConfig.timeout).toBe(MODEL_DOWNLOAD_TIMEOUT);
     });
   });
 });

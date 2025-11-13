@@ -1,0 +1,75 @@
+edition: 3.0.0
+name: ai-model-app
+access: quanxi
+
+vars:
+  region: 'cn-hangzhou'
+
+resources:
+  fc3:
+    component: ${env('fc_component_version', path('../../../'))}
+    type: Function
+    props:
+      logConfig: auto
+      functionName: fc3-model-files-${env('fc_component_function_name', 'nodejs18')}
+      instanceLifecycleConfig:
+        preStop:
+          handler: 'true'
+          timeout: 300
+      gpuConfig:
+        gpuMemorySize: 16384
+        gpuType: fc.gpu.tesla.1
+      nasConfig: auto
+      runtime: custom-container
+      description: test model download files
+      cpu: 8
+      customContainerConfig:
+        image: >-
+          cap-demo-public-registry.cn-hangzhou.cr.aliyuncs.com/cap-app/image-generation-comfyui-agent:v1.1.0-beta.0
+        port: 9000
+      triggers:
+        - triggerConfig:
+            methods:
+              - GET
+              - POST
+              - PUT
+              - PATCH
+              - DELETE
+              - HEAD
+            authType: anonymous
+            disableURLInternet: false
+          triggerName: fc3-model-files-${env('fc_component_function_name', 'nodejs18')}
+          qualifier: LATEST
+          description: http trigger for fc3-model-files-${env('fc_component_function_name', 'nodejs18')}
+          triggerType: http
+      version: 1.6.0
+      timeout: 3600
+      instanceConcurrency: 200
+      diskSize: 61440
+      memorySize: 32768
+      internetAccess: true
+      environmentVariables:
+        BACKEND_TYPE: comfyui
+        MODEL_ASSET_DIR: /mnt/fc3-model-files-${env('fc_component_function_name', 'nodejs18')}
+        REGION: ${vars.region}
+      vpcConfig: auto
+      region: ${vars.region}
+      annotations:
+        modelConfig:
+          solution: funArt
+          source:
+            uri: 'oss://dipper-cache-cn-hangzhou.oss-cn-hangzhou.aliyuncs.com'
+          downloadStrategy:
+            mode: once
+          target:
+            uri: 'nas://auto'
+          files:
+            - source:
+                path: base/comfyui/v0.3.59-alpha
+              target:
+                path: ''
+            - source:
+                path: >-
+                  function-art/comfyui/models/checkpoints/v1-5-pruned-emaonly-fp16.safetensors
+              target:
+                path: models/checkpoints/v1-5-pruned-emaonly-fp16.safetensors
