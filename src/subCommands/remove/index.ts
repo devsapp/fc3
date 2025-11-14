@@ -11,6 +11,7 @@ import {
   sleep,
   transformCustomDomainProps,
   isProvisionConfigError,
+  isAppCenter,
 } from '../../utils';
 import loadComponent from '@serverless-devs/load-component';
 import { IInputs as _IInputs } from '@serverless-devs/component-interface';
@@ -91,11 +92,12 @@ export default class Remove {
     logger.debug(`Appoint triggers ${this.resources.triggerNames}`);
 
     this.yes = !!yes;
+    const function_ai = isAppCenter() ? 'function_ai;' : '';
     this.fcSdk = new FC(this.region, inputs.credential, {
       endpoint: inputs.props.endpoint,
       userAgent: `${
         inputs.userAgent ||
-        `Component:fc3;Nodejs:${process.version};OS:${process.platform}-${process.arch}`
+        `${function_ai}Component:fc3;Nodejs:${process.version};OS:${process.platform}-${process.arch}`
       }command:remove`,
     });
   }

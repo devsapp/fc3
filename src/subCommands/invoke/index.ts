@@ -8,6 +8,7 @@ import { IInputs, IRegion, checkRegion } from '../../interface';
 import logger from '../../logger';
 import FC from '../../resources/fc';
 import { parseArgv } from '@serverless-devs/utils';
+import { isAppCenter } from '../../utils';
 
 export default class Invoke {
   private functionName: string;
@@ -54,12 +55,13 @@ export default class Invoke {
     } else {
       sdkTimeout = parseInt(timeout, 10);
     }
+    const function_ai = isAppCenter() ? 'function_ai;' : '';
     this.fcSdk = new FC(this.region, inputs.credential as ICredentials, {
       timeout: sdkTimeout ? sdkTimeout * 1000 : undefined,
       endpoint: inputs.props.endpoint,
       userAgent: `${
         inputs.userAgent ||
-        `Component:fc3;Nodejs:${process.version};OS:${process.platform}-${process.arch}`
+        `${function_ai}Component:fc3;Nodejs:${process.version};OS:${process.platform}-${process.arch}`
       }command:invoke`,
     });
 
