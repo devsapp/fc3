@@ -50,6 +50,7 @@ describe('ProvisionConfig', () => {
     logger.info = jest.fn();
     logger.warn = jest.fn();
     logger.error = jest.fn();
+    logger.write = jest.fn(); // 添加write方法的mock
   });
 
   afterEach(() => {
@@ -128,25 +129,28 @@ describe('ProvisionConfig', () => {
       const mockFcSdk = {
         putFunctionProvisionConfig: jest.fn().mockResolvedValue({}),
         getFunctionProvisionConfig: jest.fn().mockResolvedValue({}),
+        disableFunctionInvocation: jest.fn().mockResolvedValue(undefined),
+        enableFunctionInvocation: jest.fn().mockResolvedValue(undefined),
       };
       Object.defineProperty(provisionConfig, 'fcSdk', {
         value: mockFcSdk,
         writable: true,
       });
 
+      // Mock scalingConfig.provisionConfigErrorRetry
+      const provisionConfigErrorRetrySpy = jest
+        .spyOn(provisionConfig.scalingConfig, 'provisionConfigErrorRetry')
+        .mockResolvedValue(undefined);
+
       const result = await provisionConfig.run();
 
-      expect(provisionConfig.fcSdk.putFunctionProvisionConfig).toHaveBeenCalledWith(
-        'test-function',
-        'LATEST',
-        {
-          defaultTarget: 10,
-          alwaysAllocateCPU: false,
-          alwaysAllocateGPU: false,
-          scheduledActions: [],
-          targetTrackingPolicies: [],
-        },
-      );
+      expect(provisionConfigErrorRetrySpy).toHaveBeenCalledWith('ProvisionConfig', 'LATEST', {
+        defaultTarget: 10,
+        alwaysAllocateCPU: false,
+        alwaysAllocateGPU: false,
+        scheduledActions: [],
+        targetTrackingPolicies: [],
+      });
       expect(result).toBe(true);
     });
 
@@ -159,11 +163,18 @@ describe('ProvisionConfig', () => {
       const mockFcSdk = {
         putFunctionProvisionConfig: jest.fn().mockResolvedValue({}),
         getFunctionProvisionConfig: jest.fn().mockResolvedValue({ current: 10, target: 10 }),
+        disableFunctionInvocation: jest.fn().mockResolvedValue(undefined),
+        enableFunctionInvocation: jest.fn().mockResolvedValue(undefined),
       };
       Object.defineProperty(provisionConfig, 'fcSdk', {
         value: mockFcSdk,
         writable: true,
       });
+
+      // Mock scalingConfig.provisionConfigErrorRetry
+      const provisionConfigErrorRetrySpy = jest
+        .spyOn(provisionConfig.scalingConfig, 'provisionConfigErrorRetry')
+        .mockResolvedValue(undefined);
 
       const waitForProvisionReadySpy = jest
         .spyOn(provisionConfig as any, 'waitForProvisionReady')
@@ -171,17 +182,13 @@ describe('ProvisionConfig', () => {
 
       await provisionConfig.run();
 
-      expect(provisionConfig.fcSdk.putFunctionProvisionConfig).toHaveBeenCalledWith(
-        'test-function',
-        'LATEST',
-        {
-          defaultTarget: 10,
-          alwaysAllocateCPU: false,
-          alwaysAllocateGPU: false,
-          scheduledActions: [],
-          targetTrackingPolicies: [],
-        },
-      );
+      expect(provisionConfigErrorRetrySpy).toHaveBeenCalledWith('ProvisionConfig', 'LATEST', {
+        defaultTarget: 10,
+        alwaysAllocateCPU: false,
+        alwaysAllocateGPU: false,
+        scheduledActions: [],
+        targetTrackingPolicies: [],
+      });
       expect(waitForProvisionReadySpy).toHaveBeenCalledWith('LATEST', {
         defaultTarget: 10,
         alwaysAllocateCPU: false,
@@ -200,28 +207,34 @@ describe('ProvisionConfig', () => {
       const mockFcSdk = {
         putFunctionProvisionConfig: jest.fn().mockResolvedValue({}),
         getFunctionProvisionConfig: jest.fn().mockResolvedValue({}),
+        disableFunctionInvocation: jest.fn().mockResolvedValue(undefined),
+        enableFunctionInvocation: jest.fn().mockResolvedValue(undefined),
       };
       Object.defineProperty(provisionConfig, 'fcSdk', {
         value: mockFcSdk,
         writable: true,
       });
 
+      // Mock scalingConfig.provisionConfigErrorRetry
+      const provisionConfigErrorRetrySpy = jest
+        .spyOn(provisionConfig.scalingConfig, 'provisionConfigErrorRetry')
+        .mockResolvedValue(undefined);
+
       const waitForProvisionReadySpy = jest.spyOn(provisionConfig as any, 'waitForProvisionReady');
 
       await provisionConfig.run();
 
-      expect(provisionConfig.fcSdk.putFunctionProvisionConfig).toHaveBeenCalledWith(
-        'test-function',
-        'LATEST',
-        {
-          defaultTarget: 10,
-          alwaysAllocateCPU: false,
-          alwaysAllocateGPU: false,
-          scheduledActions: [],
-          targetTrackingPolicies: [],
-        },
-      );
+      expect(provisionConfigErrorRetrySpy).toHaveBeenCalledWith('ProvisionConfig', 'LATEST', {
+        defaultTarget: 10,
+        alwaysAllocateCPU: false,
+        alwaysAllocateGPU: false,
+        scheduledActions: [],
+        targetTrackingPolicies: [],
+      });
       expect(waitForProvisionReadySpy).not.toHaveBeenCalled();
+      expect(logger.info).toHaveBeenCalledWith(
+        `Skip wait provisionConfig of ${provisionConfig.functionName}/LATEST to instance up`,
+      );
     });
 
     it('should attempt to create provision config when needDeploy is false but remote config is empty', async () => {
@@ -233,6 +246,8 @@ describe('ProvisionConfig', () => {
       const mockFcSdk = {
         putFunctionProvisionConfig: jest.fn().mockResolvedValue({}),
         getFunctionProvisionConfig: jest.fn().mockResolvedValue({}),
+        disableFunctionInvocation: jest.fn().mockResolvedValue(undefined),
+        enableFunctionInvocation: jest.fn().mockResolvedValue(undefined),
       };
       Object.defineProperty(provisionConfig, 'fcSdk', {
         value: mockFcSdk,
@@ -264,6 +279,8 @@ describe('ProvisionConfig', () => {
       const mockFcSdk = {
         putFunctionProvisionConfig: jest.fn(),
         getFunctionProvisionConfig: jest.fn().mockResolvedValue({}),
+        disableFunctionInvocation: jest.fn().mockResolvedValue(undefined),
+        enableFunctionInvocation: jest.fn().mockResolvedValue(undefined),
       };
       Object.defineProperty(provisionConfig, 'fcSdk', {
         value: mockFcSdk,
@@ -292,6 +309,9 @@ describe('ProvisionConfig', () => {
       const mockFcSdk = {
         putFunctionProvisionConfig: jest.fn().mockResolvedValue({}),
         getFunctionProvisionConfig: jest.fn().mockResolvedValue({}),
+        removeFunctionProvisionConfig: jest.fn().mockResolvedValue(undefined),
+        disableFunctionInvocation: jest.fn().mockResolvedValue(undefined),
+        enableFunctionInvocation: jest.fn().mockResolvedValue(undefined),
       };
       Object.defineProperty(provisionConfig, 'fcSdk', {
         value: mockFcSdk,
@@ -315,6 +335,8 @@ describe('ProvisionConfig', () => {
       // Mock fcSdk
       const mockFcSdk = {
         getFunctionProvisionConfig: jest.fn(),
+        disableFunctionInvocation: jest.fn().mockResolvedValue(undefined),
+        enableFunctionInvocation: jest.fn().mockResolvedValue(undefined),
       };
       Object.defineProperty(provisionConfig, 'fcSdk', {
         value: mockFcSdk,
@@ -335,6 +357,8 @@ describe('ProvisionConfig', () => {
           .fn()
           .mockResolvedValueOnce({ current: 5, target: 10 })
           .mockResolvedValueOnce({ current: 10, target: 10 }),
+        disableFunctionInvocation: jest.fn().mockResolvedValue(undefined),
+        enableFunctionInvocation: jest.fn().mockResolvedValue(undefined),
       };
       Object.defineProperty(provisionConfig, 'fcSdk', {
         value: mockFcSdk,
@@ -359,6 +383,8 @@ describe('ProvisionConfig', () => {
           target: 10,
           currentError: ['some error'],
         }),
+        disableFunctionInvocation: jest.fn().mockResolvedValue(undefined),
+        enableFunctionInvocation: jest.fn().mockResolvedValue(undefined),
       };
       Object.defineProperty(provisionConfig, 'fcSdk', {
         value: mockFcSdk,
@@ -383,6 +409,8 @@ describe('ProvisionConfig', () => {
             currentError: ['an internal error has occurred'],
           })
           .mockResolvedValueOnce({ current: 10, target: 10 }),
+        disableFunctionInvocation: jest.fn().mockResolvedValue(undefined),
+        enableFunctionInvocation: jest.fn().mockResolvedValue(undefined),
       };
       Object.defineProperty(provisionConfig, 'fcSdk', {
         value: mockFcSdk,
@@ -403,6 +431,8 @@ describe('ProvisionConfig', () => {
       // Mock fcSdk
       const mockFcSdk = {
         getFunctionProvisionConfig: jest.fn().mockResolvedValue({ current: 5, target: 10 }),
+        disableFunctionInvocation: jest.fn().mockResolvedValue(undefined),
+        enableFunctionInvocation: jest.fn().mockResolvedValue(undefined),
       };
       Object.defineProperty(provisionConfig, 'fcSdk', {
         value: mockFcSdk,
@@ -414,6 +444,143 @@ describe('ProvisionConfig', () => {
       expect(provisionConfig.fcSdk.getFunctionProvisionConfig).toHaveBeenCalledTimes(180);
       expect(logger.warn).toHaveBeenCalledWith(
         'Timeout waiting for provisionConfig of test-function/LATEST to be ready',
+      );
+    });
+
+    it('should handle drain mode with target 0', async () => {
+      provisionConfig = new ProvisionConfig(mockInputs, mockOpts);
+      provisionConfig.ProvisionMode = 'drain';
+
+      // Mock fcSdk
+      const mockFcSdk = {
+        disableFunctionInvocation: jest.fn().mockResolvedValue(undefined),
+        enableFunctionInvocation: jest.fn().mockResolvedValue(undefined),
+      };
+      Object.defineProperty(provisionConfig, 'fcSdk', {
+        value: mockFcSdk,
+        writable: true,
+      });
+
+      await (provisionConfig as any).waitForProvisionReady('LATEST', { target: 0 });
+
+      expect(provisionConfig.fcSdk.disableFunctionInvocation).toHaveBeenCalledWith(
+        'test-function',
+        true,
+        'Fast scale-to-zero',
+      );
+      expect(sleepMock).toHaveBeenCalledWith(5);
+      expect(provisionConfig.fcSdk.enableFunctionInvocation).toHaveBeenCalledWith('test-function');
+    });
+
+    it('should handle drain mode with defaultTarget 0', async () => {
+      provisionConfig = new ProvisionConfig(mockInputs, mockOpts);
+      provisionConfig.ProvisionMode = 'drain';
+
+      // Mock fcSdk
+      const mockFcSdk = {
+        disableFunctionInvocation: jest.fn().mockResolvedValue(undefined),
+        enableFunctionInvocation: jest.fn().mockResolvedValue(undefined),
+      };
+      Object.defineProperty(provisionConfig, 'fcSdk', {
+        value: mockFcSdk,
+        writable: true,
+      });
+
+      await (provisionConfig as any).waitForProvisionReady('LATEST', { defaultTarget: 0 });
+
+      expect(provisionConfig.fcSdk.disableFunctionInvocation).toHaveBeenCalledWith(
+        'test-function',
+        true,
+        'Fast scale-to-zero',
+      );
+      expect(sleepMock).toHaveBeenCalledWith(5);
+      expect(provisionConfig.fcSdk.enableFunctionInvocation).toHaveBeenCalledWith('test-function');
+    });
+
+    it('should handle error retries in waitForProvisionReady', async () => {
+      provisionConfig = new ProvisionConfig(mockInputs, mockOpts);
+
+      // Mock fcSdk
+      const mockFcSdk = {
+        getFunctionProvisionConfig: jest
+          .fn()
+          .mockResolvedValueOnce({
+            current: 5,
+            target: 10,
+            currentError: ['some error'],
+          })
+          .mockResolvedValueOnce({
+            current: 5,
+            target: 10,
+            currentError: ['some error'],
+          })
+          .mockResolvedValueOnce({
+            current: 5,
+            target: 10,
+            currentError: ['some error'],
+          })
+          .mockResolvedValueOnce({
+            current: 5,
+            target: 10,
+            currentError: ['some error'],
+          }),
+      };
+      Object.defineProperty(provisionConfig, 'fcSdk', {
+        value: mockFcSdk,
+        writable: true,
+      });
+
+      await expect(
+        (provisionConfig as any).waitForProvisionReady('LATEST', { target: 10 }),
+      ).rejects.toThrow('get test-function/LATEST provision config error: some error');
+
+      expect(provisionConfig.fcSdk.getFunctionProvisionConfig).toHaveBeenCalledTimes(4);
+      expect(logger.error).toHaveBeenCalledWith(
+        'get test-function/LATEST provision config getCurrentErrorCount=4',
+      );
+    });
+
+    it('should handle error retries with limited attempts in waitForProvisionReady', async () => {
+      provisionConfig = new ProvisionConfig(mockInputs, mockOpts);
+
+      // Mock fcSdk
+      const mockFcSdk = {
+        getFunctionProvisionConfig: jest
+          .fn()
+          .mockResolvedValueOnce({
+            current: 5,
+            target: 10,
+            currentError: ['some error'],
+          })
+          .mockResolvedValueOnce({
+            current: 5,
+            target: 10,
+          })
+          .mockResolvedValueOnce({
+            current: 5,
+            target: 10,
+            currentError: ['some error'],
+          })
+          .mockResolvedValueOnce({
+            current: 5,
+            target: 10,
+            currentError: ['some error'],
+          })
+          .mockResolvedValueOnce({
+            current: 10,
+            target: 10,
+          }),
+      };
+      Object.defineProperty(provisionConfig, 'fcSdk', {
+        value: mockFcSdk,
+        writable: true,
+      });
+
+      await (provisionConfig as any).waitForProvisionReady('LATEST', { target: 10 });
+
+      expect(provisionConfig.fcSdk.getFunctionProvisionConfig).toHaveBeenCalledTimes(5);
+      expect(logger.info).toHaveBeenCalledWith(
+        'ProvisionConfig of test-function/LATEST is ready. Current: 10, Target: 10',
       );
     });
   });
@@ -430,6 +597,8 @@ describe('ProvisionConfig', () => {
           .fn()
           .mockResolvedValueOnce({ current: 5 })
           .mockResolvedValueOnce({ current: 0 }),
+        disableFunctionInvocation: jest.fn().mockResolvedValue(undefined),
+        enableFunctionInvocation: jest.fn().mockResolvedValue(undefined),
       };
       Object.defineProperty(provisionConfig, 'fcSdk', {
         value: mockFcSdk,
@@ -456,6 +625,8 @@ describe('ProvisionConfig', () => {
       const mockFcSdk = {
         removeFunctionProvisionConfig: jest.fn().mockResolvedValue({}),
         getFunctionProvisionConfig: jest.fn().mockResolvedValue({ current: 5 }),
+        disableFunctionInvocation: jest.fn().mockResolvedValue(undefined),
+        enableFunctionInvocation: jest.fn().mockResolvedValue(undefined),
       };
       Object.defineProperty(provisionConfig, 'fcSdk', {
         value: mockFcSdk,
@@ -481,6 +652,8 @@ describe('ProvisionConfig', () => {
       // Mock fcSdk
       const mockFcSdk = {
         removeFunctionProvisionConfig: jest.fn().mockRejectedValue(new Error('remove error')),
+        disableFunctionInvocation: jest.fn().mockResolvedValue(undefined),
+        enableFunctionInvocation: jest.fn().mockResolvedValue(undefined),
       };
       Object.defineProperty(provisionConfig, 'fcSdk', {
         value: mockFcSdk,
@@ -539,6 +712,55 @@ describe('ProvisionConfig', () => {
         defaultTarget: 10,
         targetTrackingPolicies: [{ name: 'policy1' }],
         scheduledActions: [{ name: 'action1' }],
+      });
+    });
+
+    it('should remove target when both target and defaultTarget exist', () => {
+      provisionConfig = new ProvisionConfig(mockInputs, mockOpts);
+
+      const config = {
+        target: 5,
+        defaultTarget: 10,
+        current: 5,
+        functionArn: 'arn:xxx',
+      };
+
+      const result = (provisionConfig as any).sanitizeProvisionConfig(config);
+
+      expect(result).toEqual({
+        defaultTarget: 10,
+      });
+    });
+
+    it('should remove empty targetTrackingPolicies', () => {
+      provisionConfig = new ProvisionConfig(mockInputs, mockOpts);
+
+      const config = {
+        defaultTarget: 10,
+        targetTrackingPolicies: [],
+        current: 5,
+      };
+
+      const result = (provisionConfig as any).sanitizeProvisionConfig(config);
+
+      expect(result).toEqual({
+        defaultTarget: 10,
+      });
+    });
+
+    it('should remove empty scheduledActions', () => {
+      provisionConfig = new ProvisionConfig(mockInputs, mockOpts);
+
+      const config = {
+        defaultTarget: 10,
+        scheduledActions: [],
+        current: 5,
+      };
+
+      const result = (provisionConfig as any).sanitizeProvisionConfig(config);
+
+      expect(result).toEqual({
+        defaultTarget: 10,
       });
     });
   });
@@ -623,9 +845,55 @@ describe('ProvisionConfig', () => {
         diffConvertYaml: jest.fn().mockReturnValue({ diffResult: {}, show: '' }),
       }));
 
+      // 重新导入模块以应用mock
+      const { diffConvertYaml } = require('@serverless-devs/diff');
+      (diffConvertYaml as jest.Mock).mockReturnValue({ diffResult: {}, show: '' });
+
       await (provisionConfig as any).plan();
 
       expect(provisionConfig.needDeploy).toBe(true);
+    });
+
+    it('should prompt user when diffResult is not empty and yes is undefined', async () => {
+      // 创建新的实例用于这个测试
+      const provisionConfigWithPrompt = new ProvisionConfig(
+        mockInputs,
+        { yes: undefined }, // 不指定yes参数，需要用户确认
+      );
+      provisionConfigWithPrompt.remote = { defaultTarget: 5 };
+      provisionConfigWithPrompt.local = { defaultTarget: 10 };
+
+      // Mock diffConvertYaml
+      jest.mock('@serverless-devs/diff', () => ({
+        diffConvertYaml: jest.fn().mockReturnValue({
+          diffResult: { defaultTarget: { old: 5, new: 10 } },
+          show: 'defaultTarget: 5 -> 10',
+        }),
+      }));
+
+      // 重新导入模块以应用mock
+      const { diffConvertYaml } = require('@serverless-devs/diff');
+      (diffConvertYaml as jest.Mock).mockReturnValue({
+        diffResult: { defaultTarget: { old: 5, new: 10 } },
+        show: 'defaultTarget: 5 -> 10',
+      });
+
+      // Mock inquirer
+      const inquirer = require('inquirer');
+      const promptMock = jest.spyOn(inquirer, 'prompt').mockResolvedValue({ ok: true });
+
+      await (provisionConfigWithPrompt as any).plan();
+
+      expect(promptMock).toHaveBeenCalledWith([
+        {
+          type: 'confirm',
+          name: 'ok',
+          message: 'Deploy it with local config?',
+        },
+      ]);
+      expect(logger.write).toHaveBeenCalledWith(
+        'provisionConfig was changed, please confirm before deployment:\n',
+      );
     });
   });
 });

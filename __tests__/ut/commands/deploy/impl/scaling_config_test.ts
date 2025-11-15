@@ -1,10 +1,14 @@
 import ScalingConfig from '../../../../../src/subCommands/deploy/impl/scaling_config';
 import { IInputs } from '../../../../../src/interface';
 import logger from '../../../../../src/logger';
+import { sleep, isProvisionConfigError } from '../../../../../src/utils';
 
 // Mocks
+jest.mock('../../../../../src/utils');
 
 const getRootHomeMock = jest.requireMock('@serverless-devs/utils').getRootHome;
+const sleepMock = sleep as jest.Mock;
+const isProvisionConfigErrorMock = isProvisionConfigError as jest.Mock;
 
 describe('ScalingConfig', () => {
   let mockInputs: IInputs;
@@ -36,6 +40,10 @@ describe('ScalingConfig', () => {
 
     // Setup mocks
     getRootHomeMock.mockReturnValue('/root');
+    sleepMock.mockResolvedValue(undefined);
+    isProvisionConfigErrorMock.mockImplementation((err) =>
+      err.message.includes('provision config'),
+    );
 
     // Mock logger methods
     logger.debug = jest.fn();
@@ -47,6 +55,169 @@ describe('ScalingConfig', () => {
 
   afterEach(() => {
     jest.clearAllMocks();
+  });
+
+  describe('provisionConfigErrorRetry', () => {
+    it('should successfully create scaling config on first attempt', async () => {
+      mockInputs.props.scalingConfig = {
+        minInstances: 1,
+      } as any;
+
+      scalingConfig = new ScalingConfig(mockInputs, mockOpts);
+
+      // Mock fcSdk
+      const mockFcSdk = {
+        putFunctionScalingConfig: jest.fn().mockResolvedValue(undefined),
+      };
+      Object.defineProperty(scalingConfig, 'fcSdk', {
+        value: mockFcSdk,
+        writable: true,
+      });
+
+      await scalingConfig.provisionConfigErrorRetry('ScalingConfig', 'LATEST', { minInstances: 1 });
+
+      expect(mockFcSdk.putFunctionScalingConfig).toHaveBeenCalledWith('test-function', 'LATEST', {
+        minInstances: 1,
+      });
+    });
+
+    it('should handle non-provision config errors', async () => {
+      mockInputs.props.scalingConfig = {
+        minInstances: 1,
+      } as any;
+
+      scalingConfig = new ScalingConfig(mockInputs, mockOpts);
+
+      // Mock fcSdk
+      const mockFcSdk = {
+        putFunctionScalingConfig: jest.fn().mockRejectedValue(new Error('network error')),
+      };
+      Object.defineProperty(scalingConfig, 'fcSdk', {
+        value: mockFcSdk,
+        writable: true,
+      });
+
+      isProvisionConfigErrorMock.mockReturnValue(false);
+
+      await expect(
+        scalingConfig.provisionConfigErrorRetry('ScalingConfig', 'LATEST', { minInstances: 1 }),
+      ).rejects.toThrow('network error');
+
+      expect(mockFcSdk.putFunctionScalingConfig).toHaveBeenCalledWith('test-function', 'LATEST', {
+        minInstances: 1,
+      });
+    });
+
+    it('should retry and succeed after provision config error', async () => {
+      mockInputs.props.scalingConfig = {
+        minInstances: 1,
+      } as any;
+
+      scalingConfig = new ScalingConfig(mockInputs, mockOpts);
+
+      // Mock fcSdk
+      const mockFcSdk = {
+        putFunctionScalingConfig: jest
+          .fn()
+          .mockRejectedValueOnce(new Error('provision config error'))
+          .mockResolvedValueOnce(undefined),
+        removeFunctionScalingConfig: jest.fn().mockResolvedValue(undefined),
+      };
+      Object.defineProperty(scalingConfig, 'fcSdk', {
+        value: mockFcSdk,
+        writable: true,
+      });
+
+      isProvisionConfigErrorMock.mockReturnValue(true);
+
+      const removeScalingConfigSpy = jest
+        .spyOn(scalingConfig as any, 'removeScalingConfig')
+        .mockResolvedValue(undefined);
+
+      await scalingConfig.provisionConfigErrorRetry('ScalingConfig', 'LATEST', { minInstances: 1 });
+
+      expect(removeScalingConfigSpy).toHaveBeenCalledWith('LATEST');
+      expect(mockFcSdk.putFunctionScalingConfig).toHaveBeenCalledTimes(2);
+      expect(mockFcSdk.putFunctionScalingConfig).toHaveBeenNthCalledWith(
+        1,
+        'test-function',
+        'LATEST',
+        {
+          minInstances: 1,
+        },
+      );
+      expect(mockFcSdk.putFunctionScalingConfig).toHaveBeenNthCalledWith(
+        2,
+        'test-function',
+        'LATEST',
+        {
+          minInstances: 1,
+        },
+      );
+    });
+
+    it('should fail after max retries with provision config errors', async () => {
+      mockInputs.props.scalingConfig = {
+        minInstances: 1,
+      } as any;
+
+      scalingConfig = new ScalingConfig(mockInputs, mockOpts);
+
+      // Mock fcSdk
+      const mockFcSdk = {
+        putFunctionScalingConfig: jest.fn().mockRejectedValue(new Error('provision config error')),
+        removeFunctionScalingConfig: jest.fn().mockResolvedValue(undefined),
+      };
+      Object.defineProperty(scalingConfig, 'fcSdk', {
+        value: mockFcSdk,
+        writable: true,
+      });
+
+      isProvisionConfigErrorMock.mockReturnValue(true);
+
+      const removeScalingConfigSpy = jest
+        .spyOn(scalingConfig as any, 'removeScalingConfig')
+        .mockResolvedValue(undefined);
+
+      await expect(
+        scalingConfig.provisionConfigErrorRetry('ScalingConfig', 'LATEST', { minInstances: 1 }),
+      ).rejects.toThrow('Failed to create scalingConfig after 60 attempts');
+
+      expect(removeScalingConfigSpy).toHaveBeenCalledWith('LATEST');
+      expect(mockFcSdk.putFunctionScalingConfig).toHaveBeenCalledTimes(61);
+      expect(logger.info).toHaveBeenCalledWith(
+        'Retry 59/60: putFunctionScalingConfig failed, retrying...',
+      );
+    });
+
+    it('should handle ProvisionConfig command type', async () => {
+      mockInputs.props.scalingConfig = {
+        minInstances: 1,
+      } as any;
+
+      scalingConfig = new ScalingConfig(mockInputs, mockOpts);
+
+      // Mock fcSdk
+      const mockFcSdk = {
+        putFunctionProvisionConfig: jest.fn().mockResolvedValue(undefined),
+        putFunctionScalingConfig: jest.fn().mockResolvedValue(undefined),
+      };
+      Object.defineProperty(scalingConfig, 'fcSdk', {
+        value: mockFcSdk,
+        writable: true,
+      });
+
+      const beforeSpy = jest.spyOn(scalingConfig, 'before').mockResolvedValue(undefined);
+
+      await scalingConfig.provisionConfigErrorRetry('ProvisionConfig', 'LATEST', {
+        minInstances: 1,
+      });
+
+      expect(beforeSpy).toHaveBeenCalled();
+      expect(mockFcSdk.putFunctionProvisionConfig).toHaveBeenCalledWith('test-function', 'LATEST', {
+        minInstances: 1,
+      });
+    });
   });
 
   describe('constructor', () => {
@@ -62,7 +233,7 @@ describe('ScalingConfig', () => {
             maxInstances: 10,
           },
         ],
-      };
+      } as any;
 
       scalingConfig = new ScalingConfig(mockInputs, mockOpts);
 
@@ -85,6 +256,20 @@ describe('ScalingConfig', () => {
 
       expect(scalingConfig.local).toEqual({});
     });
+
+    it('should initialize correctly with mode config', () => {
+      mockInputs.props.scalingConfig = {
+        minInstances: 1,
+        mode: 'async',
+      } as any;
+
+      scalingConfig = new ScalingConfig(mockInputs, mockOpts);
+
+      expect(scalingConfig.local).toEqual({
+        minInstances: 1,
+      });
+      expect(scalingConfig.ScalingMode).toBe('async');
+    });
   });
 
   describe('before', () => {
@@ -94,6 +279,8 @@ describe('ScalingConfig', () => {
       // Mock fcSdk
       const mockFcSdk = {
         getFunctionScalingConfig: jest.fn().mockResolvedValue({}),
+        disableFunctionInvocation: jest.fn().mockResolvedValue(undefined),
+        enableFunctionInvocation: jest.fn().mockResolvedValue(undefined),
       };
       Object.defineProperty(scalingConfig, 'fcSdk', {
         value: mockFcSdk,
@@ -116,7 +303,7 @@ describe('ScalingConfig', () => {
     it('should deploy scaling config when local config exists and needDeploy is true', async () => {
       mockInputs.props.scalingConfig = {
         minInstances: 1,
-      };
+      } as any;
 
       scalingConfig = new ScalingConfig(mockInputs, mockOpts);
       scalingConfig.needDeploy = true;
@@ -127,6 +314,126 @@ describe('ScalingConfig', () => {
         getFunctionScalingConfig: jest
           .fn()
           .mockResolvedValue({ currentInstances: 1, minInstances: 1 }),
+        disableFunctionInvocation: jest.fn().mockResolvedValue(undefined),
+        enableFunctionInvocation: jest.fn().mockResolvedValue(undefined),
+      };
+      Object.defineProperty(scalingConfig, 'fcSdk', {
+        value: mockFcSdk,
+        writable: true,
+      });
+
+      // Mock provisionConfigErrorRetry
+      const provisionConfigErrorRetrySpy = jest
+        .spyOn(scalingConfig, 'provisionConfigErrorRetry')
+        .mockResolvedValue(undefined);
+
+      const result = await scalingConfig.run();
+
+      expect(provisionConfigErrorRetrySpy).toHaveBeenCalledWith('ScalingConfig', 'LATEST', {
+        minInstances: 1,
+      });
+      expect(logger.info).toHaveBeenCalledWith(
+        'ScalingConfig of test-function/LATEST is ready. CurrentInstances: 1, MinInstances: 1',
+      );
+      expect(result).toBe(true);
+    });
+
+    it('should wait for scaling ready when mode is sync', async () => {
+      mockInputs.props.scalingConfig = {
+        minInstances: 1,
+      } as any;
+
+      scalingConfig = new ScalingConfig(mockInputs, mockOpts);
+      scalingConfig.needDeploy = true;
+      scalingConfig.ScalingMode = 'sync';
+
+      // Mock fcSdk
+      const mockFcSdk = {
+        putFunctionScalingConfig: jest.fn().mockResolvedValue(undefined),
+        getFunctionScalingConfig: jest
+          .fn()
+          .mockResolvedValue({ currentInstances: 1, minInstances: 1 }),
+        disableFunctionInvocation: jest.fn().mockResolvedValue(undefined),
+        enableFunctionInvocation: jest.fn().mockResolvedValue(undefined),
+      };
+      Object.defineProperty(scalingConfig, 'fcSdk', {
+        value: mockFcSdk,
+        writable: true,
+      });
+
+      // Mock provisionConfigErrorRetry
+      const provisionConfigErrorRetrySpy = jest
+        .spyOn(scalingConfig, 'provisionConfigErrorRetry')
+        .mockResolvedValue(undefined);
+
+      const waitForScalingReadySpy = jest
+        .spyOn(scalingConfig as any, 'waitForScalingReady')
+        .mockResolvedValue(undefined);
+
+      await scalingConfig.run();
+
+      expect(provisionConfigErrorRetrySpy).toHaveBeenCalledWith('ScalingConfig', 'LATEST', {
+        minInstances: 1,
+      });
+      expect(waitForScalingReadySpy).toHaveBeenCalledWith('LATEST', {
+        minInstances: 1,
+      });
+    });
+
+    it('should skip wait for scaling ready when mode is async', async () => {
+      mockInputs.props.scalingConfig = {
+        minInstances: 1,
+      } as any;
+
+      scalingConfig = new ScalingConfig(mockInputs, mockOpts);
+      scalingConfig.needDeploy = true;
+      scalingConfig.ScalingMode = 'async';
+
+      // Mock fcSdk
+      const mockFcSdk = {
+        putFunctionScalingConfig: jest.fn().mockResolvedValue(undefined),
+        getFunctionScalingConfig: jest.fn().mockResolvedValue({}),
+        disableFunctionInvocation: jest.fn().mockResolvedValue(undefined),
+        enableFunctionInvocation: jest.fn().mockResolvedValue(undefined),
+      };
+      Object.defineProperty(scalingConfig, 'fcSdk', {
+        value: mockFcSdk,
+        writable: true,
+      });
+
+      // Mock provisionConfigErrorRetry
+      const provisionConfigErrorRetrySpy = jest
+        .spyOn(scalingConfig, 'provisionConfigErrorRetry')
+        .mockResolvedValue(undefined);
+
+      const waitForScalingReadySpy = jest.spyOn(scalingConfig as any, 'waitForScalingReady');
+
+      await scalingConfig.run();
+
+      expect(provisionConfigErrorRetrySpy).toHaveBeenCalledWith('ScalingConfig', 'LATEST', {
+        minInstances: 1,
+      });
+      expect(waitForScalingReadySpy).not.toHaveBeenCalled();
+      expect(logger.info).toHaveBeenCalledWith(
+        'Skip wait scalingConfig of test-function/LATEST to instance up',
+      );
+    });
+
+    it('should attempt to create scaling config when needDeploy is false but remote config is empty', async () => {
+      mockInputs.props.scalingConfig = {
+        minInstances: 1,
+      } as any;
+
+      scalingConfig = new ScalingConfig(mockInputs, mockOpts);
+      scalingConfig.needDeploy = false;
+      scalingConfig.remote = {};
+
+      // Mock fcSdk
+      const mockFcSdk = {
+        putFunctionScalingConfig: jest.fn().mockResolvedValue(undefined),
+        getFunctionScalingConfig: jest.fn().mockResolvedValue({}),
+        disableFunctionInvocation: jest.fn().mockResolvedValue(undefined),
+        enableFunctionInvocation: jest.fn().mockResolvedValue(undefined),
       };
       Object.defineProperty(scalingConfig, 'fcSdk', {
         value: mockFcSdk,
@@ -138,21 +445,27 @@ describe('ScalingConfig', () => {
       expect(mockFcSdk.putFunctionScalingConfig).toHaveBeenCalledWith('test-function', 'LATEST', {
         minInstances: 1,
       });
-      expect(logger.info).toHaveBeenCalledWith(
-        'ScalingConfig of test-function/LATEST is ready. CurrentInstances: 1, MinInstances: 1',
+      expect(logger.debug).toHaveBeenCalledWith(
+        'Online scalingConfig does not exist, specified not to deploy, attempting to create test-function/scalingConfig',
       );
-      expect(result).toBe(true);
+      expect(result).toBe(false);
     });
 
-    it('should remove scaling config when local config is empty and needDeploy is true', async () => {
+    it('should skip deployment when needDeploy is false and remote config exists', async () => {
+      mockInputs.props.scalingConfig = {
+        minInstances: 1,
+      } as any;
+
       scalingConfig = new ScalingConfig(mockInputs, mockOpts);
-      scalingConfig.needDeploy = true;
+      scalingConfig.needDeploy = false;
       scalingConfig.remote = { minInstances: 1 };
 
-      // Mock fcSdk
+      // Mock fcSdk to prevent actual API calls
       const mockFcSdk = {
-        removeFunctionScalingConfig: jest.fn().mockResolvedValue(undefined),
-        getFunctionScalingConfig: jest.fn().mockResolvedValue({ currentInstances: 0 }),
+        putFunctionScalingConfig: jest.fn(),
+        getFunctionScalingConfig: jest.fn().mockResolvedValue({}),
+        disableFunctionInvocation: jest.fn().mockResolvedValue(undefined),
+        enableFunctionInvocation: jest.fn().mockResolvedValue(undefined),
       };
       Object.defineProperty(scalingConfig, 'fcSdk', {
         value: mockFcSdk,
@@ -161,14 +474,52 @@ describe('ScalingConfig', () => {
 
       const result = await scalingConfig.run();
 
-      expect(mockFcSdk.removeFunctionScalingConfig).toHaveBeenCalledWith('test-function', 'LATEST');
-      expect(result).toBe(true);
+      expect(mockFcSdk.putFunctionScalingConfig).not.toHaveBeenCalled();
+      expect(logger.debug).toHaveBeenCalledWith(
+        'Online scalingConfig exists, specified not to deploy, skipping deployment test-function/scalingConfig',
+      );
+      expect(result).toBe(false);
+    });
+
+    it('should remove scaling config when local config is empty and needDeploy is true', async () => {
+      const scalingConfigWithoutScalingConfig = new ScalingConfig(
+        {
+          ...mockInputs,
+          props: {
+            ...mockInputs.props,
+            scalingConfig: undefined,
+          },
+        } as any,
+        mockOpts,
+      );
+      scalingConfigWithoutScalingConfig.needDeploy = true;
+
+      // Mock fcSdk
+      const mockFcSdk = {
+        putFunctionScalingConfig: jest.fn().mockResolvedValue(undefined),
+        getFunctionScalingConfig: jest.fn().mockResolvedValue({}),
+        removeFunctionScalingConfig: jest.fn().mockResolvedValue(undefined),
+        disableFunctionInvocation: jest.fn().mockResolvedValue(undefined),
+        enableFunctionInvocation: jest.fn().mockResolvedValue(undefined),
+      };
+      Object.defineProperty(scalingConfigWithoutScalingConfig, 'fcSdk', {
+        value: mockFcSdk,
+        writable: true,
+      });
+
+      const removeScalingConfigSpy = jest
+        .spyOn(scalingConfigWithoutScalingConfig as any, 'removeScalingConfig')
+        .mockResolvedValue(undefined);
+
+      await scalingConfigWithoutScalingConfig.run();
+
+      expect(removeScalingConfigSpy).toHaveBeenCalledWith('LATEST');
     });
 
     it('should skip deployment when needDeploy is false', async () => {
       mockInputs.props.scalingConfig = {
         minInstances: 1,
-      };
+      } as any;
 
       scalingConfig = new ScalingConfig(mockInputs, mockOpts);
       scalingConfig.needDeploy = false;
@@ -177,6 +528,8 @@ describe('ScalingConfig', () => {
       // Mock fcSdk to prevent actual API calls
       const mockFcSdk = {
         putFunctionScalingConfig: jest.fn().mockResolvedValue(undefined),
+        disableFunctionInvocation: jest.fn().mockResolvedValue(undefined),
+        enableFunctionInvocation: jest.fn().mockResolvedValue(undefined),
       };
       Object.defineProperty(scalingConfig, 'fcSdk', {
         value: mockFcSdk,
@@ -190,6 +543,208 @@ describe('ScalingConfig', () => {
     });
   });
 
+  describe('waitForScalingReady', () => {
+    it('should return immediately when minInstances is 0', async () => {
+      scalingConfig = new ScalingConfig(mockInputs, mockOpts);
+
+      // Mock fcSdk
+      const mockFcSdk = {
+        getFunctionScalingConfig: jest.fn(),
+        disableFunctionInvocation: jest.fn().mockResolvedValue(undefined),
+        enableFunctionInvocation: jest.fn().mockResolvedValue(undefined),
+      };
+      Object.defineProperty(scalingConfig, 'fcSdk', {
+        value: mockFcSdk,
+        writable: true,
+      });
+
+      await (scalingConfig as any).waitForScalingReady('LATEST', { minInstances: 0 });
+
+      expect(mockFcSdk.getFunctionScalingConfig).not.toHaveBeenCalled();
+    });
+
+    it('should wait until currentInstances reaches minInstances', async () => {
+      scalingConfig = new ScalingConfig(mockInputs, mockOpts);
+
+      // Mock fcSdk
+      const mockFcSdk = {
+        getFunctionScalingConfig: jest
+          .fn()
+          .mockResolvedValueOnce({ currentInstances: 5, minInstances: 10 })
+          .mockResolvedValueOnce({ currentInstances: 10, minInstances: 10 }),
+        disableFunctionInvocation: jest.fn().mockResolvedValue(undefined),
+        enableFunctionInvocation: jest.fn().mockResolvedValue(undefined),
+      };
+      Object.defineProperty(scalingConfig, 'fcSdk', {
+        value: mockFcSdk,
+        writable: true,
+      });
+
+      await (scalingConfig as any).waitForScalingReady('LATEST', { minInstances: 10 });
+
+      expect(mockFcSdk.getFunctionScalingConfig).toHaveBeenCalledTimes(2);
+      expect(logger.info).toHaveBeenCalledWith(
+        'ScalingConfig of test-function/LATEST is ready. CurrentInstances: 10, MinInstances: 10',
+      );
+    });
+
+    it('should handle drain mode with minInstances 0', async () => {
+      scalingConfig = new ScalingConfig(mockInputs, mockOpts);
+      scalingConfig.ScalingMode = 'drain';
+
+      // Mock fcSdk
+      const mockFcSdk = {
+        disableFunctionInvocation: jest.fn().mockResolvedValue(undefined),
+        enableFunctionInvocation: jest.fn().mockResolvedValue(undefined),
+        getFunctionScalingConfig: jest.fn().mockResolvedValue({}),
+      };
+      Object.defineProperty(scalingConfig, 'fcSdk', {
+        value: mockFcSdk,
+        writable: true,
+      });
+
+      await (scalingConfig as any).waitForScalingReady('LATEST', { minInstances: 0 });
+
+      expect(mockFcSdk.disableFunctionInvocation).toHaveBeenCalledWith(
+        'test-function',
+        true,
+        'Fast scale-to-zero',
+      );
+      expect(sleepMock).toHaveBeenCalledWith(5);
+      expect(mockFcSdk.enableFunctionInvocation).toHaveBeenCalledWith('test-function');
+    });
+
+    it('should timeout when max retries reached', async () => {
+      scalingConfig = new ScalingConfig(mockInputs, mockOpts);
+
+      // Mock fcSdk
+      const mockFcSdk = {
+        getFunctionScalingConfig: jest
+          .fn()
+          .mockResolvedValue({ currentInstances: 5, minInstances: 10 }),
+        disableFunctionInvocation: jest.fn().mockResolvedValue(undefined),
+        enableFunctionInvocation: jest.fn().mockResolvedValue(undefined),
+      };
+      Object.defineProperty(scalingConfig, 'fcSdk', {
+        value: mockFcSdk,
+        writable: true,
+      });
+
+      await (scalingConfig as any).waitForScalingReady('LATEST', { minInstances: 10 });
+
+      expect(mockFcSdk.getFunctionScalingConfig).toHaveBeenCalledTimes(180);
+      expect(logger.warn).toHaveBeenCalledWith(
+        'Timeout waiting for scalingConfig of test-function/LATEST to be ready',
+      );
+    });
+  });
+
+  describe('removeScalingConfig', () => {
+    it('should remove scaling config and wait for currentInstances to be 0', async () => {
+      scalingConfig = new ScalingConfig(mockInputs, mockOpts);
+      scalingConfig.remote = { minInstances: 10 };
+
+      // Mock fcSdk
+      const mockFcSdk = {
+        removeFunctionScalingConfig: jest.fn().mockResolvedValue({}),
+        getFunctionScalingConfig: jest
+          .fn()
+          .mockResolvedValueOnce({ currentInstances: 5 })
+          .mockResolvedValueOnce({ currentInstances: 0 }),
+        disableFunctionInvocation: jest.fn().mockResolvedValue(undefined),
+        enableFunctionInvocation: jest.fn().mockResolvedValue(undefined),
+      };
+      Object.defineProperty(scalingConfig, 'fcSdk', {
+        value: mockFcSdk,
+        writable: true,
+      });
+
+      await (scalingConfig as any).removeScalingConfig('LATEST');
+
+      expect(mockFcSdk.removeFunctionScalingConfig).toHaveBeenCalledWith('test-function', 'LATEST');
+      expect(mockFcSdk.getFunctionScalingConfig).toHaveBeenCalledTimes(2);
+      expect(logger.info).toHaveBeenCalledWith(
+        'ScalingConfig of test-function/LATEST removed successfully',
+      );
+    });
+
+    it('should timeout when waiting for currentInstances to be 0', async () => {
+      scalingConfig = new ScalingConfig(mockInputs, mockOpts);
+      scalingConfig.remote = { minInstances: 10 };
+
+      // Mock fcSdk
+      const mockFcSdk = {
+        removeFunctionScalingConfig: jest.fn().mockResolvedValue({}),
+        getFunctionScalingConfig: jest.fn().mockResolvedValue({ currentInstances: 5 }),
+        disableFunctionInvocation: jest.fn().mockResolvedValue(undefined),
+        enableFunctionInvocation: jest.fn().mockResolvedValue(undefined),
+      };
+      Object.defineProperty(scalingConfig, 'fcSdk', {
+        value: mockFcSdk,
+        writable: true,
+      });
+
+      await (scalingConfig as any).removeScalingConfig('LATEST');
+
+      expect(mockFcSdk.removeFunctionScalingConfig).toHaveBeenCalledWith('test-function', 'LATEST');
+      expect(mockFcSdk.getFunctionScalingConfig).toHaveBeenCalledTimes(12);
+      expect(logger.warn).toHaveBeenCalledWith(
+        'Timeout waiting for scalingConfig of test-function/LATEST to be removed',
+      );
+    });
+
+    it('should handle error when removing scaling config', async () => {
+      scalingConfig = new ScalingConfig(mockInputs, mockOpts);
+      scalingConfig.remote = { minInstances: 10 };
+
+      // Mock fcSdk
+      const mockFcSdk = {
+        removeFunctionScalingConfig: jest.fn().mockRejectedValue(new Error('remove error')),
+        disableFunctionInvocation: jest.fn().mockResolvedValue(undefined),
+        enableFunctionInvocation: jest.fn().mockResolvedValue(undefined),
+      };
+      Object.defineProperty(scalingConfig, 'fcSdk', {
+        value: mockFcSdk,
+        writable: true,
+      });
+
+      await expect((scalingConfig as any).removeScalingConfig('LATEST')).rejects.toThrow(
+        'remove error',
+      );
+      expect(logger.error).toHaveBeenCalledWith(
+        'Remove remote scalingConfig of test-function/LATEST error: remove error',
+      );
+    });
+  });
+
+  describe('sanitizeScalingConfig', () => {
+    it('should sanitize scaling config correctly', () => {
+      scalingConfig = new ScalingConfig(mockInputs, mockOpts);
+
+      const config = {
+        minInstances: 20,
+        currentInstances: 5,
+        functionArn: 'arn:xxx',
+        currentError: ['error'],
+        targetInstances: 30,
+      };
+
+      const result = (scalingConfig as any).sanitizeScalingConfig(config);
+
+      expect(result).toEqual({
+        minInstances: 20,
+      });
+    });
+
+    it('should handle empty config', () => {
+      scalingConfig = new ScalingConfig(mockInputs, mockOpts);
+
+      const result = (scalingConfig as any).sanitizeScalingConfig(null);
+
+      expect(result).toEqual({});
+    });
+  });
+
   describe('getRemote', () => {
     it('should get remote scaling config successfully', async () => {
       scalingConfig = new ScalingConfig(mockInputs, mockOpts);
@@ -200,6 +755,8 @@ describe('ScalingConfig', () => {
           minInstances: 2,
           functionArn: 'arn:acs:fc:cn-hangzhou:123456:functions/test-function/LATEST',
         }),
+        disableFunctionInvocation: jest.fn().mockResolvedValue(undefined),
+        enableFunctionInvocation: jest.fn().mockResolvedValue(undefined),
       };
       Object.defineProperty(scalingConfig, 'fcSdk', {
         value: mockFcSdk,
@@ -219,6 +776,8 @@ describe('ScalingConfig', () => {
       // Mock fcSdk
       const mockFcSdk = {
         getFunctionScalingConfig: jest.fn().mockRejectedValue(new Error('Network error')),
+        disableFunctionInvocation: jest.fn().mockResolvedValue(undefined),
+        enableFunctionInvocation: jest.fn().mockResolvedValue(undefined),
       };
       Object.defineProperty(scalingConfig, 'fcSdk', {
         value: mockFcSdk,
@@ -236,7 +795,26 @@ describe('ScalingConfig', () => {
 
   describe('plan', () => {
     it('should set needDeploy to true when remote is empty', async () => {
-      scalingConfig = new ScalingConfig(mockInputs, mockOpts);
+      const localMockInputs = {
+        props: {
+          region: 'cn-hangzhou',
+          functionName: 'test-function',
+        },
+        credential: {
+          AccountID: 'test-account-id',
+          AccessKeyID: 'test-access-key-id',
+          AccessKeySecret: 'test-access-key-secret',
+          SecurityToken: 'test-security-token',
+          Region: 'cn-hangzhou',
+        },
+        args: [],
+        argsObj: [],
+        baseDir: '/test/base/dir',
+      } as any;
+      const localMockOpts = {
+        yes: true,
+      };
+      const scalingConfig = new ScalingConfig(localMockInputs, localMockOpts);
       scalingConfig.remote = {};
 
       await (scalingConfig as any).plan();
@@ -245,18 +823,37 @@ describe('ScalingConfig', () => {
     });
 
     it('should prompt user when there are differences', async () => {
-      mockInputs.props.scalingConfig = {
-        minInstances: 2,
+      const localMockInputs = {
+        props: {
+          region: 'cn-hangzhou',
+          functionName: 'test-function',
+          scalingConfig: {
+            minInstances: 2,
+          } as any,
+        },
+        credential: {
+          AccountID: 'test-account-id',
+          AccessKeyID: 'test-access-key-id',
+          AccessKeySecret: 'test-access-key-secret',
+          SecurityToken: 'test-security-token',
+          Region: 'cn-hangzhou',
+        },
+        args: [],
+        argsObj: [],
+        baseDir: '/test/base/dir',
+      } as any;
+      const localMockOpts = {
+        yes: undefined,
       };
 
-      scalingConfig = new ScalingConfig(mockInputs, { yes: undefined });
-      scalingConfig.remote = { minInstances: 1 };
+      const scalingConfigWithPrompt = new ScalingConfig(localMockInputs, localMockOpts);
+      scalingConfigWithPrompt.remote = { minInstances: 1 };
 
       // Mock inquirer
       const inquirer = require('inquirer');
       const promptMock = jest.spyOn(inquirer, 'prompt').mockResolvedValue({ ok: true });
 
-      await (scalingConfig as any).plan();
+      await (scalingConfigWithPrompt as any).plan();
 
       expect(promptMock).toHaveBeenCalled();
       expect(logger.write).toHaveBeenCalledWith(

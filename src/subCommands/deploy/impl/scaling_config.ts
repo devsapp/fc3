@@ -15,6 +15,7 @@ export default class ScalingConfig extends Base {
   local: any;
   remote: any;
   readonly functionName: string;
+  ScalingMode: string;
 
   constructor(inputs: IInputs, opts: IOpts) {
     super(inputs, opts.yes);
@@ -22,7 +23,8 @@ export default class ScalingConfig extends Base {
 
     const scalingConfig = _.get(inputs, 'props.scalingConfig', {});
     this.local = _.cloneDeep(scalingConfig);
-
+    this.ScalingMode = _.get(this.local, 'mode', 'sync');
+    _.unset(this.local, 'mode');
     logger.debug(`need deploy scalingConfig: ${JSON.stringify(scalingConfig)}`);
   }
 
@@ -42,45 +44,15 @@ export default class ScalingConfig extends Base {
 
     if (!_.isEmpty(localConfig)) {
       if (this.needDeploy) {
-        try {
-          await this.fcSdk.putFunctionScalingConfig(this.functionName, qualifier, localConfig);
-        } catch (err) {
-          if (!isProvisionConfigError(err)) {
-            throw err; // Re-throw non-provision config errors
-          }
+        await this.provisionConfigErrorRetry('ScalingConfig', qualifier, localConfig);
 
-          logger.warn(
-            'ScalingConfig: Reserved resource pool instances and elastic instances cannot be directly switched; \ntrying to delete existing scalingConfig, then create a new scalingConfig...',
+        if (this.ScalingMode === 'sync' || this.ScalingMode === 'drain') {
+          await this.waitForScalingReady(qualifier, localConfig);
+        } else {
+          logger.info(
+            `Skip wait scalingConfig of ${this.functionName}/${qualifier} to instance up`,
           );
-
-          await this.removeScalingConfig(qualifier);
-
-          const maxRetries = 60;
-          const retryDelay = 2;
-
-          for (let i = 0; i < maxRetries; i++) {
-            try {
-              // eslint-disable-next-line no-await-in-loop
-              await this.fcSdk.putFunctionScalingConfig(this.functionName, qualifier, localConfig);
-              logger.info('Successfully created scalingConfig after retry');
-              return this.needDeploy;
-            } catch (err2) {
-              if (!isProvisionConfigError(err2)) {
-                throw err2; // Re-throw non-provision config errors
-              }
-
-              if (i < maxRetries - 1) {
-                logger.info(
-                  `Retry ${i + 1}/${maxRetries}: putFunctionScalingConfig failed, retrying...`,
-                );
-                // eslint-disable-next-line no-await-in-loop
-                await sleep(retryDelay);
-              }
-            }
-          }
-          throw new Error(`Failed to create scalingConfig after ${maxRetries} attempts`);
         }
-        await this.waitForScalingReady(qualifier, localConfig);
       } else if (_.isEmpty(remoteConfig)) {
         // 如果不需要部署，但是远端资源不存在，则尝试创建一下
         logger.debug(
@@ -99,6 +71,58 @@ export default class ScalingConfig extends Base {
     return this.needDeploy;
   }
 
+  async provisionConfigErrorRetry(command, qualifier, localConfig) {
+    logger.info(`Execute： ${command}`);
+    try {
+      if (command === 'ProvisionConfig') {
+        await this.before();
+        await this.fcSdk.putFunctionProvisionConfig(this.functionName, qualifier, localConfig);
+      } else {
+        await this.fcSdk.putFunctionScalingConfig(this.functionName, qualifier, localConfig);
+      }
+    } catch (err) {
+      if (!isProvisionConfigError(err)) {
+        throw err; // Re-throw non-provision config errors
+      }
+
+      logger.warn(
+        `${command}: Reserved resource pool instances and elastic instances cannot be directly switched; \ntrying to delete existing scalingConfig, then create a new scalingConfig...`,
+      );
+
+      await this.removeScalingConfig(qualifier);
+
+      const maxRetries = 60;
+      const retryDelay = 2;
+
+      for (let i = 0; i < maxRetries; i++) {
+        try {
+          if (command === 'ProvisionConfig') {
+            // eslint-disable-next-line no-await-in-loop
+            await this.fcSdk.putFunctionProvisionConfig(this.functionName, qualifier, localConfig);
+          } else {
+            // eslint-disable-next-line no-await-in-loop
+            await this.fcSdk.putFunctionScalingConfig(this.functionName, qualifier, localConfig);
+          }
+          logger.info(`Successfully created ${command} after retry`);
+          return;
+        } catch (err2) {
+          if (!isProvisionConfigError(err2)) {
+            throw err2; // Re-throw non-provision config errors
+          }
+
+          if (i < maxRetries - 1) {
+            logger.info(
+              `Retry ${i + 1}/${maxRetries}: putFunctionScalingConfig failed, retrying...`,
+            );
+            // eslint-disable-next-line no-await-in-loop
+            await sleep(retryDelay);
+          }
+        }
+      }
+      throw new Error(`Failed to create scalingConfig after ${maxRetries} attempts`);
+    }
+  }
+
   /**
    * 等待弹性配置实例就绪
    */
@@ -111,7 +135,16 @@ export default class ScalingConfig extends Base {
 
     // 如果没有最小实例数或最小实例数为0，则无需等待
     if (!minInstances || minInstances <= 0) {
-      return;
+      if (this.ScalingMode !== 'drain') {
+        return;
+      } else {
+        logger.info(`disableFunctionInvocation ${this.functionName} ...`);
+        await this.fcSdk.disableFunctionInvocation(this.functionName, true, 'Fast scale-to-zero');
+        await sleep(5);
+        logger.info(`enableFunctionInvocation ${this.functionName} ...`);
+        await this.fcSdk.enableFunctionInvocation(this.functionName);
+        return;
+      }
     }
 
     const maxRetries = 180;

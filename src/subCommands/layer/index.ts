@@ -9,7 +9,13 @@ import zip from '@serverless-devs/zip';
 import downloads from '@serverless-devs/downloads';
 import path from 'path';
 import fs from 'fs';
-import { promptForConfirmOrDetails, tableShow, calculateCRC64, getFileSize } from '../../utils';
+import {
+  promptForConfirmOrDetails,
+  tableShow,
+  calculateCRC64,
+  getFileSize,
+  isAppCenter,
+} from '../../utils';
 import chalk from 'chalk';
 
 const commandsList = Object.keys(commandsHelp.subCommands);
@@ -115,11 +121,12 @@ export default class Layer {
     checkRegion(this.region);
     this.yes = !!y;
     this.subCommand = subCommand;
+    const function_ai = isAppCenter() ? 'function_ai;' : '';
     this.fcSdk = new FC(this.region, inputs.credential, {
       endpoint: inputs.props.endpoint,
       userAgent: `${
         inputs.userAgent ||
-        `Component:fc3;Nodejs:${process.version};OS:${process.platform}-${process.arch}`
+        `${function_ai}Component:fc3;Nodejs:${process.version};OS:${process.platform}-${process.arch}`
       }command:layer`,
     });
 

@@ -6,6 +6,7 @@ import { IInputs } from '../../../interface';
 import logger from '../../../logger';
 import Base from './base';
 import { sleep } from '../../../utils';
+import ScalingConfig from './scaling_config';
 // import Logs from '../../logs';
 
 interface IOpts {
@@ -17,6 +18,7 @@ export default class ProvisionConfig extends Base {
   remote: any;
   ProvisionMode: string;
   readonly functionName: string;
+  scalingConfig: ScalingConfig;
 
   constructor(inputs: IInputs, opts: IOpts) {
     super(inputs, opts.yes);
@@ -28,6 +30,9 @@ export default class ProvisionConfig extends Base {
     this.ProvisionMode = _.get(this.local, 'mode', 'sync');
     _.unset(this.local, 'mode');
     logger.debug(`need deploy provisionConfig: ${JSON.stringify(provisionConfig)}`);
+    this.scalingConfig = new ScalingConfig(inputs, {
+      yes: opts.yes,
+    });
   }
 
   async before() {
@@ -46,7 +51,11 @@ export default class ProvisionConfig extends Base {
 
     if (!_.isEmpty(localConfig)) {
       if (this.needDeploy) {
-        await this.fcSdk.putFunctionProvisionConfig(this.functionName, qualifier, localConfig);
+        await this.scalingConfig.provisionConfigErrorRetry(
+          'ProvisionConfig',
+          qualifier,
+          localConfig,
+        );
 
         if (this.ProvisionMode === 'sync' || this.ProvisionMode === 'drain') {
           await this.waitForProvisionReady(qualifier, localConfig);

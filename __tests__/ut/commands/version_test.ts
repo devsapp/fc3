@@ -29,6 +29,7 @@ jest.mock('../../../src/logger', () => {
 
 jest.mock('../../../src/utils', () => ({
   promptForConfirmOrDetails: jest.fn(),
+  isAppCenter: jest.fn(),
 }));
 
 describe('Version', () => {

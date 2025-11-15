@@ -18,7 +18,7 @@ import {
   fcDockerVersion,
   fcDockerVersionRegistry,
 } from '../../../default/image';
-import { runCommand, sleep } from '../../../utils';
+import { isAppCenter, runCommand, sleep } from '../../../utils';
 import { execSync } from 'child_process';
 import chalk from 'chalk';
 import * as httpx from 'httpx';
@@ -45,11 +45,12 @@ export class BaseLocal {
     this._dockerName = uuidV4();
     const region: IRegion = _.get(inputs, 'props.region');
     checkRegion(region);
+    const function_ai = isAppCenter() ? 'function_ai;' : '';
     this.fcSdk = new FC(region, inputs.credential, {
       endpoint: inputs.props.endpoint,
       userAgent: `${
         inputs.userAgent ||
-        `Component:fc3;Nodejs:${process.version};OS:${process.platform}-${process.arch}`
+        `${function_ai}Component:fc3;Nodejs:${process.version};OS:${process.platform}-${process.arch}`
       }command:local`,
     });
 

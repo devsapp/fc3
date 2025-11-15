@@ -112,11 +112,12 @@ export class DefaultBuilder extends Builder {
     logger.debug(`${region}`);
     checkRegion(region);
     const credential = (await this.inputs.getCredential()) as ICredentials;
+    const function_ai = isAppCenter() ? 'function_ai;' : '';
     const fcSdk = new FC(region, credential, {
       endpoint: this.getProps().endpoint,
       userAgent: `${
         this.inputs.userAgent ||
-        `Component:fc3;Nodejs:${process.version};OS:${process.platform}-${process.arch}`
+        `${function_ai}Component:fc3;Nodejs:${process.version};OS:${process.platform}-${process.arch}`
       }command:build-publish-layer`,
     });
     let buildDir: string = this.getBuildDir();

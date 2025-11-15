@@ -5,7 +5,7 @@ import { IInputs, IRegion, checkRegion } from '../../interface';
 import logger from '../../logger';
 import _ from 'lodash';
 import FC from '../../resources/fc';
-import { promptForConfirmOrDetails } from '../../utils';
+import { isAppCenter, promptForConfirmOrDetails } from '../../utils';
 import { IScalingConfig } from '../../interface/scaling_config';
 
 const commandsList = Object.keys(commandsHelp.subCommands);
@@ -76,11 +76,12 @@ export default class Scaling {
     this.scheduledPolicies = scheduledPolicies;
     this.residentPoolId = residentPoolId;
 
+    const function_ai = isAppCenter() ? 'function_ai;' : '';
     this.fcSdk = new FC(this.region, inputs.credential, {
       endpoint: inputs.props.endpoint,
       userAgent: `${
         inputs.userAgent ||
-        `Component:fc3;Nodejs:${process.version};OS:${process.platform}-${process.arch}`
+        `${function_ai}Component:fc3;Nodejs:${process.version};OS:${process.platform}-${process.arch}`
       }command:scaling`,
     });
   }
