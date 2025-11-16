@@ -19,6 +19,7 @@ jest.mock('../../../../src/resources/fc', () => {
 // Mock utils
 jest.mock('../../../../src/utils', () => ({
   promptForConfirmOrDetails: jest.fn(),
+  isAppCenter: jest.fn(),
 }));
 
 describe('Scaling', () => {

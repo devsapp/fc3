@@ -9,6 +9,7 @@ import { parseArgv } from '@serverless-devs/utils';
 import path from 'path';
 import logger from '../../logger';
 import { TriggerType } from '../../interface/base';
+import { isAppCenter } from '../../utils';
 
 export default class Sync {
   private region: IRegion;
@@ -59,11 +60,12 @@ export default class Sync {
     if (!this.functionName) {
       throw new Error('Function name not specified, please specify --function-name');
     }
+    const function_ai = isAppCenter() ? 'function_ai;' : '';
     this.fcSdk = new FC(this.region, inputs.credential, {
       endpoint: inputs.props.endpoint,
       userAgent: `${
         inputs.userAgent ||
-        `Component:fc3;Nodejs:${process.version};OS:${process.platform}-${process.arch}`
+        `${function_ai}Component:fc3;Nodejs:${process.version};OS:${process.platform}-${process.arch}`
       }command:sync`,
     });
   }

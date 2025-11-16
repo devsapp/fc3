@@ -14,7 +14,7 @@ import logger from '../../logger';
 import { FC_TRIGGER_DEFAULT_CONFIG } from '../../default/config';
 import loadComponent from '@serverless-devs/load-component';
 import { IInputs as _IInputs } from '@serverless-devs/component-interface';
-import { transformCustomDomainProps } from '../../utils';
+import { isAppCenter, transformCustomDomainProps } from '../../utils';
 import { FC3_DOMAIN_COMPONENT_NAME } from '../../constant';
 
 export default class Plan {
@@ -43,11 +43,12 @@ export default class Plan {
     this.triggers = _.get(inputs, 'props.triggers', []).map((item) =>
       _.defaults(item, FC_TRIGGER_DEFAULT_CONFIG),
     );
-    this.fcSdk = new FC(inputs.props.region, inputs.credential, {
+    const function_ai = isAppCenter() ? 'function_ai;' : '';
+    this.fcSdk = new FC(this.region, inputs.credential, {
       endpoint: inputs.props.endpoint,
       userAgent: `${
         inputs.userAgent ||
-        `Component:fc3;Nodejs:${process.version};OS:${process.platform}-${process.arch}`
+        `${function_ai}Component:fc3;Nodejs:${process.version};OS:${process.platform}-${process.arch}`
       }command:plan`,
     });
 
@@ -254,6 +255,7 @@ export default class Plan {
     }
     // eslint-disable-next-line prefer-const
     let local = _.cloneDeep(_.get(this.inputs.props, 'scalingConfig', {})) as any;
+    _.unset(local, 'mode');
     return diffConvertPlanYaml(remote, local, { deep: 1, complete: true });
   }
 

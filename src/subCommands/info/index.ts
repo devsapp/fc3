@@ -6,7 +6,7 @@ import FC, { GetApiType } from '../../resources/fc';
 import logger from '../../logger';
 import { parseArgv } from '@serverless-devs/utils';
 import loadComponent from '@serverless-devs/load-component';
-import { transformCustomDomainProps } from '../../utils';
+import { isAppCenter, transformCustomDomainProps } from '../../utils';
 import { FC3_DOMAIN_COMPONENT_NAME } from '../../constant';
 
 export default class Info {
@@ -38,11 +38,12 @@ export default class Info {
       throw new Error('functionName not specified, please specify --function-name');
     }
     this.triggersName = _.get(inputs, 'props.triggers', []).map((item) => item.triggerName);
+    const function_ai = isAppCenter() ? 'function_ai;' : '';
     this.fcSdk = new FC(this.region, this.inputs.credential as ICredentials, {
       endpoint: inputs.props.endpoint,
       userAgent: `${
         inputs.userAgent ||
-        `Component:fc3;Nodejs:${process.version};OS:${process.platform}-${process.arch}`
+        `${function_ai}Component:fc3;Nodejs:${process.version};OS:${process.platform}-${process.arch}`
       }command:info`,
     });
     this.getApiType = GetApiType.simple;

@@ -122,6 +122,7 @@ jest.mock('../../../src/utils', () => ({
   tableShow: jest.fn(),
   calculateCRC64: jest.fn(),
   getFileSize: jest.fn(),
+  isAppCenter: jest.fn(),
 }));
 
 describe('Layer', () => {
@@ -264,6 +265,7 @@ describe('Layer', () => {
         _: ['list'],
         region: 'cn-hangzhou',
       });
+      (require('../../../src/utils').isAppCenter as jest.Mock).mockReturnValue(false);
     });
 
     it('should list layers successfully', async () => {
@@ -394,6 +396,7 @@ describe('Layer', () => {
         'layer-name': 'test-layer',
         'version-id': '1',
       });
+      (require('../../../src/utils').isAppCenter as jest.Mock).mockReturnValue(false);
     });
 
     it('should get layer info successfully', async () => {
@@ -457,6 +460,7 @@ describe('Layer', () => {
         region: 'cn-hangzhou',
         'layer-name': 'test-layer',
       });
+      (require('../../../src/utils').isAppCenter as jest.Mock).mockReturnValue(false);
     });
 
     it('should list layer versions successfully', async () => {
@@ -508,6 +512,7 @@ describe('Layer', () => {
         code: './code',
         'compatible-runtime': 'nodejs12,nodejs14',
       });
+      (require('../../../src/utils').isAppCenter as jest.Mock).mockReturnValue(false);
     });
 
     it('should publish layer successfully', async () => {
@@ -650,6 +655,7 @@ describe('Layer', () => {
         'layer-name': 'test-layer',
         'assume-yes': true,
       });
+      (require('../../../src/utils').isAppCenter as jest.Mock).mockReturnValue(false);
     });
 
     it('should remove all layer versions successfully', async () => {
@@ -728,6 +734,7 @@ describe('Layer', () => {
         'layer-name': 'test-layer',
         'version-id': '1',
       });
+      (require('../../../src/utils').isAppCenter as jest.Mock).mockReturnValue(false);
     });
 
     it('should download layer successfully', async () => {
@@ -795,6 +802,7 @@ describe('Layer', () => {
         'layer-name': 'test-layer',
         public: true,
       });
+      (require('../../../src/utils').isAppCenter as jest.Mock).mockReturnValue(false);
     });
 
     it('should set layer acl successfully', async () => {
