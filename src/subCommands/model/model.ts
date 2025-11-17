@@ -137,5 +137,30 @@ export class ModelService {
     logger.debug('fileManagerRmRequest', JSON.stringify(fileManagerRmRequest, null, 2));
     const res = await devClient.fileManagerRm(fileManagerRmRequest);
     logger.debug('removeModel', JSON.stringify(res, null, 2));
+    let taskID;
+    if (res?.body.data?.taskID) {
+      taskID = res.body.data.taskID;
+    }
+    const shouldContinue = true;
+    while (shouldContinue) {
+      // eslint-disable-next-line no-await-in-loop
+      const getFileManagerTask = await devClient.getFileManagerTask(taskID);
+      logger.debug('getFileManagerTask', JSON.stringify(getFileManagerTask, null, 2));
+      const modelStatus = getFileManagerTask?.body?.data;
+      const removeFinished = modelStatus?.success && modelStatus?.finished;
+      if (removeFinished) {
+        const deleteFileManagerTasks = new $Dev20230714.RemoveFileManagerTasksRequest({
+          name,
+        });
+        // eslint-disable-next-line no-await-in-loop
+        const deleteTasks = await devClient.removeFileManagerTasks(deleteFileManagerTasks);
+        logger.debug('deleteTasks', JSON.stringify(deleteTasks, null, 2));
+        return;
+      } else if (modelStatus?.errorMessage) {
+        const errorMsg = `[Download-model] model: ${modelStatus.errorMessage} ,requestId: ${getFileManagerTask.body.requestId}`;
+        logger.error(errorMsg);
+        throw new Error(errorMsg);
+      }
+    }
   }
 }
