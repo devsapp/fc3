@@ -136,7 +136,7 @@ describe('Model', () => {
 
       expect(model.subCommand).toBe('download');
       expect(model.local).toEqual(mockInputs.props);
-      expect(model.name).toBe('123456789$test-project$test-function$uuid-test');
+      expect(model.name).toBe('test-project');
     });
 
     it('should throw error for invalid subCommand', () => {
@@ -371,7 +371,6 @@ describe('Model', () => {
         functionName: 'test-function',
         storage: undefined,
         role: 'acs:ram::123456789:role/aliyundevsdefaultrole',
-        syncStrategy: 'incremental_once',
       });
     });
   });

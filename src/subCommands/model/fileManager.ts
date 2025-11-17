@@ -203,8 +203,37 @@ export class ArtModelService {
         }),
       );
 
-      await Promise.all(removePromises);
-      logger.info(`[Remove-model] Completed removal process for ${files.length} files.`);
+      const removeResults = await Promise.all(removePromises);
+
+      // 统计成功和失败的数量
+      const successfulRemovals = removeResults.filter((result) => result.success);
+      const failedRemovals = removeResults.filter((result) => !result.success);
+
+      logger.info(
+        `[Remove-model] Removal completed. Success: ${successfulRemovals.length}, Failed: ${failedRemovals.length}`,
+      );
+
+      // 只有当所有文件都成功删除时，才执行清理任务
+      if (failedRemovals.length === 0) {
+        logger.info('[Remove-model] All files removed successfully. Cleaning up task records.');
+
+        const deleteFileManagerTasks = new $Dev20230714.RemoveFileManagerTasksRequest({
+          name,
+        });
+        const deleteTasks = await devClient.removeFileManagerTasks(deleteFileManagerTasks);
+        logger.debug('deleteTasks', JSON.stringify(deleteTasks, null, 2));
+        logger.info(`[Remove-model] Completed removal process for ${files.length} files.`);
+      } else {
+        // 如果有任何失败，记录详细信息但不执行清理
+        logger.error('[Remove-model] Some files failed to remove:');
+        failedRemovals.forEach((result) => {
+          logger.error(`  File: ${result.fileName}, Error: ${result.error}`);
+        });
+
+        throw new Error(
+          `[Remove-model] ${failedRemovals.length} out of ${files.length} files failed to remove.`,
+        );
+      }
     } catch (error) {
       throw new Error(`[Remove-model] Removal process failed: ${error.message}`);
     }
@@ -265,16 +294,59 @@ export class ArtModelService {
         JSON.stringify(res, null, 2),
       );
 
-      if (!res.body.success) {
-        logger.warn(
-          `[Remove-model] Failed to remove file ${file.source.path}: ${JSON.stringify(res.body)}`,
-        );
+      let taskID;
+      if (res.body.data?.taskID) {
+        taskID = res.body.data.taskID;
       } else {
-        logger.info(`[Remove-model] Successfully removed file ${file.source.path}`);
+        return {
+          fileName: file.source.path,
+          success: false,
+          error: 'No task ID returned from removal request',
+        };
+      }
+      const shouldContinue = true;
+      while (shouldContinue) {
+        // eslint-disable-next-line no-await-in-loop
+        const getFileManagerTask = await devClient.getFileManagerTask(taskID);
+        logger.debug('getFileManagerTask', JSON.stringify(getFileManagerTask, null, 2));
+        const modelStatus = getFileManagerTask?.body?.data;
+        const removeFinished = modelStatus.success && modelStatus.finished;
+        if (removeFinished) {
+          logger.info(`[Remove-model] Successfully removed file ${file.source.path}`);
+          return {
+            fileName: file.source.path,
+            success: true,
+          };
+        } else if (modelStatus.errorMessage) {
+          if (modelStatus.errorMessage.includes('NoSuchFileError')) {
+            logger.debug(`[Remove-model] ${file.source.path} not exist`);
+            return {
+              fileName: file.source.path,
+              success: true,
+            };
+          }
+          const errorMsg = `[Remove-model] model: ${modelStatus.errorMessage}, requestId: ${getFileManagerTask.body.requestId}`;
+          logger.error(errorMsg);
+          return {
+            fileName: file.source.path,
+            success: false,
+            error: errorMsg,
+          };
+        }
+
+        // 添加短暂延迟避免过于频繁的轮询
+        // eslint-disable-next-line no-await-in-loop
+        await new Promise((resolve) => setTimeout(resolve, 1000));
       }
     } catch (error) {
-      logger.error(`[Remove-model] Error removing file ${file.source.path}: ${error.message}`);
+      const fileName = file.source?.path || 'unknown';
+      logger.error(`[Remove-model] Error removing file ${fileName}: ${error.message}`);
       logger.error(`[Remove-model] Error details:`, error.stack || error);
+      return {
+        fileName,
+        success: false,
+        error: error.message,
+      };
     }
   }
 

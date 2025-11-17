@@ -11,7 +11,6 @@ import { parseArgv } from '@serverless-devs/utils';
 import assert from 'assert';
 import OSS from '../../resources/oss';
 import { OSSMountPoint, VPCConfig } from '@alicloud/fc20230330';
-import getUuid from 'uuid-by-string';
 import { MODEL_DOWNLOAD_TIMEOUT } from './constants';
 
 const commandsList = Object.keys(commandsHelp.subCommands);
@@ -21,7 +20,6 @@ export class Model {
   createResource: Record<string, any> = {};
   logger = logger;
   local: IFunction;
-  projectName: string;
   envName: string;
   modelService: any;
   modelArtService: any;
@@ -47,12 +45,8 @@ export class Model {
     }
     this.subCommand = subCommand;
     this.local = _.cloneDeep(inputs.props);
-    const {
-      credential: { AccountID: accountID },
-      props: { functionName },
-    } = this.inputs;
-    const projectName = getEnvVariable('ALIYUN_DEVS_REMOTE_PROJECT_NAME');
-    this.name = `${accountID}$${projectName}$${functionName}$${getUuid(String(accountID))}`;
+    const { functionName } = this.inputs.props;
+    this.name = getEnvVariable('ALIYUN_DEVS_REMOTE_PROJECT_NAME') || functionName;
   }
 
   async download() {
@@ -272,7 +266,7 @@ mountPoints:
         reversion: modelConfig.version,
         files: modelConfig.files,
         conflictResolution: modelConfig?.downloadStrategy?.conflictResolution || 'overwrite',
-        mode: modelConfig?.downloadStrategy?.mode || 'once',
+        mode: process.env.MODEL_DOWNLOAD_STRATEGY || modelConfig?.downloadStrategy?.mode || 'once',
         timeout:
           (modelConfig?.downloadStrategy?.timeout &&
             modelConfig?.downloadStrategy?.timeout * 1000) ||
@@ -283,7 +277,6 @@ mountPoints:
       storage: modelConfig.storage,
       // 使用固定的默认角色ARN，确保权限一致性
       role: `acs:ram::${accountID}:role/aliyundevsdefaultrole`,
-      syncStrategy: process.env.MODEL_DOWNLOAD_STRATEGY || 'incremental_once',
     };
 
     if (typeof ossMountConfig === 'object' && ossMountConfig?.mountPoints) {
