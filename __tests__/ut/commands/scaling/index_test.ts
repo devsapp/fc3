@@ -20,6 +20,12 @@ jest.mock('../../../../src/resources/fc', () => {
 jest.mock('../../../../src/utils', () => ({
   promptForConfirmOrDetails: jest.fn(),
   isAppCenter: jest.fn(),
+  getUserAgent: jest.fn((userAgent, command) => {
+    return (
+      userAgent ||
+      `Component:fc3;Nodejs:${process.version};OS:${process.platform}-${process.arch};command:${command}`
+    );
+  }),
 }));
 
 describe('Scaling', () => {

@@ -14,7 +14,7 @@ import logger from '../../logger';
 import { FC_TRIGGER_DEFAULT_CONFIG } from '../../default/config';
 import loadComponent from '@serverless-devs/load-component';
 import { IInputs as _IInputs } from '@serverless-devs/component-interface';
-import { isAppCenter, transformCustomDomainProps } from '../../utils';
+import { getUserAgent, transformCustomDomainProps } from '../../utils';
 import { FC3_DOMAIN_COMPONENT_NAME } from '../../constant';
 
 export default class Plan {
@@ -43,13 +43,10 @@ export default class Plan {
     this.triggers = _.get(inputs, 'props.triggers', []).map((item) =>
       _.defaults(item, FC_TRIGGER_DEFAULT_CONFIG),
     );
-    const function_ai = isAppCenter() ? 'function_ai;' : '';
+    const userAgent = getUserAgent(inputs.userAgent, 'plan');
     this.fcSdk = new FC(this.region, inputs.credential, {
       endpoint: inputs.props.endpoint,
-      userAgent: `${
-        inputs.userAgent ||
-        `${function_ai}Component:fc3;Nodejs:${process.version};OS:${process.platform}-${process.arch}`
-      }command:plan`,
+      userAgent,
     });
 
     this.triggers = this.triggers.map((item) => {

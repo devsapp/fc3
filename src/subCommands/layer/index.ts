@@ -14,7 +14,7 @@ import {
   tableShow,
   calculateCRC64,
   getFileSize,
-  isAppCenter,
+  getUserAgent,
 } from '../../utils';
 import chalk from 'chalk';
 
@@ -121,13 +121,10 @@ export default class Layer {
     checkRegion(this.region);
     this.yes = !!y;
     this.subCommand = subCommand;
-    const function_ai = isAppCenter() ? 'function_ai;' : '';
+    const userAgent = getUserAgent(inputs.userAgent, 'layer');
     this.fcSdk = new FC(this.region, inputs.credential, {
       endpoint: inputs.props.endpoint,
-      userAgent: `${
-        inputs.userAgent ||
-        `${function_ai}Component:fc3;Nodejs:${process.version};OS:${process.platform}-${process.arch}`
-      }command:layer`,
+      userAgent,
     });
 
     this.opts = opts;

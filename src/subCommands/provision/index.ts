@@ -5,7 +5,7 @@ import { IInputs, IRegion, checkRegion } from '../../interface';
 import logger from '../../logger';
 import _ from 'lodash';
 import FC from '../../resources/fc';
-import { isAppCenter, promptForConfirmOrDetails, sleep } from '../../utils';
+import { getUserAgent, promptForConfirmOrDetails, sleep } from '../../utils';
 import { IProvision } from '../../interface/cli-config/provision';
 
 const commandsList = Object.keys(commandsHelp.subCommands);
@@ -84,13 +84,10 @@ export default class Provision {
     this.target = target ? Number(target) : undefined;
     this.defaultTarget = defaultTarget ? Number(defaultTarget) : undefined;
 
-    const function_ai = isAppCenter() ? 'function_ai;' : '';
+    const userAgent = getUserAgent(inputs.userAgent, 'provision');
     this.fcSdk = new FC(this.region, inputs.credential, {
       endpoint: inputs.props.endpoint,
-      userAgent: `${
-        inputs.userAgent ||
-        `${function_ai}Component:fc3;Nodejs:${process.version};OS:${process.platform}-${process.arch}`
-      }command:provision`,
+      userAgent,
     });
   }
 

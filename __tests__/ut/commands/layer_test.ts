@@ -123,6 +123,12 @@ jest.mock('../../../src/utils', () => ({
   calculateCRC64: jest.fn(),
   getFileSize: jest.fn(),
   isAppCenter: jest.fn(),
+  getUserAgent: jest.fn((userAgent, command) => {
+    return (
+      userAgent ||
+      `Component:fc3;Nodejs:${process.version};OS:${process.platform}-${process.arch};command:${command}`
+    );
+  }),
 }));
 
 describe('Layer', () => {

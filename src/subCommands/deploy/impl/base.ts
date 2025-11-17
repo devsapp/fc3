@@ -1,7 +1,7 @@
 import { ICredentials } from '@serverless-devs/component-interface';
 import { IInputs } from '../../../interface';
 import FC from '../../../resources/fc';
-import { isAppCenter } from '../../../utils';
+import { getUserAgent } from '../../../utils';
 
 export default abstract class Base {
   readonly fcSdk: FC;
@@ -9,13 +9,10 @@ export default abstract class Base {
 
   constructor(readonly inputs: IInputs, needDeploy: boolean | undefined) {
     this.needDeploy = needDeploy;
-    const function_ai = isAppCenter() ? 'function_ai;' : '';
+    const userAgent = getUserAgent(inputs.userAgent, 'deploy');
     this.fcSdk = new FC(inputs.props.region, inputs.credential as ICredentials, {
       endpoint: inputs.props.endpoint,
-      userAgent: `${
-        inputs.userAgent ||
-        `${function_ai}Component:fc3;Nodejs:${process.version};OS:${process.platform}-${process.arch}`
-      }command:deploy`,
+      userAgent,
     });
   }
 

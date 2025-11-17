@@ -9,7 +9,7 @@ import _ from 'lodash';
 import { TIME_ERROR_TIP, DATE_TIME_REG } from './constant';
 import FC, { GetApiType } from '../../resources/fc';
 import { ICredentials } from '@serverless-devs/component-interface';
-import { isAppCenter } from '../../utils';
+import { getUserAgent } from '../../utils';
 
 interface IGetLogs {
   projectName: string;
@@ -96,13 +96,10 @@ export default class Logs {
     if (_.isNil(this.region)) {
       throw new Error('region not specified, please specify --region');
     }
-    const function_ai = isAppCenter() ? 'function_ai;' : '';
+    const userAgent = getUserAgent(inputs.userAgent, 'logs');
     this.fcSdk = new FC(this.region, this.inputs.credential as ICredentials, {
       endpoint: inputs.props.endpoint,
-      userAgent: `${
-        inputs.userAgent ||
-        `${function_ai}Component:fc3;Nodejs:${process.version};OS:${process.platform}-${process.arch}`
-      }command:logs`,
+      userAgent,
     });
     this.getApiType = GetApiType.simple;
 

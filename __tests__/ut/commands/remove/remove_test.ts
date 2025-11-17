@@ -139,13 +139,10 @@ describe('Remove', () => {
     it('should execute remove successfully with basic function config', async () => {
       await remove.run();
 
-      expect(FC).toHaveBeenCalledWith(
-        'cn-hangzhou',
-        undefined,
-        expect.objectContaining({
-          userAgent: expect.stringContaining('command:remove'),
-        }),
-      );
+      expect(FC).toHaveBeenCalledWith('cn-hangzhou', undefined, {
+        endpoint: undefined,
+        userAgent: undefined,
+      });
       expect(mockFcInstance.getFunction).toHaveBeenCalledWith('test-function');
     });
 

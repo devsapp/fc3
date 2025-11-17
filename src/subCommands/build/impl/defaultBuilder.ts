@@ -2,7 +2,7 @@ import _ from 'lodash';
 import * as path from 'path';
 
 import { Builder } from './baseBuilder';
-import { runCommand, isAppCenter, isYunXiao } from '../../../utils';
+import { runCommand, isAppCenter, isYunXiao, getUserAgent } from '../../../utils';
 import logger from '../../../logger';
 import { buildPythonLocalPath } from '../../../default/image';
 import { parseArgv } from '@serverless-devs/utils';
@@ -112,13 +112,10 @@ export class DefaultBuilder extends Builder {
     logger.debug(`${region}`);
     checkRegion(region);
     const credential = (await this.inputs.getCredential()) as ICredentials;
-    const function_ai = isAppCenter() ? 'function_ai;' : '';
+    const userAgent = getUserAgent(this.inputs.userAgent, 'build-publish-layer');
     const fcSdk = new FC(region, credential, {
       endpoint: this.getProps().endpoint,
-      userAgent: `${
-        this.inputs.userAgent ||
-        `${function_ai}Component:fc3;Nodejs:${process.version};OS:${process.platform}-${process.arch}`
-      }command:build-publish-layer`,
+      userAgent,
     });
     let buildDir: string = this.getBuildDir();
     buildDir = path.isAbsolute(buildDir) ? buildDir : path.join(this.baseDir, buildDir);

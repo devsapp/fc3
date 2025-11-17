@@ -4,7 +4,7 @@ import _ from 'lodash';
 import logger from '../../logger';
 import FC from '../../resources/fc';
 import commandsHelp from '../../commands-help/version';
-import { isAppCenter, promptForConfirmOrDetails } from '../../utils';
+import { getUserAgent, promptForConfirmOrDetails } from '../../utils';
 
 const commandsList = Object.keys(commandsHelp.subCommands);
 
@@ -52,13 +52,10 @@ export default class Version {
     if (!this.functionName) {
       throw new Error('Function name not specified, please specify --function-name');
     }
-    const function_ai = isAppCenter() ? 'function_ai;' : '';
+    const userAgent = getUserAgent(inputs.userAgent, 'version');
     this.fcSdk = new FC(this.region, inputs.credential, {
       endpoint: inputs.props.endpoint,
-      userAgent: `${
-        inputs.userAgent ||
-        `${function_ai}Component:fc3;Nodejs:${process.version};OS:${process.platform}-${process.arch}`
-      }command:version`,
+      userAgent,
     });
   }
 
