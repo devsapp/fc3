@@ -72,7 +72,7 @@ export default class ScalingConfig extends Base {
   }
 
   async provisionConfigErrorRetry(command, qualifier, localConfig) {
-    logger.info(`Execute： ${command}`);
+    logger.info(`provisionConfigErrorRetry Execute： ${command}`);
     try {
       if (command === 'ProvisionConfig') {
         await this.before();
