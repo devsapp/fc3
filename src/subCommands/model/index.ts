@@ -133,7 +133,9 @@ export class Model {
 
     const { nasConfig, vpcConfig, ossMountConfig } = this.local;
     logger.info(
-      `[Download-model] nasConfig: ${nasConfig} vpcConfig: ${vpcConfig} ossMountConfig: ${ossMountConfig}`,
+      `[Download-model] nasConfig: ${JSON.stringify(nasConfig)} vpcConfig: ${JSON.stringify(
+        vpcConfig,
+      )} ossMountConfig: ${JSON.stringify(ossMountConfig)}`,
     );
 
     return this._buildParams(
