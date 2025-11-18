@@ -4,7 +4,7 @@ import { IInputs, IRegion, checkRegion } from '../../interface';
 import logger from '../../logger';
 import _ from 'lodash';
 import FC from '../../resources/fc';
-import { promptForConfirmOrDetails } from '../../utils';
+import { getUserAgent, promptForConfirmOrDetails } from '../../utils';
 
 const commandsList = Object.keys(commandsHelp.subCommands);
 
@@ -53,12 +53,10 @@ export default class Concurrency {
     this.yes = !!yes;
     this.subCommand = subCommand;
 
+    const userAgent = getUserAgent(inputs.userAgent, 'concurrency');
     this.fcSdk = new FC(this.region, inputs.credential, {
       endpoint: inputs.props.endpoint,
-      userAgent: `${
-        inputs.userAgent ||
-        `serverless-devs;Nodejs:${process.version};OS:${process.platform}-${process.arch}`
-      }command:concurrency`,
+      userAgent,
     });
   }
 

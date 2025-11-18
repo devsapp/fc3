@@ -210,3 +210,11 @@ const PROVISION_ERROR_CODES = [
 export function isProvisionConfigError(error) {
   return error && error.code && PROVISION_ERROR_CODES.includes(error.code);
 }
+
+export function getUserAgent(userAgent: string, command: string) {
+  const function_ai = isAppCenter() ? 'function_ai;' : '';
+  if (userAgent) {
+    return `${function_ai}${userAgent}`;
+  }
+  return `${function_ai}Component:fc3;Nodejs:${process.version};OS:${process.platform}-${process.arch}command:${command}`;
+}

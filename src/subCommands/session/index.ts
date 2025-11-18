@@ -4,7 +4,7 @@ import { IInputs, IRegion, checkRegion } from '../../interface';
 import logger from '../../logger';
 import _ from 'lodash';
 import FC from '../../resources/fc';
-import { isAppCenter, promptForConfirmOrDetails } from '../../utils';
+import { getUserAgent, promptForConfirmOrDetails } from '../../utils';
 
 const commandsList = Object.keys(commandsHelp.subCommands);
 
@@ -58,13 +58,10 @@ export default class Session {
 
     this.subCommand = subCommand;
     this.yes = !!yes;
-    const function_ai = isAppCenter() ? 'function_ai;' : '';
+    const userAgent = getUserAgent(inputs.userAgent, `session`);
     this.fcSdk = new FC(this.region, this.inputs.credential, {
       endpoint: inputs.props.endpoint,
-      userAgent: `${
-        inputs.userAgent ||
-        `${function_ai}Component:fc3;Nodejs:${process.version};OS:${process.platform}-${process.arch}`
-      }command:session`,
+      userAgent,
     });
 
     this.opts = opts;

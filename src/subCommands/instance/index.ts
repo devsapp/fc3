@@ -4,7 +4,7 @@ import { IInputs, IRegion, checkRegion } from '../../interface';
 import logger from '../../logger';
 import _ from 'lodash';
 import FC from '../../resources/fc';
-import { isAppCenter } from '../../utils';
+import { getUserAgent } from '../../utils';
 
 const commandsList = Object.keys(commandsHelp.subCommands);
 
@@ -36,13 +36,10 @@ export default class Instance {
     logger.debug(`region: ${this.region}`);
 
     this.subCommand = subCommand;
-    const function_ai = isAppCenter() ? 'function_ai;' : '';
+    const userAgent = getUserAgent(inputs.userAgent, 'instance');
     this.fcSdk = new FC(this.region, inputs.credential, {
       endpoint: inputs.props.endpoint,
-      userAgent: `${
-        inputs.userAgent ||
-        `${function_ai}Component:fc3;Nodejs:${process.version};OS:${process.platform}-${process.arch}`
-      }command:instance`,
+      userAgent,
     });
 
     this.opts = opts;

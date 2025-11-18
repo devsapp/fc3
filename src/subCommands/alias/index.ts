@@ -4,7 +4,7 @@ import _ from 'lodash';
 import logger from '../../logger';
 import FC from '../../resources/fc';
 import commandsHelp from '../../commands-help/alias';
-import { isAppCenter, promptForConfirmOrDetails, tableShow } from '../../utils';
+import { getUserAgent, promptForConfirmOrDetails, tableShow } from '../../utils';
 
 const commandsList = Object.keys(commandsHelp.subCommands);
 
@@ -70,13 +70,10 @@ export default class Alias {
     this.versionId = versionId;
     this.additionalVersionWeight = additionalVersionWeight;
 
-    const function_ai = isAppCenter() ? 'function_ai;' : '';
+    const userAgent = getUserAgent(inputs.userAgent, 'alias');
     this.fcSdk = new FC(this.region, inputs.credential, {
       endpoint: inputs.props.endpoint,
-      userAgent: `${
-        inputs.userAgent ||
-        `${function_ai}Component:fc3;Nodejs:${process.version};OS:${process.platform}-${process.arch}`
-      }command:alias`,
+      userAgent,
     });
   }
 
