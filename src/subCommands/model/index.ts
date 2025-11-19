@@ -163,7 +163,9 @@ export class Model {
     }
     logger.info(`ossAuto code to ${ossEndpoint}`);
     const oss = new OSS(region, credential as ICredentials, ossEndpoint);
-    const { ossBucket, readOnly, mountDir, bucketPath } = await oss.deploy();
+    const { ossBucket, readOnly, mountDir, bucketPath } = await oss.deploy(
+      this.inputs.props.ossMountConfig as string,
+    );
     logger.write(
       yellow(`Created oss resource succeeded, please replace ossMountConfig: auto in yaml with:
 ossMountConfig:

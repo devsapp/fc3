@@ -53,91 +53,92 @@ def deploy_model(model_id: str, region: str = "cn-hangzhou", storage: str = "nas
     Returns:
         tuple: (部署的URL, 配置文件路径)
     """
-    # 生成函数名称
-    # 加个随机数
-    function_name = f"test-{simple_hash(model_id)}-{secrets.token_hex(4)}"
-
-    # 准备请求数据
-    deploy_data = {
-        "functionName": function_name,
-        "region": region,
-        "authType": "bearer",
-        "tokenData": token,
-    }
-
-    # 打印生成的token
-    print(f"生成的随机token: {token}")
-
-    # URL编码模型ID
-    encoded_model_id = urllib.parse.quote(model_id, safe="")
-
-    # 调用部署接口
-    model_registry_url = os.getenv("MODEL_REGISTRY_URL", "model-registry.devsapp.cn")
-    deploy_url = (
-        f"http://{model_registry_url}/api/v1/models/{encoded_model_id}/deploy-info"
-    )
-    print(f"deploy url: {deploy_url}")
-    print(f"正在部署模型: {model_id}")
-    print(f"请求URL: {deploy_url}")
-    print(f"请求数据: {json.dumps(deploy_data, indent=2)}")
-
-    response = requests.post(
-        deploy_url,
-        headers={"accept": "application/json", "Content-Type": "application/json"},
-        data=json.dumps(deploy_data),
-    )
-
-    if response.status_code != 200:
-        raise Exception(f"部署请求失败: {response.status_code} - {response.text}")
-
-    result = response.json()
-    print(f"部署响应: {json.dumps(result, indent=2)}")
-
-    # 检查响应是否成功
-    if not result.get("success", False):
-        raise Exception(f"部署失败: {result.get('error', 'Unknown error')}")
-
-    # 提取部署信息
-    deploy_info = result.get("data", {})
-
-    # 使用当前文件夹下的s.yaml内容作为基础配置
-    with open("s.yaml", "r", encoding="utf-8") as f:
-        s_yaml = yaml.safe_load(f)
-
-    # 更新resources中的props
-    s_yaml["resources"]["test_func"]["props"] = deploy_info
-
-    # 下载到 oss
-    if storage == "oss":
-        s_yaml["resources"]["test_func"]["props"].pop("nasConfig", None)
-        s_yaml["resources"]["test_func"]["props"].pop("vpcConfig", None)
-        s_yaml["resources"]["test_func"]["props"]["ossMountConfig"] = "auto"
-        s_yaml["resources"]["test_func"]["props"][
-            "role"
-        ] = "acs:ram::${config('AccountID')}:role/aliyunfcdefaultrole"
-        s_yaml["resources"]["test_func"]["props"]["annotations"]["modelConfig"][
-            "storage"
-        ] = storage
-        # 修改 customContainerConfig.entrypoint 中的路径
-        custom_container_config = s_yaml["resources"]["test_func"]["props"].get("customContainerConfig", {})
-        if "entrypoint" in custom_container_config:
-            entrypoint = custom_container_config["entrypoint"]
-            if isinstance(entrypoint, list):
-                # 遍历 entrypoint 数组，替换包含 /mnt/ 的路径
-                for i, item in enumerate(entrypoint):
-                    if isinstance(item, str) and "/mnt/" in item and not item.startswith("vllm") and not item.isdigit() and item not in ["--port", "--served-model-name", "--trust-remote-code"]:
-                        entrypoint[i] = f"/mnt/serverless-{region}-d70a9a8a-c817-5ed1-a293-4be0908f0a5"
-            custom_container_config["entrypoint"] = entrypoint
-
-    # 保存配置到临时文件
     s_yaml_file = f"s.yaml"
-    with open(s_yaml_file, "w", encoding="utf-8") as f:
-        yaml.dump(s_yaml, f, default_flow_style=False, allow_unicode=True)
-
-    print(f"使用配置文件部署: {s_yaml_file}")
-
-    # 执行部署命令
+    
     try:
+        # 生成函数名称
+        # 加个随机数
+        function_name = f"test-{simple_hash(model_id)}-{secrets.token_hex(4)}"
+
+        # 准备请求数据
+        deploy_data = {
+            "functionName": function_name,
+            "region": region,
+            "authType": "bearer",
+            "tokenData": token,
+        }
+
+        # 打印生成的token
+        print(f"生成的随机token: {token}")
+
+        # URL编码模型ID
+        encoded_model_id = urllib.parse.quote(model_id, safe="")
+
+        # 调用部署接口
+        model_registry_url = os.getenv("MODEL_REGISTRY_URL", "model-registry.devsapp.cn")
+        deploy_url = (
+            f"http://{model_registry_url}/api/v1/models/{encoded_model_id}/deploy-info"
+        )
+        print(f"deploy url: {deploy_url}")
+        print(f"正在部署模型: {model_id}")
+        print(f"请求URL: {deploy_url}")
+        print(f"请求数据: {json.dumps(deploy_data, indent=2)}")
+
+        response = requests.post(
+            deploy_url,
+            headers={"accept": "application/json", "Content-Type": "application/json"},
+            data=json.dumps(deploy_data),
+        )
+
+        if response.status_code != 200:
+            raise Exception(f"部署请求失败: {response.status_code} - {response.text}")
+
+        result = response.json()
+        print(f"部署响应: {json.dumps(result, indent=2)}")
+
+        # 检查响应是否成功
+        if not result.get("success", False):
+            raise Exception(f"部署失败: {result.get('error', 'Unknown error')}")
+
+        # 提取部署信息
+        deploy_info = result.get("data", {})
+
+        # 使用当前文件夹下的s.yaml内容作为基础配置
+        with open("s.yaml", "r", encoding="utf-8") as f:
+            s_yaml = yaml.safe_load(f)
+
+        # 更新resources中的props
+        s_yaml["resources"]["test_func"]["props"] = deploy_info
+
+        # 下载到 oss
+        if storage == "oss":
+            s_yaml["resources"]["test_func"]["props"].pop("nasConfig", None)
+            s_yaml["resources"]["test_func"]["props"].pop("vpcConfig", None)
+            s_yaml["resources"]["test_func"]["props"]["ossMountConfig"] = f"auto|bucketPath={function_name}"
+            s_yaml["resources"]["test_func"]["props"][
+                "role"
+            ] = "acs:ram::${config('AccountID')}:role/aliyunfcdefaultrole"
+            s_yaml["resources"]["test_func"]["props"]["annotations"]["modelConfig"][
+                "storage"
+            ] = storage
+            # 修改 customContainerConfig.entrypoint 中的路径
+            custom_container_config = s_yaml["resources"]["test_func"]["props"].get("customContainerConfig", {})
+            if "entrypoint" in custom_container_config:
+                entrypoint = custom_container_config["entrypoint"]
+                if isinstance(entrypoint, list):
+                    # 遍历 entrypoint 数组，替换包含 /mnt/ 的路径
+                    for i, item in enumerate(entrypoint):
+                        if isinstance(item, str) and "/mnt/" in item and not item.startswith("vllm") and not item.isdigit() and item not in ["--port", "--served-model-name", "--trust-remote-code"]:
+                            entrypoint[i] = f"/mnt/serverless-{region}-d70a9a8a-c817-5ed1-a293-4be0908f0a5"
+                custom_container_config["entrypoint"] = entrypoint
+
+        # 保存配置到临时文件
+        with open(s_yaml_file, "w", encoding="utf-8") as f:
+            yaml.dump(s_yaml, f, default_flow_style=False, allow_unicode=True)
+
+        print(f"使用配置文件部署: {s_yaml_file}")
+
+        # 执行部署命令
         # 下载模型
         print("正在下载模型...")
         subprocess.check_call(f"s model download -y -t {s_yaml_file}", shell=True)
@@ -160,6 +161,13 @@ def deploy_model(model_id: str, region: str = "cn-hangzhou", storage: str = "nas
         return deploy_url, s_yaml_file
 
     except subprocess.CalledProcessError as e:
+        print(f"部署过程失败: {e}")
+        print("即使部署失败，仍将尝试执行清理操作...")
+        # 即使部署失败，也要尝试清理资源
+        try:
+            cleanup_deployment(s_yaml_file)
+        except Exception as cleanup_error:
+            print(f"清理操作也失败了: {cleanup_error}")
         raise Exception(f"部署过程失败: {e}")
     except Exception as e:
         raise Exception(f"获取部署信息失败: {e}")
@@ -349,15 +357,19 @@ def cleanup_deployment(s_yaml_file: str):
     Args:
         s_yaml_file: Serverless Devs 配置文件路径
     """
+    if not s_yaml_file or not os.path.exists(s_yaml_file):
+        print(f"配置文件不存在: {s_yaml_file}")
+        return
+        
     try:
         print(f"正在清除部署资源: {s_yaml_file}")
         # 清除模型
-        subprocess.check_call(f"s model remove -y -t {s_yaml_file}", shell=True)
+        print("正在清除模型...")
+        subprocess.run(f"s model remove -y -t {s_yaml_file}", shell=True, check=False)
         # 清除函数
-        subprocess.check_call(f"s remove -y -t {s_yaml_file} --skip-push", shell=True)
+        print("正在清除函数...")
+        subprocess.run(f"s remove -y -t {s_yaml_file} --skip-push", shell=True, check=False)
         print("部署资源清除完成!")
-    except subprocess.CalledProcessError as e:
-        print(f"清除部署资源失败: {e}")
     except Exception as e:
         print(f"清除部署资源时发生错误: {e}")
 
@@ -379,6 +391,8 @@ def main():
 
     args = parser.parse_args()
 
+    s_yaml_file = None
+    
     try:
         if args.cleanup:
             # 只执行清除操作
@@ -411,6 +425,14 @@ def main():
 
     except Exception as e:
         print(f"错误: {e}")
+        # 如果启用了自动清理且有配置文件，即使出错也要尝试清理
+        if args.auto_cleanup and s_yaml_file:
+            print("尝试执行清理操作...")
+            try:
+                cleanup_deployment(s_yaml_file)
+                print("清理操作完成!")
+            except Exception as cleanup_error:
+                print(f"清理操作失败: {cleanup_error}")
         return 1
 
     return 0
