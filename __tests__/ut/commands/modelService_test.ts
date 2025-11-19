@@ -33,6 +33,7 @@ jest.mock('../../../src/subCommands/model/utils', () => {
     checkModelStatus: mockCheckModelStatus,
     _displayProgress: jest.fn(),
     _displayProgressComplete: jest.fn(),
+    extractOssMountDir: jest.fn(),
   };
 });
 

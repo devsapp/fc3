@@ -2,8 +2,7 @@
 import logger from '../../logger';
 import * as $Dev20230714 from '@alicloud/devs20230714';
 import { IInputs } from '../../interface';
-import { checkModelStatus, initClient } from './utils';
-import { isEmpty } from 'lodash';
+import { checkModelStatus, extractOssMountDir, initClient } from './utils';
 
 export class ModelService {
   logger = logger;
@@ -41,15 +40,14 @@ export class ModelService {
       );
       return;
     }
+
+    const processedOssMountPoints = extractOssMountDir(ossMountPoints);
+
     // mode 是 once 时候，判断是否已经下载过
     const destination =
       storage === 'nas'
         ? `file:/${nasMountPoints[0].mountDir}`
-        : `file:/${
-            ossMountPoints[0].mountDir.length > 48
-              ? ossMountPoints[0].mountDir.substring(0, 48)
-              : ossMountPoints[0].mountDir
-          }`;
+        : `file:/${processedOssMountPoints[0].mountDir}`;
     if (modelConfig.mode === 'once') {
       const ListFileManagerTasksRequest = new $Dev20230714.ListFileManagerTasksRequest({
         name,
@@ -69,17 +67,6 @@ export class ModelService {
         logger.info('[Download-model] The model has been downloaded.');
         return;
       }
-    }
-
-    let processedOssMountPoints;
-    if (!isEmpty(ossMountPoints)) {
-      processedOssMountPoints = ossMountPoints.map((ossMountPoint) => ({
-        ...ossMountPoint,
-        mountDir:
-          ossMountPoint.mountDir.length > 48
-            ? ossMountPoint.mountDir.substring(0, 48)
-            : ossMountPoint.mountDir,
-      }));
     }
 
     const fileManagerRsyncRequest = new $Dev20230714.FileManagerRsyncRequest({
@@ -112,19 +99,11 @@ export class ModelService {
     const { nasMountPoints, ossMountPoints, role, region, vpcConfig, storage } = params;
     const devClient = await initClient(this.inputs, this.region, logger, 'fun-model');
 
-    let processedOssMountPoints;
-    if (!isEmpty(ossMountPoints)) {
-      processedOssMountPoints = ossMountPoints.map((ossMountPoint) => ({
-        ...ossMountPoint,
-        mountDir:
-          ossMountPoint.mountDir.length > 48
-            ? ossMountPoint.mountDir.substring(0, 48)
-            : ossMountPoint.mountDir,
-      }));
-    }
+    const processedOssMountPoints = extractOssMountDir(ossMountPoints);
 
     const fileManagerRmRequest = new $Dev20230714.FileManagerRmRequest({
-      filepath: storage === 'nas' ? nasMountPoints[0]?.mountDir : ossMountPoints[0]?.mountDir,
+      filepath:
+        storage === 'nas' ? nasMountPoints[0]?.mountDir : processedOssMountPoints[0]?.mountDir,
       mountConfig: new $Dev20230714.FileManagerMountConfig({
         name,
         nasMountPoints,
