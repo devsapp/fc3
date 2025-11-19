@@ -24,6 +24,8 @@ import {
   ListSessionsRequest,
   UpdateSessionRequest,
   UpdateSessionInput,
+  ChangeResourceGroupRequest,
+  ChangeResourceGroupInput,
 } from '@alicloud/fc20230330';
 import { RuntimeOptions } from '@alicloud/tea-util';
 
@@ -283,6 +285,13 @@ export default class FC extends FC_Client {
         }
         await this.updateFunction(config);
         await this.untilFunctionStateOK(config, 'UPDATE');
+        if (config.resourceGroupId) {
+          const remoteResourceGroupId = remoteConfig?.body?.resourceGroupId;
+          if (remoteResourceGroupId !== config.resourceGroupId) {
+            logger.info(`Updating resource group for function ${config.functionName}`);
+            await this.changeFunctionResourceGroup(config.functionName, config.resourceGroupId);
+          }
+        }
         return;
       } catch (ex) {
         logger.debug(`Deploy function error: ${ex}`);
@@ -1098,5 +1107,23 @@ export default class FC extends FC_Client {
         keys.add(key);
       }
     }
+  }
+
+  async changeFunctionResourceGroup(functionName: string, resourceGroupId: string) {
+    const request = new ChangeResourceGroupRequest({
+      body: new ChangeResourceGroupInput({
+        newResourceGroupId: resourceGroupId,
+        resourceId: functionName,
+        resourceType: 'function',
+      }),
+    });
+    const result = await this.fc20230330Client.changeResourceGroup(request);
+    const { statusCode } = result.toMap();
+    if (statusCode === 200) {
+      logger.debug(`changeResourceGroup success`);
+    } else {
+      logger.error(`changeResourceGroup failed, statusCode: ${statusCode}`);
+    }
+    return statusCode;
   }
 }

@@ -137,6 +137,7 @@ export interface IFunction {
   sessionAffinityConfig?: ISessionAffinityConfig | string;
   instanceIsolationMode?: string;
   enableLongLiving?: boolean;
+  resourceGroupId?: string;
 
   logConfig?: 'auto' | ILogConfig;
   nasConfig?: 'auto' | INasConfig;

@@ -1337,6 +1337,9 @@
         "region": {
             "$ref": "#/definitions/IRegion"
         },
+        "resourceGroupId": {
+            "type": "string"
+        },
         "role": {
             "type": "string"
         },
