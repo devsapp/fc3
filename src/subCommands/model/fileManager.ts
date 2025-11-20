@@ -3,7 +3,7 @@ import logger from '../../logger';
 import DevClient, * as $Dev20230714 from '@alicloud/devs20230714';
 import { IInputs } from '../../interface';
 import _ from 'lodash';
-import { checkModelStatus, initClient } from './utils';
+import { checkModelStatus, extractOssMountDir, initClient } from './utils';
 
 export class ArtModelService {
   logger = logger;
@@ -42,6 +42,8 @@ export class ArtModelService {
       return;
     }
 
+    const processedOssMountPoints = extractOssMountDir(ossMountPoints);
+
     let existingTasks = null;
     if (modelConfig.mode === 'once') {
       // 先统一获取已有的任务列表
@@ -59,7 +61,7 @@ export class ArtModelService {
         modelConfig.source.uri,
         file,
         nasMountPoints,
-        ossMountPoints,
+        processedOssMountPoints,
         modelConfig.target.uri,
       );
 
@@ -112,7 +114,7 @@ export class ArtModelService {
       this._downloadSingleFile.bind(this, devClient, file, {
         name,
         nasMountPoints,
-        ossMountPoints,
+        ossMountPoints: processedOssMountPoints,
         role,
         region,
         vpcConfig,
@@ -188,13 +190,14 @@ export class ArtModelService {
         logger.info('[Remove-model] No files specified for removal.');
         return;
       }
+      const processedOssMountPoints = extractOssMountDir(ossMountPoints);
 
       // 将异步操作重构为并行处理
       const removePromises = files.map((file) =>
         this._removeSingleFile(devClient, file, {
           name,
           nasMountPoints,
-          ossMountPoints,
+          ossMountPoints: processedOssMountPoints,
           role,
           vpcConfig,
           modelConfig,

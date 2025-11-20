@@ -20,6 +20,8 @@ resources:
         gpuMemorySize: 16384
         gpuType: fc.gpu.tesla.1
       nasConfig: auto
+      ossMountConfig: auto
+      role: acs:ram::${config('AccountID')}:role/aliyunfcdefaultrole
       runtime: custom-container
       description: test model download files
       cpu: 8
@@ -72,4 +74,5 @@ resources:
                 path: >-
                   function-art/comfyui/models/checkpoints/v1-5-pruned-emaonly-fp16.safetensors
               target:
+                uri: oss://auto
                 path: models/checkpoints/v1-5-pruned-emaonly-fp16.safetensors

@@ -6,6 +6,7 @@ import {
 import * as $OpenApi from '@alicloud/openapi-client';
 import DevClient from '@alicloud/devs20230714';
 import { sleep } from '../../../utils';
+import { isEmpty } from 'lodash';
 
 export const _getEndpoint = (region): string => {
   if (process.env.ARTIFACT_ENDPOINT) {
@@ -146,4 +147,18 @@ export async function checkModelStatus(
     // eslint-disable-next-line no-await-in-loop
     await sleep(sleepTime);
   }
+}
+
+export function extractOssMountDir(ossMountPoints) {
+  let processedOssMountPoints;
+  if (!isEmpty(ossMountPoints)) {
+    processedOssMountPoints = ossMountPoints.map((ossMountPoint) => ({
+      ...ossMountPoint,
+      mountDir:
+        ossMountPoint.mountDir.length > 48
+          ? ossMountPoint.mountDir.substring(0, 48)
+          : ossMountPoint.mountDir,
+    }));
+  }
+  return processedOssMountPoints;
 }
