@@ -20,6 +20,7 @@ import Base from './base';
 import { ICredentials } from '@serverless-devs/component-interface';
 import { calculateCRC64, getFileSize } from '../../../utils';
 import OSS from '../../../resources/oss';
+import { setNodeModulesBinPermissions } from '../../../resources/fc/impl/utils';
 
 type IType = 'code' | 'config' | boolean;
 interface IOpts {
@@ -286,6 +287,7 @@ export default class Service extends Base {
 
     let generateZipFilePath = '';
     if (needZip) {
+      setNodeModulesBinPermissions(zipPath);
       const zipConfig = {
         codeUri: zipPath,
         outputFileName: `${this.inputs.props.region}_${this.local.functionName}_${Date.now()}`,
