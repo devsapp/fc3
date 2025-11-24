@@ -47,7 +47,7 @@ export function setNodeModulesBinPermissions(codePath: string): void {
         }
         const newMode = stat.mode | 0o111;
         fs.chmodSync(filePath, newMode);
-        logger.debug(`Set executable permission for: ${filePath}`);
+        logger.info(`Set executable permission for: ${filePath}`);
       } catch (fileError) {
         logger.debug(
           `Failed to set executable permission for: ${filePath}, error: ${fileError.message}`,
