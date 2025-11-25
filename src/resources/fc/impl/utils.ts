@@ -2,6 +2,8 @@ import _ from 'lodash';
 import { INasConfig, IVpcConfig, ILogConfig, Runtime, IOssMountConfig } from '../../../interface';
 import { isAuto, isAutoVpcConfig } from '../../../utils';
 import logger from '../../../logger';
+import * as fs from 'fs';
+import * as path from 'path';
 import { isDebugMode } from '@serverless-devs/utils';
 
 export function isCustomContainerRuntime(runtime: string): boolean {
@@ -15,6 +17,46 @@ export function isCustomRuntime(runtime: string): boolean {
     runtime === Runtime['custom.debian11'] ||
     runtime === Runtime['custom.debian12']
   );
+}
+
+/**
+ * 在Windows上为node_modules/.bin目录中的文件设置可执行权限
+ * @param codePath - 代码目录的路径
+ */
+export function setNodeModulesBinPermissions(codePath: string): void {
+  if (process.platform !== 'win32') {
+    return;
+  }
+
+  const nodeModulesBinPath = path.join(codePath, 'node_modules', '.bin');
+  if (!fs.existsSync(nodeModulesBinPath)) {
+    return;
+  }
+
+  try {
+    const files = fs.readdirSync(nodeModulesBinPath);
+    for (const file of files) {
+      const filePath = path.join(nodeModulesBinPath, file);
+      try {
+        if (!fs.existsSync(filePath)) {
+          continue;
+        }
+        const stat = fs.statSync(filePath);
+        if (stat.isDirectory()) {
+          continue;
+        }
+        const newMode = stat.mode | 0o111;
+        fs.chmodSync(filePath, newMode);
+        logger.info(`Set executable permission for: ${filePath}`);
+      } catch (fileError) {
+        logger.debug(
+          `Failed to set executable permission for: ${filePath}, error: ${fileError.message}`,
+        );
+      }
+    }
+  } catch (error) {
+    logger.debug(`Failed to process node_modules/.bin directory, error: ${error.message}`);
+  }
 }
 
 /**

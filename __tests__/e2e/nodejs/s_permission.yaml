@@ -1,0 +1,18 @@
+edition: 3.0.0
+name: test-nodejs-app
+access: quanxi
+
+vars:
+  region: ${env('REGION', 'cn-hongkong')}
+
+resources:
+  fcDemo:
+    component: ${env('fc_component_version', path('../../../'))}
+    props:
+      region: ${vars.region}
+      functionName: fc3-event-${env('fc_component_function_name', 'nodejs18')}-permission
+      runtime: nodejs18
+      code: ./test-permission-code
+      handler: index.handler
+      memorySize: 128
+      timeout: 30
