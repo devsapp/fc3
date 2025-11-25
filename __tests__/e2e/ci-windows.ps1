@@ -6,6 +6,31 @@ $ErrorActionPreference = "Stop"
 # $env:OS="WIN"
 # $env:PROCESSOR_ARCHITECTURE="NT"
 
+Write-Host "[PERMISSIONS_TEST] Testing nodejs permissions validation ..."
+cd nodejs
+Write-Host "[PERMISSIONS_TEST] Running permissions validation test..." -ForegroundColor Green
+& ./check-permissions-before-deploy.ps1
+
+# Test Windows-specific deployment
+$env:fc_component_function_name = "nodejs18-$($env:OS)-$($env:PROCESSOR_ARCHITECTURE)-$($env:RANDSTR)"
+s deploy -y -t ./s_permission.yaml
+s invoke -e '{"hello":"fc nodejs with auto"}' -t ./s_permission.yaml
+s info -y -t ./s_permission.yaml
+
+# Check permissions after deployment and handle result
+Write-Host "[PERMISSIONS_TEST] Checking permissions after deployment..." -ForegroundColor Green
+& ./check-permissions-after-deploy.ps1
+if ($LASTEXITCODE -ne 0) {
+  Write-Host "ERROR: PERMISSIONS TEST FAILED - setNodeModulesBinPermissions is not working correctly" -ForegroundColor Red
+  exit 1
+} else {
+  Write-Host "SUCCESS: PERMISSIONS TEST PASSED - setNodeModulesBinPermissions is working correctly" -ForegroundColor Green
+}
+
+s remove -y -t ./s_permission.yaml
+cd ..
+cd ..
+
 Write-Host "test go runtime"
 cd go
 $env:fc_component_function_name = "go1-$($env:OS)-$($env:PROCESSOR_ARCHITECTURE)-$($env:RANDSTR)"
