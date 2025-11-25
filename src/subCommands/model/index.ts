@@ -58,7 +58,7 @@ export class Model {
 
     const params = (await this.getParams()) as any;
     try {
-      if (modelConfig.solution === 'funArt') {
+      if (modelConfig.solution === 'funArt' || modelConfig.solution === 'funModel') {
         const modelArtService = await this.getModelArtService();
         await modelArtService.downloadModel(this.name, params);
       } else {
