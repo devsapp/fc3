@@ -414,7 +414,8 @@ export class ArtModelService {
   private _getSourcePath(file: any, sourceUri: string): string {
     // 会有多个文件，file.source.uri 是该文件下载源路径，sourceUri 是公共的下载源
     const uri = file.source.uri || sourceUri;
-    const path = file.source?.path || '';
+    const path =
+      (file.source?.path.startsWith('/') ? file.source.path.slice(1) : file.source.path) || '';
     const validSourcePattern = /^(modelscope|oss|nas):\/\//;
 
     if (validSourcePattern.test(uri)) {
@@ -435,7 +436,8 @@ export class ArtModelService {
   ): string {
     // file.target.uri 多个nas或者oss挂载点时，优先判断是否有指定挂载点，否则使用默认挂载点
     const uri = file.target?.uri || targetUri;
-    const path = file.target?.path || '';
+    const path =
+      (file.target?.path.startsWith('/') ? file.target.path.slice(1) : file.target.path) || '';
 
     // 判断uri是否为nas://auto或oss://auto
     if (uri.startsWith('nas://auto') && nasMountPoints?.length > 0) {
@@ -450,8 +452,10 @@ export class ArtModelService {
       return `file://${mountDir}/${path}`;
     } else {
       // 直接拼接uri和path
-      const normalizedUri = uri.endsWith('/') ? uri.slice(0, -1) : uri;
-      return `file://${normalizedUri}/${path}`;
+      let normalizedUri = uri.endsWith('/') ? uri.slice(0, -1) : uri;
+      // nas:// 或 oss:// 前缀替换成 file://
+      normalizedUri = normalizedUri.replace(/^(nas|oss):\/\//, 'file://');
+      return `${normalizedUri}/${path}`;
     }
   }
 }

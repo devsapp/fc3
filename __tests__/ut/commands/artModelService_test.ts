@@ -596,24 +596,24 @@ describe('ArtModelService', () => {
 
     it('should directly concatenate URI and path', () => {
       const result = (artModelService as any)._getDestinationPath(
-        '/mnt/custom',
+        'oss://mnt/custom',
         { target: { path: 'file1.txt' } }, // 修正参数结构
         [{ mountDir: '/mnt/nas' }],
         [{ mountDir: '/mnt/oss' }],
       );
 
-      expect(result).toBe('file:///mnt/custom/file1.txt');
+      expect(result).toBe('file://mnt/custom/file1.txt');
     });
 
     it('should handle URI ending with slash', () => {
       const result = (artModelService as any)._getDestinationPath(
-        '/mnt/custom/',
+        'nas://mnt/custom/',
         { target: { path: 'file1.txt' } }, // 修正参数结构
         [{ mountDir: '/mnt/nas' }],
         [{ mountDir: '/mnt/oss' }],
       );
 
-      expect(result).toBe('file:///mnt/custom/file1.txt');
+      expect(result).toBe('file://mnt/custom/file1.txt');
     });
   });
 });

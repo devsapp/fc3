@@ -20,7 +20,12 @@ resources:
         gpuMemorySize: 16384
         gpuType: fc.gpu.tesla.1
       nasConfig: auto
-      ossMountConfig: auto
+      ossMountConfig: 
+        mountPoints:
+          - bucketName: serverless-${vars.region}-d70a9a8a-c817-5ed1-a293-4be0908f0a5
+            mountDir: /mnt/test-oss-mount
+            endpoint: http://oss-${vars.region}-internal.aliyuncs.com
+            readOnly: false
       role: acs:ram::${config('AccountID')}:role/aliyunfcdefaultrole
       runtime: custom-container
       description: test model download files
@@ -74,5 +79,5 @@ resources:
                 path: >-
                   function-art/comfyui/models/checkpoints/v1-5-pruned-emaonly-fp16.safetensors
               target:
-                uri: oss://auto
+                uri: oss://mnt/test-oss-mount
                 path: models/checkpoints/v1-5-pruned-emaonly-fp16.safetensors
