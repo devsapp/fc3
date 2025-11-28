@@ -44,3 +44,10 @@ export const isFailedState = (ex) => {
   }
   return false;
 };
+
+export const isFunctionStateWaitTimedOut = (ex) => {
+  if (_.startsWith(ex.message, 'retry to wait function state ok timeout')) {
+    return true;
+  }
+  return false;
+};

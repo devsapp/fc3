@@ -82,7 +82,7 @@ export const FC_INSTANCE_EXEC_TIMEOUT: number = parseInt(
 );
 
 export const FC_CONTAINER_ACCELERATED_TIMEOUT: number = parseInt(
-  process.env.FC_CONTAINER_ACCELERATED_TIMEOUT || '3',
+  process.env.FC_CONTAINER_ACCELERATED_TIMEOUT || '40',
   10,
 );
 

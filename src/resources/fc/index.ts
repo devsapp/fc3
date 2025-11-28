@@ -52,6 +52,7 @@ import {
   isSlsNotExistException,
   isInvalidArgument,
   isFailedState,
+  isFunctionStateWaitTimedOut,
 } from './error-code';
 import { isCustomContainerRuntime, isCustomRuntime, computeLocalAuto } from './impl/utils';
 import replaceFunctionConfig from './impl/replace-function-config';
@@ -79,10 +80,8 @@ export default class FC extends FC_Client {
       new Date().getTime() - startTime > minute * 60 * 1000;
 
     // 默认重试 3 min
-    let maxRetryContainerAcceleratedTime = FC_CONTAINER_ACCELERATED_TIMEOUT;
-    if (isAppCenter()) {
-      maxRetryContainerAcceleratedTime = FC_CONTAINER_ACCELERATED_TIMEOUT * 7;
-    }
+    const maxRetryContainerAcceleratedTime = FC_CONTAINER_ACCELERATED_TIMEOUT;
+
     const retryContainerAccelerated = FC.isCustomContainerRuntime(config.runtime);
     // 部署镜像需要重试 3min, 直到达到!(State == Pending || LastUpdateStatus == InProgress)
     if (retryContainerAccelerated) {
@@ -308,7 +307,12 @@ export default class FC extends FC_Client {
             throw ex;
           }
           retryInterval = 5;
-        } else if (isAccessDenied(ex) || isInvalidArgument(ex) || isFailedState(ex)) {
+        } else if (
+          isAccessDenied(ex) ||
+          isInvalidArgument(ex) ||
+          isFailedState(ex) ||
+          isFunctionStateWaitTimedOut(ex)
+        ) {
           throw ex;
         } else if (retry > FC_DEPLOY_RETRY_COUNT) {
           throw ex;
