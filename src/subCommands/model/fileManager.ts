@@ -273,7 +273,8 @@ export class ArtModelService {
         filepath = `${mountDir}/${path}`;
       } else {
         // 直接拼接uri和path
-        const normalizedUri = uri.endsWith('/') ? uri.slice(0, -1) : uri;
+        let normalizedUri = uri.endsWith('/') ? uri.slice(0, -1) : uri;
+        normalizedUri = normalizedUri.replace(/^(nas|oss|file):\/\//, '/');
         filepath = `${normalizedUri}/${path}`;
       }
 

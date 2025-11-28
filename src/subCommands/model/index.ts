@@ -78,7 +78,7 @@ export class Model {
     const modelConfig = annotations?.modelConfig;
 
     try {
-      if (modelConfig.solution === 'funArt') {
+      if (modelConfig.solution === 'funArt' || modelConfig.solution === 'funModel') {
         const modelArtService = await this.getModelArtService();
         await modelArtService.removeModel(this.name, params);
       } else {
