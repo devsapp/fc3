@@ -17,8 +17,8 @@ export default class Instance {
   constructor(readonly inputs: IInputs) {
     const opts = parseArgv(inputs.args, {
       alias: { help: 'h', 'assume-yes': 'y' },
-      boolean: ['help', 'y'],
-      string: ['region', 'function-name', 'qualifier'],
+      boolean: ['help', 'y', 'no-workdir'],
+      string: ['region', 'function-name', 'qualifier', 'shell', 'workdir'],
     });
     logger.debug(`Instance opts: ${JSON.stringify(opts)}`);
     const { region, _: subCommands } = opts;
@@ -58,6 +58,8 @@ export default class Instance {
   /**
    * s  instance exec --instance-id c-64fec1fc-27c4833c325445879a28 --cmd "ls -lh"
    * s  instance exec --instance-id c-64fec1fc-27c4833c325445879a28
+   * s  instance exec --instance-id c-64fec1fc-27c4833c325445879a28 --shell /bin/sh
+   * s  instance exec --instance-id c-64fec1fc-27c4833c325445879a28 --workdir /app
    * s  instance exec --instance-id `s invoke  | grep 'Invoke instanceId:' |  sed 's/.*: //'`
    */
   async exec() {
@@ -71,11 +73,26 @@ export default class Instance {
     }
     const qualifier = this.opts.qualifier || 'LATEST';
     const cmd = this.opts.cmd as string;
+    const shell = this.opts.shell || 'bash';
+    const workdir = this.opts.workdir;
+    const noWorkdir = this.opts['no-workdir'];
     let rawData = [];
     if (cmd) {
-      rawData = ['bash', '-c', cmd];
+      rawData = [shell, '-c', cmd];
     } else {
-      rawData = ['bash', '-c', '(cd /code ||  cd / ) && bash'];
+      // Build the default command based on workdir option
+      let defaultCmd: string;
+      if (noWorkdir || workdir === '') {
+        // --no-workdir flag or empty string: don't cd anywhere, use container's default WORKDIR
+        defaultCmd = shell;
+      } else if (workdir) {
+        // User specified a custom workdir
+        defaultCmd = `cd ${workdir} && ${shell}`;
+      } else {
+        // Default behavior (workdir undefined): try /code first, fallback to /
+        defaultCmd = `(cd /code || cd /) && ${shell}`;
+      }
+      rawData = [shell, '-c', defaultCmd];
     }
     await this.fcSdk.instanceExec(functionName, instanceId, rawData, qualifier, true);
   }
