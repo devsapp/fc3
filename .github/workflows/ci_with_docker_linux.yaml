@@ -9,7 +9,7 @@ env:
   REGION: cn-hongkong
 
 jobs:
-  docker-ci:
+  docker-ci-standard:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -64,6 +64,44 @@ jobs:
       - name: test dotnetcore
         run: |
           cd __tests__/e2e/dotnetcore && sudo ./run && cd -
+
+  docker-ci-custom:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: docker/setup-buildx-action@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: 16
+          registry-url: https://registry.npmjs.org/
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.18
+      - name: Set up Java
+        uses: actions/setup-java@v1
+        with:
+          java-version: 8
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y wget curl
+      - name: install s
+        run: |
+          sudo npm i @serverless-devs/s -g
+      - name: config s
+        run: |
+          sudo s config add --AccountID  ${{secrets.ACCOUNTID}} --AccessKeyID ${{secrets.ACCESSKEYID}} --AccessKeySecret ${{secrets.ACCESSKEYSECRET}} -a quanxi -f
+      - name: Configure NPM
+        run: |
+          npm config set registry https://registry.npmjs.org
+          npm config set '//packages.aliyun.com/670e108663cd360abfe4be65/npm/npm-registry/:_authToken' ${{secrets.NPM_TOKEN}}
+      - name: NPM  install
+        run: |
+          npm install
+      - name: NPM run build
+        run: |
+          npm run build
       - name: test apt
         run: |
           cd __tests__/e2e/apt && sudo ./run && cd -
