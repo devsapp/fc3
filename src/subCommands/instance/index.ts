@@ -74,7 +74,7 @@ export default class Instance {
     const qualifier = this.opts.qualifier || 'LATEST';
     const cmd = this.opts.cmd as string;
     const shell = this.opts.shell || 'bash';
-    const workdir = this.opts.workdir;
+    const { workdir } = this.opts;
     const noWorkdir = this.opts['no-workdir'];
     let rawData = [];
     if (cmd) {

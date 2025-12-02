@@ -29,9 +29,18 @@ Examples with CLI:
           ['--function-name <functionName>', '[C-Required] Specify function name'],
           ['--instance-id <instanceId>', '[Required] Specify function instance id'],
           ['--cmd <cmd>', '[Optional] Command string to be executed'],
-          ['--shell <shell>', '[Optional] Specify shell to use (e.g., /bin/sh, /bin/bash), default is bash'],
-          ['--workdir <workdir>', '[Optional] Specify initial working directory (e.g., /, /app). If not specified, defaults to /code or / as fallback'],
-          ['--no-workdir', '[Optional] Do not cd to any directory, use container\'s default WORKDIR. Same as --workdir ""'],
+          [
+            '--shell <shell>',
+            '[Optional] Specify shell to use (e.g., /bin/sh, /bin/bash), default is bash',
+          ],
+          [
+            '--workdir <workdir>',
+            '[Optional] Specify initial working directory (e.g., /, /app). If not specified, defaults to /code or / as fallback',
+          ],
+          [
+            '--no-workdir',
+            '[Optional] Do not cd to any directory, use container\'s default WORKDIR. Same as --workdir ""',
+          ],
           ['--qualifier <qualifier>', '[Optional] Specify version or alias, default is LATEST'],
         ],
       },

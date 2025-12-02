@@ -14,7 +14,6 @@ import string
 import requests
 import yaml
 
-
 # 生成随机token
 def generate_random_token(length=30):
     """生成指定长度的随机token"""
@@ -114,23 +113,13 @@ def deploy_model(model_id: str, region: str = "cn-hangzhou", storage: str = "nas
         if storage == "oss":
             s_yaml["resources"]["test_func"]["props"].pop("nasConfig", None)
             s_yaml["resources"]["test_func"]["props"].pop("vpcConfig", None)
-            s_yaml["resources"]["test_func"]["props"]["ossMountConfig"] = f"auto|bucketPath={function_name}"
+            s_yaml["resources"]["test_func"]["props"]["ossMountConfig"] = f"auto|bucketPath={function_name}|mountDir=/mnt/{function_name}"
             s_yaml["resources"]["test_func"]["props"][
                 "role"
             ] = "acs:ram::${config('AccountID')}:role/aliyunfcdefaultrole"
             s_yaml["resources"]["test_func"]["props"]["annotations"]["modelConfig"][
                 "storage"
             ] = storage
-            # 修改 customContainerConfig.entrypoint 中的路径
-            custom_container_config = s_yaml["resources"]["test_func"]["props"].get("customContainerConfig", {})
-            if "entrypoint" in custom_container_config:
-                entrypoint = custom_container_config["entrypoint"]
-                if isinstance(entrypoint, list):
-                    # 遍历 entrypoint 数组，替换包含 /mnt/ 的路径
-                    for i, item in enumerate(entrypoint):
-                        if isinstance(item, str) and "/mnt/" in item and not item.startswith("vllm") and not item.isdigit() and item not in ["--port", "--served-model-name", "--trust-remote-code"]:
-                            entrypoint[i] = f"/mnt/serverless-{region}-d70a9a8a-c817-5ed1-a293-4be0908f0a5"
-                custom_container_config["entrypoint"] = entrypoint
 
         # 保存配置到临时文件
         with open(s_yaml_file, "w", encoding="utf-8") as f:

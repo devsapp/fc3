@@ -25,7 +25,7 @@ jobs:
           node-version: 16
           registry-url: https://registry.npmjs.org/
       - name: Set up Go
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@v6
         with:
           go-version: 1.18
       - name: Set up Java
@@ -67,7 +67,7 @@ jobs:
         run: |
           choco install -y curl
       - name: Set up Go
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@v6
         with:
           go-version: 1.18
       - name: Set up Java
@@ -108,7 +108,7 @@ jobs:
           node-version: 16
           registry-url: https://registry.npmjs.org/
       - name: Set up Go
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@v6
         with:
           go-version: 1.18
       - name: Set up Java
