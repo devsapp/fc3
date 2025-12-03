@@ -204,7 +204,7 @@ describe('Instance', () => {
       expect(mockFcInstance.instanceExec).toHaveBeenCalledWith(
         'test-function',
         'i-12345',
-        ['bash', '-c', '(cd /code ||  cd / ) && bash'],
+        ['bash', '-c', '(cd /code || cd /) && bash'],
         'LATEST',
         true,
       );
@@ -234,7 +234,7 @@ describe('Instance', () => {
       expect(mockFcInstance.instanceExec).toHaveBeenCalledWith(
         'cli-function',
         'i-12345',
-        ['bash', '-c', '(cd /code ||  cd / ) && bash'],
+        ['bash', '-c', '(cd /code || cd /) && bash'],
         'LATEST',
         true,
       );
@@ -249,7 +249,7 @@ describe('Instance', () => {
       expect(mockFcInstance.instanceExec).toHaveBeenCalledWith(
         'test-function',
         'i-12345',
-        ['bash', '-c', '(cd /code ||  cd / ) && bash'],
+        ['bash', '-c', '(cd /code || cd /) && bash'],
         '1',
         true,
       );
