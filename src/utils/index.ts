@@ -7,7 +7,7 @@ import * as fs from 'fs';
 import logger from '../logger';
 import { execSync } from 'child_process';
 import axios from 'axios';
-import { FC_API_ERROR_CODE } from '../resources/fc/error-code';
+import { FC_API_ERROR_CODE, isInvalidArgument } from '../resources/fc/error-code';
 
 export { default as verify } from './verify';
 export { default as runCommand } from './run-command';
@@ -207,8 +207,13 @@ const PROVISION_ERROR_CODES = [
   FC_API_ERROR_CODE.ResidentScalingConfigExists,
 ];
 
-export function isProvisionConfigError(error) {
-  return error && error.code && PROVISION_ERROR_CODES.includes(error.code);
+export function isProvisionConfigError(error, functionName = '') {
+  return (
+    (error && error.code && PROVISION_ERROR_CODES.includes(error.code)) ||
+    (error &&
+      isInvalidArgument(error) &&
+      error.message.includes(`Function '${functionName}' has been bound to resident source pool`))
+  );
 }
 
 export function getUserAgent(userAgent: string, command: string) {

@@ -137,20 +137,27 @@ describe('ProvisionConfig', () => {
         writable: true,
       });
 
-      // Mock scalingConfig.provisionConfigErrorRetry
+      // Mock provisionConfigErrorRetry
+      const utils = require('../../../../../src/subCommands/deploy/utils');
       const provisionConfigErrorRetrySpy = jest
-        .spyOn(provisionConfig.scalingConfig, 'provisionConfigErrorRetry')
+        .spyOn(utils, 'provisionConfigErrorRetry')
         .mockResolvedValue(undefined);
 
       const result = await provisionConfig.run();
 
-      expect(provisionConfigErrorRetrySpy).toHaveBeenCalledWith('ProvisionConfig', 'LATEST', {
-        defaultTarget: 10,
-        alwaysAllocateCPU: false,
-        alwaysAllocateGPU: false,
-        scheduledActions: [],
-        targetTrackingPolicies: [],
-      });
+      expect(provisionConfigErrorRetrySpy).toHaveBeenCalledWith(
+        provisionConfig.fcSdk,
+        'ProvisionConfig',
+        'test-function',
+        'LATEST',
+        {
+          defaultTarget: 10,
+          alwaysAllocateCPU: false,
+          alwaysAllocateGPU: false,
+          scheduledActions: [],
+          targetTrackingPolicies: [],
+        },
+      );
       expect(result).toBe(true);
     });
 
@@ -171,9 +178,10 @@ describe('ProvisionConfig', () => {
         writable: true,
       });
 
-      // Mock scalingConfig.provisionConfigErrorRetry
+      // Mock provisionConfigErrorRetry
+      const utils = require('../../../../../src/subCommands/deploy/utils');
       const provisionConfigErrorRetrySpy = jest
-        .spyOn(provisionConfig.scalingConfig, 'provisionConfigErrorRetry')
+        .spyOn(utils, 'provisionConfigErrorRetry')
         .mockResolvedValue(undefined);
 
       const waitForProvisionReadySpy = jest
@@ -182,13 +190,19 @@ describe('ProvisionConfig', () => {
 
       await provisionConfig.run();
 
-      expect(provisionConfigErrorRetrySpy).toHaveBeenCalledWith('ProvisionConfig', 'LATEST', {
-        defaultTarget: 10,
-        alwaysAllocateCPU: false,
-        alwaysAllocateGPU: false,
-        scheduledActions: [],
-        targetTrackingPolicies: [],
-      });
+      expect(provisionConfigErrorRetrySpy).toHaveBeenCalledWith(
+        provisionConfig.fcSdk,
+        'ProvisionConfig',
+        'test-function',
+        'LATEST',
+        {
+          defaultTarget: 10,
+          alwaysAllocateCPU: false,
+          alwaysAllocateGPU: false,
+          scheduledActions: [],
+          targetTrackingPolicies: [],
+        },
+      );
       expect(waitForProvisionReadySpy).toHaveBeenCalledWith('LATEST', {
         defaultTarget: 10,
         alwaysAllocateCPU: false,
@@ -215,22 +229,29 @@ describe('ProvisionConfig', () => {
         writable: true,
       });
 
-      // Mock scalingConfig.provisionConfigErrorRetry
+      // Mock provisionConfigErrorRetry
+      const utils = require('../../../../../src/subCommands/deploy/utils');
       const provisionConfigErrorRetrySpy = jest
-        .spyOn(provisionConfig.scalingConfig, 'provisionConfigErrorRetry')
+        .spyOn(utils, 'provisionConfigErrorRetry')
         .mockResolvedValue(undefined);
 
       const waitForProvisionReadySpy = jest.spyOn(provisionConfig as any, 'waitForProvisionReady');
 
       await provisionConfig.run();
 
-      expect(provisionConfigErrorRetrySpy).toHaveBeenCalledWith('ProvisionConfig', 'LATEST', {
-        defaultTarget: 10,
-        alwaysAllocateCPU: false,
-        alwaysAllocateGPU: false,
-        scheduledActions: [],
-        targetTrackingPolicies: [],
-      });
+      expect(provisionConfigErrorRetrySpy).toHaveBeenCalledWith(
+        provisionConfig.fcSdk,
+        'ProvisionConfig',
+        'test-function',
+        'LATEST',
+        {
+          defaultTarget: 10,
+          alwaysAllocateCPU: false,
+          alwaysAllocateGPU: false,
+          scheduledActions: [],
+          targetTrackingPolicies: [],
+        },
+      );
       expect(waitForProvisionReadySpy).not.toHaveBeenCalled();
       expect(logger.info).toHaveBeenCalledWith(
         `Skip wait provisionConfig of ${provisionConfig.functionName}/LATEST to instance up`,

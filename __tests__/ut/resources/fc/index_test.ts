@@ -171,7 +171,10 @@ describe('FC', () => {
       mockFc20230330Client.untagResources.mockResolvedValue({});
       mockFc20230330Client.tagResources.mockResolvedValue({});
 
-      await fc.deployFunction(mockConfig, { slsAuto: false, type: undefined });
+      await fc.deployFunction(mockConfig, {
+        slsAuto: false,
+        type: undefined,
+      });
 
       expect(mockFc20230330Client.untagResources).toHaveBeenCalled();
       expect(mockFc20230330Client.tagResources).toHaveBeenCalled();
@@ -181,7 +184,10 @@ describe('FC', () => {
       mockConfig.tags = Array(21).fill({ key: 'tag', value: 'value' });
 
       await expect(
-        fc.deployFunction(mockConfig, { slsAuto: false, type: undefined }),
+        fc.deployFunction(mockConfig, {
+          slsAuto: false,
+          type: undefined,
+        }),
       ).rejects.toThrow('The number of tags cannot exceed 20');
     });
 
@@ -192,7 +198,10 @@ describe('FC', () => {
       ];
 
       await expect(
-        fc.deployFunction(mockConfig, { slsAuto: false, type: undefined }),
+        fc.deployFunction(mockConfig, {
+          slsAuto: false,
+          type: undefined,
+        }),
       ).rejects.toThrow('The tag keys must be unique');
     });
   });

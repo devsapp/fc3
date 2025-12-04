@@ -51,3 +51,20 @@ export const isFunctionStateWaitTimedOut = (ex) => {
   }
   return false;
 };
+
+export const isFunctionScalingConfigError = (
+  ex,
+  { localGPUType = '', remoteGPUType = '', functionName = 'F' },
+) => {
+  if (
+    (isInvalidArgument(ex) &&
+      ex.message.includes('GPU type should not be changed with resident scaling config')) ||
+    ex.message.includes(
+      `function gpu type '${localGPUType}' doesn't match resident pool gpu type '${remoteGPUType}'`,
+    ) ||
+    ex.message.includes(`idle provision config exists for function '${functionName}'`)
+  ) {
+    return true;
+  }
+  return false;
+};
