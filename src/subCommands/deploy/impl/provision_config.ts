@@ -7,6 +7,7 @@ import logger from '../../../logger';
 import Base from './base';
 import { sleep } from '../../../utils';
 import ScalingConfig from './scaling_config';
+import { provisionConfigErrorRetry } from '../utils';
 // import Logs from '../../logs';
 
 interface IOpts {
@@ -51,8 +52,10 @@ export default class ProvisionConfig extends Base {
 
     if (!_.isEmpty(localConfig)) {
       if (this.needDeploy) {
-        await this.scalingConfig.provisionConfigErrorRetry(
+        await provisionConfigErrorRetry(
+          this.fcSdk,
           'ProvisionConfig',
+          this.functionName,
           qualifier,
           localConfig,
         );

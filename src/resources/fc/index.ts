@@ -53,11 +53,13 @@ import {
   isInvalidArgument,
   isFailedState,
   isFunctionStateWaitTimedOut,
+  isFunctionScalingConfigError,
 } from './error-code';
 import { isCustomContainerRuntime, isCustomRuntime, computeLocalAuto } from './impl/utils';
 import replaceFunctionConfig from './impl/replace-function-config';
 import { IAlias } from '../../interface/cli-config/alias';
 import { TriggerType } from '../../interface/base';
+import { removeScalingConfigSDK } from '../../subCommands/deploy/utils';
 
 export enum GetApiType {
   original = 'original', // 直接返回接口返回值
@@ -302,11 +304,25 @@ export default class FC extends FC_Client {
         */
         const { project, logstore } = (config.logConfig || {}) as ILogConfig;
         const retrySls = slsAuto && isSlsNotExistException(project, logstore, ex);
+        const localGPUType = config.gpuConfig?.gpuType;
+        const remoteGPUType = remoteConfig.gpuConfig?.gpuType;
         if (retrySls) {
           if (calculateRetryTime(3)) {
             throw ex;
           }
           retryInterval = 5;
+        } else if (
+          isFunctionScalingConfigError(ex, {
+            localGPUType,
+            remoteGPUType,
+            functionName: config.functionName,
+          })
+        ) {
+          const qualifier =
+            _.get(config, 'scalingConfig.qualifier') ||
+            _.get(config, 'provisionConfig.qualifier') ||
+            'LATEST';
+          await removeScalingConfigSDK(this, config.functionName, qualifier);
         } else if (
           isAccessDenied(ex) ||
           isInvalidArgument(ex) ||

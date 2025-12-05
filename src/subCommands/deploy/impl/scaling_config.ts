@@ -5,7 +5,8 @@ import { diffConvertYaml } from '@serverless-devs/diff';
 import { IInputs } from '../../../interface';
 import logger from '../../../logger';
 import Base from './base';
-import { sleep, isProvisionConfigError } from '../../../utils';
+import { sleep } from '../../../utils';
+import { provisionConfigErrorRetry, removeScalingConfigSDK } from '../utils';
 
 interface IOpts {
   yes: boolean | undefined;
@@ -44,7 +45,13 @@ export default class ScalingConfig extends Base {
 
     if (!_.isEmpty(localConfig)) {
       if (this.needDeploy) {
-        await this.provisionConfigErrorRetry('ScalingConfig', qualifier, localConfig);
+        await provisionConfigErrorRetry(
+          this.fcSdk,
+          'ScalingConfig',
+          this.functionName,
+          qualifier,
+          localConfig,
+        );
 
         if (this.ScalingMode === 'sync' || this.ScalingMode === 'drain') {
           await this.waitForScalingReady(qualifier, localConfig);
@@ -69,58 +76,6 @@ export default class ScalingConfig extends Base {
     }
 
     return this.needDeploy;
-  }
-
-  async provisionConfigErrorRetry(command, qualifier, localConfig) {
-    logger.info(`provisionConfigErrorRetry Execute： ${command}`);
-    try {
-      if (command === 'ProvisionConfig') {
-        await this.before();
-        await this.fcSdk.putFunctionProvisionConfig(this.functionName, qualifier, localConfig);
-      } else {
-        await this.fcSdk.putFunctionScalingConfig(this.functionName, qualifier, localConfig);
-      }
-    } catch (err) {
-      if (!isProvisionConfigError(err)) {
-        throw err; // Re-throw non-provision config errors
-      }
-
-      logger.warn(
-        `${command}: Reserved resource pool instances and elastic instances cannot be directly switched; \ntrying to delete existing scalingConfig, then create a new scalingConfig...`,
-      );
-
-      await this.removeScalingConfig(qualifier);
-
-      const maxRetries = 60;
-      const retryDelay = 2;
-
-      for (let i = 0; i < maxRetries; i++) {
-        try {
-          if (command === 'ProvisionConfig') {
-            // eslint-disable-next-line no-await-in-loop
-            await this.fcSdk.putFunctionProvisionConfig(this.functionName, qualifier, localConfig);
-          } else {
-            // eslint-disable-next-line no-await-in-loop
-            await this.fcSdk.putFunctionScalingConfig(this.functionName, qualifier, localConfig);
-          }
-          logger.info(`Successfully created ${command} after retry`);
-          return;
-        } catch (err2) {
-          if (!isProvisionConfigError(err2)) {
-            throw err2; // Re-throw non-provision config errors
-          }
-
-          if (i < maxRetries - 1) {
-            logger.info(
-              `Retry ${i + 1}/${maxRetries}: putFunctionScalingConfig failed, retrying...`,
-            );
-            // eslint-disable-next-line no-await-in-loop
-            await sleep(retryDelay);
-          }
-        }
-      }
-      throw new Error(`Failed to create scalingConfig after ${maxRetries} attempts`);
-    }
   }
 
   /**
@@ -181,31 +136,7 @@ export default class ScalingConfig extends Base {
   private async removeScalingConfig(qualifier: string) {
     try {
       if (!_.isEmpty(this.remote)) {
-        logger.info(`Remove remote scalingConfig of ${this.functionName}/${qualifier}`);
-        await this.fcSdk.removeFunctionScalingConfig(this.functionName, qualifier);
-
-        // 等待弹性配置实例数降至0
-        const maxRetries = 12;
-        for (let index = 0; index < maxRetries; index++) {
-          // eslint-disable-next-line no-await-in-loop
-          const result = await this.fcSdk.getFunctionScalingConfig(this.functionName, qualifier);
-          const { currentInstances } = result || {};
-
-          if (!currentInstances || currentInstances === 0) {
-            logger.info(`ScalingConfig of ${this.functionName}/${qualifier} removed successfully`);
-            return;
-          }
-
-          logger.info(
-            `waiting ${this.functionName}/${qualifier} scaling currentInstances to 0 ...`,
-          );
-          // eslint-disable-next-line no-await-in-loop
-          await sleep(5);
-        }
-
-        logger.warn(
-          `Timeout waiting for scalingConfig of ${this.functionName}/${qualifier} to be removed`,
-        );
+        await removeScalingConfigSDK(this.fcSdk, this.functionName, qualifier);
       }
     } catch (ex) {
       logger.error(
