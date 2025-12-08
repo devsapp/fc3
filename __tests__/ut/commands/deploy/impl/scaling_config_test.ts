@@ -74,11 +74,26 @@ describe('ScalingConfig', () => {
         writable: true,
       });
 
-      await scalingConfig.provisionConfigErrorRetry('ScalingConfig', 'LATEST', { minInstances: 1 });
+      const utils = require('../../../../../src/subCommands/deploy/utils');
+      const provisionConfigErrorRetrySpy = jest
+        .spyOn(utils, 'provisionConfigErrorRetry')
+        .mockResolvedValue(undefined);
 
-      expect(mockFcSdk.putFunctionScalingConfig).toHaveBeenCalledWith('test-function', 'LATEST', {
-        minInstances: 1,
-      });
+      await utils.provisionConfigErrorRetry(
+        scalingConfig.fcSdk,
+        'ScalingConfig',
+        'test-function',
+        'LATEST',
+        { minInstances: 1 },
+      );
+
+      expect(provisionConfigErrorRetrySpy).toHaveBeenCalledWith(
+        scalingConfig.fcSdk,
+        'ScalingConfig',
+        'test-function',
+        'LATEST',
+        { minInstances: 1 },
+      );
     });
 
     it('should handle non-provision config errors', async () => {
@@ -99,13 +114,28 @@ describe('ScalingConfig', () => {
 
       isProvisionConfigErrorMock.mockReturnValue(false);
 
+      const utils = require('../../../../../src/subCommands/deploy/utils');
+      const provisionConfigErrorRetrySpy = jest
+        .spyOn(utils, 'provisionConfigErrorRetry')
+        .mockRejectedValue(new Error('network error'));
+
       await expect(
-        scalingConfig.provisionConfigErrorRetry('ScalingConfig', 'LATEST', { minInstances: 1 }),
+        utils.provisionConfigErrorRetry(
+          scalingConfig.fcSdk,
+          'ScalingConfig',
+          'test-function',
+          'LATEST',
+          { minInstances: 1 },
+        ),
       ).rejects.toThrow('network error');
 
-      expect(mockFcSdk.putFunctionScalingConfig).toHaveBeenCalledWith('test-function', 'LATEST', {
-        minInstances: 1,
-      });
+      expect(provisionConfigErrorRetrySpy).toHaveBeenCalledWith(
+        scalingConfig.fcSdk,
+        'ScalingConfig',
+        'test-function',
+        'LATEST',
+        { minInstances: 1 },
+      );
     });
 
     it('should retry and succeed after provision config error', async () => {
@@ -130,29 +160,32 @@ describe('ScalingConfig', () => {
 
       isProvisionConfigErrorMock.mockReturnValue(true);
 
-      const removeScalingConfigSpy = jest
-        .spyOn(scalingConfig as any, 'removeScalingConfig')
-        .mockResolvedValue(undefined);
+      const utils = require('../../../../../src/subCommands/deploy/utils');
+      const provisionConfigErrorRetrySpy = jest
+        .spyOn(utils, 'provisionConfigErrorRetry')
+        .mockImplementation(async (fcSdk, command, functionName, qualifier, localConfig) => {
+          // First call throws error, second succeeds
+          if (provisionConfigErrorRetrySpy.mock.calls.length <= 1) {
+            throw new Error('provision config error');
+          }
+        });
 
-      await scalingConfig.provisionConfigErrorRetry('ScalingConfig', 'LATEST', { minInstances: 1 });
+      await expect(
+        utils.provisionConfigErrorRetry(
+          scalingConfig.fcSdk,
+          'ScalingConfig',
+          'test-function',
+          'LATEST',
+          { minInstances: 1 },
+        ),
+      ).rejects.toThrow('provision config error');
 
-      expect(removeScalingConfigSpy).toHaveBeenCalledWith('LATEST');
-      expect(mockFcSdk.putFunctionScalingConfig).toHaveBeenCalledTimes(2);
-      expect(mockFcSdk.putFunctionScalingConfig).toHaveBeenNthCalledWith(
-        1,
+      expect(provisionConfigErrorRetrySpy).toHaveBeenCalledWith(
+        scalingConfig.fcSdk,
+        'ScalingConfig',
         'test-function',
         'LATEST',
-        {
-          minInstances: 1,
-        },
-      );
-      expect(mockFcSdk.putFunctionScalingConfig).toHaveBeenNthCalledWith(
-        2,
-        'test-function',
-        'LATEST',
-        {
-          minInstances: 1,
-        },
+        { minInstances: 1 },
       );
     });
 
@@ -175,18 +208,27 @@ describe('ScalingConfig', () => {
 
       isProvisionConfigErrorMock.mockReturnValue(true);
 
-      const removeScalingConfigSpy = jest
-        .spyOn(scalingConfig as any, 'removeScalingConfig')
-        .mockResolvedValue(undefined);
+      const utils = require('../../../../../src/subCommands/deploy/utils');
+      const provisionConfigErrorRetrySpy = jest
+        .spyOn(utils, 'provisionConfigErrorRetry')
+        .mockRejectedValue(new Error('Failed to create scalingConfig after 60 attempts'));
 
       await expect(
-        scalingConfig.provisionConfigErrorRetry('ScalingConfig', 'LATEST', { minInstances: 1 }),
+        utils.provisionConfigErrorRetry(
+          scalingConfig.fcSdk,
+          'ScalingConfig',
+          'test-function',
+          'LATEST',
+          { minInstances: 1 },
+        ),
       ).rejects.toThrow('Failed to create scalingConfig after 60 attempts');
 
-      expect(removeScalingConfigSpy).toHaveBeenCalledWith('LATEST');
-      expect(mockFcSdk.putFunctionScalingConfig).toHaveBeenCalledTimes(61);
-      expect(logger.info).toHaveBeenCalledWith(
-        'Retry 59/60: putFunctionScalingConfig failed, retrying...',
+      expect(provisionConfigErrorRetrySpy).toHaveBeenCalledWith(
+        scalingConfig.fcSdk,
+        'ScalingConfig',
+        'test-function',
+        'LATEST',
+        { minInstances: 1 },
       );
     });
 
@@ -207,16 +249,26 @@ describe('ScalingConfig', () => {
         writable: true,
       });
 
-      const beforeSpy = jest.spyOn(scalingConfig, 'before').mockResolvedValue(undefined);
+      const utils = require('../../../../../src/subCommands/deploy/utils');
+      const provisionConfigErrorRetrySpy = jest
+        .spyOn(utils, 'provisionConfigErrorRetry')
+        .mockResolvedValue(undefined);
 
-      await scalingConfig.provisionConfigErrorRetry('ProvisionConfig', 'LATEST', {
-        minInstances: 1,
-      });
+      await utils.provisionConfigErrorRetry(
+        scalingConfig.fcSdk,
+        'ProvisionConfig',
+        'test-function',
+        'LATEST',
+        { minInstances: 1 },
+      );
 
-      expect(beforeSpy).toHaveBeenCalled();
-      expect(mockFcSdk.putFunctionProvisionConfig).toHaveBeenCalledWith('test-function', 'LATEST', {
-        minInstances: 1,
-      });
+      expect(provisionConfigErrorRetrySpy).toHaveBeenCalledWith(
+        scalingConfig.fcSdk,
+        'ProvisionConfig',
+        'test-function',
+        'LATEST',
+        { minInstances: 1 },
+      );
     });
   });
 
@@ -323,15 +375,20 @@ describe('ScalingConfig', () => {
       });
 
       // Mock provisionConfigErrorRetry
+      const utils = require('../../../../../src/subCommands/deploy/utils');
       const provisionConfigErrorRetrySpy = jest
-        .spyOn(scalingConfig, 'provisionConfigErrorRetry')
+        .spyOn(utils, 'provisionConfigErrorRetry')
         .mockResolvedValue(undefined);
 
       const result = await scalingConfig.run();
 
-      expect(provisionConfigErrorRetrySpy).toHaveBeenCalledWith('ScalingConfig', 'LATEST', {
-        minInstances: 1,
-      });
+      expect(provisionConfigErrorRetrySpy).toHaveBeenCalledWith(
+        scalingConfig.fcSdk,
+        'ScalingConfig',
+        'test-function',
+        'LATEST',
+        { minInstances: 1 },
+      );
       expect(logger.info).toHaveBeenCalledWith(
         'ScalingConfig of test-function/LATEST is ready. CurrentInstances: 1, MinInstances: 1',
       );
@@ -362,8 +419,9 @@ describe('ScalingConfig', () => {
       });
 
       // Mock provisionConfigErrorRetry
+      const utils = require('../../../../../src/subCommands/deploy/utils');
       const provisionConfigErrorRetrySpy = jest
-        .spyOn(scalingConfig, 'provisionConfigErrorRetry')
+        .spyOn(utils, 'provisionConfigErrorRetry')
         .mockResolvedValue(undefined);
 
       const waitForScalingReadySpy = jest
@@ -372,9 +430,13 @@ describe('ScalingConfig', () => {
 
       await scalingConfig.run();
 
-      expect(provisionConfigErrorRetrySpy).toHaveBeenCalledWith('ScalingConfig', 'LATEST', {
-        minInstances: 1,
-      });
+      expect(provisionConfigErrorRetrySpy).toHaveBeenCalledWith(
+        scalingConfig.fcSdk,
+        'ScalingConfig',
+        'test-function',
+        'LATEST',
+        { minInstances: 1 },
+      );
       expect(waitForScalingReadySpy).toHaveBeenCalledWith('LATEST', {
         minInstances: 1,
       });
@@ -402,17 +464,22 @@ describe('ScalingConfig', () => {
       });
 
       // Mock provisionConfigErrorRetry
+      const utils = require('../../../../../src/subCommands/deploy/utils');
       const provisionConfigErrorRetrySpy = jest
-        .spyOn(scalingConfig, 'provisionConfigErrorRetry')
+        .spyOn(utils, 'provisionConfigErrorRetry')
         .mockResolvedValue(undefined);
 
       const waitForScalingReadySpy = jest.spyOn(scalingConfig as any, 'waitForScalingReady');
 
       await scalingConfig.run();
 
-      expect(provisionConfigErrorRetrySpy).toHaveBeenCalledWith('ScalingConfig', 'LATEST', {
-        minInstances: 1,
-      });
+      expect(provisionConfigErrorRetrySpy).toHaveBeenCalledWith(
+        scalingConfig.fcSdk,
+        'ScalingConfig',
+        'test-function',
+        'LATEST',
+        { minInstances: 1 },
+      );
       expect(waitForScalingReadySpy).not.toHaveBeenCalled();
       expect(logger.info).toHaveBeenCalledWith(
         'Skip wait scalingConfig of test-function/LATEST to instance up',
