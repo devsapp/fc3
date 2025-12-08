@@ -304,8 +304,8 @@ export default class FC extends FC_Client {
         */
         const { project, logstore } = (config.logConfig || {}) as ILogConfig;
         const retrySls = slsAuto && isSlsNotExistException(project, logstore, ex);
-        const localGPUType = config.gpuConfig?.gpuType;
-        const remoteGPUType = remoteConfig.gpuConfig?.gpuType;
+        const localGPUType = config?.gpuConfig?.gpuType;
+        const remoteGPUType = remoteConfig?.gpuConfig?.gpuType;
         if (retrySls) {
           if (calculateRetryTime(3)) {
             throw ex;

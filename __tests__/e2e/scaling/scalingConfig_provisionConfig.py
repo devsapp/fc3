@@ -20,11 +20,15 @@ def deploy_function(scalingConfig, provisionConfig, gpuConfig=None, memorySize=N
         s_yaml = yaml.safe_load(f)
 
     s_yaml["resources"]["fcDemo"]["props"]["scalingConfig"] = scalingConfig
-    s_yaml["resources"]["fcDemo"]["props"]["provisionConfig"] = provisionConfig
-    if gpuConfig:
+    if provisionConfig is not None:
+        s_yaml["resources"]["fcDemo"]["props"]["provisionConfig"] = provisionConfig
+    elif "provisionConfig" in s_yaml["resources"]["fcDemo"]["props"]:
+        del s_yaml["resources"]["fcDemo"]["props"]["provisionConfig"]
+        
+    if gpuConfig is not None:
         s_yaml["resources"]["fcDemo"]["props"]["gpuConfig"] = gpuConfig
 
-    if memorySize:
+    if memorySize is not None:
         s_yaml["resources"]["fcDemo"]["props"]["memorySize"] = memorySize
 
     with open(s_yaml_file, "w", encoding="utf-8") as f:
@@ -58,7 +62,7 @@ def main():
     scalingConfig = {
         "minInstances": 1,
     }
-    provisionConfig = {}
+    provisionConfig = None
     deploy_function(scalingConfig, provisionConfig)
 
     # 弹性 ----> 常驻
@@ -66,7 +70,7 @@ def main():
         "residentPoolId": "fc-pool-5f044a31f87171jkwaraws",
         "maxInstances": 1,
     }
-    provisionConfig = {}
+    provisionConfig = None
     deploy_function(scalingConfig, provisionConfig)
 
     # 常驻 ----> 常驻
@@ -74,14 +78,14 @@ def main():
         "residentPoolId": "fc-pool-16bedd56db9626uva1it08",
         "maxInstances": 1,
     }
-    provisionConfig = {}
+    provisionConfig = None
     deploy_function(scalingConfig, provisionConfig)
 
     # 常驻 ----> 弹性
     scalingConfig = {
         "minInstances": 1,
     }
-    provisionConfig = {}
+    provisionConfig = None
     deploy_function(scalingConfig, provisionConfig)
 
     cleanup_deployment()
@@ -95,7 +99,7 @@ def main():
         "gpuType": "fc.gpu.tesla.1",
         "gpuMemorySize": 1,
     }
-    provisionConfig = {}
+    provisionConfig = None
     memorySize = 32768
     deploy_function(scalingConfig, provisionConfig, gpuConfig, memorySize)
 
@@ -108,7 +112,7 @@ def main():
         "gpuType": "fc.gpu.ada.1",
         "gpuMemorySize": 1,
     }
-    provisionConfig = {}
+    provisionConfig = None
     memorySize = 65536
     deploy_function(scalingConfig, provisionConfig, gpuConfig, memorySize)
 
@@ -121,7 +125,7 @@ def main():
         "gpuType": "fc.gpu.ada.2",
         "gpuMemorySize": 1,
     }
-    provisionConfig = {}
+    provisionConfig = None
     memorySize = 32768
     deploy_function(scalingConfig, provisionConfig, gpuConfig, memorySize)
 
@@ -133,8 +137,11 @@ def main():
         "gpuType": "fc.gpu.tesla.1",
         "gpuMemorySize": 1,
     }
-    provisionConfig = {}
+    provisionConfig = None
     memorySize = 32768
     deploy_function(scalingConfig, provisionConfig, gpuConfig, memorySize)
 
     cleanup_deployment()
+
+if __name__ == "__main__":
+    main()

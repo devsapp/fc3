@@ -19,7 +19,7 @@ resources:
       cpu: 8
       customContainerConfig:
         image: >-
-          registry.cn-shanghai.aliyuncs.com/serverless_devs/custom-container-http-examples:springboot
+          registry.cn-hangzhou.aliyuncs.com/serverless_devs/custom-container-http-examples:springboot
         port: 9000
       instanceConcurrency: 20
       memorySize: 65536
