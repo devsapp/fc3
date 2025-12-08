@@ -10,6 +10,7 @@ export enum FC_API_ERROR_CODE {
   AliasAlreadyExists = 'AliasAlreadyExists', // 别名已存在
   ProvisionConfigExist = 'ProvisionConfigExist', // 预配置存在
   ResidentScalingConfigExists = 'ResidentScalingConfigExists', // 常驻资源池预配置存在
+  ResourcePoolInsufficientCapacity = 'ResourcePoolInsufficientCapacity', // 资源池无容量
 }
 
 export const isSlsNotExistException = (project: string, logstore: string, ex) => {
@@ -57,12 +58,13 @@ export const isFunctionScalingConfigError = (
   { localGPUType = '', remoteGPUType = '', functionName = 'F' },
 ) => {
   if (
-    (isInvalidArgument(ex) &&
-      ex.message.includes('GPU type should not be changed with resident scaling config')) ||
-    ex.message.includes(
-      `function gpu type '${localGPUType}' doesn't match resident pool gpu type '${remoteGPUType}'`,
-    ) ||
-    ex.message.includes(`idle provision config exists for function '${functionName}'`)
+    isInvalidArgument(ex) &&
+    (ex.message.includes('GPU type should not be changed with resident scaling config') ||
+      ex.message.includes(
+        `function gpu type '${localGPUType}' doesn't match resident pool gpu type '${remoteGPUType}'`,
+      ) ||
+      ex.message.includes(`idle provision config exists for function '${functionName}'`) ||
+      ex.code === FC_API_ERROR_CODE.ResourcePoolInsufficientCapacity)
   ) {
     return true;
   }

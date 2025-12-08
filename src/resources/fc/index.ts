@@ -311,6 +311,8 @@ export default class FC extends FC_Client {
             throw ex;
           }
           retryInterval = 5;
+        } else if (retry > FC_DEPLOY_RETRY_COUNT) {
+          throw ex;
         } else if (
           isFunctionScalingConfigError(ex, {
             localGPUType,
@@ -329,8 +331,6 @@ export default class FC extends FC_Client {
           isFailedState(ex) ||
           isFunctionStateWaitTimedOut(ex)
         ) {
-          throw ex;
-        } else if (retry > FC_DEPLOY_RETRY_COUNT) {
           throw ex;
         }
         retry += 1;
