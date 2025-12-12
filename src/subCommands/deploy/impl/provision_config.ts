@@ -6,7 +6,6 @@ import { IInputs } from '../../../interface';
 import logger from '../../../logger';
 import Base from './base';
 import { sleep } from '../../../utils';
-import ScalingConfig from './scaling_config';
 import { provisionConfigErrorRetry } from '../utils';
 // import Logs from '../../logs';
 
@@ -19,7 +18,6 @@ export default class ProvisionConfig extends Base {
   remote: any;
   ProvisionMode: string;
   readonly functionName: string;
-  scalingConfig: ScalingConfig;
 
   constructor(inputs: IInputs, opts: IOpts) {
     super(inputs, opts.yes);
@@ -31,9 +29,6 @@ export default class ProvisionConfig extends Base {
     this.ProvisionMode = _.get(this.local, 'mode', 'sync');
     _.unset(this.local, 'mode');
     logger.debug(`need deploy provisionConfig: ${JSON.stringify(provisionConfig)}`);
-    this.scalingConfig = new ScalingConfig(inputs, {
-      yes: opts.yes,
-    });
   }
 
   async before() {
