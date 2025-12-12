@@ -102,12 +102,13 @@ export default class ScalingConfig extends Base {
       }
     }
 
+    let getCurrentErrorCount = 0;
     const maxRetries = 180;
 
     for (let index = 0; index < maxRetries; index++) {
       // eslint-disable-next-line no-await-in-loop
       const result = await this.fcSdk.getFunctionScalingConfig(this.functionName, qualifier);
-      const { currentInstances } = result || {};
+      const { currentInstances, currentError } = result || {};
 
       // 检查是否已达到最小实例数
       if (currentInstances && currentInstances >= result.minInstances) {
@@ -115,6 +116,21 @@ export default class ScalingConfig extends Base {
           `ScalingConfig of ${this.functionName}/${qualifier} is ready. CurrentInstances: ${currentInstances}, MinInstances: ${minInstances}`,
         );
         return;
+      }
+      if (currentError && currentError.length > 0) {
+        // 如果是系统内部错误，则继续尝试
+        if (!currentError.includes('an internal error has occurred')) {
+          // 不是系统内部错误，满足一定的重试次数则退出
+          getCurrentErrorCount++;
+          if (getCurrentErrorCount > 3 || (index > 6 && getCurrentErrorCount > 0)) {
+            logger.error(
+              `get ${this.functionName}/${qualifier} scaling config getCurrentErrorCount=${getCurrentErrorCount}`,
+            );
+            throw new Error(
+              `get ${this.functionName}/${qualifier} scaling config error: ${currentError}`,
+            );
+          }
+        }
       }
 
       logger.info(
