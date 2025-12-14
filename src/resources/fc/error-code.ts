@@ -53,20 +53,47 @@ export const isFunctionStateWaitTimedOut = (ex) => {
   return false;
 };
 
+const PROVISION_ERROR_CODES = [
+  FC_API_ERROR_CODE.ProvisionConfigExist,
+  FC_API_ERROR_CODE.ResidentScalingConfigExists,
+];
+
+const ERROR_MESSAGES = {
+  GPU_TYPE_CHANGE: 'GPU type should not be changed with resident scaling config',
+  GPU_TYPE_MISMATCH: (localGPUType, remoteGPUType) =>
+    `function gpu type '${localGPUType}' doesn't match resident pool gpu type '${remoteGPUType}'`,
+  IDLE_PROVISION_CONFIG: (functionName) =>
+    `idle provision config exists for function '${functionName}'`,
+  FUNCTION_BOUND_TO_POOL: (functionName) =>
+    `Function '${functionName}' has been bound to resident source pool`,
+};
+
+const checkProvisionErrorCode = (ex) => {
+  const code = ex?.code;
+  return code && PROVISION_ERROR_CODES.includes(code);
+};
+
+const checkInvalidArgumentConditions = (ex, localGPUType, remoteGPUType, functionName) => {
+  if (!isInvalidArgument(ex)) return false;
+
+  const message = ex?.message;
+  const code = ex?.code;
+
+  return (
+    message?.includes(ERROR_MESSAGES.GPU_TYPE_CHANGE) ||
+    message?.includes(ERROR_MESSAGES.GPU_TYPE_MISMATCH(localGPUType, remoteGPUType)) ||
+    message?.includes(ERROR_MESSAGES.IDLE_PROVISION_CONFIG(functionName)) ||
+    code === FC_API_ERROR_CODE.ResourcePoolInsufficientCapacity ||
+    message?.includes(ERROR_MESSAGES.FUNCTION_BOUND_TO_POOL(functionName))
+  );
+};
+
 export const isFunctionScalingConfigError = (
   ex,
   { localGPUType = '', remoteGPUType = '', functionName = 'F' },
 ) => {
-  if (
-    isInvalidArgument(ex) &&
-    (ex.message.includes('GPU type should not be changed with resident scaling config') ||
-      ex.message.includes(
-        `function gpu type '${localGPUType}' doesn't match resident pool gpu type '${remoteGPUType}'`,
-      ) ||
-      ex.message.includes(`idle provision config exists for function '${functionName}'`) ||
-      ex.code === FC_API_ERROR_CODE.ResourcePoolInsufficientCapacity)
-  ) {
-    return true;
-  }
-  return false;
+  return (
+    checkProvisionErrorCode(ex) ||
+    checkInvalidArgumentConditions(ex, localGPUType, remoteGPUType, functionName)
+  );
 };

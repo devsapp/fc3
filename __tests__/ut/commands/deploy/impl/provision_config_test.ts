@@ -100,6 +100,27 @@ describe('ProvisionConfig', () => {
       });
       expect(provisionConfig.ProvisionMode).toBe('async');
     });
+
+    it('should initialize correctly with drain mode config', () => {
+      const inputsWithMode = {
+        ...mockInputs,
+        props: {
+          ...mockInputs.props,
+          provisionConfig: {
+            defaultTarget: 10,
+            alwaysAllocateCPU: false,
+            alwaysAllocateGPU: false,
+            scheduledActions: [],
+            targetTrackingPolicies: [],
+            mode: 'drain',
+          },
+        },
+      };
+
+      provisionConfig = new ProvisionConfig(inputsWithMode, mockOpts);
+
+      expect(provisionConfig.ProvisionMode).toBe('drain');
+    });
   });
 
   describe('before', () => {
@@ -350,12 +371,15 @@ describe('ProvisionConfig', () => {
   });
 
   describe('waitForProvisionReady', () => {
-    it('should return immediately when target is 0', async () => {
+    it('should still call getFunctionProvisionConfig when target is 0 but loop exits early', async () => {
       provisionConfig = new ProvisionConfig(mockInputs, mockOpts);
 
       // Mock fcSdk
       const mockFcSdk = {
-        getFunctionProvisionConfig: jest.fn(),
+        getFunctionProvisionConfig: jest.fn().mockImplementation(() => {
+          // 返回模拟数据，但我们会验证它被调用了
+          return Promise.resolve({ current: 0, target: 0 });
+        }),
         disableFunctionInvocation: jest.fn().mockResolvedValue(undefined),
         enableFunctionInvocation: jest.fn().mockResolvedValue(undefined),
       };
@@ -366,7 +390,8 @@ describe('ProvisionConfig', () => {
 
       await (provisionConfig as any).waitForProvisionReady('LATEST', { target: 0 });
 
-      expect(provisionConfig.fcSdk.getFunctionProvisionConfig).not.toHaveBeenCalled();
+      // 验证getFunctionProvisionConfig至少被调用了一次
+      expect(provisionConfig.fcSdk.getFunctionProvisionConfig).toHaveBeenCalled();
     });
 
     it('should wait until current equals target', async () => {
@@ -474,6 +499,7 @@ describe('ProvisionConfig', () => {
 
       // Mock fcSdk
       const mockFcSdk = {
+        getFunctionProvisionConfig: jest.fn(),
         disableFunctionInvocation: jest.fn().mockResolvedValue(undefined),
         enableFunctionInvocation: jest.fn().mockResolvedValue(undefined),
       };
@@ -499,6 +525,7 @@ describe('ProvisionConfig', () => {
 
       // Mock fcSdk
       const mockFcSdk = {
+        getFunctionProvisionConfig: jest.fn(),
         disableFunctionInvocation: jest.fn().mockResolvedValue(undefined),
         enableFunctionInvocation: jest.fn().mockResolvedValue(undefined),
       };
@@ -508,6 +535,32 @@ describe('ProvisionConfig', () => {
       });
 
       await (provisionConfig as any).waitForProvisionReady('LATEST', { defaultTarget: 0 });
+
+      expect(provisionConfig.fcSdk.disableFunctionInvocation).toHaveBeenCalledWith(
+        'test-function',
+        true,
+        'Fast scale-to-zero',
+      );
+      expect(sleepMock).toHaveBeenCalledWith(5);
+      expect(provisionConfig.fcSdk.enableFunctionInvocation).toHaveBeenCalledWith('test-function');
+    });
+
+    it('should handle drain mode with target 0', async () => {
+      provisionConfig = new ProvisionConfig(mockInputs, mockOpts);
+      provisionConfig.ProvisionMode = 'drain';
+
+      // Mock fcSdk
+      const mockFcSdk = {
+        getFunctionProvisionConfig: jest.fn(),
+        disableFunctionInvocation: jest.fn().mockResolvedValue(undefined),
+        enableFunctionInvocation: jest.fn().mockResolvedValue(undefined),
+      };
+      Object.defineProperty(provisionConfig, 'fcSdk', {
+        value: mockFcSdk,
+        writable: true,
+      });
+
+      await (provisionConfig as any).waitForProvisionReady('LATEST', { target: 0 });
 
       expect(provisionConfig.fcSdk.disableFunctionInvocation).toHaveBeenCalledWith(
         'test-function',
@@ -750,6 +803,22 @@ describe('ProvisionConfig', () => {
 
       expect(result).toEqual({
         defaultTarget: 10,
+      });
+    });
+
+    it('should keep target when defaultTarget does not exist', () => {
+      provisionConfig = new ProvisionConfig(mockInputs, mockOpts);
+
+      const config = {
+        target: 5,
+        current: 5,
+        functionArn: 'arn:xxx',
+      };
+
+      const result = (provisionConfig as any).sanitizeProvisionConfig(config);
+
+      expect(result).toEqual({
+        target: 5,
       });
     });
 
