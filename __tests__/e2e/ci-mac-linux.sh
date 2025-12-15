@@ -43,7 +43,7 @@ sleep 10
 echo "test model s_file.yaml"
 # python -u test.py
 s model download -t s_file.yaml
-s deploy -y -t s_file.yaml
+s deploy -y -t s_file.yaml --skip-push
 s model remove -t s_file.yaml
 s remove -y -t s_file.yaml
 cd ..
