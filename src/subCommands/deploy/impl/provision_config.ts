@@ -93,15 +93,12 @@ export default class ProvisionConfig extends Base {
 
     // 如果没有目标值或目标值为0，则无需等待
     if (!realTarget || realTarget <= 0) {
-      if (this.ProvisionMode !== 'drain') {
-        return;
-      } else {
+      if (this.ProvisionMode === 'drain') {
         logger.info(`disableFunctionInvocation ${this.functionName} ...`);
         await this.fcSdk.disableFunctionInvocation(this.functionName, true, 'Fast scale-to-zero');
         await sleep(5);
         logger.info(`enableFunctionInvocation ${this.functionName} ...`);
         await this.fcSdk.enableFunctionInvocation(this.functionName);
-        return;
       }
     }
 
@@ -114,7 +111,7 @@ export default class ProvisionConfig extends Base {
       const { current, currentError } = result || {};
 
       // 检查是否已达到目标值
-      if (current && current === realTarget) {
+      if (current === undefined || (current && current === realTarget)) {
         logger.info(
           `ProvisionConfig of ${this.functionName}/${qualifier} is ready. Current: ${current}, Target: ${realTarget}`,
         );
@@ -138,7 +135,12 @@ export default class ProvisionConfig extends Base {
               logger.warn('=========== LAST 10 MINUTES END =========== ');
           */
         // 如果是系统内部错误，则继续尝试
-        if (!currentError.includes('an internal error has occurred')) {
+        if (
+          !(
+            currentError.includes('an internal error has occurred') ||
+            currentError.includes('Resources are being replenished')
+          )
+        ) {
           // 不是系统内部错误，满足一定的重试次数则退出
           getCurrentErrorCount++;
           if (getCurrentErrorCount > 3 || (index > 6 && getCurrentErrorCount > 0)) {

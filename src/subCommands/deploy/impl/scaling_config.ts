@@ -90,15 +90,12 @@ export default class ScalingConfig extends Base {
 
     // 如果没有最小实例数或最小实例数为0，则无需等待
     if (!minInstances || minInstances <= 0) {
-      if (this.ScalingMode !== 'drain') {
-        return;
-      } else {
+      if (this.ScalingMode === 'drain') {
         logger.info(`disableFunctionInvocation ${this.functionName} ...`);
         await this.fcSdk.disableFunctionInvocation(this.functionName, true, 'Fast scale-to-zero');
         await sleep(5);
         logger.info(`enableFunctionInvocation ${this.functionName} ...`);
         await this.fcSdk.enableFunctionInvocation(this.functionName);
-        return;
       }
     }
 
@@ -110,8 +107,14 @@ export default class ScalingConfig extends Base {
       const result = await this.fcSdk.getFunctionScalingConfig(this.functionName, qualifier);
       const { currentInstances, currentError } = result || {};
 
+      logger.debug(
+        `get ${this.functionName}/${qualifier} scaling config result: ${JSON.stringify(result)}`,
+      );
       // 检查是否已达到最小实例数
-      if (currentInstances && currentInstances >= result.minInstances) {
+      if (
+        currentInstances === undefined ||
+        (currentInstances && currentInstances === result.minInstances)
+      ) {
         logger.info(
           `ScalingConfig of ${this.functionName}/${qualifier} is ready. CurrentInstances: ${currentInstances}, MinInstances: ${minInstances}`,
         );
@@ -119,7 +122,12 @@ export default class ScalingConfig extends Base {
       }
       if (currentError && currentError.length > 0) {
         // 如果是系统内部错误，则继续尝试
-        if (!currentError.includes('an internal error has occurred')) {
+        if (
+          !(
+            currentError.includes('an internal error has occurred') ||
+            currentError.includes('Resources are being replenished')
+          )
+        ) {
           // 不是系统内部错误，满足一定的重试次数则退出
           getCurrentErrorCount++;
           if (getCurrentErrorCount > 3 || (index > 6 && getCurrentErrorCount > 0)) {

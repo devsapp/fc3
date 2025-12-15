@@ -322,6 +322,17 @@ describe('ScalingConfig', () => {
       });
       expect(scalingConfig.ScalingMode).toBe('async');
     });
+
+    it('should initialize correctly with drain mode config', () => {
+      mockInputs.props.scalingConfig = {
+        minInstances: 1,
+        mode: 'drain',
+      } as any;
+
+      scalingConfig = new ScalingConfig(mockInputs, mockOpts);
+
+      expect(scalingConfig.ScalingMode).toBe('drain');
+    });
   });
 
   describe('before', () => {
@@ -611,12 +622,14 @@ describe('ScalingConfig', () => {
   });
 
   describe('waitForScalingReady', () => {
-    it('should return immediately when minInstances is 0', async () => {
+    it('should still call getFunctionScalingConfig when minInstances is 0 but loop exits early', async () => {
       scalingConfig = new ScalingConfig(mockInputs, mockOpts);
 
       // Mock fcSdk
       const mockFcSdk = {
-        getFunctionScalingConfig: jest.fn(),
+        getFunctionScalingConfig: jest
+          .fn()
+          .mockResolvedValue({ currentInstances: 0, minInstances: 0 }),
         disableFunctionInvocation: jest.fn().mockResolvedValue(undefined),
         enableFunctionInvocation: jest.fn().mockResolvedValue(undefined),
       };
@@ -627,7 +640,8 @@ describe('ScalingConfig', () => {
 
       await (scalingConfig as any).waitForScalingReady('LATEST', { minInstances: 0 });
 
-      expect(mockFcSdk.getFunctionScalingConfig).not.toHaveBeenCalled();
+      // 验证getFunctionScalingConfig至少被调用了一次
+      expect(mockFcSdk.getFunctionScalingConfig).toHaveBeenCalled();
     });
 
     it('should wait until currentInstances reaches minInstances', async () => {
@@ -671,6 +685,32 @@ describe('ScalingConfig', () => {
       });
 
       await (scalingConfig as any).waitForScalingReady('LATEST', { minInstances: 0 });
+
+      expect(mockFcSdk.disableFunctionInvocation).toHaveBeenCalledWith(
+        'test-function',
+        true,
+        'Fast scale-to-zero',
+      );
+      expect(sleepMock).toHaveBeenCalledWith(5);
+      expect(mockFcSdk.enableFunctionInvocation).toHaveBeenCalledWith('test-function');
+    });
+
+    it('should handle drain mode without minInstances', async () => {
+      scalingConfig = new ScalingConfig(mockInputs, mockOpts);
+      scalingConfig.ScalingMode = 'drain';
+
+      // Mock fcSdk
+      const mockFcSdk = {
+        disableFunctionInvocation: jest.fn().mockResolvedValue(undefined),
+        enableFunctionInvocation: jest.fn().mockResolvedValue(undefined),
+        getFunctionScalingConfig: jest.fn().mockResolvedValue({}),
+      };
+      Object.defineProperty(scalingConfig, 'fcSdk', {
+        value: mockFcSdk,
+        writable: true,
+      });
+
+      await (scalingConfig as any).waitForScalingReady('LATEST', {});
 
       expect(mockFcSdk.disableFunctionInvocation).toHaveBeenCalledWith(
         'test-function',
