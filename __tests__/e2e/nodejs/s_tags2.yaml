@@ -8,6 +8,10 @@ vars:
 resources:
   fcDemo1: # 业务名称/模块名称
     component: ${env('fc_component_version', path('../../../'))}
+    actions:
+      pre-deploy:
+        - run: npm install
+          path: ./test-auto-code
     props: # 组件的属性值
       region: ${vars.region}
       functionName: fc3-event-${env('fc_component_function_name', 'nodejs18')}-tags

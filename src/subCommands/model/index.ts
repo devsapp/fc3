@@ -73,7 +73,7 @@ export class Model {
 
   async remove() {
     logger.info('[Remove-model] remove model ...');
-    const params = await this.getParams();
+    const params = await this.getParams('Remove-model');
     const { annotations } = this.inputs.props;
     const modelConfig = annotations?.modelConfig;
 
@@ -110,7 +110,7 @@ export class Model {
     );
   }
 
-  private async getParams() {
+  private async getParams(command = 'Download-model') {
     const { AccountID: accountID } = await this.inputs.getCredential();
     const { credential } = this.inputs;
     const { region, supplement, annotations } = this.inputs.props;
@@ -119,7 +119,7 @@ export class Model {
 
     this._validateModelConfig(modelConfig);
 
-    logger.info(`[Download-model] Download model start.`);
+    logger.info(`[${command}] Start...`);
     const { nasAuto, vpcAuto, ossAuto } = FC.computeLocalAuto(this.local);
     logger.debug(`[auto] Auto compute local auto, nasAuto: ${nasAuto} ossAuto: ${ossAuto};`);
 
@@ -133,7 +133,7 @@ export class Model {
 
     const { nasConfig, vpcConfig, ossMountConfig } = this.local;
     logger.info(
-      `[Download-model] nasConfig: ${JSON.stringify(nasConfig)} vpcConfig: ${JSON.stringify(
+      `[${command}] nasConfig: ${JSON.stringify(nasConfig)} vpcConfig: ${JSON.stringify(
         vpcConfig,
       )} ossMountConfig: ${JSON.stringify(ossMountConfig)}`,
     );

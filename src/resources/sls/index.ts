@@ -33,7 +33,7 @@ export default class Sls {
       userAgent: 'serverless-devs',
       regionId: region,
       readTimeout: 60000,
-      connectTimeout: 5000,
+      connectTimeout: 60000,
     });
     this.client = new Sls20201230(config);
     this.accountID = credentials.AccountID;
