@@ -24,7 +24,7 @@
   "dependencies": {
     "@alicloud/devs20230714": "^2.5.0",
     "@alicloud/fc2": "^2.6.6",
-    "@alicloud/fc20230330": "4.6.3",
+    "@alicloud/fc20230330": "4.6.5",
     "@alicloud/pop-core": "^1.8.0",
     "@serverless-cd/srm-aliyun-pop-core": "^0.0.8-beta.1",
     "@serverless-cd/srm-aliyun-ram20150501": "^0.0.2-beta.9",
