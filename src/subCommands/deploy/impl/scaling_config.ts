@@ -105,18 +105,15 @@ export default class ScalingConfig extends Base {
     for (let index = 0; index < maxRetries; index++) {
       // eslint-disable-next-line no-await-in-loop
       const result = await this.fcSdk.getFunctionScalingConfig(this.functionName, qualifier);
-      const { currentInstances, currentError } = result || {};
+      const { currentInstances, currentError, targetInstances } = result || {};
 
       logger.debug(
         `get ${this.functionName}/${qualifier} scaling config result: ${JSON.stringify(result)}`,
       );
       // 检查是否已达到最小实例数
-      if (
-        currentInstances === undefined ||
-        (currentInstances && currentInstances === result.minInstances)
-      ) {
+      if (currentInstances === undefined || currentInstances === targetInstances) {
         logger.info(
-          `ScalingConfig of ${this.functionName}/${qualifier} is ready. CurrentInstances: ${currentInstances}, MinInstances: ${minInstances}`,
+          `ScalingConfig of ${this.functionName}/${qualifier} is ready. CurrentInstances: ${currentInstances}, TargetInstances: ${targetInstances}`,
         );
         return;
       }
@@ -142,7 +139,7 @@ export default class ScalingConfig extends Base {
       }
 
       logger.info(
-        `waiting ${this.functionName}/${qualifier} scaling OK: currentInstances: ${currentInstances}, minInstances: ${minInstances}`,
+        `waiting ${this.functionName}/${qualifier} scaling OK: currentInstances: ${currentInstances}, targetInstances: ${targetInstances}`,
       );
 
       // eslint-disable-next-line no-await-in-loop
