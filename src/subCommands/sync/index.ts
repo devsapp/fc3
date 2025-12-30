@@ -106,6 +106,7 @@ export default class Sync {
     let vpcBindingConfig = {};
     let concurrencyConfig = {};
     let provisionConfig = {};
+    let scalingConfig = {};
     try {
       asyncInvokeConfig = await this.fcSdk.getAsyncInvokeConfig(
         this.functionName,
@@ -118,6 +119,12 @@ export default class Sync {
 
     try {
       provisionConfig = await this.fcSdk.getFunctionProvisionConfig(this.functionName, 'LATEST');
+    } catch (ex) {
+      // eslint-disable-next-line no-empty
+    }
+
+    try {
+      scalingConfig = await this.fcSdk.getFunctionScalingConfig(this.functionName, 'LATEST');
     } catch (ex) {
       // eslint-disable-next-line no-empty
     }
@@ -143,6 +150,7 @@ export default class Sync {
       vpcBindingConfig,
       concurrencyConfig,
       provisionConfig,
+      scalingConfig,
     );
   }
 
@@ -153,6 +161,7 @@ export default class Sync {
     vpcBindingConfig: any,
     concurrencyConfig: any,
     provisionConfig: any,
+    scalingConfig: any,
   ) {
     const syncFolderName = 'sync-clone';
 
@@ -207,12 +216,28 @@ export default class Sync {
     if (!_.isEmpty(asyncInvokeConfig)) {
       props.asyncInvokeConfig = asyncInvokeConfig;
     }
+
     if (!_.isEmpty(provisionConfig)) {
       _.unset(provisionConfig, 'current');
       _.unset(provisionConfig, 'currentError');
       _.unset(provisionConfig, 'functionArn');
-      props.provisionConfig = provisionConfig;
+      const isElasticInstance =
+        provisionConfig.alwaysAllocateCPU === true && provisionConfig.alwaysAllocateGPU === true;
+
+      if (isElasticInstance) {
+        props.provisionConfig = provisionConfig;
+      } else if (!_.isEmpty(scalingConfig)) {
+        _.unset(scalingConfig, 'currentError');
+        _.unset(scalingConfig, 'currentInstances');
+        _.unset(scalingConfig, 'targetInstances');
+        _.unset(scalingConfig, 'enableOnDemandScaling');
+        _.unset(scalingConfig, 'functionArn');
+        props.scalingConfig = scalingConfig;
+      } else {
+        throw new Error('ScalingConfig not found');
+      }
     }
+
     if (!_.isEmpty(concurrencyConfig)) {
       _.unset(concurrencyConfig, 'functionArn');
       props.concurrencyConfig = concurrencyConfig;
