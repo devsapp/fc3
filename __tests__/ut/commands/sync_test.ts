@@ -5,6 +5,11 @@ import fs from 'fs';
 import fs_extra from 'fs-extra';
 import downloads from '@serverless-devs/downloads';
 
+// Mock the ScalingPolicy import that's causing issues
+jest.mock('@alicloud/fc20230330', () => ({
+  ScalingPolicy: jest.fn().mockImplementation((config) => config),
+}));
+
 // Mock dependencies
 jest.mock('../../../src/resources/fc', () => {
   // Define GetApiType enum for the mock
@@ -108,6 +113,7 @@ describe('Sync', () => {
       listTriggers: jest.fn(),
       getAsyncInvokeConfig: jest.fn(),
       getFunctionProvisionConfig: jest.fn(),
+      getFunctionScalingConfig: jest.fn(),
       getFunctionConcurrency: jest.fn(),
       getVpcBinding: jest.fn(),
       getFunctionCode: jest.fn(),
@@ -156,6 +162,14 @@ describe('Sync', () => {
 
     mockFcInstance.getVpcBinding.mockResolvedValue({
       vpcIds: ['vpc-12345'],
+    });
+
+    mockFcInstance.getFunctionScalingConfig.mockResolvedValue({
+      currentInstances: 1,
+      minInstances: 1,
+      targetInstances: 1,
+      currentError: '',
+      functionArn: 'arn:acs:fc:cn-hangzhou:123456789:functions/test-function',
     });
 
     mockFcInstance.getFunctionCode.mockResolvedValue({
@@ -306,6 +320,7 @@ describe('Sync', () => {
       expect(mockFcInstance.listTriggers).toHaveBeenCalled();
       expect(mockFcInstance.getAsyncInvokeConfig).toHaveBeenCalled();
       expect(mockFcInstance.getFunctionProvisionConfig).toHaveBeenCalled();
+      expect(mockFcInstance.getFunctionScalingConfig).toHaveBeenCalled();
       expect(mockFcInstance.getFunctionConcurrency).toHaveBeenCalled();
       expect(mockFcInstance.getVpcBinding).toHaveBeenCalled();
       expect(result).toHaveProperty('ymlPath');
@@ -344,6 +359,26 @@ describe('Sync', () => {
       await sync.run();
 
       expect(downloads).toHaveBeenCalled();
+    });
+
+    it('should handle scaling config successfully', async () => {
+      mockFcInstance.getFunctionScalingConfig.mockResolvedValue({
+        currentInstances: 1,
+        minInstances: 1,
+        targetInstances: 1,
+        currentError: '',
+        functionArn: 'arn:acs:fc:cn-hangzhou:123456789:functions/test-function',
+      });
+
+      const sync = new Sync(mockInputs);
+      const result = await sync.run();
+
+      expect(mockFcInstance.getFunctionScalingConfig).toHaveBeenCalledWith(
+        'test-function',
+        'LATEST',
+      );
+      expect(result).toHaveProperty('ymlPath');
+      expect(result).toHaveProperty('codePath');
     });
   });
 
@@ -385,6 +420,13 @@ describe('Sync', () => {
         currentError: '',
         functionArn: 'arn:acs:fc:cn-hangzhou:123456789:functions/test-function',
       };
+      const scalingConfig = {
+        currentInstances: 1,
+        minInstances: 1,
+        targetInstances: 1,
+        currentError: '',
+        functionArn: 'arn:acs:fc:cn-hangzhou:123456789:functions/test-function',
+      };
 
       const result = await sync.write(
         functionConfig,
@@ -393,6 +435,7 @@ describe('Sync', () => {
         vpcBindingConfig,
         concurrencyConfig,
         provisionConfig,
+        scalingConfig,
       );
 
       expect(fs_extra.removeSync).toHaveBeenCalledWith(
@@ -422,7 +465,7 @@ describe('Sync', () => {
         },
       };
 
-      await sync.write(functionConfig, [], {}, {}, {}, {});
+      await sync.write(functionConfig, [], {}, {}, {}, {}, {});
 
       expect(downloads).not.toHaveBeenCalled();
       expect(fs_extra.removeSync).not.toHaveBeenCalled();
@@ -443,9 +486,48 @@ describe('Sync', () => {
         {},
         {},
         {},
+        {},
       );
 
       expect(fs.mkdirSync).toHaveBeenCalledWith('/custom/target', { recursive: true });
+    });
+
+    it('should handle scaling configuration in write method', async () => {
+      const sync = new Sync(mockInputs);
+      const functionConfig = {
+        functionName: 'test-function',
+        runtime: 'nodejs18',
+        handler: 'index.handler',
+        code: {
+          location: 'https://test.oss-cn-hangzhou.aliyuncs.com/code.zip',
+        },
+      };
+      const triggers = [];
+      const asyncInvokeConfig = {};
+      const vpcBindingConfig = {};
+      const concurrencyConfig = {};
+      const provisionConfig = {};
+      const scalingConfig = {
+        currentInstances: 2,
+        minInstances: 1,
+        targetInstances: 3,
+        currentError: '',
+        functionArn: 'arn:acs:fc:cn-hangzhou:123456789:functions/test-function',
+      };
+
+      const result = await sync.write(
+        functionConfig,
+        triggers,
+        asyncInvokeConfig,
+        vpcBindingConfig,
+        concurrencyConfig,
+        provisionConfig,
+        scalingConfig,
+      );
+
+      expect(fs.writeFileSync).toHaveBeenCalled();
+      expect(result).toHaveProperty('ymlPath');
+      expect(result).toHaveProperty('codePath');
     });
   });
 });
