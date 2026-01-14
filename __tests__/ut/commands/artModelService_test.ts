@@ -29,7 +29,20 @@ jest.mock('../../../src/logger', () => {
 jest.mock('@alicloud/devs20230714');
 jest.mock('@alicloud/openapi-client');
 jest.mock('../../../src/utils');
-jest.mock('../../../src/subCommands/model/utils');
+// Mock the utils module with specific functions
+jest.mock('../../../src/subCommands/model/utils', () => {
+  const originalModule = jest.requireActual('../../../src/subCommands/model/utils');
+  const mockRetryFileManagerRsyncAndCheckStatus = jest.fn();
+  return {
+    __esModule: true,
+    ...originalModule,
+    retryWithFileManager: jest.fn((command, fn) => fn()),
+    retryFileManagerRsyncAndCheckStatus: mockRetryFileManagerRsyncAndCheckStatus,
+    initClient: jest.fn(),
+    checkModelStatus: jest.fn(),
+    extractOssMountDir: jest.fn(),
+  };
+});
 
 describe('ArtModelService', () => {
   let artModelService: ArtModelService;
@@ -91,11 +104,40 @@ describe('ArtModelService', () => {
       (sleep as jest.Mock).mockResolvedValue(undefined);
     });
 
+    it('should skip download if modelConfig.mode is "never"', async () => {
+      const name = 'test-project$test-env$test-function';
+      const params = {
+        modelConfig: {
+          mode: 'never',
+          source: {
+            uri: 'modelscope://test-model',
+          },
+          target: {
+            uri: 'nas://auto',
+          },
+          files: [
+            {
+              source: { path: 'file1.txt' },
+              target: { path: 'file1.txt' },
+            },
+          ],
+        },
+        storage: 'nas',
+        nasMountPoints: [{ mountDir: '/mnt/test' }],
+        role: 'acs:ram::123456789:role/aliyundevsdefaultrole',
+        region: 'cn-hangzhou',
+        vpcConfig: {},
+      };
+
+      await expect(artModelService.downloadModel(name, params)).resolves.toBeUndefined();
+      expect(require('../../../src/subCommands/model/utils').initClient).toHaveBeenCalled();
+    });
+
     it('should skip download if all files already exist and are finished', async () => {
       const name = 'test-project$test-env$test-function';
       const params = {
         modelConfig: {
-          mode: 'once', // 添加mode属性
+          mode: 'once',
           source: {
             uri: 'modelscope://test-model',
           },
@@ -130,7 +172,7 @@ describe('ArtModelService', () => {
                 },
                 parameters: {
                   // 确保这些参数与实际生成的路径匹配
-                  destination: 'file:///mnt/test/file1.txt',
+                  destination: 'file://mnt/test/file1.txt',
                   source: 'modelscope://test-model/file1.txt',
                 },
               },
@@ -140,14 +182,14 @@ describe('ArtModelService', () => {
       } as any);
 
       // 当所有文件已经下载完成时，应该正常结束而不抛出异常
-      await expect(artModelService.downloadModel(name, params)).rejects.toThrow();
+      await expect(artModelService.downloadModel(name, params)).resolves.toBeUndefined();
     });
 
     it('should successfully download files when no existing tasks', async () => {
       const name = 'test-project$test-env$test-function';
       const params = {
         modelConfig: {
-          mode: 'always', // 添加mode属性
+          mode: 'always',
           source: {
             uri: 'modelscope://test-model',
           },
@@ -186,36 +228,8 @@ describe('ArtModelService', () => {
         },
       } as any);
 
-      // 模拟合理的下载时间，避免超时
-      const startTime = Date.now() - 5000; // 5秒前开始
-      mockDevClient.getFileManagerTask
-        .mockResolvedValueOnce({
-          body: {
-            data: {
-              finished: false,
-              startTime: startTime,
-              progress: {
-                currentBytes: 512,
-                totalBytes: 1024,
-              },
-            },
-          },
-        } as any)
-        .mockResolvedValueOnce({
-          body: {
-            data: {
-              finished: true,
-              success: true,
-              startTime: startTime,
-              finishedTime: Date.now(),
-              progress: {
-                currentBytes: 1024,
-                totalBytes: 1024,
-                total: true,
-              },
-            },
-          },
-        } as any);
+      // ArtModelService内部会调用checkModelStatus，所以我们需要模拟它
+      (checkModelStatus as jest.Mock).mockResolvedValue(undefined);
 
       // 成功下载应该正常完成而不抛出异常
       await expect(artModelService.downloadModel(name, params)).resolves.toBeUndefined();
@@ -225,7 +239,7 @@ describe('ArtModelService', () => {
       const name = 'test-project$test-env$test-function';
       const params = {
         modelConfig: {
-          mode: 'always', // 添加mode属性
+          mode: 'always',
           source: {
             uri: 'modelscope://test-model',
           },
@@ -254,13 +268,11 @@ describe('ArtModelService', () => {
         },
       } as any);
 
-      mockDevClient.fileManagerRsync.mockResolvedValue({
-        body: {
-          success: false,
-          data: {},
-          requestId: 'req-123',
-        },
-      } as any);
+      // 现在使用重试函数，我们需要模拟重试函数抛出错误
+      (
+        require('../../../src/subCommands/model/utils')
+          .retryFileManagerRsyncAndCheckStatus as jest.Mock
+      ).mockRejectedValue(new Error('Download failed'));
 
       // 下载失败应该抛出异常
       await expect(artModelService.downloadModel(name, params)).rejects.toThrow();
@@ -270,7 +282,7 @@ describe('ArtModelService', () => {
       const name = 'test-project$test-env$test-function';
       const params = {
         modelConfig: {
-          mode: 'always', // 添加mode属性
+          mode: 'always',
           source: {
             uri: 'modelscope://test-model',
           },
@@ -324,8 +336,11 @@ describe('ArtModelService', () => {
         },
       } as any);
 
-      // 模拟 checkModelStatus 抛出超时错误
-      (checkModelStatus as jest.Mock).mockRejectedValue(new Error('Timeout'));
+      // 现在使用重试函数，我们需要模拟重试函数抛出超时错误
+      (
+        require('../../../src/subCommands/model/utils')
+          .retryFileManagerRsyncAndCheckStatus as jest.Mock
+      ).mockRejectedValue(new Error('Timeout'));
 
       // 超时应该抛出异常
       await expect(artModelService.downloadModel(name, params)).rejects.toThrow();
@@ -335,7 +350,7 @@ describe('ArtModelService', () => {
       const name = 'test-project$test-env$test-function';
       const params = {
         modelConfig: {
-          mode: 'always', // 添加mode属性
+          mode: 'always',
           source: {
             uri: 'modelscope://test-model',
           },
@@ -374,8 +389,11 @@ describe('ArtModelService', () => {
         },
       } as any);
 
-      // 模拟 checkModelStatus 抛出错误
-      (checkModelStatus as jest.Mock).mockRejectedValue(new Error('Download failed'));
+      // 现在使用重试函数，我们需要模拟重试函数抛出错误
+      (
+        require('../../../src/subCommands/model/utils')
+          .retryFileManagerRsyncAndCheckStatus as jest.Mock
+      ).mockRejectedValue(new Error('Download failed'));
 
       // 下载失败应该抛出异常
       await expect(artModelService.downloadModel(name, params)).rejects.toThrow();
@@ -385,7 +403,7 @@ describe('ArtModelService', () => {
       const name = 'test-project$test-env$test-function';
       const params = {
         modelConfig: {
-          mode: 'always', // 添加mode属性
+          mode: 'always',
           source: {
             uri: 'modelscope://test-model',
           },
@@ -403,6 +421,72 @@ describe('ArtModelService', () => {
 
       // 空文件列表应该正常完成
       await expect(artModelService.downloadModel(name, params)).resolves.toBeUndefined();
+    });
+
+    it('should use MODEL_CONFLIC_HANDLING environment variable for conflict handling', async () => {
+      const name = 'test-project$test-env$test-function';
+      const params = {
+        modelConfig: {
+          mode: 'always',
+          source: {
+            uri: 'modelscope://test-model',
+          },
+          target: {
+            uri: 'nas://auto',
+          },
+          files: [
+            {
+              source: { path: 'file1.txt' },
+              target: { path: 'file1.txt' },
+            },
+          ],
+          conflictResolution: 'overwrite', // 这个值应该被环境变量覆盖
+        },
+        storage: 'nas',
+        nasMountPoints: [{ mountDir: '/mnt/test' }],
+        role: 'acs:ram::123456789:role/aliyundevsdefaultrole',
+        region: 'cn-hangzhou',
+        vpcConfig: {},
+      };
+
+      // 设置环境变量
+      const originalValue = process.env.MODEL_CONFLIC_HANDLING;
+      process.env.MODEL_CONFLIC_HANDLING = 'skip';
+
+      mockDevClient.listFileManagerTasks.mockResolvedValue({
+        body: {
+          data: {
+            tasks: [],
+          },
+        },
+      } as any);
+
+      mockDevClient.fileManagerRsync.mockResolvedValue({
+        body: {
+          success: true,
+          data: {
+            taskID: 'task-123',
+          },
+          requestId: 'req-123',
+        },
+      } as any);
+
+      // 现在使用重试函数，我们需要模拟重试函数成功执行
+      (
+        require('../../../src/subCommands/model/utils')
+          .retryFileManagerRsyncAndCheckStatus as jest.Mock
+      ).mockResolvedValue(undefined);
+
+      // 成功下载应该正常完成而不抛出异常
+      await expect(artModelService.downloadModel(name, params)).resolves.toBeUndefined();
+
+      // 由于现在使用了重试函数，我们验证重试函数被调用
+      expect(
+        require('../../../src/subCommands/model/utils').retryFileManagerRsyncAndCheckStatus,
+      ).toHaveBeenCalled();
+
+      // 恢复环境变量
+      process.env.MODEL_CONFLIC_HANDLING = originalValue;
     });
   });
 
@@ -536,6 +620,39 @@ describe('ArtModelService', () => {
       });
     });
 
+    it('should handle source URI with reversion', () => {
+      const result = artModelService.getSourceAndDestination(
+        'modelscope://test-model',
+        {
+          source: { path: 'file1.txt', uri: 'modelscope://different-model' },
+          target: { path: 'file1.txt' },
+        },
+        [{ mountDir: '/mnt/nas' }],
+        [{ mountDir: '/mnt/oss' }],
+        'nas://auto',
+      );
+
+      expect(result).toEqual({
+        source: 'modelscope://different-model/file1.txt',
+        destination: 'file://mnt/nas/file1.txt',
+      });
+    });
+
+    it('should handle target URI with reversion', () => {
+      const result = artModelService.getSourceAndDestination(
+        'modelscope://test-model',
+        { source: { path: 'file1.txt' }, target: { path: 'file1.txt', uri: 'oss://auto' } },
+        [{ mountDir: '/mnt/nas' }],
+        [{ mountDir: '/mnt/oss' }],
+        'nas://auto',
+      );
+
+      expect(result).toEqual({
+        source: 'modelscope://test-model/file1.txt',
+        destination: 'file://mnt/oss/file1.txt',
+      });
+    });
+
     it('should handle invalid source URI', () => {
       expect(() => {
         artModelService.getSourceAndDestination(
@@ -614,6 +731,17 @@ describe('ArtModelService', () => {
       );
 
       expect(result).toBe('file://mnt/custom/file1.txt');
+    });
+
+    it('should handle target path starting with slash', () => {
+      const result = (artModelService as any)._getDestinationPath(
+        'nas://mnt/custom',
+        { target: { path: '/file1.txt' } }, // Path starting with slash
+        [{ mountDir: '/mnt/nas' }],
+        [{ mountDir: '/mnt/oss' }],
+      );
+
+      expect(result).toBe('file://mnt/custom/file1.txt'); // Should remove leading slash
     });
   });
 });

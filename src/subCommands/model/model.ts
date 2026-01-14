@@ -2,7 +2,12 @@
 import logger from '../../logger';
 import * as $Dev20230714 from '@alicloud/devs20230714';
 import { IInputs } from '../../interface';
-import { checkModelStatus, extractOssMountDir, initClient } from './utils';
+import {
+  extractOssMountDir,
+  initClient,
+  retryFileManagerRsyncAndCheckStatus,
+  retryFileManagerRm,
+} from './utils';
 
 export class ModelService {
   logger = logger;
@@ -13,7 +18,7 @@ export class ModelService {
   }
 
   async downloadModel(name, params) {
-    const devClient = await initClient(this.inputs, this.region, logger, 'fun-model');
+    const devClient = await initClient(this.inputs, this.region, 'fun-model');
     const { nasMountPoints, ossMountPoints, role, modelConfig, vpcConfig, region, storage } =
       params;
     // 判断modelConfig.source是否是modelscope://、oss://或nas://
@@ -84,20 +89,21 @@ export class ModelService {
       conflictHandling: process.env.MODEL_CONFLIC_HANDLING || modelConfig.conflictResolution,
     });
     logger.debug(JSON.stringify(fileManagerRsyncRequest, null, 2));
-    const req = await devClient.fileManagerRsync(fileManagerRsyncRequest);
-    logger.debug('fileManagerRsync', JSON.stringify(req, null, 2));
-    if (!req?.body.success) {
-      throw new Error(`fileManagerRsync error: ${JSON.stringify(req?.body, null, 2)}`);
-    }
 
-    const { taskID } = req.body.data;
-    logger.info(`download model requestId: ${req.body.requestId}`);
-    await checkModelStatus(devClient, taskID, logger, '', modelConfig.timeout);
+    // 使用公共方法重试fileManagerRsync + checkModelStatus流程
+    await retryFileManagerRsyncAndCheckStatus(
+      devClient,
+      fileManagerRsyncRequest,
+      '',
+      modelConfig.timeout,
+      2,
+      30,
+    );
   }
 
   async removeModel(name, params) {
     const { nasMountPoints, ossMountPoints, role, region, vpcConfig, storage } = params;
-    const devClient = await initClient(this.inputs, this.region, logger, 'fun-model');
+    const devClient = await initClient(this.inputs, this.region, 'fun-model');
 
     const processedOssMountPoints = extractOssMountDir(ossMountPoints);
 
@@ -113,33 +119,14 @@ export class ModelService {
         region,
       }),
     });
-    logger.debug('fileManagerRmRequest', JSON.stringify(fileManagerRmRequest, null, 2));
-    const res = await devClient.fileManagerRm(fileManagerRmRequest);
-    logger.debug('removeModel', JSON.stringify(res, null, 2));
-    let taskID;
-    if (res?.body.data?.taskID) {
-      taskID = res.body.data.taskID;
-    }
-    const shouldContinue = true;
-    while (shouldContinue) {
-      // eslint-disable-next-line no-await-in-loop
-      const getFileManagerTask = await devClient.getFileManagerTask(taskID);
-      logger.debug('getFileManagerTask', JSON.stringify(getFileManagerTask, null, 2));
-      const modelStatus = getFileManagerTask?.body?.data;
-      const removeFinished = modelStatus?.success && modelStatus?.finished;
-      if (removeFinished) {
-        const deleteFileManagerTasks = new $Dev20230714.RemoveFileManagerTasksRequest({
-          name,
-        });
-        // eslint-disable-next-line no-await-in-loop
-        const deleteTasks = await devClient.removeFileManagerTasks(deleteFileManagerTasks);
-        logger.debug('deleteTasks', JSON.stringify(deleteTasks, null, 2));
-        return;
-      } else if (modelStatus?.errorMessage) {
-        const errorMsg = `[Download-model] model: ${modelStatus.errorMessage} ,requestId: ${getFileManagerTask.body.requestId}`;
-        logger.error(errorMsg);
-        throw new Error(errorMsg);
-      }
-    }
+
+    await retryFileManagerRm(devClient, fileManagerRmRequest, 'model', 3, 30);
+
+    // 清理任务记录
+    const deleteFileManagerTasks = new $Dev20230714.RemoveFileManagerTasksRequest({
+      name,
+    });
+    const deleteTasks = await devClient.removeFileManagerTasks(deleteFileManagerTasks);
+    logger.debug('deleteTasks', JSON.stringify(deleteTasks, null, 2));
   }
 }

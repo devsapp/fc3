@@ -27,10 +27,16 @@ jest.mock('../../../src/logger', () => {
 jest.mock('../../../src/subCommands/model/utils', () => {
   const mockInitClient = jest.fn();
   const mockCheckModelStatus = jest.fn();
+  const mockRetryWithFileManager = jest.fn((command, fn) => fn());
+  const mockRetryFileManagerRsyncAndCheckStatus = jest.fn();
+  const mockRetryFileManagerRm = jest.fn();
 
   return {
     initClient: mockInitClient,
     checkModelStatus: mockCheckModelStatus,
+    retryWithFileManager: mockRetryWithFileManager,
+    retryFileManagerRsyncAndCheckStatus: mockRetryFileManagerRsyncAndCheckStatus,
+    retryFileManagerRm: mockRetryFileManagerRm,
     _displayProgress: jest.fn(),
     _displayProgressComplete: jest.fn(),
     extractOssMountDir: jest.fn(),
@@ -43,12 +49,16 @@ describe('ModelService', () => {
   let mockDevClient: any;
   let mockInitClient: jest.Mock;
   let mockCheckModelStatus: jest.Mock;
+  let mockRetryFileManagerRsyncAndCheckStatus: jest.Mock;
+  let mockRetryFileManagerRm: jest.Mock;
 
   beforeEach(() => {
     // 获取mock函数的引用
     const utilsModule = require('../../../src/subCommands/model/utils');
     mockInitClient = utilsModule.initClient;
     mockCheckModelStatus = utilsModule.checkModelStatus;
+    mockRetryFileManagerRsyncAndCheckStatus = utilsModule.retryFileManagerRsyncAndCheckStatus;
+    mockRetryFileManagerRm = utilsModule.retryFileManagerRm;
 
     mockInputs = {
       cwd: '/test',
@@ -216,7 +226,61 @@ describe('ModelService', () => {
       await expect(modelService.downloadModel(name, params)).resolves.toBeUndefined();
       expect(mockInitClient).toHaveBeenCalled();
       expect(mockDevClient.listFileManagerTasks).toHaveBeenCalled();
-      expect(mockDevClient.fileManagerRsync).toHaveBeenCalled();
+      // 现在使用了重试函数，所以直接检查重试函数是否被调用
+      expect(mockRetryFileManagerRsyncAndCheckStatus).toHaveBeenCalled();
+    });
+
+    it('should use MODEL_CONFLIC_HANDLING environment variable for conflict handling', async () => {
+      const name = 'test-project$test-env$test-function';
+      const params = {
+        modelConfig: {
+          source: 'modelscope://test-model',
+          model: 'test-model',
+          uri: 'modelscope://test-model',
+          conflictResolution: 'overwrite', // 这个值应该被环境变量覆盖
+          mode: 'once',
+          timeout: 300,
+        },
+        storage: 'nas',
+        nasMountPoints: [{ mountDir: '/mnt/test' }],
+        ossMountPoints: [],
+        role: 'acs:ram::123456789:role/aliyundevsdefaultrole',
+        region: 'cn-hangzhou',
+        vpcConfig: {},
+      };
+
+      // 设置环境变量
+      const originalValue = process.env.MODEL_CONFLIC_HANDLING;
+      process.env.MODEL_CONFLIC_HANDLING = 'skip';
+
+      mockDevClient.listFileManagerTasks.mockResolvedValue({
+        body: {
+          success: true,
+          data: {
+            tasks: [],
+          },
+        },
+      });
+
+      mockDevClient.fileManagerRsync.mockResolvedValue({
+        body: {
+          success: true,
+          data: {
+            taskID: 'task-123',
+          },
+          requestId: 'req-123',
+        },
+      });
+
+      await expect(modelService.downloadModel(name, params)).resolves.toBeUndefined();
+      expect(mockInitClient).toHaveBeenCalled();
+      expect(mockDevClient.listFileManagerTasks).toHaveBeenCalled();
+
+      // 现在使用了重试函数，所以检查重试函数是否被调用
+      expect(mockRetryFileManagerRsyncAndCheckStatus).toHaveBeenCalled();
+
+      // 恢复环境变量
+      process.env.MODEL_CONFLIC_HANDLING = originalValue;
     });
 
     it('should handle download error from fileManagerRsync', async () => {
@@ -246,20 +310,18 @@ describe('ModelService', () => {
         },
       });
 
-      mockDevClient.fileManagerRsync.mockResolvedValue({
-        body: {
-          success: false,
-          data: {},
-          requestId: 'req-123',
-        },
-      });
+      // 现在使用重试函数，我们需要模拟重试函数抛出错误
+      mockRetryFileManagerRsyncAndCheckStatus.mockRejectedValue(
+        new Error('fileManagerRsync error'),
+      );
 
       await expect(modelService.downloadModel(name, params)).rejects.toThrow(
         'fileManagerRsync error',
       );
       expect(mockInitClient).toHaveBeenCalled();
       expect(mockDevClient.listFileManagerTasks).toHaveBeenCalled();
-      expect(mockDevClient.fileManagerRsync).toHaveBeenCalled();
+      // 不再直接调用fileManagerRsync，而是使用重试函数
+      expect(mockRetryFileManagerRsyncAndCheckStatus).toHaveBeenCalled();
     });
   });
 
@@ -275,56 +337,41 @@ describe('ModelService', () => {
         vpcConfig: {},
       };
 
-      mockDevClient.fileManagerRm.mockResolvedValue({
-        body: {
-          success: true,
-          data: {
-            taskID: 'task-123',
-          },
-          requestId: 'req-123',
-        },
-      });
-
-      // 模拟轮询过程：先返回未完成状态，再返回完成状态
-      mockDevClient.getFileManagerTask
-        .mockResolvedValueOnce({
-          body: {
-            success: true,
-            data: {
-              finished: false,
-              success: false,
-            },
-            requestId: 'req-456',
-          },
-        })
-        .mockResolvedValueOnce({
-          body: {
-            success: true,
-            data: {
-              finished: true,
-              success: true,
-            },
-            requestId: 'req-789',
-          },
-        });
-
-      mockDevClient.removeFileManagerTasks.mockResolvedValue({
-        body: {
-          success: true,
-          data: {},
-          requestId: 'req-789',
-        },
-      });
+      // 现在使用重试函数，所以直接模拟重试函数成功
+      mockRetryFileManagerRm.mockResolvedValue(undefined);
 
       await expect(modelService.removeModel(name, params)).resolves.toBeUndefined();
 
       expect(mockInitClient).toHaveBeenCalled();
-      expect(mockDevClient.fileManagerRm).toHaveBeenCalled();
-      expect(mockDevClient.getFileManagerTask).toHaveBeenCalledTimes(2);
-      expect(mockDevClient.removeFileManagerTasks).toHaveBeenCalled();
+      // 现在使用重试函数，不再直接调用fileManagerRm
+      expect(mockRetryFileManagerRm).toHaveBeenCalled();
     });
 
     it('should handle remove error', async () => {
+      const name = 'test-project$test-env$test-function';
+      const params = {
+        nasMountPoints: [{ mountDir: '/mnt/test' }],
+        ossMountPoints: [],
+        role: 'acs:ram::123456789:role/aliyundevsdefaultrole',
+        region: 'cn-hangzhou',
+        storage: 'nas',
+        vpcConfig: {},
+      };
+
+      // 现在使用重试函数，我们需要模拟重试函数抛出错误
+      mockRetryFileManagerRm.mockRejectedValue(
+        new Error('[Remove-model] model: Remove failed ,requestId: undefined'),
+      );
+
+      await expect(modelService.removeModel(name, params)).rejects.toThrow(
+        '[Remove-model] model: Remove failed ,requestId: undefined',
+      );
+      expect(mockInitClient).toHaveBeenCalled();
+      // 现在使用重试函数，不再直接调用fileManagerRm
+      expect(mockRetryFileManagerRm).toHaveBeenCalled();
+    });
+
+    it('should handle remove error with NoSuchFileError', async () => {
       const name = 'test-project$test-env$test-function';
       const params = {
         nasMountPoints: [{ mountDir: '/mnt/test' }],
@@ -345,24 +392,10 @@ describe('ModelService', () => {
         },
       });
 
-      // 模拟错误情况
-      mockDevClient.getFileManagerTask.mockResolvedValue({
-        body: {
-          success: true,
-          data: {
-            finished: true,
-            success: false,
-            errorMessage: 'Remove failed',
-          },
-        },
-      });
+      // 现在使用重试函数，我们需要模拟重试函数在遇到NoSuchFileError时的行为
+      mockRetryFileManagerRm.mockRejectedValue(new Error('NoSuchFileError: File does not exist'));
 
-      await expect(modelService.removeModel(name, params)).rejects.toThrow(
-        '[Download-model] model: Remove failed',
-      );
-      expect(mockInitClient).toHaveBeenCalled();
-      expect(mockDevClient.fileManagerRm).toHaveBeenCalled();
-      expect(mockDevClient.getFileManagerTask).toHaveBeenCalled();
+      await expect(modelService.removeModel(name, params)).rejects.toThrow('NoSuchFileError');
     });
   });
 });
@@ -416,5 +449,67 @@ describe('Progress functions', () => {
 
       stdoutSpy.mockRestore();
     });
+  });
+});
+
+// 单独测试 extractOssMountDir 函数
+describe('extractOssMountDir utility function', () => {
+  let originalExtractOssMountDir: any;
+
+  beforeAll(() => {
+    // 取消对 utils 的 mock，以便测试原始函数
+    jest.unmock('../../../src/subCommands/model/utils');
+    originalExtractOssMountDir = require('../../../src/subCommands/model/utils').extractOssMountDir;
+  });
+
+  afterAll(() => {
+    // 恢复原来的 mock
+    jest.mock('../../../src/subCommands/model/utils', () => {
+      const mockInitClient = jest.fn();
+      const mockCheckModelStatus = jest.fn();
+
+      return {
+        initClient: mockInitClient,
+        checkModelStatus: mockCheckModelStatus,
+        _displayProgress: jest.fn(),
+        _displayProgressComplete: jest.fn(),
+      };
+    });
+  });
+
+  it('should truncate mountDir if longer than 48 characters', () => {
+    const ossMountPoints = [
+      { mountDir: '/very-long-path-that-exceeds-the-character-limit-and-needs-to-be-truncated' },
+      { mountDir: '/short' },
+    ];
+
+    const result = originalExtractOssMountDir(ossMountPoints);
+
+    expect(result[0].mountDir).toBe('/very-long-path-that-exceeds-the-character-limit');
+    expect(result[1].mountDir).toBe('/short');
+  });
+
+  it('should not modify mountDir if 48 characters or less', () => {
+    const ossMountPoints = [
+      { mountDir: '/exactly-48-characters-path-for-testing-purposes' },
+      { mountDir: '/short' },
+    ];
+
+    const result = originalExtractOssMountDir(ossMountPoints);
+
+    expect(result[0].mountDir).toBe('/exactly-48-characters-path-for-testing-purposes');
+    expect(result[1].mountDir).toBe('/short');
+  });
+
+  it('should handle empty array', () => {
+    const result = originalExtractOssMountDir([]);
+
+    expect(result).toBeUndefined();
+  });
+
+  it('should handle undefined input', () => {
+    const result = originalExtractOssMountDir(undefined);
+
+    expect(result).toBeUndefined();
   });
 });

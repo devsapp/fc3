@@ -7,6 +7,19 @@ import * as $OpenApi from '@alicloud/openapi-client';
 import DevClient from '@alicloud/devs20230714';
 import { sleep } from '../../../utils';
 import { isEmpty } from 'lodash';
+import logger from '../../../logger';
+
+function isInitializeError(errorMessage) {
+  if (
+    errorMessage &&
+    errorMessage.includes(
+      'initialize download failed: failed to initialize the download environment; this is usually caused by your NAS being inaccessible.',
+    )
+  ) {
+    return true;
+  }
+  return false;
+}
 
 export const _getEndpoint = (region): string => {
   if (process.env.ARTIFACT_ENDPOINT) {
@@ -18,7 +31,7 @@ export const _getEndpoint = (region): string => {
   return `devs.${region}.aliyuncs.com`;
 };
 
-export const initClient = async (inputs: IInputs, region: string, logger, solution: string) => {
+export const initClient = async (inputs: IInputs, region: string, solution: string) => {
   const {
     AccessKeyID: accessKeyId,
     AccessKeySecret: accessKeySecret,
@@ -94,7 +107,6 @@ export const _displayProgress = (filePath = '', currentBytes: number, totalBytes
 export async function checkModelStatus(
   devClient: DevClient,
   taskID: string,
-  logger: any,
   fileName: string,
   timeout: number,
 ) {
@@ -161,4 +173,182 @@ export function extractOssMountDir(ossMountPoints) {
     }));
   }
   return processedOssMountPoints;
+}
+
+export async function retryFileManagerRsyncAndCheckStatus(
+  devClient: DevClient,
+  fileManagerRsyncRequest: any,
+  fileName: string,
+  timeout: number,
+  maxRetries = 2,
+  baseDelay = 30,
+) {
+  let lastError;
+  let success = false;
+
+  try {
+    const req = await devClient.fileManagerRsync(fileManagerRsyncRequest);
+    logger.debug(`[Download-model] fileManagerRsync`, JSON.stringify(req, null, 2));
+    if (!req?.body.success) {
+      const errorMsg = `fileManagerRsync error: ${JSON.stringify(req?.body, null, 2)}`;
+      logger.error(`[Download-model] ${fileName}: ${errorMsg}`);
+      throw new Error(errorMsg);
+    }
+
+    const { taskID } = req.body.data;
+    logger.info(
+      `[Download-model] requestId for ${fileName}: ${req.body.requestId}, taskID: ${taskID}`,
+    );
+
+    await checkModelStatus(devClient, taskID, fileName, timeout);
+    success = true;
+  } catch (error) {
+    lastError = error;
+    if (!isInitializeError(error.message)) {
+      logger.error(
+        `[Download-model] Non-initialization error encountered for ${fileName}, aborting retries.`,
+      );
+      throw error;
+    }
+
+    logger.warn(
+      `[Download-model] Detected initialization error for ${fileName}, starting retry sequence...`,
+    );
+
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      const delay = baseDelay * Math.pow(2, attempt - 1);
+
+      logger.warn(
+        `[Download-model] Retry attempt ${attempt}/${maxRetries} for ${fileName}. Waiting ${delay}s...`,
+      );
+
+      // eslint-disable-next-line no-await-in-loop
+      await sleep(delay);
+
+      try {
+        // eslint-disable-next-line no-await-in-loop
+        const req = await devClient.fileManagerRsync(fileManagerRsyncRequest);
+        logger.debug(`[Download-model] fileManagerRsync`, JSON.stringify(req, null, 2));
+        if (!req?.body.success) {
+          const errorMsg = `fileManagerRsync error: ${JSON.stringify(req?.body, null, 2)}`;
+          logger.error(`[Download-model] ${fileName}: ${errorMsg}`);
+          throw new Error(errorMsg);
+        }
+
+        const { taskID } = req.body.data;
+        logger.info(
+          `[Download-model] requestId for ${fileName}: ${req.body.requestId}, taskID: ${taskID}`,
+        );
+
+        // eslint-disable-next-line no-await-in-loop
+        await checkModelStatus(devClient, taskID, fileName, timeout);
+        success = true;
+        break;
+      } catch (retryError) {
+        lastError = retryError;
+
+        if (!isInitializeError(retryError.message)) {
+          logger.error(
+            `[Download-model] Non-initialization error encountered for ${fileName}, aborting retries.`,
+          );
+          throw retryError;
+        }
+        if (attempt === maxRetries) {
+          logger.warn(
+            `[Download-model] Max retries (${maxRetries}) reached for ${fileName}. Throwing last error:`,
+            retryError.message,
+          );
+        }
+      }
+    }
+  }
+
+  if (!success) {
+    throw lastError;
+  }
+}
+
+// 用于fileManagerRm操作的指数退避重试函数
+export async function retryFileManagerRm(
+  devClient: DevClient,
+  fileManagerRmRequest: any,
+  fileName: string,
+  maxRetries = 3,
+  baseDelay = 30,
+) {
+  for (let attempts = 0; attempts <= maxRetries; attempts++) {
+    try {
+      logger.debug('FileManagerRmRequest', JSON.stringify(fileManagerRmRequest, null, 2));
+      // eslint-disable-next-line no-await-in-loop
+      const res = await devClient.fileManagerRm(fileManagerRmRequest);
+      logger.debug(`[Remove-model] Remove response for ${fileName}:`, JSON.stringify(res, null, 2));
+
+      let taskID: string;
+      if (res.body.data?.taskID) {
+        taskID = res.body.data.taskID;
+      } else {
+        throw new Error('No task ID returned from removal request');
+      }
+      logger.info(
+        `[Remove-model] requestId for ${fileName}: ${res.body.requestId}, taskID: ${taskID}`,
+      );
+
+      const shouldContinue = true;
+      while (shouldContinue) {
+        // eslint-disable-next-line no-await-in-loop
+        const getFileManagerTask = await devClient.getFileManagerTask(taskID);
+        logger.debug('getFileManagerTask', JSON.stringify(getFileManagerTask, null, 2));
+        const modelStatus = getFileManagerTask?.body?.data;
+        const removeFinished = modelStatus.success && modelStatus.finished;
+
+        if (removeFinished) {
+          logger.info(`[Remove-model] Successfully removed file ${fileName}`);
+          return {
+            fileName,
+            success: true,
+          };
+        } else if (modelStatus.errorMessage) {
+          if (modelStatus.errorMessage.includes('NoSuchFileError')) {
+            logger.debug(`[Remove-model] ${fileName} not exist`);
+            return {
+              fileName,
+              success: true,
+            };
+          }
+
+          if (isInitializeError(modelStatus.errorMessage) && attempts < maxRetries) {
+            const delay = baseDelay * Math.pow(2, attempts - 1);
+            logger.warn(
+              `[Remove-model] Detected initialization error for ${fileName}, retrying... (${
+                attempts + 1
+              }/${maxRetries}). Waiting ${delay}s`,
+            );
+            logger.error(
+              `[Remove-model] model: ${modelStatus.errorMessage}, requestId: ${getFileManagerTask.body.requestId}`,
+            );
+
+            // eslint-disable-next-line no-await-in-loop
+            await sleep(delay);
+
+            break;
+          }
+
+          const errorMsg = `[Remove-model] model: ${modelStatus.errorMessage}, requestId: ${getFileManagerTask.body.requestId}`;
+          logger.error(errorMsg);
+          throw new Error(errorMsg);
+        }
+
+        // eslint-disable-next-line no-await-in-loop
+        await sleep(3);
+      }
+    } catch (error) {
+      logger.error(`[Remove-model] Error removing file ${fileName}: ${error.message}`);
+      logger.error(`[Remove-model] Error details:`, error.stack || error);
+      throw error;
+    }
+  }
+
+  throw new Error(
+    `Failed to remove file after ${maxRetries + 1} attempts due to initialization errors`,
+  );
 }
