@@ -91,6 +91,7 @@ describe('Model', () => {
             },
           },
         },
+        supplement: {}, // 添加supplement字段
       },
       command: 'model',
       args: ['download'],
@@ -182,6 +183,21 @@ describe('Model', () => {
       expect(mockArtModelService.downloadModel).toHaveBeenCalled();
     });
 
+    it('should call ArtModelService.downloadModel for funModel solution', async () => {
+      mockInputs.props.annotations.modelConfig.solution = 'funModel';
+      model = new Model(mockInputs);
+
+      const mockArtModelService = {
+        downloadModel: jest.fn().mockResolvedValue(undefined),
+      };
+
+      (ArtModelService as jest.Mock).mockImplementation(() => mockArtModelService);
+
+      await model.download();
+
+      expect(mockArtModelService.downloadModel).toHaveBeenCalled();
+    });
+
     it('should handle download error', async () => {
       const mockModelService = {
         downloadModel: jest.fn().mockRejectedValue(new Error('Download failed')),
@@ -225,6 +241,21 @@ describe('Model', () => {
       expect(mockArtModelService.removeModel).toHaveBeenCalled();
     });
 
+    it('should call ArtModelService.removeModel for funModel solution', async () => {
+      mockInputs.props.annotations.modelConfig.solution = 'funModel';
+      model = new Model(mockInputs);
+
+      const mockArtModelService = {
+        removeModel: jest.fn().mockResolvedValue(undefined),
+      };
+
+      (ArtModelService as jest.Mock).mockImplementation(() => mockArtModelService);
+
+      await model.remove();
+
+      expect(mockArtModelService.removeModel).toHaveBeenCalled();
+    });
+
     it('should handle remove error', async () => {
       const mockModelService = {
         removeModel: jest.fn().mockRejectedValue(new Error('Remove failed')),
@@ -235,6 +266,21 @@ describe('Model', () => {
       await expect(model.remove()).rejects.toThrow(
         '[Remove-model] delete model error: Remove failed',
       );
+    });
+
+    it('should ignore remove error when IGNORE_MODEL_REMOVE_ERROR is set', async () => {
+      const originalValue = process.env.IGNORE_MODEL_REMOVE_ERROR;
+      process.env.IGNORE_MODEL_REMOVE_ERROR = 'true';
+
+      const mockModelService = {
+        removeModel: jest.fn().mockRejectedValue(new Error('Remove failed')),
+      };
+
+      (ModelService as jest.Mock).mockImplementation(() => mockModelService);
+
+      await expect(model.remove()).resolves.toBeUndefined();
+
+      process.env.IGNORE_MODEL_REMOVE_ERROR = originalValue;
     });
   });
 
@@ -348,7 +394,6 @@ describe('Model', () => {
     });
 
     it('should build params correctly', async () => {
-      // Fix the expected reversion format
       const params = await (model as any).getParams();
 
       expect(params).toEqual({
@@ -361,7 +406,7 @@ describe('Model', () => {
           target: {
             uri: 'nas://auto',
           },
-          reversion: '1.0.0', // Changed from '@1.0.0' to '1.0.0'
+          reversion: '1.0.0', // 实际实现中不会添加@符号，因为uri已经包含了协议
           files: [],
           conflictResolution: 'overwrite',
           mode: 'once',
@@ -372,6 +417,99 @@ describe('Model', () => {
         storage: undefined,
         role: 'acs:ram::123456789:role/aliyundevsdefaultrole',
       });
+    });
+
+    it('should handle modelscope:// protocol correctly', async () => {
+      mockInputs.props.annotations.modelConfig.source.uri = 'modelscope://test-model';
+      mockInputs.props.annotations.modelConfig.id = 'test-model';
+      model = new Model(mockInputs);
+
+      const params = await (model as any).getParams();
+
+      expect(params.modelConfig.uri).toBe('modelscope://test-model');
+      expect(params.modelConfig.source.uri).toBe('modelscope://test-model');
+    });
+
+    it('should handle modelscope protocol without // correctly', async () => {
+      mockInputs.props.annotations.modelConfig.source.uri = 'modelscope:test-model';
+      mockInputs.props.annotations.modelConfig.id = 'test-model';
+      mockInputs.props.annotations.modelConfig.version = '1.0.0';
+      model = new Model(mockInputs);
+
+      const params = await (model as any).getParams();
+
+      // 根据源代码逻辑，如果uri不是以modelscope://开头但包含modelscope，会转换为modelscope://格式
+      expect(params.modelConfig.source.uri).toBe('modelscope:test-model');
+    });
+
+    it('should handle process.env.MODEL_DOWNLOAD_STRATEGY override', async () => {
+      const originalValue = process.env.MODEL_DOWNLOAD_STRATEGY;
+      process.env.MODEL_DOWNLOAD_STRATEGY = 'always';
+
+      const params = await (model as any).getParams();
+
+      expect(params.modelConfig.mode).toBe('always');
+
+      process.env.MODEL_DOWNLOAD_STRATEGY = originalValue;
+    });
+
+    it('should handle download strategy conflict resolution', async () => {
+      mockInputs.props.annotations.modelConfig.downloadStrategy.conflictResolution = 'skip';
+      model = new Model(mockInputs);
+
+      const params = await (model as any).getParams();
+
+      expect(params.modelConfig.conflictResolution).toBe('skip');
+    });
+
+    it('should build params correctly when using supplement.modelConfig', async () => {
+      const originalValue = process.env.MODEL_DOWNLOAD_STRATEGY;
+      delete process.env.MODEL_DOWNLOAD_STRATEGY; // Clear any existing value
+
+      mockInputs.props.supplement.modelConfig = {
+        solution: 'default',
+        id: 'test-model-supplement',
+        source: {
+          uri: 'modelscope://test-model-supplement',
+        },
+        target: {
+          uri: 'nas://auto',
+        },
+        version: '2.0.0',
+        files: [],
+        downloadStrategy: {
+          conflictResolution: 'skip',
+          mode: 'always',
+          timeout: 60,
+        },
+      };
+      model = new Model(mockInputs);
+
+      const params = await (model as any).getParams();
+
+      expect(params).toEqual({
+        modelConfig: {
+          model: 'test-model-supplement',
+          source: {
+            uri: 'modelscope://test-model-supplement',
+          },
+          uri: 'modelscope://test-model-supplement',
+          target: {
+            uri: 'nas://auto',
+          },
+          reversion: '2.0.0', // 实际实现中不会添加@符号，因为uri已经包含了协议
+          files: [],
+          conflictResolution: 'skip',
+          mode: 'always',
+          timeout: 60 * 1000,
+        },
+        region: 'cn-hangzhou',
+        functionName: 'test-function',
+        storage: undefined,
+        role: 'acs:ram::123456789:role/aliyundevsdefaultrole',
+      });
+
+      process.env.MODEL_DOWNLOAD_STRATEGY = originalValue; // Restore original value
     });
   });
 
@@ -523,6 +661,72 @@ describe('Model', () => {
       );
 
       expect(params.modelConfig.timeout).toBe(MODEL_DOWNLOAD_TIMEOUT);
+    });
+
+    it('should handle different download strategies', () => {
+      const originalValue = process.env.MODEL_DOWNLOAD_STRATEGY;
+      delete process.env.MODEL_DOWNLOAD_STRATEGY; // Clear any existing value
+
+      model = new Model(mockInputs);
+
+      const params = (model as any)._buildParams(
+        {
+          id: 'test-model',
+          source: { uri: 'modelscope://test-model' },
+          target: { uri: 'nas://auto' },
+          version: '1.0.0',
+          files: [],
+          downloadStrategy: {
+            conflictResolution: 'skip',
+            mode: 'never',
+            timeout: 120,
+          },
+        },
+        'cn-hangzhou',
+        '123456789',
+        undefined,
+        undefined,
+        undefined,
+        'test-function',
+      );
+
+      expect(params.modelConfig.conflictResolution).toBe('skip');
+      expect(params.modelConfig.mode).toBe('never');
+      expect(params.modelConfig.timeout).toBe(120 * 1000);
+
+      process.env.MODEL_DOWNLOAD_STRATEGY = originalValue; // Restore original value
+    });
+
+    it('should use process.env.MODEL_DOWNLOAD_STRATEGY if provided', () => {
+      const originalValue = process.env.MODEL_DOWNLOAD_STRATEGY;
+      process.env.MODEL_DOWNLOAD_STRATEGY = 'always';
+
+      model = new Model(mockInputs);
+
+      const params = (model as any)._buildParams(
+        {
+          id: 'test-model',
+          source: { uri: 'modelscope://test-model' },
+          target: { uri: 'nas://auto' },
+          version: '1.0.0',
+          files: [],
+          downloadStrategy: {
+            conflictResolution: 'skip',
+            mode: 'once',
+            timeout: 120,
+          },
+        },
+        'cn-hangzhou',
+        '123456789',
+        undefined,
+        undefined,
+        undefined,
+        'test-function',
+      );
+
+      expect(params.modelConfig.mode).toBe('always');
+
+      process.env.MODEL_DOWNLOAD_STRATEGY = originalValue;
     });
   });
 });

@@ -3,7 +3,12 @@ import logger from '../../logger';
 import DevClient, * as $Dev20230714 from '@alicloud/devs20230714';
 import { IInputs } from '../../interface';
 import _ from 'lodash';
-import { checkModelStatus, extractOssMountDir, initClient } from './utils';
+import {
+  extractOssMountDir,
+  initClient,
+  retryFileManagerRsyncAndCheckStatus,
+  retryFileManagerRm,
+} from './utils';
 
 export class ArtModelService {
   logger = logger;
@@ -26,7 +31,7 @@ export class ArtModelService {
   }
 
   async downloadModel(name, params) {
-    const devClient = await initClient(this.inputs, this.region, logger, 'fun-art');
+    const devClient = await initClient(this.inputs, this.region, 'fun-art');
     const { nasMountPoints, ossMountPoints, role, modelConfig, vpcConfig, region } = params;
     const { files } = modelConfig;
 
@@ -184,7 +189,7 @@ export class ArtModelService {
   async removeModel(name, params) {
     const { nasMountPoints, ossMountPoints, role, vpcConfig, modelConfig, region } = params;
     try {
-      const devClient = await initClient(this.inputs, this.region, logger, 'fun-art');
+      const devClient = await initClient(this.inputs, this.region, 'fun-art');
       const { files } = modelConfig;
       if (_.isEmpty(files)) {
         logger.info('[Remove-model] No files specified for removal.');
@@ -291,57 +296,15 @@ export class ArtModelService {
         }),
       });
 
-      logger.debug('FileManagerRmRequest', JSON.stringify(fileManagerRmRequest, null, 2));
-      const res = await devClient.fileManagerRm(fileManagerRmRequest);
-      logger.debug(
-        `[Remove-model] Remove response for ${file.source.path}:`,
-        JSON.stringify(res, null, 2),
+      const result = await retryFileManagerRm(
+        devClient,
+        fileManagerRmRequest,
+        file.source.path,
+        3,
+        30,
       );
 
-      let taskID;
-      if (res.body.data?.taskID) {
-        taskID = res.body.data.taskID;
-      } else {
-        return {
-          fileName: file.source.path,
-          success: false,
-          error: 'No task ID returned from removal request',
-        };
-      }
-      const shouldContinue = true;
-      while (shouldContinue) {
-        // eslint-disable-next-line no-await-in-loop
-        const getFileManagerTask = await devClient.getFileManagerTask(taskID);
-        logger.debug('getFileManagerTask', JSON.stringify(getFileManagerTask, null, 2));
-        const modelStatus = getFileManagerTask?.body?.data;
-        const removeFinished = modelStatus.success && modelStatus.finished;
-        if (removeFinished) {
-          logger.info(`[Remove-model] Successfully removed file ${file.source.path}`);
-          return {
-            fileName: file.source.path,
-            success: true,
-          };
-        } else if (modelStatus.errorMessage) {
-          if (modelStatus.errorMessage.includes('NoSuchFileError')) {
-            logger.debug(`[Remove-model] ${file.source.path} not exist`);
-            return {
-              fileName: file.source.path,
-              success: true,
-            };
-          }
-          const errorMsg = `[Remove-model] model: ${modelStatus.errorMessage}, requestId: ${getFileManagerTask.body.requestId}`;
-          logger.error(errorMsg);
-          return {
-            fileName: file.source.path,
-            success: false,
-            error: errorMsg,
-          };
-        }
-
-        // 添加短暂延迟避免过于频繁的轮询
-        // eslint-disable-next-line no-await-in-loop
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-      }
+      return result;
     } catch (error) {
       const fileName = file.source?.path || 'unknown';
       logger.error(`[Remove-model] Error removing file ${fileName}: ${error.message}`);
@@ -384,27 +347,16 @@ export class ArtModelService {
         conflictHandling: conflictResolution,
       });
       logger.debug('FileManagerRsyncRequest', JSON.stringify(fileManagerRsyncRequest, null, 2));
-      const req = await devClient.fileManagerRsync(fileManagerRsyncRequest);
-      logger.debug(
-        `[Download-model] fileManagerRsync response for ${fileName}: ${JSON.stringify(
-          req.body,
-          null,
-          2,
-        )}`,
-      );
-      if (!req?.body.success) {
-        const errorMsg = `fileManagerRsync error: ${JSON.stringify(req?.body, null, 2)}`;
-        logger.error(`[Download-model] ${fileName}: ${errorMsg}`);
-        throw new Error(errorMsg);
-      }
 
-      const { taskID } = req.body.data;
-      logger.info(
-        `[Download-model] download model requestId for ${fileName}: ${req.body.requestId}, taskID: ${taskID}`,
+      // 使用公共方法重试fileManagerRsync + checkModelStatus流程
+      await retryFileManagerRsyncAndCheckStatus(
+        devClient,
+        fileManagerRsyncRequest,
+        fileName,
+        timeout,
+        2,
+        30,
       );
-
-      // 轮询任务状态直到完成
-      await checkModelStatus(devClient, taskID, logger, fileName, timeout);
     } catch (error) {
       // 捕获并重新抛出错误，添加文件名信息
       logger.error(`\n[Download-model] Error downloading file ${fileName}: ${error.message}`);

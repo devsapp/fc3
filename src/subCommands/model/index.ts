@@ -12,6 +12,8 @@ import assert from 'assert';
 import OSS from '../../resources/oss';
 import { OSSMountPoint, VPCConfig } from '@alicloud/fc20230330';
 import { MODEL_DOWNLOAD_TIMEOUT } from './constants';
+import { initClient } from './utils';
+import * as $Dev20230714 from '@alicloud/devs20230714';
 
 const commandsList = Object.keys(commandsHelp.subCommands);
 
@@ -73,6 +75,20 @@ export class Model {
 
   async remove() {
     logger.info('[Remove-model] remove model ...');
+
+    const { IGNORE_MODEL_REMOVE_ERROR } = process.env;
+    if (IGNORE_MODEL_REMOVE_ERROR) {
+      logger.warn(`[Remove-model] IGNORE_MODEL_REMOVE_ERROR is set, ignore model remove error.`);
+      const devClient = await initClient(this.inputs, this.inputs.props.region, 'fun-model');
+      // 清理任务记录
+      const deleteFileManagerTasks = new $Dev20230714.RemoveFileManagerTasksRequest({
+        name: this.name,
+      });
+      const deleteTasks = await devClient.removeFileManagerTasks(deleteFileManagerTasks);
+      logger.debug('deleteTasks', JSON.stringify(deleteTasks, null, 2));
+      logger.info(`[Remove-model] deleteFileManagerTasks success.`);
+      return;
+    }
     const params = await this.getParams('Remove-model');
     const { annotations } = this.inputs.props;
     const modelConfig = annotations?.modelConfig;
