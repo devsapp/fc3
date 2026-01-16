@@ -14,6 +14,7 @@ import { OSSMountPoint, VPCConfig } from '@alicloud/fc20230330';
 import { MODEL_DOWNLOAD_TIMEOUT } from './constants';
 import { initClient } from './utils';
 import * as $Dev20230714 from '@alicloud/devs20230714';
+import { parseAutoConfig, validateAndNormalizePath } from '../../utils';
 
 const commandsList = Object.keys(commandsHelp.subCommands);
 
@@ -239,7 +240,13 @@ vpcConfig:
     }
 
     if (nasAuto) {
-      let serverAddr = `${mountTargetDomain}:/${functionName}`;
+      const nasAutoConfig = parseAutoConfig(this.local.nasConfig as string);
+      const params = nasAutoConfig?.params || {};
+      const customMountDir = params.mountDir
+        ? validateAndNormalizePath(params.mountDir, 'mountDir')
+        : `/mnt/${functionName}`;
+      const customServerAddr = params.serverAddr ? params.serverAddr : `${functionName}`;
+      let serverAddr = `${mountTargetDomain}:/${customServerAddr}`;
       if (serverAddr.length > 128) {
         serverAddr = serverAddr.substring(0, 128);
       }
@@ -250,7 +257,7 @@ groupId: 0
 userId: 0
 mountPoints:
   - serverAddr: ${serverAddr}
-    mountDir: /mnt/${functionName}
+    mountDir: ${customMountDir}
     enableTLS: false\n`),
       );
       this.createResource.nas = { mountTargetDomain, fileSystemId };
@@ -260,7 +267,7 @@ mountPoints:
         mountPoints: [
           {
             serverAddr,
-            mountDir: `/mnt/${functionName}`,
+            mountDir: customMountDir,
             enableTLS: false,
           },
         ],
