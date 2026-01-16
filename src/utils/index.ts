@@ -49,6 +49,40 @@ export const isAuto = (config: unknown): boolean => {
   return _.toUpper(autoConfig) === 'AUTO';
 };
 
+export const parseAutoConfig = (
+  config: string,
+): { isAuto: boolean; params: Record<string, any> } => {
+  if (!_.isString(config)) {
+    return { isAuto: false, params: {} };
+  }
+
+  const parts = config.split('|');
+  const baseConfig = parts[0];
+  logger.debug(`parseAutoConfig, baseConfig = ${baseConfig}`);
+
+  if (_.toUpper(baseConfig) === 'AUTO') {
+    const params: Record<string, any> = {};
+    for (let i = 1; i < parts.length; i++) {
+      const [key, value] = parts[i].split('=');
+      if (key && value) {
+        const trimmedValue = value.trim();
+        if (typeof trimmedValue === 'string') {
+          try {
+            params[key.trim()] = JSON.parse(trimmedValue);
+          } catch (error) {
+            params[key.trim()] = trimmedValue;
+          }
+        } else {
+          params[key.trim()] = trimmedValue;
+        }
+      }
+    }
+    return { isAuto: true, params };
+  }
+
+  return { isAuto: false, params: {} };
+};
+
 export const isAutoVpcConfig = (config: unknown): boolean => {
   logger.debug(`isAutoVpcConfig, vpcConfig = ${JSON.stringify(config)}`);
   if (_.isString(config)) {
@@ -222,4 +256,55 @@ export function getUserAgent(userAgent: string, command: string) {
     return `${function_ai}${userAgent}`;
   }
   return `${function_ai}Component:fc3;Nodejs:${process.version};OS:${process.platform}-${process.arch}command:${command}`;
+}
+
+/**
+ * 验证并规范化路径
+ */
+export function checkFcDir(path: string, paramName = 'path'): string {
+  const normalizedPath = path.trim();
+
+  if (!normalizedPath.startsWith('/')) {
+    throw new Error(`${paramName} does not start with '/'`);
+  }
+
+  // 检查路径长度
+  if (normalizedPath.length > 128) {
+    throw new Error(
+      `${paramName} is too long (${normalizedPath.length}), maximum length is 128 characters`,
+    );
+  }
+
+  // 检查不允许的系统目录前缀
+  const forbiddenPrefixes = [
+    '/bin',
+    '/boot',
+    '/dev',
+    '/etc',
+    '/lib',
+    '/lib64',
+    '/media',
+    '/opt',
+    '/proc',
+    '/root',
+    '/run',
+    '/sbin',
+    '/srv',
+    '/sys',
+    '/usr',
+    '/var',
+  ];
+
+  for (const prefix of forbiddenPrefixes) {
+    if (normalizedPath.startsWith(prefix)) {
+      throw new Error(`Invalid ${paramName}, ${prefix} and its subdirectories are not allowed`);
+    }
+  }
+
+  const isValidTwoLevelPath = /^\/[^/]+\/.+/.test(normalizedPath);
+  if (!isValidTwoLevelPath) {
+    throw new Error(`Invalid ${paramName}, path must be in /**/** format with at least two levels`);
+  }
+
+  return normalizedPath;
 }
