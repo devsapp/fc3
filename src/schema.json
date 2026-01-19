@@ -530,6 +530,9 @@
                 "enableInstanceMetrics": {
                     "type": "boolean"
                 },
+                "enableLlmMetrics": {
+                    "type": "boolean"
+                },
                 "enableRequestMetrics": {
                     "type": "boolean"
                 },

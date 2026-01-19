@@ -71,6 +71,7 @@ export interface ILogConfig {
   logstore: string;
   enableInstanceMetrics?: boolean;
   enableRequestMetrics?: boolean;
+  enableLlmMetrics?: boolean;
   logBeginRule?: 'DefaultRegex' | 'None';
 }
 
