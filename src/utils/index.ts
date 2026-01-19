@@ -49,6 +49,40 @@ export const isAuto = (config: unknown): boolean => {
   return _.toUpper(autoConfig) === 'AUTO';
 };
 
+export const parseAutoConfig = (
+  config: string,
+): { isAuto: boolean; params: Record<string, any> } => {
+  if (!_.isString(config)) {
+    return { isAuto: false, params: {} };
+  }
+
+  const parts = config.split('|');
+  const baseConfig = parts[0];
+  logger.debug(`parseAutoConfig, baseConfig = ${baseConfig}`);
+
+  if (_.toUpper(baseConfig) === 'AUTO') {
+    const params: Record<string, any> = {};
+    for (let i = 1; i < parts.length; i++) {
+      const [key, value] = parts[i].split('=');
+      if (key && value) {
+        const trimmedValue = value.trim();
+        if (typeof trimmedValue === 'string') {
+          try {
+            params[key.trim()] = JSON.parse(trimmedValue);
+          } catch (error) {
+            params[key.trim()] = trimmedValue;
+          }
+        } else {
+          params[key.trim()] = trimmedValue;
+        }
+      }
+    }
+    return { isAuto: true, params };
+  }
+
+  return { isAuto: false, params: {} };
+};
+
 export const isAutoVpcConfig = (config: unknown): boolean => {
   logger.debug(`isAutoVpcConfig, vpcConfig = ${JSON.stringify(config)}`);
   if (_.isString(config)) {
@@ -222,4 +256,42 @@ export function getUserAgent(userAgent: string, command: string) {
     return `${function_ai}${userAgent}`;
   }
   return `${function_ai}Component:fc3;Nodejs:${process.version};OS:${process.platform}-${process.arch}command:${command}`;
+}
+
+/**
+ * 验证并规范化路径
+ */
+export function validateAndNormalizePath(path: string, paramName = 'path'): string {
+  if (typeof path !== 'string') {
+    const message = `Invalid ${paramName}, expected string but got ${typeof path}`;
+    if (logger) logger.warn(message);
+    return '/';
+  }
+
+  if (!path) {
+    if (logger) logger.debug(`Empty ${paramName}, using default value`);
+    return '/';
+  }
+
+  let normalizedPath = path.trim();
+
+  if (!normalizedPath.startsWith('/')) {
+    normalizedPath = `/${normalizedPath}`;
+    if (logger) logger.debug(`${paramName} does not start with '/', prepending '/'`);
+  }
+
+  if (normalizedPath.length > 1 && normalizedPath.endsWith('/')) {
+    normalizedPath = normalizedPath.slice(0, -1);
+    if (logger) logger.debug(`${paramName} ends with '/', removing trailing '/'`);
+  }
+
+  if (normalizedPath.length > 1024) {
+    normalizedPath = normalizedPath.substring(0, 1024);
+    if (logger)
+      logger.warn(
+        `${paramName} is too long (${normalizedPath.length}), truncating to 1024 characters`,
+      );
+  }
+
+  return normalizedPath;
 }
