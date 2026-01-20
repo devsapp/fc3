@@ -39,3 +39,38 @@ resources:
       memorySize: 128
       timeout: 60
       ossMountConfig: auto|mountDir=/mnt/test-oss-bucket|bucketPath=/|rules=[{"allowedOrigin":"*","allowedMethod":["GET","POST","PUT","DELETE","HEAD"],"allowedHeader":"*","exposeHeader":"Content-Length","maxAgeSeconds":30}]
+
+  fcDemo3: # 业务名称/模块名称
+    component: ${env('fc_component_version', path('../../../'))}
+    actions:
+      pre-deploy:
+        - run: npm install
+          path: ./test-auto-code
+    props: # 组件的属性值
+      region: ${vars.region}
+      functionName: fc3-event-${env('fc_component_function_name', 'nodejs18')}-nasConfig
+      role: acs:ram::${config('AccountID')}:role/aliyunaliyunfcdefaultrole
+      runtime: ${env('fc_component_runtime', 'nodejs18')}
+      code: ./test-auto-code
+      handler: index.handler
+      memorySize: 128
+      timeout: 60
+      nasConfig: auto|mountDir=/mnt/fcDir|nasDir=/nasDir
+      vpcConfig: auto
+
+  fcDemo4: # 业务名称/模块名称
+    component: ${env('fc_component_version', path('../../../'))}
+    actions:
+      pre-deploy:
+        - run: npm install
+          path: ./test-auto-code
+    props: # 组件的属性值
+      region: ${vars.region}
+      functionName: fc3-event-${env('fc_component_function_name', 'nodejs18')}-logConfig
+      role: acs:ram::${config('AccountID')}:role/aliyunaliyunfcdefaultrole
+      runtime: ${env('fc_component_runtime', 'nodejs18')}
+      code: ./test-auto-code
+      handler: index.handler
+      memorySize: 128
+      timeout: 60
+      logConfig: auto|enableRequestMetrics=false|enableInstanceMetrics=false

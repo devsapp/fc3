@@ -18,7 +18,7 @@ import FC, { GetApiType } from '../../../resources/fc';
 import VPC_NAS from '../../../resources/vpc-nas';
 import Base from './base';
 import { ICredentials } from '@serverless-devs/component-interface';
-import { calculateCRC64, getFileSize } from '../../../utils';
+import { calculateCRC64, getFileSize, parseAutoConfig, checkFcDir } from '../../../utils';
 import OSS from '../../../resources/oss';
 import { setNodeModulesBinPermissions } from '../../../resources/fc/impl/utils';
 
@@ -349,22 +349,30 @@ export default class Service extends Base {
     if (slsAuto) {
       const sls = new Sls(region, credential as ICredentials);
       const { project, logstore } = await sls.deploy();
+      const logAutoConfig = parseAutoConfig(this.local.logConfig as string);
+      const logParams = logAutoConfig?.params || {};
+      const customFields: Record<string, any> = { ...logParams };
+      const getConfigValue = (field: string, defaultValue: any) => {
+        return field in customFields ? customFields[field] : defaultValue;
+      };
       logger.write(
         yellow(`Created log resource succeeded, please replace logConfig: auto in yaml with:
 logConfig:
-  enableInstanceMetrics: true
-  enableRequestMetrics: true
-  logBeginRule: DefaultRegex
+  enableInstanceMetrics: ${getConfigValue('enableInstanceMetrics', true)}
+  enableRequestMetrics: ${getConfigValue('enableRequestMetrics', true)}
+  logBeginRule: ${getConfigValue('logBeginRule', 'DefaultRegex')}
   logstore: ${logstore}
   project: ${project}\n`),
       );
+
       this.createResource.sls = { project, logstore };
       _.set(this.local, 'logConfig', {
-        enableInstanceMetrics: true,
-        enableRequestMetrics: true,
-        logBeginRule: 'DefaultRegex',
+        enableInstanceMetrics: getConfigValue('enableInstanceMetrics', true),
+        enableRequestMetrics: getConfigValue('enableRequestMetrics', true),
+        logBeginRule: getConfigValue('logBeginRule', 'DefaultRegex'),
         logstore,
         project,
+        ...customFields,
       });
     }
 
@@ -443,7 +451,15 @@ vpcConfig:
         _.set(this.local, 'vpcConfig', vpcConfig);
       }
       if (nasAuto) {
-        let serverAddr = `${mountTargetDomain}:/${functionName}`;
+        const { params } = parseAutoConfig(this.local.nasConfig as string);
+        const fcDir = params.mountDir
+          ? checkFcDir(params.mountDir, 'mountDir')
+          : `/mnt/${functionName}`;
+        if (params.nasDir && !params.nasDir.startsWith('/')) {
+          throw new Error('nasDir must start with /');
+        }
+        const nasDir = params.nasDir ? params.nasDir : `/${functionName}`;
+        let serverAddr = `${mountTargetDomain}:${nasDir}`;
         if (serverAddr.length > 128) {
           serverAddr = serverAddr.substring(0, 128);
         }
@@ -454,8 +470,9 @@ nasConfig:
   userId: 0
   mountPoints:
     - serverAddr: ${serverAddr}
-      mountDir: /mnt/${functionName}
-      enableTLS: false\n`),
+      mountDir: ${fcDir}
+      enableTLS: false
+`),
         );
         this.createResource.nas = { mountTargetDomain, fileSystemId };
         _.set(this.local, 'nasConfig', {
@@ -464,7 +481,7 @@ nasConfig:
           mountPoints: [
             {
               serverAddr,
-              mountDir: `/mnt/${functionName}`,
+              mountDir: fcDir,
               enableTLS: false,
             },
           ],
