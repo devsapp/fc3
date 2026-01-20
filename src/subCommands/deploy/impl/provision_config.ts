@@ -47,6 +47,12 @@ export default class ProvisionConfig extends Base {
 
     if (!_.isEmpty(localConfig)) {
       if (this.needDeploy) {
+        const defaultArrayProps = ['targetTrackingPolicies', 'scheduledActions'];
+        for (const prop of defaultArrayProps) {
+          if (!Array.isArray(localConfig[prop])) {
+            localConfig[prop] = [];
+          }
+        }
         await provisionConfigErrorRetry(
           this.fcSdk,
           'ProvisionConfig',
@@ -88,8 +94,8 @@ export default class ProvisionConfig extends Base {
       `Waiting for provisionConfig of ${this.functionName}/${qualifier} to instance up ...`,
     );
 
-    const { defaultTarget, target } = config;
-    const realTarget = defaultTarget || target;
+    const { defaultTarget, target: configTarget } = config;
+    const realTarget = defaultTarget || configTarget;
 
     // 如果没有目标值或目标值为0，则无需等待
     if (!realTarget || realTarget <= 0) {
@@ -108,12 +114,12 @@ export default class ProvisionConfig extends Base {
     for (let index = 0; index < maxRetries; index++) {
       // eslint-disable-next-line no-await-in-loop
       const result = await this.fcSdk.getFunctionProvisionConfig(this.functionName, qualifier);
-      const { current, currentError } = result || {};
+      const { current, currentError, target: remoteTarget } = result || {};
 
       // 检查是否已达到目标值
-      if (current === undefined || (current && current === realTarget)) {
+      if (current === undefined || current === remoteTarget) {
         logger.info(
-          `ProvisionConfig of ${this.functionName}/${qualifier} is ready. Current: ${current}, Target: ${realTarget}`,
+          `ProvisionConfig of ${this.functionName}/${qualifier} is ready. Current: ${current}, Target: ${remoteTarget}`,
         );
         return;
       }

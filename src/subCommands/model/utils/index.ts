@@ -55,7 +55,7 @@ export const initClient = async (inputs: IInputs, region: string, solution: stri
     }`,
   });
 
-  logger.info(`new models service init, DEVS_ENDPOINT endpoint: ${config.endpoint}`);
+  logger.info(`DEVS_ENDPOINT endpoint: ${config.endpoint}`);
 
   return new DevClient(config);
 };

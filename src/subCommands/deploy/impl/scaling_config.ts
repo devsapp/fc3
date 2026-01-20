@@ -45,6 +45,12 @@ export default class ScalingConfig extends Base {
 
     if (!_.isEmpty(localConfig)) {
       if (this.needDeploy) {
+        const defaultArrayProps = ['horizontalScalingPolicies', 'scheduledPolicies'];
+        for (const prop of defaultArrayProps) {
+          if (!Array.isArray(localConfig[prop])) {
+            localConfig[prop] = [];
+          }
+        }
         await provisionConfigErrorRetry(
           this.fcSdk,
           'ScalingConfig',

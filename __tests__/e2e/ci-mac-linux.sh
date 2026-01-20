@@ -88,9 +88,19 @@ s remove -y -t ./go/s.yaml
 rm -rf ./go/code/target
 cd ..
 
+echo "test nodejs runtime with provision config ..."
+cd nodejs
+cd provision
+export fc_component_function_name=nodejs18-provision-$(uname)-$(uname -m)-$RANDSTR
+s deploy -y
+s info -y
+sleep 2
+s deploy -y -t ./s2.yaml
+s info -y -t ./s2.yaml
+s remove -y -t ./s2.yaml
+cd ..
 
 echo "test nodejs runtime with provision config mode=drain  ..."
-cd nodejs
 export fc_component_function_name=nodejs18-provision-drain-$(uname)-$(uname -m)-$RANDSTR
 s deploy -y -t s_provision_drain.yaml
 s invoke -e '{"hello":"fc nodejs provision config mode=drain"}' -t s_provision_drain.yaml

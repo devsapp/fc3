@@ -3,10 +3,10 @@ import { isProvisionConfigError, sleep } from '../../../utils';
 
 export async function provisionConfigErrorRetry(
   fcSdk: any,
-  command,
-  functionName,
-  qualifier,
-  localConfig,
+  command: string,
+  functionName: string,
+  qualifier: string,
+  localConfig: any,
 ) {
   logger.info(`provisionConfigErrorRetry Execute： ${command}`);
   try {

@@ -398,7 +398,11 @@ describe('ScalingConfig', () => {
         'ScalingConfig',
         'test-function',
         'LATEST',
-        { minInstances: 1 },
+        {
+          horizontalScalingPolicies: [],
+          scheduledPolicies: [],
+          minInstances: 1,
+        },
       );
       expect(logger.info).toHaveBeenCalledWith(
         'ScalingConfig of test-function/LATEST is ready. CurrentInstances: 1, TargetInstances: 1',
@@ -446,10 +450,16 @@ describe('ScalingConfig', () => {
         'ScalingConfig',
         'test-function',
         'LATEST',
-        { minInstances: 1 },
+        {
+          horizontalScalingPolicies: [],
+          scheduledPolicies: [],
+          minInstances: 1,
+        },
       );
       expect(waitForScalingReadySpy).toHaveBeenCalledWith('LATEST', {
+        horizontalScalingPolicies: [],
         minInstances: 1,
+        scheduledPolicies: [],
       });
     });
 
@@ -489,7 +499,11 @@ describe('ScalingConfig', () => {
         'ScalingConfig',
         'test-function',
         'LATEST',
-        { minInstances: 1 },
+        {
+          horizontalScalingPolicies: [],
+          scheduledPolicies: [],
+          minInstances: 1,
+        },
       );
       expect(waitForScalingReadySpy).not.toHaveBeenCalled();
       expect(logger.info).toHaveBeenCalledWith(
