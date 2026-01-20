@@ -1,0 +1,26 @@
+edition: 3.0.0
+name: fc3-example
+access: quanxi
+
+vars: 
+  region: ${env('REGION', 'cn-hongkong')}
+
+resources:
+  fcDemo:
+    component: ${env('fc_component_version', path('../../../../'))}
+    props:
+      region: ${vars.region}
+      handler: index.handler
+      role: ''
+      description: ''
+      timeout: 60
+      diskSize: 512
+      internetAccess: true
+      logConfig: auto
+      functionName: fc3-provision-${env('fc_component_function_name', 'provision')}
+      runtime: nodejs16
+      cpu: 0.35
+      memorySize: 512
+      code: ./code
+      provisionConfig:
+        target: 0
