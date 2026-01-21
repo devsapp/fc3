@@ -318,13 +318,13 @@ export async function retryFileManagerRm(
 
           if (isInitializeError(modelStatus.errorMessage) && attempts < maxRetries) {
             const delay = baseDelay * Math.pow(2, attempts - 1);
+            logger.error(
+              `[Remove-model] model: ${modelStatus.errorMessage}, requestId: ${getFileManagerTask.body.requestId}`,
+            );
             logger.warn(
               `[Remove-model] Detected initialization error for ${fileName}, retrying... (${
                 attempts + 1
               }/${maxRetries}). Waiting ${delay}s`,
-            );
-            logger.error(
-              `[Remove-model] model: ${modelStatus.errorMessage}, requestId: ${getFileManagerTask.body.requestId}`,
             );
 
             // eslint-disable-next-line no-await-in-loop

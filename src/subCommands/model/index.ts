@@ -297,6 +297,7 @@ mountPoints:
         files: modelConfig.files,
         conflictResolution: modelConfig?.downloadStrategy?.conflictResolution || 'overwrite',
         mode: process.env.MODEL_DOWNLOAD_STRATEGY || modelConfig?.downloadStrategy?.mode || 'once',
+        upgrade: modelConfig?.upgrade || {},
         timeout:
           (modelConfig?.downloadStrategy?.timeout &&
             modelConfig?.downloadStrategy?.timeout * 1000) ||
