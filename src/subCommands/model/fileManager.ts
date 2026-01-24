@@ -186,16 +186,35 @@ export class ArtModelService {
     }
   }
 
-  async removeModel(name, params) {
+  async removeModel(name: string, params: any) {
     const { nasMountPoints, ossMountPoints, role, vpcConfig, modelConfig, region } = params;
     try {
       const devClient = await initClient(this.inputs, this.region, 'fun-art');
-      const { files } = modelConfig;
+      const { files, upgrade } = modelConfig;
       if (_.isEmpty(files)) {
         logger.info('[Remove-model] No files specified for removal.');
         return;
       }
       const processedOssMountPoints = extractOssMountDir(ossMountPoints);
+
+      let allRemovePromises = [];
+      if (upgrade?.history && !_.isEmpty(upgrade.history)) {
+        logger.info('[Remove-model] Upgrade model, only support once model.');
+        const removeUpgradePromises = Object.keys(upgrade.history).map((key) =>
+          this._removeUpgradeSingleFile(devClient, upgrade.history[key], key, {
+            name,
+            nasMountPoints,
+            ossMountPoints: processedOssMountPoints,
+            role,
+            vpcConfig,
+            modelConfig,
+            region,
+            timeout: modelConfig?.timeout,
+          }),
+        );
+        // 将升级文件删除任务添加到总的任务列表中
+        allRemovePromises = allRemovePromises.concat(removeUpgradePromises);
+      }
 
       // 将异步操作重构为并行处理
       const removePromises = files.map((file) =>
@@ -210,8 +229,10 @@ export class ArtModelService {
           timeout: modelConfig?.timeout,
         }),
       );
+      // 将删除任务也添加到总的任务列表中
+      allRemovePromises = allRemovePromises.concat(removePromises);
 
-      const removeResults = await Promise.all(removePromises);
+      const removeResults = await Promise.all(allRemovePromises);
 
       // 统计成功和失败的数量
       const successfulRemovals = removeResults.filter((result) => result.success);
@@ -261,27 +282,59 @@ export class ArtModelService {
       timeout: number;
     },
   ) {
-    const { name, nasMountPoints, ossMountPoints, role, vpcConfig, modelConfig, region, timeout } =
-      config;
+    const { nasMountPoints, ossMountPoints, modelConfig } = config;
 
+    let filepath: string;
+    const uri = file.target?.uri || modelConfig.target.uri;
+    const path =
+      (file.target?.path.startsWith('/') ? file.target.path.slice(1) : file.target.path) || '';
+    const fileName = file.source?.path || 'unknown';
+
+    // 判断uri是否为nas://auto或oss://auto
+    if (uri.startsWith('nas://auto') && nasMountPoints?.length > 0) {
+      const { mountDir } = nasMountPoints[0];
+      filepath = `${mountDir}/${path}`;
+    } else if (uri.startsWith('oss://auto') && ossMountPoints?.length > 0) {
+      const { mountDir } = ossMountPoints[0];
+      filepath = `${mountDir}/${path}`;
+    } else {
+      // 直接拼接uri和path
+      let normalizedUri = uri.endsWith('/') ? uri.slice(0, -1) : uri;
+      normalizedUri = normalizedUri.replace(/^(nas|oss|file):\/\//, '/');
+      filepath = `${normalizedUri}/${path}`;
+    }
+
+    return this._removeFileWithRetry(devClient, filepath, fileName, config);
+  }
+
+  private async _removeUpgradeSingleFile(
+    devClient: DevClient,
+    path: string,
+    version: string,
+    config: {
+      name: string;
+      nasMountPoints: any[];
+      ossMountPoints: any[];
+      role: string;
+      vpcConfig: any;
+      modelConfig: any;
+      region: string;
+      timeout: number;
+    },
+  ) {
+    const fileName = version || 'unknown';
+
+    return this._removeFileWithRetry(devClient, path, fileName, config);
+  }
+
+  private async _removeFileWithRetry(
+    devClient: DevClient,
+    filepath: string,
+    fileName: string,
+    config: any,
+  ): Promise<any> {
     try {
-      let filepath;
-      const uri = file.target?.uri || modelConfig.target.uri;
-      const path = file.target?.path || '';
-
-      // 判断uri是否为nas://auto或oss://auto
-      if (uri.startsWith('nas://auto') && nasMountPoints?.length > 0) {
-        const { mountDir } = nasMountPoints[0];
-        filepath = `${mountDir}/${path}`;
-      } else if (uri.startsWith('oss://auto') && ossMountPoints?.length > 0) {
-        const { mountDir } = ossMountPoints[0];
-        filepath = `${mountDir}/${path}`;
-      } else {
-        // 直接拼接uri和path
-        let normalizedUri = uri.endsWith('/') ? uri.slice(0, -1) : uri;
-        normalizedUri = normalizedUri.replace(/^(nas|oss|file):\/\//, '/');
-        filepath = `${normalizedUri}/${path}`;
-      }
+      const { name, nasMountPoints, ossMountPoints, role, vpcConfig, region, timeout } = config;
 
       const fileManagerRmRequest = new $Dev20230714.FileManagerRmRequest({
         filepath,
@@ -296,17 +349,10 @@ export class ArtModelService {
         }),
       });
 
-      const result = await retryFileManagerRm(
-        devClient,
-        fileManagerRmRequest,
-        file.source.path,
-        3,
-        30,
-      );
+      const result = await retryFileManagerRm(devClient, fileManagerRmRequest, fileName, 3, 30);
 
       return result;
     } catch (error) {
-      const fileName = file.source?.path || 'unknown';
       logger.error(`[Remove-model] Error removing file ${fileName}: ${error.message}`);
       logger.error(`[Remove-model] Error details:`, error.stack || error);
       return {

@@ -2,7 +2,7 @@ import { ArtModelService } from '../../../src/subCommands/model/fileManager';
 import { IInputs } from '../../../src/interface';
 import DevClient from '@alicloud/devs20230714';
 import { sleep } from '../../../src/utils';
-import { initClient, checkModelStatus } from '../../../src/subCommands/model/utils';
+import { initClient } from '../../../src/subCommands/model/utils';
 
 // Mock dependencies
 jest.mock('../../../src/logger', () => {
@@ -33,11 +33,13 @@ jest.mock('../../../src/utils');
 jest.mock('../../../src/subCommands/model/utils', () => {
   const originalModule = jest.requireActual('../../../src/subCommands/model/utils');
   const mockRetryFileManagerRsyncAndCheckStatus = jest.fn();
+  const mockRetryFileManagerRm = jest.fn();
   return {
     __esModule: true,
     ...originalModule,
     retryWithFileManager: jest.fn((command, fn) => fn()),
     retryFileManagerRsyncAndCheckStatus: mockRetryFileManagerRsyncAndCheckStatus,
+    retryFileManagerRm: mockRetryFileManagerRm,
     initClient: jest.fn(),
     checkModelStatus: jest.fn(),
     extractOssMountDir: jest.fn(),
@@ -81,6 +83,13 @@ describe('ArtModelService', () => {
     };
 
     artModelService = new ArtModelService(mockInputs);
+    // 添加 createResource 属性以防止错误
+    Object.defineProperty(artModelService, 'createResource', {
+      value: { history: [], oss: {}, nas: {}, vpc: {}, sls: {} },
+      writable: true,
+      enumerable: true,
+      configurable: true,
+    });
   });
 
   afterEach(() => {
@@ -203,8 +212,8 @@ describe('ArtModelService', () => {
             },
           ],
         },
-        storage: 'nas',
         nasMountPoints: [{ mountDir: '/mnt/test' }],
+        ossMountPoints: [{ mountDir: '/mnt/oss' }],
         role: 'acs:ram::123456789:role/aliyundevsdefaultrole',
         region: 'cn-hangzhou',
         vpcConfig: {},
@@ -218,21 +227,19 @@ describe('ArtModelService', () => {
         },
       } as any);
 
-      mockDevClient.fileManagerRsync.mockResolvedValue({
-        body: {
-          success: true,
-          data: {
-            taskID: 'task-123',
-          },
-          requestId: 'req-123',
-        },
-      } as any);
-
-      // ArtModelService内部会调用checkModelStatus，所以我们需要模拟它
-      (checkModelStatus as jest.Mock).mockResolvedValue(undefined);
+      // 现在使用重试函数，我们需要模拟重试函数成功执行
+      (
+        require('../../../src/subCommands/model/utils')
+          .retryFileManagerRsyncAndCheckStatus as jest.Mock
+      ).mockResolvedValue(undefined);
 
       // 成功下载应该正常完成而不抛出异常
       await expect(artModelService.downloadModel(name, params)).resolves.toBeUndefined();
+
+      // 验证重试函数被调用
+      expect(
+        require('../../../src/subCommands/model/utils').retryFileManagerRsyncAndCheckStatus,
+      ).toHaveBeenCalled();
     });
 
     it('should handle download error from fileManagerRsync', async () => {
@@ -253,8 +260,8 @@ describe('ArtModelService', () => {
             },
           ],
         },
-        storage: 'nas',
         nasMountPoints: [{ mountDir: '/mnt/test' }],
+        ossMountPoints: [{ mountDir: '/mnt/oss' }],
         role: 'acs:ram::123456789:role/aliyundevsdefaultrole',
         region: 'cn-hangzhou',
         vpcConfig: {},
@@ -297,8 +304,8 @@ describe('ArtModelService', () => {
           ],
           timeout: 10, // 设置较小的超时值以便测试
         },
-        storage: 'nas',
         nasMountPoints: [{ mountDir: '/mnt/test' }],
+        ossMountPoints: [{ mountDir: '/mnt/oss' }],
         role: 'acs:ram::123456789:role/aliyundevsdefaultrole',
         region: 'cn-hangzhou',
         vpcConfig: {},
@@ -308,30 +315,6 @@ describe('ArtModelService', () => {
         body: {
           data: {
             tasks: [],
-          },
-        },
-      } as any);
-
-      mockDevClient.fileManagerRsync.mockResolvedValue({
-        body: {
-          success: true,
-          data: {
-            taskID: 'task-123',
-          },
-          requestId: 'req-123',
-        },
-      } as any);
-
-      // 模拟超时情况 - 任务永远不会完成
-      mockDevClient.getFileManagerTask.mockResolvedValue({
-        body: {
-          data: {
-            finished: false,
-            startTime: Date.now() - 50 * 60 * 1000, // 50分钟前开始
-            progress: {
-              currentBytes: 512,
-              totalBytes: 1024,
-            },
           },
         },
       } as any);
@@ -364,8 +347,8 @@ describe('ArtModelService', () => {
             },
           ],
         },
-        storage: 'nas',
         nasMountPoints: [{ mountDir: '/mnt/test' }],
+        ossMountPoints: [{ mountDir: '/mnt/oss' }],
         role: 'acs:ram::123456789:role/aliyundevsdefaultrole',
         region: 'cn-hangzhou',
         vpcConfig: {},
@@ -376,16 +359,6 @@ describe('ArtModelService', () => {
           data: {
             tasks: [],
           },
-        },
-      } as any);
-
-      mockDevClient.fileManagerRsync.mockResolvedValue({
-        body: {
-          success: true,
-          data: {
-            taskID: 'task-123',
-          },
-          requestId: 'req-123',
         },
       } as any);
 
@@ -442,8 +415,8 @@ describe('ArtModelService', () => {
           ],
           conflictResolution: 'overwrite', // 这个值应该被环境变量覆盖
         },
-        storage: 'nas',
         nasMountPoints: [{ mountDir: '/mnt/test' }],
+        ossMountPoints: [{ mountDir: '/mnt/oss' }],
         role: 'acs:ram::123456789:role/aliyundevsdefaultrole',
         region: 'cn-hangzhou',
         vpcConfig: {},
@@ -458,16 +431,6 @@ describe('ArtModelService', () => {
           data: {
             tasks: [],
           },
-        },
-      } as any);
-
-      mockDevClient.fileManagerRsync.mockResolvedValue({
-        body: {
-          success: true,
-          data: {
-            taskID: 'task-123',
-          },
-          requestId: 'req-123',
         },
       } as any);
 
@@ -518,31 +481,16 @@ describe('ArtModelService', () => {
           ],
         },
         nasMountPoints: [{ mountDir: '/mnt/test' }],
+        ossMountPoints: [{ mountDir: '/mnt/oss' }],
         role: 'acs:ram::123456789:role/aliyundevsdefaultrole',
         region: 'cn-hangzhou',
         vpcConfig: {},
       };
 
-      mockDevClient.fileManagerRm.mockResolvedValue({
-        body: {
-          success: true,
-          data: {
-            taskID: 'task-123',
-          },
-          requestId: 'req-123',
-        },
-      } as any);
-
-      // 模拟 getFileManagerTask 返回成功状态
-      mockDevClient.getFileManagerTask.mockResolvedValue({
-        body: {
-          data: {
-            finished: true,
-            success: true,
-          },
-          requestId: 'req-456',
-        },
-      } as any);
+      // 现在使用重试函数，我们需要模拟重试函数成功执行
+      (
+        require('../../../src/subCommands/model/utils').retryFileManagerRm as jest.Mock
+      ).mockResolvedValue({ success: true, fileName: 'file1.txt' });
 
       // 添加 removeFileManagerTasks 的模拟
       mockDevClient.removeFileManagerTasks.mockResolvedValue({
@@ -555,6 +503,9 @@ describe('ArtModelService', () => {
 
       // 成功移除应该正常完成
       await expect(artModelService.removeModel(name, params)).resolves.toBeUndefined();
+
+      // 验证重试函数被调用
+      expect(require('../../../src/subCommands/model/utils').retryFileManagerRm).toHaveBeenCalled();
     });
 
     it('should handle remove failure', async () => {
@@ -572,35 +523,66 @@ describe('ArtModelService', () => {
           ],
         },
         nasMountPoints: [{ mountDir: '/mnt/test' }],
+        ossMountPoints: [{ mountDir: '/mnt/oss' }],
         role: 'acs:ram::123456789:role/aliyundevsdefaultrole',
         region: 'cn-hangzhou',
         vpcConfig: {},
       };
 
-      mockDevClient.fileManagerRm.mockResolvedValue({
-        body: {
-          success: true,
-          data: {
-            taskID: 'task-123',
-          },
-          requestId: 'req-123',
-        },
-      } as any);
-
-      // 模拟 getFileManagerTask 返回错误状态
-      mockDevClient.getFileManagerTask.mockResolvedValue({
-        body: {
-          data: {
-            finished: true,
-            success: false,
-            errorMessage: 'Remove failed',
-          },
-          requestId: 'req-456',
-        },
-      } as any);
+      // 现在使用重试函数，我们需要模拟重试函数返回失败
+      (
+        require('../../../src/subCommands/model/utils').retryFileManagerRm as jest.Mock
+      ).mockResolvedValue({ success: false, fileName: 'file1.txt', error: 'Remove failed' });
 
       // 移除失败应该抛出异常
       await expect(artModelService.removeModel(name, params)).rejects.toThrow();
+    });
+
+    it('should handle remove with upgrade files', async () => {
+      const name = 'test-project$test-env$test-function';
+      const params = {
+        modelConfig: {
+          target: {
+            uri: 'nas://auto',
+          },
+          files: [
+            {
+              source: { path: 'file1.txt' },
+              target: { path: 'file1.txt' },
+            },
+          ],
+          upgrade: {
+            history: {
+              'v1.0': '/mnt/test/v1.0/file1.txt',
+            },
+          },
+        },
+        nasMountPoints: [{ mountDir: '/mnt/test' }],
+        ossMountPoints: [{ mountDir: '/mnt/oss' }],
+        role: 'acs:ram::123456789:role/aliyundevsdefaultrole',
+        region: 'cn-hangzhou',
+        vpcConfig: {},
+      };
+
+      // 现在使用重试函数，我们需要模拟重试函数成功执行
+      (
+        require('../../../src/subCommands/model/utils').retryFileManagerRm as jest.Mock
+      ).mockResolvedValue({ success: true, fileName: 'file1.txt' });
+
+      // 添加 removeFileManagerTasks 的模拟
+      mockDevClient.removeFileManagerTasks.mockResolvedValue({
+        body: {
+          success: true,
+          data: {},
+          requestId: 'req-999',
+        },
+      } as any);
+
+      // 成功移除应该正常完成
+      await expect(artModelService.removeModel(name, params)).resolves.toBeUndefined();
+
+      // 验证重试函数被调用
+      expect(require('../../../src/subCommands/model/utils').retryFileManagerRm).toHaveBeenCalled();
     });
   });
 
@@ -742,6 +724,17 @@ describe('ArtModelService', () => {
       );
 
       expect(result).toBe('file://mnt/custom/file1.txt'); // Should remove leading slash
+    });
+
+    it('should handle mountDir starting with slash', () => {
+      const result = (artModelService as any)._getDestinationPath(
+        'nas://auto',
+        { target: { path: 'file1.txt' } },
+        [{ mountDir: '/mnt/nas' }], // mountDir starts with slash
+        [{ mountDir: '/mnt/oss' }],
+      );
+
+      expect(result).toBe('file://mnt/nas/file1.txt');
     });
   });
 });

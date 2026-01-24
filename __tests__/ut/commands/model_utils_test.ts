@@ -4,6 +4,9 @@ import {
   _displayProgress,
   _displayProgressComplete,
   checkModelStatus,
+  retryFileManagerRsyncAndCheckStatus,
+  retryFileManagerRm,
+  extractOssMountDir,
 } from '../../../src/subCommands/model/utils';
 import DevClient from '@alicloud/devs20230714';
 import * as $OpenApi from '@alicloud/openapi-client';
@@ -268,5 +271,347 @@ describe('Model Utils', () => {
       // For large files, it should sleep for 10 seconds instead of 2
       expect(sleep).toHaveBeenCalledWith(10);
     });
+  });
+});
+
+describe('retryFileManagerRsyncAndCheckStatus', () => {
+  let mockDevClient: jest.Mocked<DevClient>;
+
+  beforeEach(() => {
+    mockDevClient = {
+      fileManagerRsync: jest.fn(),
+      getFileManagerTask: jest.fn(),
+    } as any;
+
+    (sleep as jest.Mock).mockResolvedValue(undefined);
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('should successfully complete rsync and check status', async () => {
+    const mockRequest = {
+      source: 'modelscope://test-model',
+      destination: 'file://mnt/nas/model',
+      conflictHandling: 'overwrite',
+      mountConfig: {},
+    };
+
+    (mockDevClient.fileManagerRsync as jest.Mock).mockResolvedValue({
+      body: {
+        success: true,
+        data: {
+          taskID: 'task-123',
+        },
+        requestId: 'req-123',
+      },
+    });
+
+    (mockDevClient.getFileManagerTask as jest.Mock).mockResolvedValue({
+      body: {
+        data: {
+          finished: true,
+          success: true,
+          startTime: Date.now(),
+          finishedTime: Date.now() + 1000,
+          progress: {
+            currentBytes: 1024,
+            totalBytes: 1024,
+            total: true,
+          },
+        },
+      },
+    });
+
+    await expect(
+      retryFileManagerRsyncAndCheckStatus(mockDevClient, mockRequest, 'test-file', 30000),
+    ).resolves.not.toThrow();
+  });
+
+  it('should handle initialization errors with retries', async () => {
+    const mockRequest = {
+      source: 'modelscope://test-model',
+      destination: 'file://mnt/nas/model',
+      conflictHandling: 'overwrite',
+      mountConfig: {},
+    };
+
+    (mockDevClient.fileManagerRsync as jest.Mock).mockResolvedValue({
+      body: {
+        success: true,
+        data: {
+          taskID: 'task-123',
+        },
+        requestId: 'req-123',
+      },
+    });
+
+    // First call returns an initialization error, second succeeds
+    (mockDevClient.getFileManagerTask as jest.Mock)
+      .mockResolvedValueOnce({
+        body: {
+          data: {
+            finished: true,
+            success: false,
+            startTime: Date.now(),
+            progress: {
+              currentBytes: 0,
+              totalBytes: 0,
+            },
+            errorMessage:
+              'initialize download failed: failed to initialize the download environment; this is usually caused by your NAS being inaccessible.',
+          },
+          requestId: 'req-123',
+        },
+      })
+      .mockResolvedValueOnce({
+        body: {
+          data: {
+            finished: true,
+            success: true,
+            startTime: Date.now(),
+            finishedTime: Date.now() + 1000,
+            progress: {
+              currentBytes: 1024,
+              totalBytes: 1024,
+              total: true,
+            },
+          },
+        },
+      });
+
+    await expect(
+      retryFileManagerRsyncAndCheckStatus(
+        mockDevClient,
+        mockRequest,
+        'test-file',
+        30000,
+        2, // maxRetries
+        1, // baseDelay (in test we use 1 second)
+      ),
+    ).resolves.not.toThrow();
+
+    // Should have called fileManagerRsync twice (first + 1 retry)
+    expect(mockDevClient.fileManagerRsync).toHaveBeenCalledTimes(2);
+  });
+
+  it('should throw non-initialization errors immediately', async () => {
+    const mockRequest = {
+      source: 'modelscope://test-model',
+      destination: 'file://mnt/nas/model',
+      conflictHandling: 'overwrite',
+      mountConfig: {},
+    };
+
+    (mockDevClient.fileManagerRsync as jest.Mock).mockResolvedValue({
+      body: {
+        success: true,
+        data: {
+          taskID: 'task-123',
+        },
+        requestId: 'req-123',
+      },
+    });
+
+    (mockDevClient.getFileManagerTask as jest.Mock).mockResolvedValue({
+      body: {
+        data: {
+          finished: true,
+          success: false,
+          startTime: Date.now(),
+          progress: {
+            currentBytes: 0,
+            totalBytes: 0,
+          },
+          errorMessage: 'Some other error',
+        },
+        requestId: 'req-123',
+      },
+    });
+
+    await expect(
+      retryFileManagerRsyncAndCheckStatus(mockDevClient, mockRequest, 'test-file', 30000),
+    ).rejects.toThrow('Some other error');
+  });
+});
+
+describe('retryFileManagerRm', () => {
+  let mockDevClient: jest.Mocked<DevClient>;
+
+  beforeEach(() => {
+    mockDevClient = {
+      fileManagerRm: jest.fn(),
+      getFileManagerTask: jest.fn(),
+    } as any;
+
+    (sleep as jest.Mock).mockResolvedValue(undefined);
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('should successfully remove file', async () => {
+    const mockRequest = {
+      filepath: '/mnt/nas/test-file',
+      mountConfig: {},
+    };
+
+    (mockDevClient.fileManagerRm as jest.Mock).mockResolvedValue({
+      body: {
+        success: true,
+        data: {
+          taskID: 'task-123',
+        },
+        requestId: 'req-123',
+      },
+    });
+
+    (mockDevClient.getFileManagerTask as jest.Mock).mockResolvedValue({
+      body: {
+        data: {
+          finished: true,
+          success: true,
+          startTime: Date.now(),
+        },
+      },
+    });
+
+    const result = await retryFileManagerRm(mockDevClient, mockRequest, 'test-file');
+
+    expect(result).toEqual({
+      fileName: 'test-file',
+      success: true,
+    });
+  });
+
+  it('should handle NoSuchFileError as success', async () => {
+    const mockRequest = {
+      filepath: '/mnt/nas/test-file',
+      mountConfig: {},
+    };
+
+    (mockDevClient.fileManagerRm as jest.Mock).mockResolvedValue({
+      body: {
+        success: true,
+        data: {
+          taskID: 'task-123',
+        },
+        requestId: 'req-123',
+      },
+    });
+
+    (mockDevClient.getFileManagerTask as jest.Mock).mockResolvedValue({
+      body: {
+        data: {
+          finished: true,
+          success: false,
+          startTime: Date.now(),
+          errorMessage: 'NoSuchFileError: File does not exist',
+        },
+      },
+    });
+
+    const result = await retryFileManagerRm(mockDevClient, mockRequest, 'test-file');
+
+    expect(result).toEqual({
+      fileName: 'test-file',
+      success: true,
+    });
+  });
+
+  it('should handle initialization errors with retries', async () => {
+    const mockRequest = {
+      filepath: '/mnt/nas/test-file',
+      mountConfig: {},
+    };
+
+    (mockDevClient.fileManagerRm as jest.Mock).mockResolvedValue({
+      body: {
+        success: true,
+        data: {
+          taskID: 'task-123',
+        },
+        requestId: 'req-123',
+      },
+    });
+
+    // First call returns an initialization error, second succeeds
+    (mockDevClient.getFileManagerTask as jest.Mock)
+      .mockResolvedValueOnce({
+        body: {
+          data: {
+            finished: true,
+            success: false,
+            startTime: Date.now(),
+            errorMessage:
+              'initialize download failed: failed to initialize the download environment; this is usually caused by your NAS being inaccessible.',
+          },
+        },
+      })
+      .mockResolvedValueOnce({
+        body: {
+          data: {
+            finished: true,
+            success: true,
+            startTime: Date.now(),
+          },
+        },
+      });
+
+    const result = await retryFileManagerRm(
+      mockDevClient,
+      mockRequest,
+      'test-file',
+      3, // maxRetries
+      1, // baseDelay (in test we use 1 second)
+    );
+
+    expect(result).toEqual({
+      fileName: 'test-file',
+      success: true,
+    });
+
+    // Should have called getFileManagerTask twice (first + 1 retry)
+    expect(mockDevClient.getFileManagerTask).toHaveBeenCalledTimes(2);
+  });
+});
+
+describe('extractOssMountDir', () => {
+  it('should truncate mountDir if longer than 48 characters', () => {
+    const ossMountPoints = [
+      { mountDir: '/very-long-path-that-exceeds-the-character-limit-and-needs-to-be-truncated' },
+      { mountDir: '/short' },
+    ];
+
+    const result = extractOssMountDir(ossMountPoints);
+
+    expect(result[0].mountDir).toBe('/very-long-path-that-exceeds-the-character-limit');
+    expect(result[1].mountDir).toBe('/short');
+  });
+
+  it('should not modify mountDir if 48 characters or less', () => {
+    const ossMountPoints = [
+      { mountDir: '/exactly-48-characters-path-for-testing-purposes' },
+      { mountDir: '/short' },
+    ];
+
+    const result = extractOssMountDir(ossMountPoints);
+
+    expect(result[0].mountDir).toBe('/exactly-48-characters-path-for-testing-purposes');
+    expect(result[1].mountDir).toBe('/short');
+  });
+
+  it('should handle empty array', () => {
+    const result = extractOssMountDir([]);
+
+    expect(result).toBeUndefined();
+  });
+
+  it('should handle undefined input', () => {
+    const result = extractOssMountDir(undefined);
+
+    expect(result).toBeUndefined();
   });
 });
