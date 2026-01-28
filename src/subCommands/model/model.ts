@@ -107,6 +107,23 @@ export class ModelService {
 
     const processedOssMountPoints = extractOssMountDir(ossMountPoints);
 
+    if (
+      storage === 'oss' &&
+      processedOssMountPoints[0] &&
+      (!processedOssMountPoints[0].bucketPath || processedOssMountPoints[0].bucketPath === '/')
+    ) {
+      throw new Error(
+        'The current deleted directory is the OSS root directory. To delete the current model, please go to the OSS console to delete the model.',
+      );
+    }
+
+    const nasPath = nasMountPoints[0]?.serverAddr?.split(':')[1];
+
+    if (storage === 'nas' && nasMountPoints[0] && nasPath?.trim() === '/') {
+      throw new Error(
+        'The current deleted directory is the NAS root directory. To delete the current model, please go to the NAS console to delete the model.',
+      );
+    }
     const fileManagerRmRequest = new $Dev20230714.FileManagerRmRequest({
       filepath:
         storage === 'nas' ? nasMountPoints[0]?.mountDir : processedOssMountPoints[0]?.mountDir,
