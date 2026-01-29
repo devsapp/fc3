@@ -329,7 +329,7 @@ describe('ModelService', () => {
     it('should successfully remove model', async () => {
       const name = 'test-project$test-env$test-function';
       const params = {
-        nasMountPoints: [{ mountDir: '/mnt/test' }],
+        nasMountPoints: [{ mountDir: '/mnt/test', serverAddr: 'xxxxx:/test' }],
         ossMountPoints: [],
         role: 'acs:ram::123456789:role/aliyundevsdefaultrole',
         region: 'cn-hangzhou',
@@ -350,7 +350,7 @@ describe('ModelService', () => {
     it('should handle remove error', async () => {
       const name = 'test-project$test-env$test-function';
       const params = {
-        nasMountPoints: [{ mountDir: '/mnt/test' }],
+        nasMountPoints: [{ mountDir: '/mnt/test', serverAddr: 'xxxxx:/test' }],
         ossMountPoints: [],
         role: 'acs:ram::123456789:role/aliyundevsdefaultrole',
         region: 'cn-hangzhou',
@@ -374,7 +374,7 @@ describe('ModelService', () => {
     it('should handle remove error with NoSuchFileError', async () => {
       const name = 'test-project$test-env$test-function';
       const params = {
-        nasMountPoints: [{ mountDir: '/mnt/test' }],
+        nasMountPoints: [{ mountDir: '/mnt/test', serverAddr: 'xxxxx:/test' }],
         ossMountPoints: [],
         role: 'acs:ram::123456789:role/aliyundevsdefaultrole',
         region: 'cn-hangzhou',
