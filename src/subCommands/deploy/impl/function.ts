@@ -2,6 +2,7 @@ import _ from 'lodash';
 import { diffConvertYaml } from '@serverless-devs/diff';
 import inquirer from 'inquirer';
 import fs from 'fs';
+import os from 'os';
 import assert from 'assert';
 import path from 'path';
 import { yellow } from 'chalk';
@@ -21,6 +22,7 @@ import { ICredentials } from '@serverless-devs/component-interface';
 import { calculateCRC64, getFileSize, parseAutoConfig, checkFcDir } from '../../../utils';
 import OSS from '../../../resources/oss';
 import { setNodeModulesBinPermissions } from '../../../resources/fc/impl/utils';
+import downloads from '@serverless-devs/downloads';
 
 type IType = 'code' | 'config' | boolean;
 interface IOpts {
@@ -277,12 +279,18 @@ export default class Service extends Base {
       return true;
     }
 
-    let zipPath: string = path.isAbsolute(codeUri)
-      ? codeUri
-      : path.join(this.inputs.baseDir, codeUri);
+    let zipPath: string;
+    let downloadedTempDir = '';
+    // 处理不同类型的 codeUri
+    if (codeUri.startsWith('http://') || codeUri.startsWith('https://')) {
+      zipPath = await this._downloadFromUrl(codeUri);
+      downloadedTempDir = path.dirname(zipPath);
+    } else {
+      zipPath = path.isAbsolute(codeUri) ? codeUri : path.join(this.inputs.baseDir, codeUri);
+    }
     logger.debug(`Code path absolute path: ${zipPath}`);
 
-    const needZip = this._assertNeedZip(codeUri);
+    const needZip = this._assertNeedZip(zipPath);
     logger.debug(`Need zip file: ${needZip}`);
 
     let generateZipFilePath = '';
@@ -330,7 +338,56 @@ export default class Service extends Base {
       }
     }
 
+    if (downloadedTempDir) {
+      try {
+        logger.debug(`Removing temp download dir: ${downloadedTempDir}`);
+        fs.rmSync(downloadedTempDir, { recursive: true, force: true });
+      } catch (ex) {
+        logger.debug(`Unable to remove temp download dir: ${downloadedTempDir}`);
+      }
+    }
+
     return true;
+  }
+
+  /**
+   * 从URL下载文件到本地临时目录
+   */
+  private async _downloadFromUrl(url: string): Promise<string> {
+    logger.info(`Downloading code from URL: ${url}`);
+
+    // 创建临时目录
+    const tempDir = path.join(os.tmpdir(), 'fc_code_download');
+    let downloadPath: string;
+
+    try {
+      // 从URL获取文件名
+      const urlPath = new URL(url).pathname;
+      const parsedPathName = path.parse(urlPath).name;
+      const filename = path.basename(urlPath) || `downloaded_code_${Date.now()}`;
+      downloadPath = path.join(tempDir, filename);
+
+      await downloads(url, {
+        dest: tempDir,
+        filename: parsedPathName,
+        extract: false,
+      });
+
+      logger.debug(`Downloaded file to: ${downloadPath}`);
+
+      // 返回下载文件路径，由主流程决定是否需要压缩
+      return downloadPath;
+    } catch (error) {
+      // 如果下载失败，清理临时目录
+      try {
+        fs.rmSync(tempDir, { recursive: true, force: true });
+        logger.debug(`Cleaned up temporary directory after error: ${tempDir}`);
+      } catch (cleanupError) {
+        logger.debug(`Failed to clean up temporary directory: ${cleanupError.message}`);
+      }
+
+      throw new Error(`Failed to download code from URL: ${error.message}`);
+    }
   }
 
   /**
