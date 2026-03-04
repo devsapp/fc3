@@ -15,6 +15,7 @@ import {
   calculateCRC64,
   getFileSize,
   getUserAgent,
+  _downloadFromUrl,
 } from '../../utils';
 import chalk from 'chalk';
 
@@ -28,6 +29,7 @@ export default class Layer {
     layerName: string,
     compatibleRuntimeList: string[],
     description: string,
+    downloadedTempFile = '',
   ): Promise<any> {
     let zipPath = toZipDir;
     let generateZipFilePath = '';
@@ -53,6 +55,14 @@ export default class Layer {
             `Skip uploadCode because code is no changed, codeChecksum=${crc64Value}; Laster layerArn=${latestLayer.layerVersionArn}`,
           ),
         );
+        if (downloadedTempFile) {
+          try {
+            logger.debug(`Removing temp download dir: ${downloadedTempFile}`);
+            fs.rmSync(downloadedTempFile, { recursive: true, force: true });
+          } catch (ex) {
+            logger.debug(`Unable to remove temp download dir: ${downloadedTempFile}`);
+          }
+        }
         return latestLayer;
       }
     }
@@ -76,6 +86,16 @@ export default class Layer {
         logger.debug(`Unable to remove zip file: ${zipPath}`);
       }
     }
+
+    if (downloadedTempFile) {
+      try {
+        logger.debug(`Removing temp download file: ${downloadedTempFile}`);
+        fs.rmSync(downloadedTempFile, { recursive: true, force: true });
+      } catch (ex) {
+        logger.debug(`Unable to remove temp download file: ${downloadedTempFile}`);
+      }
+    }
+
     console.log(JSON.stringify(result));
     return result;
   }
@@ -220,7 +240,16 @@ export default class Layer {
       );
     }
 
-    const toZipDir: string = path.isAbsolute(codeUri) ? codeUri : path.join(this.baseDir, codeUri);
+    let toZipDir: string;
+    let downloadedTempFile = '';
+    // 处理不同类型的 codeUri
+    if (codeUri.startsWith('http://') || codeUri.startsWith('https://')) {
+      toZipDir = await _downloadFromUrl(codeUri);
+      downloadedTempFile = toZipDir;
+    } else {
+      toZipDir = path.isAbsolute(codeUri) ? codeUri : path.join(this.baseDir, codeUri);
+    }
+
     const compatibleRuntimeList = compatibleRuntime.split(',');
     return Layer.safe_publish_layer(
       this.fcSdk,
@@ -229,6 +258,7 @@ export default class Layer {
       layerName,
       compatibleRuntimeList,
       this.opts.description || '',
+      downloadedTempFile,
     );
   }
 
