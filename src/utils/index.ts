@@ -4,10 +4,13 @@ import Table from 'tty-table';
 import * as crc64 from 'crc64-ecma182.js';
 import { promisify } from 'util';
 import * as fs from 'fs';
+import os from 'os';
 import logger from '../logger';
 import { execSync } from 'child_process';
 import axios from 'axios';
 import { FC_API_ERROR_CODE, isInvalidArgument } from '../resources/fc/error-code';
+import path from 'path';
+import downloads from '@serverless-devs/downloads';
 
 export { default as verify } from './verify';
 export { default as runCommand } from './run-command';
@@ -261,8 +264,8 @@ export function getUserAgent(userAgent: string, command: string) {
 /**
  * 验证并规范化路径
  */
-export function checkFcDir(path: string, paramName = 'path'): string {
-  const normalizedPath = path.trim();
+export function checkFcDir(inputPath: string, paramName = 'path'): string {
+  const normalizedPath = inputPath.trim();
 
   if (!normalizedPath.startsWith('/')) {
     throw new Error(`${paramName} does not start with '/'`);
@@ -307,4 +310,49 @@ export function checkFcDir(path: string, paramName = 'path'): string {
   }
 
   return normalizedPath;
+}
+
+/**
+ * 从URL下载文件到本地临时目录
+ */
+export async function _downloadFromUrl(url: string): Promise<string> {
+  // 创建临时目录
+  const tempDir = path.join(os.tmpdir(), 'fc_code_download');
+  let downloadPath: string;
+
+  try {
+    // 确保临时目录存在
+    if (!fs.existsSync(tempDir)) {
+      fs.mkdirSync(tempDir, { recursive: true });
+    }
+
+    // 从URL获取文件名
+    const urlPath = new URL(url).pathname;
+    const parsedPathName = path.parse(urlPath).name;
+    const filename = path.basename(urlPath) || `downloaded_code_${Date.now()}`;
+    downloadPath = path.join(tempDir, filename);
+
+    await downloads(url, {
+      dest: tempDir,
+      filename: parsedPathName,
+      extract: false,
+    });
+
+    logger.debug(`Downloaded file to: ${downloadPath}`);
+
+    // 返回下载文件路径，由主流程决定是否需要压缩
+    return downloadPath;
+  } catch (error) {
+    // 如果下载失败，清理临时目录
+    try {
+      if (fs.existsSync(tempDir)) {
+        fs.rmSync(tempDir, { recursive: true, force: true });
+        logger.debug(`Cleaned up temporary directory after error: ${tempDir}`);
+      }
+    } catch (cleanupError) {
+      logger.debug(`Failed to clean up temporary directory: ${cleanupError.message}`);
+    }
+
+    throw new Error(`Failed to download code from URL: ${error.message}`);
+  }
 }

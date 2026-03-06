@@ -4,6 +4,12 @@ import logger from '../../../src/logger';
 import { IInputs } from '../../../src/interface';
 import fs from 'fs';
 
+// Mock @serverless-devs/downloads module to prevent import errors
+jest.mock('@serverless-devs/downloads', () => ({
+  __esModule: true,
+  default: jest.fn(),
+}));
+
 // Mock dependencies
 jest.mock('../../../src/resources/fc', () => {
   return {
