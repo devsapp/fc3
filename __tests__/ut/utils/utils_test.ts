@@ -21,6 +21,12 @@ import log from '../../../src/logger';
 import { execSync } from 'child_process';
 log._set(console);
 
+// Mock @serverless-devs/downloads module to prevent import errors
+jest.mock('@serverless-devs/downloads', () => ({
+  __esModule: true,
+  default: jest.fn(),
+}));
+
 describe('isAuto', () => {
   test('should return true if config is string "AUTO" or "auto"', () => {
     expect(isAuto('AUTO')).toBe(true);

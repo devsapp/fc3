@@ -117,7 +117,7 @@ export class ModelService {
       );
     }
 
-    const nasPath = nasMountPoints[0]?.serverAddr?.split(':')[1];
+    const nasPath = nasMountPoints && nasMountPoints[0]?.serverAddr?.split(':')[1];
 
     if (storage === 'nas' && nasMountPoints[0] && nasPath?.trim() === '/') {
       throw new Error(

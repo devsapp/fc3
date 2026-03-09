@@ -2,7 +2,6 @@ import _ from 'lodash';
 import { diffConvertYaml } from '@serverless-devs/diff';
 import inquirer from 'inquirer';
 import fs from 'fs';
-import os from 'os';
 import assert from 'assert';
 import path from 'path';
 import { yellow } from 'chalk';
@@ -19,10 +18,15 @@ import FC, { GetApiType } from '../../../resources/fc';
 import VPC_NAS from '../../../resources/vpc-nas';
 import Base from './base';
 import { ICredentials } from '@serverless-devs/component-interface';
-import { calculateCRC64, getFileSize, parseAutoConfig, checkFcDir } from '../../../utils';
+import {
+  calculateCRC64,
+  getFileSize,
+  parseAutoConfig,
+  checkFcDir,
+  _downloadFromUrl,
+} from '../../../utils';
 import OSS from '../../../resources/oss';
 import { setNodeModulesBinPermissions } from '../../../resources/fc/impl/utils';
-import downloads from '@serverless-devs/downloads';
 
 type IType = 'code' | 'config' | boolean;
 interface IOpts {
@@ -280,11 +284,11 @@ export default class Service extends Base {
     }
 
     let zipPath: string;
-    let downloadedTempDir = '';
+    let downloadedTempFile = '';
     // 处理不同类型的 codeUri
     if (codeUri.startsWith('http://') || codeUri.startsWith('https://')) {
-      zipPath = await this._downloadFromUrl(codeUri);
-      downloadedTempDir = path.dirname(zipPath);
+      zipPath = await _downloadFromUrl(codeUri);
+      downloadedTempFile = zipPath;
     } else {
       zipPath = path.isAbsolute(codeUri) ? codeUri : path.join(this.inputs.baseDir, codeUri);
     }
@@ -321,6 +325,14 @@ export default class Service extends Base {
         logger.debug(
           yellow(`skip uploadCode because code is no changed, codeChecksum=${crc64Value}`),
         );
+        if (downloadedTempFile) {
+          try {
+            logger.debug(`Removing temp download dir: ${downloadedTempFile}`);
+            fs.rmSync(downloadedTempFile, { recursive: true, force: true });
+          } catch (ex) {
+            logger.debug(`Unable to remove temp download dir: ${downloadedTempFile}`);
+          }
+        }
         return false;
       } else {
         logger.debug(`\x1b[33mcodeChecksum from ${this.codeChecksum} to ${crc64Value}\x1b[0m`);
@@ -338,56 +350,16 @@ export default class Service extends Base {
       }
     }
 
-    if (downloadedTempDir) {
+    if (downloadedTempFile) {
       try {
-        logger.debug(`Removing temp download dir: ${downloadedTempDir}`);
-        fs.rmSync(downloadedTempDir, { recursive: true, force: true });
+        logger.debug(`Removing temp download dir: ${downloadedTempFile}`);
+        fs.rmSync(downloadedTempFile, { recursive: true, force: true });
       } catch (ex) {
-        logger.debug(`Unable to remove temp download dir: ${downloadedTempDir}`);
+        logger.debug(`Unable to remove temp download dir: ${downloadedTempFile}`);
       }
     }
 
     return true;
-  }
-
-  /**
-   * 从URL下载文件到本地临时目录
-   */
-  private async _downloadFromUrl(url: string): Promise<string> {
-    logger.info(`Downloading code from URL: ${url}`);
-
-    // 创建临时目录
-    const tempDir = path.join(os.tmpdir(), 'fc_code_download');
-    let downloadPath: string;
-
-    try {
-      // 从URL获取文件名
-      const urlPath = new URL(url).pathname;
-      const parsedPathName = path.parse(urlPath).name;
-      const filename = path.basename(urlPath) || `downloaded_code_${Date.now()}`;
-      downloadPath = path.join(tempDir, filename);
-
-      await downloads(url, {
-        dest: tempDir,
-        filename: parsedPathName,
-        extract: false,
-      });
-
-      logger.debug(`Downloaded file to: ${downloadPath}`);
-
-      // 返回下载文件路径，由主流程决定是否需要压缩
-      return downloadPath;
-    } catch (error) {
-      // 如果下载失败，清理临时目录
-      try {
-        fs.rmSync(tempDir, { recursive: true, force: true });
-        logger.debug(`Cleaned up temporary directory after error: ${tempDir}`);
-      } catch (cleanupError) {
-        logger.debug(`Failed to clean up temporary directory: ${cleanupError.message}`);
-      }
-
-      throw new Error(`Failed to download code from URL: ${error.message}`);
-    }
   }
 
   /**
