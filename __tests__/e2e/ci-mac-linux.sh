@@ -156,6 +156,10 @@ s deploy --trigger -t s2.yaml
 s deploy --async-invoke-config -t s2.yaml
 s info -t s2.yaml
 s remove -y -t s2.yaml
+
+echo "test layer code support http"
+s layer publish --layer-name test --code https://images.devsapp.cn/zip/devs_fc3_layer_test_url_test.zip --compatible-runtime custom.debian12
+s layer remove --layer-name test -y
 cd ..
 
 echo " *********  test scaling config *********"

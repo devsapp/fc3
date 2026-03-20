@@ -340,8 +340,12 @@ export async function _downloadFromUrl(url: string): Promise<string> {
 
     logger.debug(`Downloaded file to: ${downloadPath}`);
 
-    // 返回下载文件路径，由主流程决定是否需要压缩
-    return downloadPath;
+    const isDownloadedFileZip = await isZipFile(downloadPath);
+    if (!isDownloadedFileZip) {
+      throw new Error(`Downloaded file is not a valid zip file: ${downloadPath}`);
+    }
+
+    return downloadPath.endsWith('.zip') ? downloadPath : `${downloadPath}.zip`;
   } catch (error) {
     // 如果下载失败，清理临时目录
     try {
@@ -354,5 +358,37 @@ export async function _downloadFromUrl(url: string): Promise<string> {
     }
 
     throw new Error(`Failed to download code from URL: ${error.message}`);
+  }
+}
+
+/**
+ * 判断文件是否为ZIP文件 - 通过魔数检查
+ */
+async function isZipFile(filePath: string): Promise<boolean> {
+  try {
+    if (!fs.existsSync(filePath)) {
+      return false;
+    }
+
+    // 检查文件头部的魔数（而非扩展名）
+    const buffer = Buffer.alloc(4);
+    const fd = fs.openSync(filePath, 'r');
+    try {
+      fs.readSync(fd, buffer, 0, 4, 0);
+    } finally {
+      fs.closeSync(fd);
+    }
+
+    // ZIP文件的魔数是 50 4B 03 04 (十六进制)
+    const isZipMagicNumber =
+      buffer[0] === 0x50 &&
+      buffer[1] === 0x4b &&
+      (buffer[2] === 0x03 || buffer[2] === 0x05 || buffer[2] === 0x07) &&
+      (buffer[3] === 0x04 || buffer[3] === 0x06 || buffer[3] === 0x08);
+
+    return isZipMagicNumber;
+  } catch (error) {
+    logger.debug(`Error checking if file is zip: ${error.message}`);
+    return false;
   }
 }
