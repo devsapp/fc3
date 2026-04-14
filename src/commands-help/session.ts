@@ -49,7 +49,10 @@ Examples with CLI:
 
 Examples with CLI:
   $ s cli fc3 session create --region cn-hangzhou --function-name my-function --qualifier LATEST --session-ttl-in-seconds 600 -a default
-  $ s cli fc3 session create --region cn-hangzhou --function-name my-function --qualifier LATEST --nas-config '{"userId": 1000, "groupId": 1000, "mountPoints": [{"serverAddr": "example.nas.aliyuncs.com:/", "mountDir": "/mnt/nas", "enableTLS": true}]}' -a default`,
+  $ s cli fc3 session create --region cn-hangzhou --function-name my-function --qualifier LATEST --nas-config '{"userId": 1000, "groupId": 1000, "mountPoints": [{"serverAddr": "example.nas.aliyuncs.com:/", "mountDir": "/mnt/nas", "enableTLS": true}]}' -a default
+  $ s cli fc3 session create --region cn-hangzhou --function-name my-function --qualifier LATEST --oss-mount-config '{"mountPoints": [{"bucketName": "my-bucket", "bucketPath": "cn-hangzhou", "mountDir": "/mnt/oss", "readOnly": false}]}' -a default
+  $ s cli fc3 session create --region cn-hangzhou --function-name my-function --qualifier LATEST --polar-fs-config '{"userId": 1000, "groupId": 1000, "mountPoints": [{"instanceId": "pc-xxx", "mountDir": "/mnt/polar", "remoteDir": "/"}]}' -a default
+  $ s cli fc3 session create --region cn-hangzhou --function-name my-function --qualifier LATEST --session-id custom-session-id --disable-session-id-reuse -a default`,
 
         summary: 'Create a new session',
         option: [
@@ -59,6 +62,7 @@ Examples with CLI:
           ],
           ['--function-name <functionName>', '[C-Required] Specify function name'],
           ['--qualifier <qualifier>', '[Required] Specify the qualifier parameter'],
+          ['--session-id <sessionId>', '[Optional] Custom session ID'],
           [
             '--st, --session-ttl-in-seconds <seconds>',
             '[Optional] Session TTL in seconds, between 0 and 21600, default 21600',
@@ -67,7 +71,10 @@ Examples with CLI:
             '--si, --session-idle-timeout-in-seconds <seconds>',
             '[Optional] Session idle timeout in seconds, between 0 and 21600, default 1800',
           ],
+          ['--dsr, --disable-session-id-reuse', '[Optional] Disable session ID reuse'],
           ['--nas-config <json>', '[Optional] Set the nasConfig.'],
+          ['--oss-mount-config <json>', '[Optional] Set the ossMountConfig.'],
+          ['--polar-fs-config <json>', '[Optional] Set the polarFsConfig.'],
         ],
       },
     },
@@ -96,7 +103,8 @@ Examples with CLI:
         description: `Update a session.
 
 Examples with CLI:
-  $ s cli fc3 session update --region cn-hangzhou --function-name my-function --session-id session-123 --qualifier LATEST --session-ttl-in-seconds 900 -a default`,
+  $ s cli fc3 session update --region cn-hangzhou --function-name my-function --session-id session-123 --qualifier LATEST --session-ttl-in-seconds 900 -a default
+  $ s cli fc3 session update --region cn-hangzhou --function-name my-function --session-id session-123 --qualifier LATEST --disable-session-id-reuse -a default`,
         summary: 'Update a session',
         option: [
           [
@@ -108,12 +116,13 @@ Examples with CLI:
           ['--qualifier <qualifier>', '[Required] Specify the qualifier parameter'],
           [
             '--st, --session-ttl-in-seconds <seconds>',
-            '[Optional] Session TTL in seconds, between 0 and 21600',
+            '[Optional] Session TTL in seconds, between 0 and 2512917',
           ],
           [
             '--si, --session-idle-timeout-in-seconds <seconds>',
             '[Optional] Session idle timeout in seconds, between 0 and 21600',
           ],
+          ['--dsr, --disable-session-id-reuse', '[Optional] Disable session ID reuse'],
         ],
       },
     },

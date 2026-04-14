@@ -16,6 +16,8 @@ export default class Session {
   private opts: any;
   private yes: boolean;
   private nasConfig: any;
+  private ossMountConfig: any;
+  private polarFsConfig: any;
 
   constructor(readonly inputs: IInputs) {
     const opts = parseArgv(inputs.args, {
@@ -24,8 +26,11 @@ export default class Session {
         'assume-yes': 'y',
         'session-ttl-in-seconds': 'st',
         'session-idle-timeout-in-seconds': 'si',
+        'disable-session-id-reuse': 'dsr',
+        'oss-mount-config': 'omc',
+        'polar-fs-config': 'pfc',
       },
-      boolean: ['help', 'y'],
+      boolean: ['help', 'y', 'disable-session-id-reuse'],
       string: [
         'region',
         'function-name',
@@ -36,6 +41,8 @@ export default class Session {
         'next-token',
         'session-status',
         'nas-config',
+        'oss-mount-config',
+        'polar-fs-config',
       ],
     });
     logger.debug(`Session opts: ${JSON.stringify(opts)}`);
@@ -72,10 +79,26 @@ export default class Session {
         this.nasConfig = opts['nas-config'];
       }
     }
+    if (opts['oss-mount-config']) {
+      try {
+        this.ossMountConfig = JSON.parse(opts['oss-mount-config']);
+      } catch (error) {
+        this.ossMountConfig = opts['oss-mount-config'];
+      }
+    }
+    if (opts['polar-fs-config']) {
+      try {
+        this.polarFsConfig = JSON.parse(opts['polar-fs-config']);
+      } catch (error) {
+        this.polarFsConfig = opts['polar-fs-config'];
+      }
+    }
   }
 
   async create() {
     const qualifier = this.opts.qualifier || 'LATEST';
+    const sessionId = this.opts['session-id'];
+    const disableSessionIdReuse = this.opts['disable-session-id-reuse'];
     const sessionTTLInSeconds = this.opts['session-ttl-in-seconds']
       ? parseInt(this.opts['session-ttl-in-seconds'], 10)
       : 21600;
@@ -105,10 +128,14 @@ export default class Session {
 
     const config: any = {};
     if (qualifier) config.qualifier = qualifier;
+    if (sessionId) config.sessionId = sessionId;
+    if (disableSessionIdReuse) config.disableSessionIdReuse = disableSessionIdReuse;
     if (sessionTTLInSeconds) config.sessionTTLInSeconds = sessionTTLInSeconds;
     if (sessionIdleTimeoutInSeconds)
       config.sessionIdleTimeoutInSeconds = sessionIdleTimeoutInSeconds;
     if (this.nasConfig) config.nasConfig = this.nasConfig;
+    if (this.ossMountConfig) config.ossMountConfig = this.ossMountConfig;
+    if (this.polarFsConfig) config.polarFsConfig = this.polarFsConfig;
 
     try {
       const result = await this.fcSdk.createFunctionSession(this.functionName, config);
@@ -146,6 +173,7 @@ export default class Session {
   async update() {
     const sessionId = this.opts['session-id'];
     const { qualifier } = this.opts;
+    const disableSessionIdReuse = this.opts['disable-session-id-reuse'];
     const sessionTTLInSeconds = parseInt(this.opts['session-ttl-in-seconds'], 10);
     const sessionIdleTimeoutInSeconds = this.opts['session-idle-timeout-in-seconds']
       ? parseInt(this.opts['session-idle-timeout-in-seconds'], 10)
@@ -176,6 +204,7 @@ export default class Session {
 
     const config: any = {};
     if (qualifier) config.qualifier = qualifier;
+    if (disableSessionIdReuse) config.disableSessionIdReuse = disableSessionIdReuse;
     if (sessionTTLInSeconds) config.sessionTTLInSeconds = sessionTTLInSeconds;
     if (sessionIdleTimeoutInSeconds)
       config.sessionIdleTimeoutInSeconds = sessionIdleTimeoutInSeconds;
