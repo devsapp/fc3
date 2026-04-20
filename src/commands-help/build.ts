@@ -30,5 +30,14 @@ Examples:
       ],
     ],
   },
+  subCommands:{
+    runit: {
+      help: {
+        description: 'Runit', 
+        summary: 'Runit',
+        option: []
+      }
+    }
+  },
   verify: false,
 };

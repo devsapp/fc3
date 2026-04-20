@@ -16,6 +16,8 @@ import s2tos3 from './s2tos3';
 import logs from './logs';
 import session from './session';
 import scaling from './scaling';
+import model from './model';
+import runit from './runit';
 
 export default {
   deploy,
@@ -36,4 +38,6 @@ export default {
   logs,
   session,
   scaling,
+  model,
+  runit,
 };

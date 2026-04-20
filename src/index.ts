@@ -28,6 +28,8 @@ import Logs from './subCommands/logs';
 import { SCHEMA_FILE_PATH } from './constant';
 import { checkDockerIsOK, isAppCenter, isYunXiao } from './utils';
 import { Model } from './subCommands/model';
+import { RunitInput } from './subCommands/runit/interface';
+import Runit from './subCommands/runit';
 
 export default class Fc extends Base {
   // 部署函数
@@ -188,6 +190,13 @@ export default class Fc extends Base {
     const model = new Model(inputs);
     logger.debug(`model inputs: ${model.subCommand}`);
     return await model[model.subCommand]();
+  }
+
+  public async runit(inputs: RunitInput) {
+    const runit = new Runit(inputs);
+    logger.debug(`runit inputs: ${JSON.stringify(inputs, null, 2)}`);
+    logger.debug(`runit inputs: ${runit.subCommand}`);
+    return await runit[runit.subCommand]();
   }
 
   public async getSchema(inputs: IInputs) {

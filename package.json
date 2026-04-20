@@ -71,10 +71,14 @@
     "ts-jest": "^29.4.6",
     "ts-node": "^10.9.2",
     "typescript": "^4.4.2",
-    "typescript-json-schema": "^0.67.1"
+    "typescript-json-schema": "^0.67.1",
+    "@runit/sdk": "^0.0.1-beta.10"
   },
   "resolutions": {
     "@alicloud/sls20191023": {
+      "registry": "https://packages.aliyun.com/670e108663cd360abfe4be65/npm/npm-registry/"
+    },
+    "@runit/sdk": {
       "registry": "https://packages.aliyun.com/670e108663cd360abfe4be65/npm/npm-registry/"
     }
   }
