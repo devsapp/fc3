@@ -126,7 +126,7 @@ export const getCustomEndpoint = (
 
   return {
     protocol: 'https',
-    host: endpoint,
-    endpoint: `https://${endpoint}`,
+    host: CUSTOM_ENDPOINT,
+    endpoint: `https://${CUSTOM_ENDPOINT}`,
   };
 };
