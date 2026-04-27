@@ -187,6 +187,153 @@ describe('Session', () => {
         },
       });
     });
+
+    it('should create session with disableSessionIdReuse when provided', async () => {
+      const mockResult = {
+        sessionId: 'session-123',
+        qualifier: 'LATEST',
+        sessionTTLInSeconds: 3600,
+        sessionIdleTimeoutInSeconds: 1800,
+        disableSessionIdReuse: true,
+      };
+
+      mockFcSdk.createFunctionSession = jest.fn().mockResolvedValue(mockResult);
+      mockInputs.args = [
+        'create',
+        '--qualifier',
+        'LATEST',
+        '--session-ttl-in-seconds',
+        '3600',
+        '--session-idle-timeout-in-seconds',
+        '1800',
+        '--disable-session-id-reuse',
+      ];
+      session = new Session(mockInputs);
+
+      const result = await session.create();
+      expect(result).toEqual(mockResult);
+      expect(mockFcSdk.createFunctionSession).toHaveBeenCalledWith('test-function', {
+        qualifier: 'LATEST',
+        sessionTTLInSeconds: 3600,
+        sessionIdleTimeoutInSeconds: 1800,
+        disableSessionIdReuse: true,
+      });
+    });
+
+    it('should create session with custom sessionId when provided', async () => {
+      const mockResult = {
+        sessionId: 'custom-session-id',
+        qualifier: 'LATEST',
+        sessionTTLInSeconds: 3600,
+        sessionIdleTimeoutInSeconds: 1800,
+      };
+
+      mockFcSdk.createFunctionSession = jest.fn().mockResolvedValue(mockResult);
+      mockInputs.args = [
+        'create',
+        '--qualifier',
+        'LATEST',
+        '--session-ttl-in-seconds',
+        '3600',
+        '--session-idle-timeout-in-seconds',
+        '1800',
+        '--session-id',
+        'custom-session-id',
+      ];
+      session = new Session(mockInputs);
+
+      const result = await session.create();
+      expect(result).toEqual(mockResult);
+      expect(mockFcSdk.createFunctionSession).toHaveBeenCalledWith('test-function', {
+        qualifier: 'LATEST',
+        sessionTTLInSeconds: 3600,
+        sessionIdleTimeoutInSeconds: 1800,
+        sessionId: 'custom-session-id',
+      });
+    });
+
+    it('should create session with ossMountConfig when provided', async () => {
+      const mockResult = {
+        sessionId: 'session-123',
+        qualifier: 'LATEST',
+        sessionTTLInSeconds: 3600,
+        sessionIdleTimeoutInSeconds: 1800,
+      };
+
+      mockFcSdk.createFunctionSession = jest.fn().mockResolvedValue(mockResult);
+      mockInputs.args = [
+        'create',
+        '--qualifier',
+        'LATEST',
+        '--session-ttl-in-seconds',
+        '3600',
+        '--session-idle-timeout-in-seconds',
+        '1800',
+        '--oss-mount-config',
+        '{"mountPoints":[{"bucketName":"test-bucket","bucketPath":"cn-hangzhou","mountDir":"/mnt/oss","readOnly":false}]}',
+      ];
+      session = new Session(mockInputs);
+
+      const result = await session.create();
+      expect(result).toEqual(mockResult);
+      expect(mockFcSdk.createFunctionSession).toHaveBeenCalledWith('test-function', {
+        qualifier: 'LATEST',
+        sessionTTLInSeconds: 3600,
+        sessionIdleTimeoutInSeconds: 1800,
+        ossMountConfig: {
+          mountPoints: [
+            {
+              bucketName: 'test-bucket',
+              bucketPath: 'cn-hangzhou',
+              mountDir: '/mnt/oss',
+              readOnly: false,
+            },
+          ],
+        },
+      });
+    });
+
+    it('should create session with polarFsConfig when provided', async () => {
+      const mockResult = {
+        sessionId: 'session-123',
+        qualifier: 'LATEST',
+        sessionTTLInSeconds: 3600,
+        sessionIdleTimeoutInSeconds: 1800,
+      };
+
+      mockFcSdk.createFunctionSession = jest.fn().mockResolvedValue(mockResult);
+      mockInputs.args = [
+        'create',
+        '--qualifier',
+        'LATEST',
+        '--session-ttl-in-seconds',
+        '3600',
+        '--session-idle-timeout-in-seconds',
+        '1800',
+        '--polar-fs-config',
+        '{"userId":1000,"groupId":1000,"mountPoints":[{"polarDbClusterId":"pc-test","instanceId":"pfs-test","mountDir":"/mnt/polar"}]}',
+      ];
+      session = new Session(mockInputs);
+
+      const result = await session.create();
+      expect(result).toEqual(mockResult);
+      expect(mockFcSdk.createFunctionSession).toHaveBeenCalledWith('test-function', {
+        qualifier: 'LATEST',
+        sessionTTLInSeconds: 3600,
+        sessionIdleTimeoutInSeconds: 1800,
+        polarFsConfig: {
+          userId: 1000,
+          groupId: 1000,
+          mountPoints: [
+            {
+              polarDbClusterId: 'pc-test',
+              instanceId: 'pfs-test',
+              mountDir: '/mnt/polar',
+            },
+          ],
+        },
+      });
+    });
   });
 
   describe('get', () => {
@@ -267,6 +414,18 @@ describe('Session', () => {
       };
 
       mockFcSdk.updateFunctionSession = jest.fn().mockResolvedValue(mockResult);
+      mockInputs.args = [
+        'update',
+        '--session-id',
+        'session-123',
+        '--qualifier',
+        'LATEST',
+        '--session-ttl-in-seconds',
+        '7200',
+        '--session-idle-timeout-in-seconds',
+        '3600',
+      ];
+      session = new Session(mockInputs);
 
       const result = await session.update();
       expect(result).toEqual(mockResult);
@@ -320,6 +479,40 @@ describe('Session', () => {
       await expect(session.update()).rejects.toThrow(
         'timeout must be a number between 0 and 21600',
       );
+    });
+
+    it('should update session with disableSessionIdReuse when provided', async () => {
+      const mockResult = {
+        sessionId: 'session-123',
+        qualifier: 'LATEST',
+        sessionTTLInSeconds: 7200,
+        sessionIdleTimeoutInSeconds: 3600,
+        disableSessionIdReuse: true,
+      };
+
+      mockFcSdk.updateFunctionSession = jest.fn().mockResolvedValue(mockResult);
+      mockInputs.args = [
+        'update',
+        '--session-id',
+        'session-123',
+        '--qualifier',
+        'LATEST',
+        '--session-ttl-in-seconds',
+        '7200',
+        '--session-idle-timeout-in-seconds',
+        '3600',
+        '--disable-session-id-reuse',
+      ];
+      session = new Session(mockInputs);
+
+      const result = await session.update();
+      expect(result).toEqual(mockResult);
+      expect(mockFcSdk.updateFunctionSession).toHaveBeenCalledWith('test-function', 'session-123', {
+        qualifier: 'LATEST',
+        sessionTTLInSeconds: 7200,
+        sessionIdleTimeoutInSeconds: 3600,
+        disableSessionIdReuse: true,
+      });
     });
   });
 

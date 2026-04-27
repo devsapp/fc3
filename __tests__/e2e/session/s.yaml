@@ -1,9 +1,9 @@
 edition: 3.0.0
 name: session-test
-access: quanxi
+access: default
 
 vars:
-  region: ${env('REGION', 'cn-hongkong')}
+  region: ${env('REGION', 'cn-hangzhou')}
 
 resources:
   sessionTest:

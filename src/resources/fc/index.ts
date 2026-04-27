@@ -19,6 +19,10 @@ import {
   CreateSessionInput,
   NASConfig,
   NASMountConfig,
+  OSSMountConfig,
+  OSSMountPoint,
+  PolarFsConfig,
+  PolarFsMountConfig,
   DeleteSessionRequest,
   GetSessionRequest,
   ListSessionsRequest,
@@ -966,7 +970,7 @@ export default class FC extends FC_Client {
   }
 
   async createFunctionSession(functionName: string, config: any) {
-    let createSessionInput: CreateSessionInput;
+    let nasConfig: NASConfig | undefined;
     if (config.nasConfig && !_.isEmpty(config.nasConfig.mountPoints)) {
       const mountPoints = config.nasConfig.mountPoints.map(
         (mountPoint: any) =>
@@ -976,22 +980,56 @@ export default class FC extends FC_Client {
             serverAddr: mountPoint.serverAddr,
           }),
       );
-      const nasConfig = new NASConfig({
+      nasConfig = new NASConfig({
         groupId: config.nasConfig.groupId,
         mountPoints,
         userId: config.nasConfig.userId,
       });
-      createSessionInput = new CreateSessionInput({
-        sessionTTLInSeconds: config.sessionTTLInSeconds,
-        sessionIdleTimeoutInSeconds: config.sessionIdleTimeoutInSeconds,
-        nasConfig,
-      });
-    } else {
-      createSessionInput = new CreateSessionInput({
-        sessionTTLInSeconds: config.sessionTTLInSeconds,
-        sessionIdleTimeoutInSeconds: config.sessionIdleTimeoutInSeconds,
+    }
+
+    let ossMountConfig: OSSMountConfig | undefined;
+    if (config.ossMountConfig && !_.isEmpty(config.ossMountConfig.mountPoints)) {
+      const mountPoints = config.ossMountConfig.mountPoints.map(
+        (mountPoint: any) =>
+          new OSSMountPoint({
+            bucketName: mountPoint.bucketName,
+            bucketPath: mountPoint.bucketPath,
+            endpoint: mountPoint.endpoint,
+            mountDir: mountPoint.mountDir,
+            readOnly: mountPoint.readOnly,
+          }),
+      );
+      ossMountConfig = new OSSMountConfig({
+        mountPoints,
       });
     }
+
+    let polarFsConfig: PolarFsConfig | undefined;
+    if (config.polarFsConfig && !_.isEmpty(config.polarFsConfig.mountPoints)) {
+      const mountPoints = config.polarFsConfig.mountPoints.map(
+        (mountPoint: any) =>
+          new PolarFsMountConfig({
+            instanceId: mountPoint.instanceId,
+            mountDir: mountPoint.mountDir,
+            remoteDir: mountPoint.remoteDir,
+          }),
+      );
+      polarFsConfig = new PolarFsConfig({
+        groupId: config.polarFsConfig.groupId,
+        mountPoints,
+        userId: config.polarFsConfig.userId,
+      });
+    }
+
+    const createSessionInput = new CreateSessionInput({
+      disableSessionIdReuse: config.disableSessionIdReuse,
+      nasConfig,
+      ossMountConfig,
+      polarFsConfig,
+      sessionId: config.sessionId,
+      sessionTTLInSeconds: config.sessionTTLInSeconds,
+      sessionIdleTimeoutInSeconds: config.sessionIdleTimeoutInSeconds,
+    });
 
     const createSessionRequest = new CreateSessionRequest({
       qualifier: config.qualifier,
@@ -1015,6 +1053,7 @@ export default class FC extends FC_Client {
 
   async updateFunctionSession(functionName: string, sessionId: string, config: any) {
     const updateSessionInput = new UpdateSessionInput({
+      disableSessionIdReuse: config.disableSessionIdReuse,
       sessionTTLInSeconds: config.sessionTTLInSeconds,
       sessionIdleTimeoutInSeconds: config.sessionIdleTimeoutInSeconds,
     });
