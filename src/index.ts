@@ -25,6 +25,7 @@ import Alias from './subCommands/alias';
 import Concurrency from './subCommands/concurrency';
 import SYaml2To3 from './subCommands/2to3';
 import Logs from './subCommands/logs';
+import List from './subCommands/list';
 import { SCHEMA_FILE_PATH } from './constant';
 import { checkDockerIsOK, isAppCenter, isYunXiao } from './utils';
 import { Model } from './subCommands/model';
@@ -181,6 +182,12 @@ export default class Fc extends Base {
     await super.handlePreRun(inputs, true);
     const logs = new Logs(inputs);
     return await logs.run();
+  }
+
+  public async list(inputs: IInputs) {
+    await super.handlePreRun(inputs, true);
+    const list = new List(inputs);
+    return await list.run();
   }
 
   public async model(inputs: IInputs) {

@@ -16,6 +16,7 @@ import s2tos3 from './s2tos3';
 import logs from './logs';
 import session from './session';
 import scaling from './scaling';
+import list from './list';
 
 export default {
   deploy,
@@ -36,4 +37,5 @@ export default {
   logs,
   session,
   scaling,
+  list,
 };

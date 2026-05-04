@@ -418,12 +418,21 @@ export default class FC_Client {
     return body;
   }
 
+  async listFunctionsPage(limit: number, prefix?: string, nextToken?: string) {
+    const request = new ListFunctionsRequest({ limit, prefix, nextToken });
+    const runtime = new RuntimeOptions({});
+    const headers: { [key: string]: string } = {};
+    const result = await this.fc20230330Client.listFunctionsWithOptions(request, headers, runtime);
+    const { body } = result.toMap();
+    return body;
+  }
+
   /**
    * list 接口实现模版
    */
   async listFunctions(prefix?: string): Promise<any[]> {
     let nextToken = '';
-    const limit = 2;
+    const limit = 100;
     const functions: any[] = [];
 
     while (true) {

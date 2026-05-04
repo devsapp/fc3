@@ -60,7 +60,10 @@ __tests__/e2e/python/code/apt-archives
 __tests__/e2e/apt/code/package-lock.json
 
 .env_test
+.env
 
 CLAUDE.md
 agent-prompt.md
 AGENTS.md
+.qoder
+docs/
