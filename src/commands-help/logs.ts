@@ -17,7 +17,10 @@ Examples with CLI:
       ],
       ['--function-name <functionName>', '[C-Required] Specify function name'],
       ['--request-id <requestId>', '[Optional] Query according to requestId'],
-      ['--instance-id <instanceId>', '[Optional] Query according to instanceId'],
+      [
+        '--instance-id <instanceId>',
+        '[Optional] Query according to instanceId, also searches FCInstanceEvents topic',
+      ],
       [
         '-s, --start-time',
         '[Optional] Query log start time (timestamp or time format，like 1611827290000 or 2021-11-11T11:11:12+00:00)',
