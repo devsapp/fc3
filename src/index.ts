@@ -1,3 +1,6 @@
+// Suppress Node.js deprecation warnings from third-party dependencies (DEP0005: Buffer constructor)
+(process as any).noDeprecation = true;
+
 import * as fs from 'fs';
 import { parseArgv } from '@serverless-devs/utils';
 import { IInputs } from './interface';
