@@ -243,6 +243,8 @@ src/
 - **核心功能**:
   - 项目名称生成
   - 日志存储名称生成
+  - SLS 查询语句生成（支持字段查询语法）
+  - 多 topic 搜索（FCLogs、FCInstanceEvents）
 
 #### 4.4 VPC-NAS 网络存储 (vpc-nas/)
 

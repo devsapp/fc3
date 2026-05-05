@@ -1,6 +1,4 @@
 // Suppress Node.js deprecation warnings from third-party dependencies (DEP0005: Buffer constructor)
-(process as any).noDeprecation = true;
-
 import * as fs from 'fs';
 import { parseArgv } from '@serverless-devs/utils';
 import { IInputs } from './interface';
@@ -32,6 +30,8 @@ import List from './subCommands/list';
 import { SCHEMA_FILE_PATH } from './constant';
 import { checkDockerIsOK, isAppCenter, isYunXiao } from './utils';
 import { Model } from './subCommands/model';
+
+(process as any).noDeprecation = true;
 
 export default class Fc extends Base {
   // 部署函数

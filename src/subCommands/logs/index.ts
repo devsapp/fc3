@@ -16,7 +16,7 @@ interface IGetLogs {
   logStoreName: string;
   from: string | number;
   to: string | number;
-  topic: string;
+  topic?: string;
   query: string;
 }
 
@@ -24,23 +24,25 @@ interface IRealtime {
   projectName: string;
   logStoreName: string;
   topic: string;
+  topicFilter: string;
   query: string;
   search: string;
   qualifier: string;
   match: string;
+  requestId?: string;
+  instanceId?: string;
 }
 
 interface IHistory extends IRealtime {
   startTime: string;
   endTime: string;
   type: 'success' | 'fail' | 'failed';
-  requestId: string;
-  instanceId: string;
 }
 
 interface IProps extends IHistory {
   region: string;
   tail: boolean;
+  functionName?: string;
 }
 
 const replaceAll = (string, search, replace) => string.split(search).join(replace);
@@ -160,18 +162,22 @@ export default class Logs {
       }
     }
 
-    if (this.opts?.qualifier && this.opts.qualifier === 'LATEST') {
-      _.unset(this.opts, 'qualifier');
-    }
-
     let topic: string;
+    let topicFilter: string;
     let query: string;
 
     if (functionName.indexOf('$') >= 0) {
       topic = functionName.split('$')[0];
+      topicFilter = `__topic__:"${topic}"`;
       query = functionName.split('$')[1];
     } else {
       topic = `FCLogs:${functionName}`;
+      const instanceIdValue = this.opts?.['instance-id'];
+      if (!_.isNil(instanceIdValue)) {
+        topicFilter = `(__topic__:"FCLogs:${functionName}" or __topic__:"FCInstanceEvents:/${functionName}")`;
+      } else {
+        topicFilter = `__topic__:"FCLogs:${functionName}"`;
+      }
       query = this.opts?.query || props?.query;
     }
     logger.debug(topic, query);
@@ -181,6 +187,7 @@ export default class Logs {
       projectName: logConfig.project,
       logStoreName: logstore,
       topic,
+      topicFilter,
       query,
       tail: this.opts?.tail,
       startTime: this.opts?.['start-time'] || new Date().getTime() - 60 * 60 * 1000,
@@ -191,6 +198,7 @@ export default class Logs {
       match: this.opts?.match,
       requestId: this.opts?.['request-id'],
       instanceId: this.opts?.['instance-id'],
+      functionName,
     };
   }
 
@@ -299,7 +307,17 @@ export default class Logs {
   /**
    * 获取实时日志
    */
-  async realtime({ projectName, logStoreName, topic, query, search, qualifier, match }: IRealtime) {
+  async realtime({
+    projectName,
+    logStoreName,
+    topicFilter,
+    query,
+    search,
+    qualifier,
+    match,
+    requestId,
+    instanceId,
+  }: IRealtime) {
     let timeStart;
     let timeEnd;
     let times = 1800;
@@ -320,8 +338,7 @@ export default class Logs {
       const pulledlogs = await this.getLogs({
         projectName,
         logStoreName,
-        topic,
-        query: this.getSlsQuery(query, search, qualifier),
+        query: this.getSlsQuery(query, search, qualifier, requestId, instanceId, topicFilter),
         from: timeStart,
         to: timeEnd,
       });
@@ -353,11 +370,13 @@ export default class Logs {
   async _realtimeOnce({
     projectName,
     logStoreName,
-    topic,
+    topicFilter,
     query,
     search,
     qualifier,
     match,
+    requestId,
+    instanceId,
   }: IRealtime) {
     const timeStart = moment().subtract(10, 'seconds').unix();
     const timeEnd = moment().unix();
@@ -366,8 +385,7 @@ export default class Logs {
     const pulledlogs = await this.getLogs({
       projectName,
       logStoreName,
-      topic,
-      query: this.getSlsQuery(query, search, qualifier),
+      query: this.getSlsQuery(query, search, qualifier, requestId, instanceId, topicFilter),
       from: timeStart,
       to: timeEnd,
     });
@@ -397,7 +415,7 @@ export default class Logs {
   async history({
     projectName,
     logStoreName,
-    topic,
+    topicFilter,
     query,
     search,
     type,
@@ -427,8 +445,7 @@ export default class Logs {
       to,
       projectName,
       logStoreName,
-      topic,
-      query: this.getSlsQuery(query, search, qualifier, requestId, instanceId),
+      query: this.getSlsQuery(query, search, qualifier, requestId, instanceId, topicFilter),
     };
     const logsList = await this.getLogs(params);
 
@@ -444,12 +461,13 @@ export default class Logs {
     qualifier: string,
     requestId?: string,
     instanceId?: string,
+    topicFilter?: string,
   ): string {
-    let q = '';
-    let hasValue = false;
+    let q = topicFilter || '';
+    let hasValue = !!topicFilter;
 
     if (!_.isNil(query)) {
-      q += query;
+      q = hasValue ? `${q} and ${query}` : query;
       hasValue = true;
     }
 
@@ -459,17 +477,17 @@ export default class Logs {
     }
 
     if (!_.isNil(qualifier)) {
-      q = hasValue ? `${q} and ${qualifier}` : qualifier;
+      q = hasValue ? `${q} and qualifier: "${qualifier}"` : `qualifier: "${qualifier}"`;
       hasValue = true;
     }
 
     if (!_.isNil(instanceId)) {
-      q = hasValue ? `${q} and ${instanceId}` : instanceId;
+      q = hasValue ? `${q} and instanceID: "${instanceId}"` : `instanceID: "${instanceId}"`;
       hasValue = true;
     }
 
     if (!_.isNil(requestId)) {
-      q = hasValue ? `${q} and ${requestId}` : requestId;
+      q = hasValue ? `${q} and requestId: "${requestId}"` : `requestId: "${requestId}"`;
     }
 
     return q;
@@ -480,6 +498,10 @@ export default class Logs {
    */
   async getLogs(requestParams: IGetLogs, tabReplaceStr = '\n') {
     this.logger.debug(`get logs params: ${JSON.stringify(requestParams)}`);
+    // Topic filtering is handled by __topic__ in query, remove topic from SLS request params
+    const slsParams: any = { ...requestParams };
+    delete slsParams.topic;
+
     let count;
     let xLogCount;
     let xLogProgress = 'Complete';
@@ -488,7 +510,7 @@ export default class Logs {
 
     do {
       const response: any = await new Promise((resolve, reject) => {
-        this.slsClient.getLogs(requestParams, (error, data) => {
+        this.slsClient.getLogs(slsParams, (error, data) => {
           if (error) {
             reject(error);
           }

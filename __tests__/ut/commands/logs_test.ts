@@ -177,10 +177,13 @@ describe('Logs', () => {
             projectName: 'test-project',
             logStoreName: 'test-logstore',
             topic: 'FCLogs:test-function',
+            topicFilter: '__topic__:"FCLogs:test-function"',
             query: '',
             search: '',
             qualifier: '',
             match: '',
+            requestId: '',
+            instanceId: '',
           };
           // Call the single iteration method
           await this._realtimeOnce(params);
@@ -212,6 +215,8 @@ describe('Logs', () => {
           projectName: 'test-project',
           logStoreName: 'test-logstore',
           topic: 'FCLogs:test-function',
+          topicFilter: '__topic__:"FCLogs:test-function"',
+          functionName: 'test-function',
         }),
       );
     });
@@ -244,7 +249,28 @@ describe('Logs', () => {
       const props = await (logs as any).getInputs();
 
       expect(props.topic).toBe('test-function');
+      expect(props.topicFilter).toBe('__topic__:"test-function"');
       expect(props.query).toBe('LATEST');
+    });
+
+    it('should include FCInstanceEvents topic when instance-id is specified', async () => {
+      mockInputs.args = ['--instance-id', 'c-69f8a959-15f8e4fe-b867da209124'];
+      logs = new Logs(mockInputs);
+
+      const props = await (logs as any).getInputs();
+
+      expect(props.topicFilter).toBe(
+        '(__topic__:"FCLogs:test-function" or __topic__:"FCInstanceEvents:/test-function")',
+      );
+    });
+
+    it('should not unset LATEST qualifier', async () => {
+      mockInputs.args = ['--qualifier', 'LATEST'];
+      logs = new Logs(mockInputs);
+
+      const props = await (logs as any).getInputs();
+
+      expect(props.qualifier).toBe('LATEST');
     });
   });
 
@@ -291,6 +317,7 @@ describe('Logs', () => {
         projectName: 'test-project',
         logStoreName: 'test-logstore',
         topic: 'FCLogs:test-function',
+        topicFilter: '__topic__:"FCLogs:test-function"',
         query: '',
         search: '',
         type: '',
@@ -299,6 +326,7 @@ describe('Logs', () => {
         qualifier: '',
         startTime: '',
         endTime: '',
+        functionName: 'test-function',
       };
 
       const result = await (logs as any).history(params);
@@ -318,6 +346,7 @@ describe('Logs', () => {
         projectName: 'test-project',
         logStoreName: 'test-logstore',
         topic: 'FCLogs:test-function',
+        topicFilter: '__topic__:"FCLogs:test-function"',
         query: '',
         search: '',
         type: '',
@@ -326,6 +355,7 @@ describe('Logs', () => {
         qualifier: '',
         startTime: '2023-01-01T00:00:00Z',
         endTime: '2023-01-01T01:00:00Z',
+        functionName: 'test-function',
       };
 
       const result = await (logs as any).history(params);
@@ -338,6 +368,7 @@ describe('Logs', () => {
         projectName: 'test-project',
         logStoreName: 'test-logstore',
         topic: 'FCLogs:test-function',
+        topicFilter: '__topic__:"FCLogs:test-function"',
         query: '',
         search: '',
         type: '',
@@ -346,6 +377,7 @@ describe('Logs', () => {
         qualifier: '',
         startTime: 'invalid-date',
         endTime: 'also-invalid',
+        functionName: 'test-function',
       };
 
       await expect((logs as any).history(params)).rejects.toThrow(
@@ -367,10 +399,13 @@ describe('Logs', () => {
         projectName: 'test-project',
         logStoreName: 'test-logstore',
         topic: 'FCLogs:test-function',
+        topicFilter: '__topic__:"FCLogs:test-function"',
         query: '',
         search: '',
         qualifier: '',
         match: '',
+        requestId: '',
+        instanceId: '',
       };
 
       // We'll only run one iteration in the test
@@ -526,9 +561,12 @@ describe('Logs', () => {
         'LATEST',
         'req-123',
         'inst-456',
+        '__topic__:"FCLogs:test-function"',
       );
 
-      expect(result).toBe('baseQuery and searchTerm and LATEST and inst-456 and req-123');
+      expect(result).toBe(
+        '__topic__:"FCLogs:test-function" and baseQuery and searchTerm and qualifier: "LATEST" and instanceID: "inst-456" and requestId: "req-123"',
+      );
     });
 
     it('should generate SLS query with some parameters', () => {
@@ -541,6 +579,47 @@ describe('Logs', () => {
       const result = (logs as any).getSlsQuery(null, null, null, null, null);
 
       expect(result).toBe('');
+    });
+
+    it('should generate topicFilter with FCInstanceEvents when instanceId is specified', () => {
+      const result = (logs as any).getSlsQuery(
+        null,
+        null,
+        null,
+        null,
+        'inst-456',
+        '(__topic__:"FCLogs:test-function" or __topic__:"FCInstanceEvents:/test-function")',
+      );
+
+      expect(result).toBe(
+        '(__topic__:"FCLogs:test-function" or __topic__:"FCInstanceEvents:/test-function") and instanceID: "inst-456"',
+      );
+    });
+
+    it('should generate query with topicFilter only', () => {
+      const result = (logs as any).getSlsQuery(
+        null,
+        null,
+        null,
+        null,
+        null,
+        '__topic__:"FCLogs:test-function"',
+      );
+
+      expect(result).toBe('__topic__:"FCLogs:test-function"');
+    });
+
+    it('should use field-specific syntax for qualifier', () => {
+      const result = (logs as any).getSlsQuery(
+        null,
+        null,
+        'LATEST',
+        null,
+        null,
+        '__topic__:"FCLogs:test-function"',
+      );
+
+      expect(result).toBe('__topic__:"FCLogs:test-function" and qualifier: "LATEST"');
     });
   });
 

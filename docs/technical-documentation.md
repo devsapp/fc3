@@ -446,7 +446,29 @@ s logs --tail
 
 # 查询特定时间段的日志
 s logs --start-time 2023-01-01T00:00:00Z --end-time 2023-01-01T23:59:59Z
+
+# 查询指定实例的日志（同时搜索 FCLogs 和 FCInstanceEvents 两个 topic）
+s logs --instance-id c-69f8a959-15f8e4fe-b867da209124
+
+# 查询指定请求的日志
+s logs --request-id 0f7032f1-ffde-474e-92ce-188210368b53
+
+# 查询指定版本的日志
+s logs --qualifier LATEST
 ```
+
+#### SLS Topic 类型
+
+FC3 的 SLS logstore 包含以下 topic 类型：
+
+| Topic 格式                        | 说明                            |
+| --------------------------------- | ------------------------------- |
+| `FCLogs:/functionName`            | 函数调用日志                    |
+| `FCInstanceEvents:/functionName`  | 实例生命周期事件（创建/销毁等） |
+| `FCRequestMetrics:/functionName`  | 请求指标                        |
+| `FCInstanceMetrics:/functionName` | 实例指标                        |
+
+默认 `s logs` 只查询 `FCLogs` topic。使用 `--instance-id` 参数时会同时搜索 `FCLogs` 和 `FCInstanceEvents` 两个 topic。
 
 ## 错误处理
 
