@@ -297,7 +297,7 @@ export default class Logs {
       // }
 
       if (match) {
-        l = replaceAll(l, match, `\x1B[43m${match}\x1B[0m`);
+        l = replaceAll(l, match, `\x1B[7m${match}\x1B[0m`);
       }
 
       console.log(l);
@@ -477,17 +477,17 @@ export default class Logs {
     }
 
     if (!_.isNil(qualifier)) {
-      q = hasValue ? `${q} and qualifier: "${qualifier}"` : `qualifier: "${qualifier}"`;
+      q = hasValue ? `${q} and "${qualifier}"` : `"${qualifier}"`;
       hasValue = true;
     }
 
     if (!_.isNil(instanceId)) {
-      q = hasValue ? `${q} and instanceID: "${instanceId}"` : `instanceID: "${instanceId}"`;
+      q = hasValue ? `${q} and "${instanceId}"` : `"${instanceId}"`;
       hasValue = true;
     }
 
     if (!_.isNil(requestId)) {
-      q = hasValue ? `${q} and requestId: "${requestId}"` : `requestId: "${requestId}"`;
+      q = hasValue ? `${q} and "${requestId}"` : `"${requestId}"`;
     }
 
     return q;
