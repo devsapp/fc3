@@ -310,7 +310,6 @@ export default class Logs {
   async realtime({
     projectName,
     logStoreName,
-    topic,
     topicFilter,
     query,
     search,
@@ -371,7 +370,6 @@ export default class Logs {
   async _realtimeOnce({
     projectName,
     logStoreName,
-    topic,
     topicFilter,
     query,
     search,
@@ -417,7 +415,6 @@ export default class Logs {
   async history({
     projectName,
     logStoreName,
-    topic,
     topicFilter,
     query,
     search,
