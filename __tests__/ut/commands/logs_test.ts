@@ -565,7 +565,7 @@ describe('Logs', () => {
       );
 
       expect(result).toBe(
-        '__topic__:"FCLogs:test-function" and baseQuery and searchTerm and qualifier: "LATEST" and instanceID: "inst-456" and requestId: "req-123"',
+        '__topic__:"FCLogs:test-function" and baseQuery and searchTerm and "LATEST" and "inst-456" and "req-123"',
       );
     });
 
@@ -592,7 +592,7 @@ describe('Logs', () => {
       );
 
       expect(result).toBe(
-        '(__topic__:"FCLogs:test-function" or __topic__:"FCInstanceEvents:/test-function") and instanceID: "inst-456"',
+        '(__topic__:"FCLogs:test-function" or __topic__:"FCInstanceEvents:/test-function") and "inst-456"',
       );
     });
 
@@ -609,7 +609,7 @@ describe('Logs', () => {
       expect(result).toBe('__topic__:"FCLogs:test-function"');
     });
 
-    it('should use field-specific syntax for qualifier', () => {
+    it('should use quoted full-text search for qualifier', () => {
       const result = (logs as any).getSlsQuery(
         null,
         null,
@@ -619,7 +619,7 @@ describe('Logs', () => {
         '__topic__:"FCLogs:test-function"',
       );
 
-      expect(result).toBe('__topic__:"FCLogs:test-function" and qualifier: "LATEST"');
+      expect(result).toBe('__topic__:"FCLogs:test-function" and "LATEST"');
     });
   });
 
