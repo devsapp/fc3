@@ -146,7 +146,7 @@ describe('Model', () => {
       });
 
       expect(() => new Model(mockInputs)).toThrow(
-        'Command "invalid" not found, Please use "s cli fc3 layer -h" to query how to use the command',
+        'Command "invalid" not found, Please use "s cli fc3 model -h" to query how to use the command',
       );
     });
   });

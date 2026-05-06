@@ -17,6 +17,7 @@ import logs from './logs';
 import session from './session';
 import scaling from './scaling';
 import list from './list';
+import model from './model';
 
 export default {
   deploy,
@@ -38,4 +39,5 @@ export default {
   session,
   scaling,
   list,
+  model,
 };
