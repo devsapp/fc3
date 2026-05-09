@@ -26,6 +26,8 @@ import {
   DeleteSessionRequest,
   GetSessionRequest,
   ListSessionsRequest,
+  PauseSessionRequest,
+  ResumeSessionRequest,
   UpdateSessionRequest,
   UpdateSessionInput,
   ChangeResourceGroupRequest,
@@ -1052,8 +1054,62 @@ export default class FC extends FC_Client {
   }
 
   async updateFunctionSession(functionName: string, sessionId: string, config: any) {
+    let nasConfig: NASConfig | undefined;
+    if (config.nasConfig && !_.isEmpty(config.nasConfig.mountPoints)) {
+      const mountPoints = config.nasConfig.mountPoints.map(
+        (mountPoint: any) =>
+          new NASMountConfig({
+            enableTLS: mountPoint.enableTLS,
+            mountDir: mountPoint.mountDir,
+            serverAddr: mountPoint.serverAddr,
+          }),
+      );
+      nasConfig = new NASConfig({
+        groupId: config.nasConfig.groupId,
+        mountPoints,
+        userId: config.nasConfig.userId,
+      });
+    }
+
+    let ossMountConfig: OSSMountConfig | undefined;
+    if (config.ossMountConfig && !_.isEmpty(config.ossMountConfig.mountPoints)) {
+      const mountPoints = config.ossMountConfig.mountPoints.map(
+        (mountPoint: any) =>
+          new OSSMountPoint({
+            bucketName: mountPoint.bucketName,
+            bucketPath: mountPoint.bucketPath,
+            endpoint: mountPoint.endpoint,
+            mountDir: mountPoint.mountDir,
+            readOnly: mountPoint.readOnly,
+          }),
+      );
+      ossMountConfig = new OSSMountConfig({
+        mountPoints,
+      });
+    }
+
+    let polarFsConfig: PolarFsConfig | undefined;
+    if (config.polarFsConfig && !_.isEmpty(config.polarFsConfig.mountPoints)) {
+      const mountPoints = config.polarFsConfig.mountPoints.map(
+        (mountPoint: any) =>
+          new PolarFsMountConfig({
+            instanceId: mountPoint.instanceId,
+            mountDir: mountPoint.mountDir,
+            remoteDir: mountPoint.remoteDir,
+          }),
+      );
+      polarFsConfig = new PolarFsConfig({
+        groupId: config.polarFsConfig.groupId,
+        mountPoints,
+        userId: config.polarFsConfig.userId,
+      });
+    }
+
     const updateSessionInput = new UpdateSessionInput({
       disableSessionIdReuse: config.disableSessionIdReuse,
+      nasConfig,
+      ossMountConfig,
+      polarFsConfig,
       sessionTTLInSeconds: config.sessionTTLInSeconds,
       sessionIdleTimeoutInSeconds: config.sessionIdleTimeoutInSeconds,
     });
@@ -1092,6 +1148,31 @@ export default class FC extends FC_Client {
       functionName,
       sessionId,
       deleteSessionRequest,
+    );
+    const { body } = response.toMap();
+    return body;
+  }
+
+  async pauseFunctionSession(functionName: string, sessionId: string, qualifier: string) {
+    const pauseSessionRequest = new PauseSessionRequest({ qualifier });
+    const response = await this.fc20230330Client.pauseSession(
+      functionName,
+      sessionId,
+      pauseSessionRequest,
+    );
+    const { body } = response.toMap();
+    return body;
+  }
+
+  async resumeFunctionSession(functionName: string, sessionId: string, config: any) {
+    const resumeSessionRequest = new ResumeSessionRequest({
+      qualifier: config.qualifier,
+      fileSystemOnly: config.fileSystemOnly,
+    });
+    const response = await this.fc20230330Client.resumeSession(
+      functionName,
+      sessionId,
+      resumeSessionRequest,
     );
     const { body } = response.toMap();
     return body;

@@ -387,6 +387,163 @@ describe('Session', () => {
         'qualifier not specified, please specify --qualifier',
       );
     });
+
+    it('should propagate SDK error on get failure', async () => {
+      mockFcSdk.getFunctionSession = jest.fn().mockRejectedValue(new Error('API error'));
+      mockInputs.args = ['get', '--session-id', 'session-123', '--qualifier', 'LATEST'];
+      session = new Session(mockInputs);
+
+      await expect(session.get()).rejects.toThrow('API error');
+      expect(logger.error).toHaveBeenCalledWith('Failed to get session session-123: API error');
+    });
+  });
+
+  describe('pause', () => {
+    beforeEach(() => {
+      mockInputs.args = ['pause', '--session-id', 'session-123', '--qualifier', 'LATEST'];
+      session = new Session(mockInputs);
+    });
+
+    it('should pause session successfully', async () => {
+      const mockResult = {
+        sessionId: 'session-123',
+        qualifier: 'LATEST',
+        sessionStatus: 'Paused',
+      };
+
+      mockFcSdk.pauseFunctionSession = jest.fn().mockResolvedValue(mockResult);
+
+      const result = await session.pause();
+      expect(result).toEqual(mockResult);
+      expect(mockFcSdk.pauseFunctionSession).toHaveBeenCalledWith(
+        'test-function',
+        'session-123',
+        'LATEST',
+      );
+    });
+
+    it('should throw error when functionName is not specified', async () => {
+      delete mockInputs.props.functionName;
+      mockInputs.args = ['pause', '--session-id', 'session-123', '--qualifier', 'LATEST'];
+      session = new Session(mockInputs);
+
+      await expect(session.pause()).rejects.toThrow(
+        'functionName not specified, please specify --function-name',
+      );
+    });
+
+    it('should throw error when sessionId is not specified', async () => {
+      mockInputs.args = ['pause', '--qualifier', 'LATEST'];
+      session = new Session(mockInputs);
+
+      await expect(session.pause()).rejects.toThrow(
+        'sessionId not specified, please specify --session-id',
+      );
+    });
+
+    it('should throw error when qualifier is not specified', async () => {
+      mockInputs.args = ['pause', '--session-id', 'session-123'];
+      session = new Session(mockInputs);
+
+      await expect(session.pause()).rejects.toThrow(
+        'qualifier not specified, please specify --qualifier',
+      );
+    });
+
+    it('should propagate SDK error on pause failure', async () => {
+      mockFcSdk.pauseFunctionSession = jest.fn().mockRejectedValue(new Error('API error'));
+      mockInputs.args = ['pause', '--session-id', 'session-123', '--qualifier', 'LATEST'];
+      session = new Session(mockInputs);
+
+      await expect(session.pause()).rejects.toThrow('API error');
+      expect(logger.error).toHaveBeenCalledWith('Failed to pause session session-123: API error');
+    });
+  });
+
+  describe('resume', () => {
+    beforeEach(() => {
+      mockInputs.args = ['resume', '--session-id', 'session-123', '--qualifier', 'LATEST'];
+      session = new Session(mockInputs);
+    });
+
+    it('should resume session successfully', async () => {
+      const mockResult = {
+        sessionId: 'session-123',
+        qualifier: 'LATEST',
+        sessionStatus: 'Active',
+      };
+
+      mockFcSdk.resumeFunctionSession = jest.fn().mockResolvedValue(mockResult);
+
+      const result = await session.resume();
+      expect(result).toEqual(mockResult);
+      expect(mockFcSdk.resumeFunctionSession).toHaveBeenCalledWith('test-function', 'session-123', {
+        qualifier: 'LATEST',
+      });
+    });
+
+    it('should resume session with fileSystemOnly when provided', async () => {
+      const mockResult = {
+        sessionId: 'session-123',
+        qualifier: 'LATEST',
+        sessionStatus: 'Active',
+      };
+
+      mockFcSdk.resumeFunctionSession = jest.fn().mockResolvedValue(mockResult);
+      mockInputs.args = [
+        'resume',
+        '--session-id',
+        'session-123',
+        '--qualifier',
+        'LATEST',
+        '--file-system-only',
+      ];
+      session = new Session(mockInputs);
+
+      const result = await session.resume();
+      expect(result).toEqual(mockResult);
+      expect(mockFcSdk.resumeFunctionSession).toHaveBeenCalledWith('test-function', 'session-123', {
+        qualifier: 'LATEST',
+        fileSystemOnly: true,
+      });
+    });
+
+    it('should throw error when functionName is not specified', async () => {
+      delete mockInputs.props.functionName;
+      mockInputs.args = ['resume', '--session-id', 'session-123', '--qualifier', 'LATEST'];
+      session = new Session(mockInputs);
+
+      await expect(session.resume()).rejects.toThrow(
+        'functionName not specified, please specify --function-name',
+      );
+    });
+
+    it('should throw error when sessionId is not specified', async () => {
+      mockInputs.args = ['resume', '--qualifier', 'LATEST'];
+      session = new Session(mockInputs);
+
+      await expect(session.resume()).rejects.toThrow(
+        'sessionId not specified, please specify --session-id',
+      );
+    });
+
+    it('should throw error when qualifier is not specified', async () => {
+      mockInputs.args = ['resume', '--session-id', 'session-123'];
+      session = new Session(mockInputs);
+
+      await expect(session.resume()).rejects.toThrow(
+        'qualifier not specified, please specify --qualifier',
+      );
+    });
+
+    it('should propagate SDK error on resume failure', async () => {
+      mockFcSdk.resumeFunctionSession = jest.fn().mockRejectedValue(new Error('API error'));
+      mockInputs.args = ['resume', '--session-id', 'session-123', '--qualifier', 'LATEST'];
+      session = new Session(mockInputs);
+
+      await expect(session.resume()).rejects.toThrow('API error');
+      expect(logger.error).toHaveBeenCalledWith('Failed to resume session session-123: API error');
+    });
   });
 
   describe('update', () => {
@@ -477,8 +634,42 @@ describe('Session', () => {
       session = new Session(mockInputs);
 
       await expect(session.update()).rejects.toThrow(
-        'timeout must be a number between 0 and 21600',
+        'sessionTTLInSeconds must be a number between 0 and 21600',
       );
+    });
+
+    it('should throw error when sessionIdleTimeoutInSeconds is invalid', async () => {
+      mockInputs.args = [
+        'update',
+        '--session-id',
+        'session-123',
+        '--qualifier',
+        'LATEST',
+        '--session-idle-timeout-in-seconds',
+        '99999',
+      ];
+      session = new Session(mockInputs);
+
+      await expect(session.update()).rejects.toThrow(
+        'sessionIdleTimeoutInSeconds must be a number between 0 and 21600',
+      );
+    });
+
+    it('should update session without timeout fields when not specified', async () => {
+      const mockResult = {
+        sessionId: 'session-123',
+        qualifier: 'LATEST',
+      };
+
+      mockFcSdk.updateFunctionSession = jest.fn().mockResolvedValue(mockResult);
+      mockInputs.args = ['update', '--session-id', 'session-123', '--qualifier', 'LATEST'];
+      session = new Session(mockInputs);
+
+      const result = await session.update();
+      expect(result).toEqual(mockResult);
+      expect(mockFcSdk.updateFunctionSession).toHaveBeenCalledWith('test-function', 'session-123', {
+        qualifier: 'LATEST',
+      });
     });
 
     it('should update session with disableSessionIdReuse when provided', async () => {
@@ -513,6 +704,146 @@ describe('Session', () => {
         sessionIdleTimeoutInSeconds: 3600,
         disableSessionIdReuse: true,
       });
+    });
+
+    it('should update session with nasConfig when provided', async () => {
+      const mockResult = {
+        sessionId: 'session-123',
+        qualifier: 'LATEST',
+        sessionTTLInSeconds: 7200,
+        sessionIdleTimeoutInSeconds: 3600,
+      };
+
+      mockFcSdk.updateFunctionSession = jest.fn().mockResolvedValue(mockResult);
+      mockInputs.args = [
+        'update',
+        '--session-id',
+        'session-123',
+        '--qualifier',
+        'LATEST',
+        '--session-ttl-in-seconds',
+        '7200',
+        '--session-idle-timeout-in-seconds',
+        '3600',
+        '--nas-config',
+        '{"userId":1000,"groupId":1000,"mountPoints":[{"serverAddr":"nas-server-addr","mountDir":"/mnt/nas","enableTLS":true}]}',
+      ];
+      session = new Session(mockInputs);
+
+      const result = await session.update();
+      expect(result).toEqual(mockResult);
+      expect(mockFcSdk.updateFunctionSession).toHaveBeenCalledWith('test-function', 'session-123', {
+        qualifier: 'LATEST',
+        sessionTTLInSeconds: 7200,
+        sessionIdleTimeoutInSeconds: 3600,
+        nasConfig: {
+          userId: 1000,
+          groupId: 1000,
+          mountPoints: [
+            {
+              serverAddr: 'nas-server-addr',
+              mountDir: '/mnt/nas',
+              enableTLS: true,
+            },
+          ],
+        },
+      });
+    });
+
+    it('should update session with ossMountConfig when provided', async () => {
+      const mockResult = {
+        sessionId: 'session-123',
+        qualifier: 'LATEST',
+        sessionTTLInSeconds: 7200,
+        sessionIdleTimeoutInSeconds: 3600,
+      };
+
+      mockFcSdk.updateFunctionSession = jest.fn().mockResolvedValue(mockResult);
+      mockInputs.args = [
+        'update',
+        '--session-id',
+        'session-123',
+        '--qualifier',
+        'LATEST',
+        '--session-ttl-in-seconds',
+        '7200',
+        '--session-idle-timeout-in-seconds',
+        '3600',
+        '--oss-mount-config',
+        '{"mountPoints":[{"bucketName":"test-bucket","bucketPath":"cn-hangzhou","mountDir":"/mnt/oss","readOnly":false}]}',
+      ];
+      session = new Session(mockInputs);
+
+      const result = await session.update();
+      expect(result).toEqual(mockResult);
+      expect(mockFcSdk.updateFunctionSession).toHaveBeenCalledWith('test-function', 'session-123', {
+        qualifier: 'LATEST',
+        sessionTTLInSeconds: 7200,
+        sessionIdleTimeoutInSeconds: 3600,
+        ossMountConfig: {
+          mountPoints: [
+            {
+              bucketName: 'test-bucket',
+              bucketPath: 'cn-hangzhou',
+              mountDir: '/mnt/oss',
+              readOnly: false,
+            },
+          ],
+        },
+      });
+    });
+
+    it('should update session with polarFsConfig when provided', async () => {
+      const mockResult = {
+        sessionId: 'session-123',
+        qualifier: 'LATEST',
+        sessionTTLInSeconds: 7200,
+        sessionIdleTimeoutInSeconds: 3600,
+      };
+
+      mockFcSdk.updateFunctionSession = jest.fn().mockResolvedValue(mockResult);
+      mockInputs.args = [
+        'update',
+        '--session-id',
+        'session-123',
+        '--qualifier',
+        'LATEST',
+        '--session-ttl-in-seconds',
+        '7200',
+        '--session-idle-timeout-in-seconds',
+        '3600',
+        '--polar-fs-config',
+        '{"userId":1000,"groupId":1000,"mountPoints":[{"instanceId":"pfs-test","mountDir":"/mnt/polar","remoteDir":"/"}]}',
+      ];
+      session = new Session(mockInputs);
+
+      const result = await session.update();
+      expect(result).toEqual(mockResult);
+      expect(mockFcSdk.updateFunctionSession).toHaveBeenCalledWith('test-function', 'session-123', {
+        qualifier: 'LATEST',
+        sessionTTLInSeconds: 7200,
+        sessionIdleTimeoutInSeconds: 3600,
+        polarFsConfig: {
+          userId: 1000,
+          groupId: 1000,
+          mountPoints: [
+            {
+              instanceId: 'pfs-test',
+              mountDir: '/mnt/polar',
+              remoteDir: '/',
+            },
+          ],
+        },
+      });
+    });
+
+    it('should propagate SDK error on update failure', async () => {
+      mockFcSdk.updateFunctionSession = jest.fn().mockRejectedValue(new Error('API error'));
+      mockInputs.args = ['update', '--session-id', 'session-123', '--qualifier', 'LATEST'];
+      session = new Session(mockInputs);
+
+      await expect(session.update()).rejects.toThrow('API error');
+      expect(logger.error).toHaveBeenCalledWith('Failed to update session session-123: API error');
     });
   });
 
@@ -586,6 +917,15 @@ describe('Session', () => {
       await expect(session.list()).rejects.toThrow(
         'functionName not specified, please specify --function-name',
       );
+    });
+
+    it('should propagate SDK error on list failure', async () => {
+      mockFcSdk.listFunctionSessions = jest.fn().mockRejectedValue(new Error('API error'));
+      mockInputs.args = ['list'];
+      session = new Session(mockInputs);
+
+      await expect(session.list()).rejects.toThrow('API error');
+      expect(logger.error).toHaveBeenCalledWith('Failed to list sessions: API error');
     });
   });
 
