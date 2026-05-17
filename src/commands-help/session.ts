@@ -78,6 +78,44 @@ Examples with CLI:
         ],
       },
     },
+    pause: {
+      help: {
+        description: `Pause a session.
+
+Examples with CLI:
+  $ s cli fc3 session pause --region cn-hangzhou --function-name my-function --session-id session-123 --qualifier LATEST -a default`,
+        summary: 'Pause a session',
+        option: [
+          [
+            '--region <region>',
+            '[C-Required] Specify fc region, you can see all supported regions in https://help.aliyun.com/document_detail/2512917.html',
+          ],
+          ['--function-name <functionName>', '[C-Required] Specify function name'],
+          ['--session-id <sessionId>', '[Required] Specify session id'],
+          ['--qualifier <qualifier>', '[Required] Specify the qualifier parameter'],
+        ],
+      },
+    },
+    resume: {
+      help: {
+        description: `Resume a paused session.
+
+Examples with CLI:
+  $ s cli fc3 session resume --region cn-hangzhou --function-name my-function --session-id session-123 --qualifier LATEST -a default
+  $ s cli fc3 session resume --region cn-hangzhou --function-name my-function --session-id session-123 --qualifier LATEST --file-system-only -a default`,
+        summary: 'Resume a paused session',
+        option: [
+          [
+            '--region <region>',
+            '[C-Required] Specify fc region, you can see all supported regions in https://help.aliyun.com/document_detail/2512917.html',
+          ],
+          ['--function-name <functionName>', '[C-Required] Specify function name'],
+          ['--session-id <sessionId>', '[Required] Specify session id'],
+          ['--qualifier <qualifier>', '[Required] Specify the qualifier parameter'],
+          ['--file-system-only', '[Optional] Only resume the file system'],
+        ],
+      },
+    },
     remove: {
       help: {
         description: `Remove a session.
@@ -104,7 +142,10 @@ Examples with CLI:
 
 Examples with CLI:
   $ s cli fc3 session update --region cn-hangzhou --function-name my-function --session-id session-123 --qualifier LATEST --session-ttl-in-seconds 900 -a default
-  $ s cli fc3 session update --region cn-hangzhou --function-name my-function --session-id session-123 --qualifier LATEST --disable-session-id-reuse -a default`,
+  $ s cli fc3 session update --region cn-hangzhou --function-name my-function --session-id session-123 --qualifier LATEST --disable-session-id-reuse -a default
+  $ s cli fc3 session update --region cn-hangzhou --function-name my-function --session-id session-123 --qualifier LATEST --nas-config '{"userId": 1000, "groupId": 1000, "mountPoints": [{"serverAddr": "example.nas.aliyuncs.com:/", "mountDir": "/mnt/nas", "enableTLS": true}]}' -a default
+  $ s cli fc3 session update --region cn-hangzhou --function-name my-function --session-id session-123 --qualifier LATEST --oss-mount-config '{"mountPoints": [{"bucketName": "my-bucket", "bucketPath": "cn-hangzhou", "mountDir": "/mnt/oss", "readOnly": false}]}' -a default
+  $ s cli fc3 session update --region cn-hangzhou --function-name my-function --session-id session-123 --qualifier LATEST --polar-fs-config '{"userId": 1000, "groupId": 1000, "mountPoints": [{"instanceId": "pc-xxx", "mountDir": "/mnt/polar", "remoteDir": "/"}]}' -a default`,
         summary: 'Update a session',
         option: [
           [
@@ -116,13 +157,16 @@ Examples with CLI:
           ['--qualifier <qualifier>', '[Required] Specify the qualifier parameter'],
           [
             '--st, --session-ttl-in-seconds <seconds>',
-            '[Optional] Session TTL in seconds, between 0 and 2512917',
+            '[Optional] Session TTL in seconds, between 0 and 21600',
           ],
           [
             '--si, --session-idle-timeout-in-seconds <seconds>',
             '[Optional] Session idle timeout in seconds, between 0 and 21600',
           ],
           ['--dsr, --disable-session-id-reuse', '[Optional] Disable session ID reuse'],
+          ['--nas-config <json>', '[Optional] Update the nasConfig.'],
+          ['--oss-mount-config <json>', '[Optional] Update the ossMountConfig.'],
+          ['--polar-fs-config <json>', '[Optional] Update the polarFsConfig.'],
         ],
       },
     },

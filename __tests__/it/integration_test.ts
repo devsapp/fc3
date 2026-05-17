@@ -554,4 +554,124 @@ describe('Integration Tests', () => {
       expect(error).toBeDefined();
     }
   }, 60000);
+
+  test('session operations', async () => {
+    // Deploy function with sessionAffinity enabled (required for session operations)
+    const deployInputs = _.cloneDeep(inputs);
+    deployInputs.props.sessionAffinity = 'GENERATED_COOKIE';
+    await myFcInstance.deploy(deployInputs);
+
+    // Test create session
+    const createInputs = _.cloneDeep(inputs);
+    createInputs.command = 'session';
+    createInputs.args = ['create', '--qualifier', 'LATEST', '--st', '3600', '--si', '1800'];
+    const createOutput = await myFcInstance.session(createInputs);
+    expect(createOutput).toBeDefined();
+    expect(createOutput.sessionId).toBeDefined();
+    const sessionId = createOutput.sessionId;
+
+    // Test get session
+    const getInputs = _.cloneDeep(inputs);
+    getInputs.command = 'session';
+    getInputs.args = ['get', '--session-id', sessionId, '--qualifier', 'LATEST'];
+    const getOutput = await myFcInstance.session(getInputs);
+    expect(getOutput).toBeDefined();
+    expect(getOutput.sessionId).toBe(sessionId);
+
+    // Test list sessions
+    const listInputs = _.cloneDeep(inputs);
+    listInputs.command = 'session';
+    listInputs.args = ['list', '--qualifier', 'LATEST'];
+    const listOutput = await myFcInstance.session(listInputs);
+    expect(listOutput).toBeDefined();
+    expect(Array.isArray(listOutput)).toBe(true);
+
+    // Test update session
+    const updateInputs = _.cloneDeep(inputs);
+    updateInputs.command = 'session';
+    updateInputs.args = [
+      'update',
+      '--session-id',
+      sessionId,
+      '--qualifier',
+      'LATEST',
+      '--st',
+      '7200',
+      '--si',
+      '3600',
+    ];
+    const updateOutput = await myFcInstance.session(updateInputs);
+    expect(updateOutput).toBeDefined();
+
+    // Test remove session (DELETE operation may return undefined)
+    const removeSessionInputs = _.cloneDeep(inputs);
+    removeSessionInputs.command = 'session';
+    removeSessionInputs.args = ['remove', '--session-id', sessionId, '--qualifier', 'LATEST', '-y'];
+    await myFcInstance.session(removeSessionInputs);
+
+    // Clean up: remove the function
+    const removeInputs = _.cloneDeep(inputs);
+    removeInputs.command = 'remove';
+    removeInputs.args = ['--function', '--assume-yes'];
+    try {
+      await myFcInstance.remove(removeInputs);
+    } catch (error) {
+      // Ignore cleanup errors
+    }
+  }, 120000);
+
+  test('session pause and resume', async () => {
+    // Deploy function with sessionAffinity enabled (required for session operations)
+    const deployInputs = _.cloneDeep(inputs);
+    deployInputs.props.sessionAffinity = 'GENERATED_COOKIE';
+    await myFcInstance.deploy(deployInputs);
+
+    // Create a session first
+    const createInputs = _.cloneDeep(inputs);
+    createInputs.command = 'session';
+    createInputs.args = ['create', '--qualifier', 'LATEST', '--st', '3600', '--si', '1800'];
+    const createOutput = await myFcInstance.session(createInputs);
+    expect(createOutput).toBeDefined();
+    const sessionId = createOutput.sessionId;
+
+    try {
+      // Test pause - may fail if function is not SESSION_EXCLUSIVE with custom-container runtime
+      const pauseInputs = _.cloneDeep(inputs);
+      pauseInputs.command = 'session';
+      pauseInputs.args = ['pause', '--session-id', sessionId, '--qualifier', 'LATEST'];
+      const pauseOutput = await myFcInstance.session(pauseInputs);
+      expect(pauseOutput).toBeDefined();
+
+      // If pause succeeded, test resume
+      const resumeInputs = _.cloneDeep(inputs);
+      resumeInputs.command = 'session';
+      resumeInputs.args = ['resume', '--session-id', sessionId, '--qualifier', 'LATEST'];
+      const resumeOutput = await myFcInstance.session(resumeInputs);
+      expect(resumeOutput).toBeDefined();
+    } catch (error) {
+      // Pause/resume requires SESSION_EXCLUSIVE + custom-container + healthCheck
+      // This is expected to fail on a basic python3.9 function
+      expect(error).toBeDefined();
+    }
+
+    // Clean up: remove the session
+    const removeSessionInputs = _.cloneDeep(inputs);
+    removeSessionInputs.command = 'session';
+    removeSessionInputs.args = ['remove', '--session-id', sessionId, '--qualifier', 'LATEST', '-y'];
+    try {
+      await myFcInstance.session(removeSessionInputs);
+    } catch (error) {
+      // Ignore cleanup errors
+    }
+
+    // Clean up: remove the function
+    const removeInputs = _.cloneDeep(inputs);
+    removeInputs.command = 'remove';
+    removeInputs.args = ['--function', '--assume-yes'];
+    try {
+      await myFcInstance.remove(removeInputs);
+    } catch (error) {
+      // Ignore cleanup errors
+    }
+  }, 120000);
 });

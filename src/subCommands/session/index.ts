@@ -18,6 +18,7 @@ export default class Session {
   private nasConfig: any;
   private ossMountConfig: any;
   private polarFsConfig: any;
+  private fileSystemOnly: boolean;
 
   constructor(readonly inputs: IInputs) {
     const opts = parseArgv(inputs.args, {
@@ -29,8 +30,9 @@ export default class Session {
         'disable-session-id-reuse': 'dsr',
         'oss-mount-config': 'omc',
         'polar-fs-config': 'pfc',
+        'file-system-only': 'fso',
       },
-      boolean: ['help', 'y', 'disable-session-id-reuse'],
+      boolean: ['help', 'y', 'disable-session-id-reuse', 'file-system-only'],
       string: [
         'region',
         'function-name',
@@ -65,6 +67,7 @@ export default class Session {
 
     this.subCommand = subCommand;
     this.yes = !!yes;
+    this.fileSystemOnly = !!opts['file-system-only'];
     const userAgent = getUserAgent(inputs.userAgent, `session`);
     this.fcSdk = new FC(this.region, this.inputs.credential, {
       endpoint: inputs.props.endpoint,
@@ -170,14 +173,65 @@ export default class Session {
     }
   }
 
+  async pause() {
+    const sessionId = this.opts['session-id'];
+    const { qualifier } = this.opts;
+    if (_.isEmpty(this.functionName)) {
+      throw new Error('functionName not specified, please specify --function-name');
+    }
+    if (_.isEmpty(sessionId)) {
+      throw new Error('sessionId not specified, please specify --session-id');
+    }
+    if (_.isEmpty(qualifier)) {
+      throw new Error('qualifier not specified, please specify --qualifier');
+    }
+
+    try {
+      const result = await this.fcSdk.pauseFunctionSession(this.functionName, sessionId, qualifier);
+      logger.info(`Session paused successfully: ${JSON.stringify(result)}`);
+      return result;
+    } catch (ex) {
+      logger.error(`Failed to pause session ${sessionId}: ${ex.message}`);
+      throw ex;
+    }
+  }
+
+  async resume() {
+    const sessionId = this.opts['session-id'];
+    const { qualifier } = this.opts;
+    if (_.isEmpty(this.functionName)) {
+      throw new Error('functionName not specified, please specify --function-name');
+    }
+    if (_.isEmpty(sessionId)) {
+      throw new Error('sessionId not specified, please specify --session-id');
+    }
+    if (_.isEmpty(qualifier)) {
+      throw new Error('qualifier not specified, please specify --qualifier');
+    }
+
+    const config: any = { qualifier };
+    if (this.fileSystemOnly) config.fileSystemOnly = this.fileSystemOnly;
+
+    try {
+      const result = await this.fcSdk.resumeFunctionSession(this.functionName, sessionId, config);
+      logger.info(`Session resumed successfully: ${JSON.stringify(result)}`);
+      return result;
+    } catch (ex) {
+      logger.error(`Failed to resume session ${sessionId}: ${ex.message}`);
+      throw ex;
+    }
+  }
+
   async update() {
     const sessionId = this.opts['session-id'];
     const { qualifier } = this.opts;
     const disableSessionIdReuse = this.opts['disable-session-id-reuse'];
-    const sessionTTLInSeconds = parseInt(this.opts['session-ttl-in-seconds'], 10);
+    const sessionTTLInSeconds = this.opts['session-ttl-in-seconds']
+      ? parseInt(this.opts['session-ttl-in-seconds'], 10)
+      : undefined;
     const sessionIdleTimeoutInSeconds = this.opts['session-idle-timeout-in-seconds']
       ? parseInt(this.opts['session-idle-timeout-in-seconds'], 10)
-      : 1800;
+      : undefined;
     if (_.isEmpty(this.functionName)) {
       throw new Error('functionName not specified, please specify --function-name');
     }
@@ -188,18 +242,18 @@ export default class Session {
       throw new Error('qualifier not specified, please specify --qualifier');
     }
     if (
-      !_.isNumber(sessionTTLInSeconds) ||
-      sessionTTLInSeconds < 0 ||
-      sessionTTLInSeconds > 21600
+      sessionTTLInSeconds !== undefined &&
+      (!_.isNumber(sessionTTLInSeconds) || sessionTTLInSeconds < 0 || sessionTTLInSeconds > 21600)
     ) {
-      throw new Error('timeout must be a number between 0 and 21600');
+      throw new Error('sessionTTLInSeconds must be a number between 0 and 21600');
     }
     if (
-      !_.isNumber(sessionIdleTimeoutInSeconds) ||
-      sessionIdleTimeoutInSeconds < 0 ||
-      sessionIdleTimeoutInSeconds > 21600
+      sessionIdleTimeoutInSeconds !== undefined &&
+      (!_.isNumber(sessionIdleTimeoutInSeconds) ||
+        sessionIdleTimeoutInSeconds < 0 ||
+        sessionIdleTimeoutInSeconds > 21600)
     ) {
-      throw new Error('timeout must be a number between 0 and 21600');
+      throw new Error('sessionIdleTimeoutInSeconds must be a number between 0 and 21600');
     }
 
     const config: any = {};
@@ -208,6 +262,9 @@ export default class Session {
     if (sessionTTLInSeconds) config.sessionTTLInSeconds = sessionTTLInSeconds;
     if (sessionIdleTimeoutInSeconds)
       config.sessionIdleTimeoutInSeconds = sessionIdleTimeoutInSeconds;
+    if (this.nasConfig) config.nasConfig = this.nasConfig;
+    if (this.ossMountConfig) config.ossMountConfig = this.ossMountConfig;
+    if (this.polarFsConfig) config.polarFsConfig = this.polarFsConfig;
 
     try {
       const result = await this.fcSdk.updateFunctionSession(this.functionName, sessionId, config);
