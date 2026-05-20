@@ -6,7 +6,7 @@ import VPC_NAS from '../../resources/vpc-nas';
 import { ICredentials } from '@serverless-devs/component-interface';
 import { yellow } from 'chalk';
 import { getEnvVariable } from '../../default/resources';
-import commandsHelp from '../../commands-help/layer';
+import commandsHelp from '../../commands-help/model';
 import { parseArgv } from '@serverless-devs/utils';
 import assert from 'assert';
 import OSS from '../../resources/oss';
@@ -43,7 +43,7 @@ export class Model {
     const subCommand = _.get(subCommands, '[0]');
     if (!subCommand || !commandsList.includes(subCommand)) {
       throw new Error(
-        `Command "${subCommand}" not found, Please use "s cli fc3 layer -h" to query how to use the command`,
+        `Command "${subCommand}" not found, Please use "s cli fc3 model -h" to query how to use the command`,
       );
     }
     this.subCommand = subCommand;

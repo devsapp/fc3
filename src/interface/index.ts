@@ -23,6 +23,7 @@ export interface IProps extends IFunction {
   endpoint?: string;
   supplement?: any;
   annotations?: any;
+  buildDir?: string;
 }
 
 export interface IInputs extends _IInputs {

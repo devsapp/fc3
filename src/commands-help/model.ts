@@ -1,13 +1,13 @@
 export default {
   help: {
-    description: 'Resource layer operation ',
-    summary: 'Resource layer operation ',
+    description: 'Resource model operation ',
+    summary: 'Resource model operation ',
   },
   subCommands: {
     download: {
       help: {
         description: `Download model`,
-        summary: 'Publish new layer version',
+        summary: 'Download model',
         option: [],
       },
     },

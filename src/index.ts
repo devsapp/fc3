@@ -133,6 +133,10 @@ export default class Fc extends Base {
 
   public async build(inputs: IInputs) {
     await super.handlePreRun(inputs, false);
+    const build = new BuilderFactory(inputs);
+    if (build.findCloudBuildYaml()) {
+      return await build.runit();
+    }
 
     const runtime = _.get(inputs, 'props.runtime');
     if (FC.isCustomContainerRuntime(runtime)) {

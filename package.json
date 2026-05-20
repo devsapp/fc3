@@ -54,6 +54,8 @@
     "temp-dir": "^2.0.0",
     "tty-table": "^4.2.3",
     "uuid": "^9.0.1",
+    "undici": "^5.28.5",
+    "@serverless-devs/docker-image-builder": "^0.0.0-20260518-164317-160dd89efac1",
     "uuid-by-string": "^4.0.0"
   },
   "devDependencies": {
@@ -75,6 +77,9 @@
   },
   "resolutions": {
     "@alicloud/sls20191023": {
+      "registry": "https://packages.aliyun.com/670e108663cd360abfe4be65/npm/npm-registry/"
+    },
+    "@serverless-devs/docker-image-builder": {
       "registry": "https://packages.aliyun.com/670e108663cd360abfe4be65/npm/npm-registry/"
     }
   }
