@@ -22,6 +22,17 @@ export enum BuildType {
   Default = 'DEFAULT',
 }
 
+export function resolveEnvVariables(content: string): string {
+  return content.replace(/\$\{env\(['"](.+?)['"]\)\}/g, (match, envName: string) => {
+    const value = process.env[envName];
+    if (value === undefined) {
+      logger.error(`Environment variable not found: ${envName}`);
+      throw new Error(`Environment variable not found: ${envName}`);
+    }
+    return value;
+  });
+}
+
 export default class BuilderFactory {
   private inputs: IInputs;
   private debugInstance: boolean;
@@ -73,7 +84,8 @@ export default class BuilderFactory {
 
     try {
       const buildYamlContent = fs.readFileSync(buildYamlPath, 'utf8');
-      const buildConfig = yaml.load(buildYamlContent) as any;
+      const resolvedContent = resolveEnvVariables(buildYamlContent);
+      const buildConfig = yaml.load(resolvedContent) as any;
 
       // 从build.yaml中提取配置，支持多种格式
       let config = buildConfig;
