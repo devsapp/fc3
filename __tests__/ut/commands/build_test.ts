@@ -1,4 +1,4 @@
-import BuilderFactory, { BuildType } from '../../../src/subCommands/build';
+import BuilderFactory, { BuildType, resolveEnvVariables } from '../../../src/subCommands/build';
 import { ImageBuiltKitBuilder } from '../../../src/subCommands/build/impl/imageBuiltKitBuilder';
 import { ImageDockerBuilder } from '../../../src/subCommands/build/impl/imageDockerBuilder';
 import { ImageKanikoBuilder } from '../../../src/subCommands/build/impl/imageKanikoBuilder';
@@ -300,6 +300,45 @@ describe('BuilderFactory', () => {
 
       expect(builder1).toBe(mockBuilder1);
       expect(builder2).toBe(mockBuilder2);
+    });
+  });
+
+  describe('resolveEnvVariables', () => {
+    it('should replace env variables with single quotes', () => {
+      process.env.MY_VAR = 'hello';
+      const result = resolveEnvVariables("value: ${env('MY_VAR')}");
+      expect(result).toBe('value: hello');
+      delete process.env.MY_VAR;
+    });
+
+    it('should replace env variables with double quotes', () => {
+      process.env.MY_VAR = 'world';
+      const result = resolveEnvVariables('value: ${env("MY_VAR")}');
+      expect(result).toBe('value: world');
+      delete process.env.MY_VAR;
+    });
+
+    it('should replace multiple env variables', () => {
+      process.env.USERNAME = 'admin';
+      process.env.PASSWORD = 'secret';
+      const result = resolveEnvVariables(
+        "username: ${env('USERNAME')}\npassword: ${env('PASSWORD')}",
+      );
+      expect(result).toBe('username: admin\npassword: secret');
+      delete process.env.USERNAME;
+      delete process.env.PASSWORD;
+    });
+
+    it('should throw error when env variable is not found', () => {
+      delete process.env.NOT_EXIST;
+      expect(() => resolveEnvVariables("value: ${env('NOT_EXIST')}")).toThrow(
+        'Environment variable not found: NOT_EXIST',
+      );
+    });
+
+    it('should not modify content without env variables', () => {
+      const content = 'region: cn-hangzhou\nruntime: nodejs18';
+      expect(resolveEnvVariables(content)).toBe(content);
     });
   });
 });
