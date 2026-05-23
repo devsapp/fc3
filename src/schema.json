@@ -863,6 +863,7 @@
             "enum": [
                 "custom",
                 "custom-container",
+                "micro-sandbox",
                 "custom.debian10",
                 "custom.debian11",
                 "custom.debian12",
@@ -1428,7 +1429,7 @@
       "properties": {
         "runtime": {
           "type": "string",
-          "const": "custom-container"
+          "enum": ["custom-container", "micro-sandbox"]
         }
       }
     },

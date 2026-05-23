@@ -30,6 +30,11 @@ describe('utils', () => {
       expect(result).toBe(true);
     });
 
+    it('should return true for micro-sandbox runtime', () => {
+      const result = isCustomContainerRuntime('micro-sandbox');
+      expect(result).toBe(true);
+    });
+
     it('should return false for non custom-container runtime', () => {
       const result = isCustomContainerRuntime('nodejs18');
       expect(result).toBe(false);

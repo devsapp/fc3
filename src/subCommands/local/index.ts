@@ -83,7 +83,8 @@ export default class ComponentLocal {
         await customLocalInvoker.invoke();
         break;
       }
-      case 'custom-container': {
+      case 'custom-container':
+      case 'micro-sandbox': {
         const customContainerLocalInvoker = new CustomContainerLocalInvoke(inputs);
         await customContainerLocalInvoker.invoke();
         break;
@@ -156,7 +157,8 @@ export default class ComponentLocal {
         await customLocalStart.start();
         break;
       }
-      case 'custom-container': {
+      case 'custom-container':
+      case 'micro-sandbox': {
         const customContainerLocalStart = new CustomContainerLocalStart(inputs);
         await customContainerLocalStart.start();
         break;
