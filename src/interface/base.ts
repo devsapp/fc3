@@ -40,6 +40,7 @@ export enum Runtime {
   'custom.debian12' = 'custom.debian12',
   'custom' = 'custom',
   'custom-container' = 'custom-container',
+  'micro-sandbox' = 'micro-sandbox',
 }
 
 export const RuntimeList = Object.values(Runtime);

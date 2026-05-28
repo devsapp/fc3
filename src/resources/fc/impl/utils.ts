@@ -7,7 +7,7 @@ import * as path from 'path';
 import { isDebugMode } from '@serverless-devs/utils';
 
 export function isCustomContainerRuntime(runtime: string): boolean {
-  return runtime === Runtime['custom-container'];
+  return runtime === Runtime['custom-container'] || runtime === Runtime['micro-sandbox'];
 }
 
 export function isCustomRuntime(runtime: string): boolean {
