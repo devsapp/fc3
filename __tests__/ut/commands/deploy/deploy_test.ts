@@ -86,6 +86,7 @@ describe('Deploy', () => {
       'async-invoke-config': undefined,
       'assume-yes': false,
       'skip-push': false,
+      'skip-acceleration-wait': false,
     });
 
     // Mock verify
@@ -202,7 +203,7 @@ describe('Deploy', () => {
         alias: {
           'assume-yes': 'y',
         },
-        boolean: ['skip-push', 'async_invoke_config'],
+        boolean: ['skip-push', 'async_invoke_config', 'skip-acceleration-wait'],
       });
     });
 
@@ -213,6 +214,7 @@ describe('Deploy', () => {
         'async-invoke-config': undefined,
         'assume-yes': true,
         'skip-push': true,
+        'skip-acceleration-wait': true,
       });
 
       new Deploy(mockInputs);
@@ -221,6 +223,27 @@ describe('Deploy', () => {
         type: 'function',
         yes: true,
         skipPush: true,
+        skipAccelerationWait: true,
+      });
+    });
+
+    it('should pass skipAccelerationWait as undefined when not specified', () => {
+      (parseArgv as jest.Mock).mockReturnValue({
+        function: 'function',
+        trigger: undefined,
+        'async-invoke-config': undefined,
+        'assume-yes': true,
+        'skip-push': false,
+        'skip-acceleration-wait': false,
+      });
+
+      new Deploy(mockInputs);
+
+      expect(Service).toHaveBeenCalledWith(mockInputs, {
+        type: 'function',
+        yes: true,
+        skipPush: false,
+        skipAccelerationWait: false,
       });
     });
 

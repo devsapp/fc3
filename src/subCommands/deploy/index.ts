@@ -36,7 +36,7 @@ export default class Deploy {
       alias: {
         'assume-yes': 'y',
       },
-      boolean: ['skip-push', 'async_invoke_config'],
+      boolean: ['skip-push', 'async_invoke_config', 'skip-acceleration-wait'],
     });
 
     // TODO: 更完善的验证
@@ -53,6 +53,7 @@ export default class Deploy {
       'async-invoke-config': async_invoke_config,
       'assume-yes': yes,
       'skip-push': skipPush,
+      'skip-acceleration-wait': skipAccelerationWait,
     } = this.opts;
     logger.debug('parse argv:');
     logger.debug(this.opts);
@@ -64,6 +65,7 @@ export default class Deploy {
         type,
         yes,
         skipPush,
+        skipAccelerationWait,
       }); // function
     }
     if (deployAll || trigger) {
