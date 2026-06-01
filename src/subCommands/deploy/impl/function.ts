@@ -33,11 +33,13 @@ interface IOpts {
   type?: IType;
   yes?: boolean;
   skipPush?: boolean;
+  skipAccelerationWait?: boolean;
 }
 
 export default class Service extends Base {
   readonly type?: IType;
   readonly skipPush?: boolean = false;
+  readonly skipAccelerationWait?: boolean = false;
 
   remote?: any;
   local: IFunction;
@@ -54,6 +56,7 @@ export default class Service extends Base {
 
     this.type = opts.type;
     this.skipPush = opts.skipPush;
+    this.skipAccelerationWait = opts.skipAccelerationWait;
     logger.debug(`deploy function type: ${this.type}`);
 
     this.local = _.cloneDeep(inputs.props);
@@ -131,6 +134,7 @@ export default class Service extends Base {
     await this.fcSdk.deployFunction(config, {
       slsAuto: !_.isEmpty(this.createResource.sls),
       type: this.type,
+      skipAccelerationWait: this.skipAccelerationWait,
     });
     return this.needDeploy;
   }

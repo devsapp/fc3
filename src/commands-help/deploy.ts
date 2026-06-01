@@ -14,6 +14,10 @@ Examples:
       ['-y, --assume-yes', "[Optional] Don't ask, delete directly"],
       ['--skip-push', '[Optional] Specify if skip automatically pushing docker container images'],
       [
+        '--skip-acceleration-wait',
+        '[Optional] Specify if skip waiting for image acceleration after deploy',
+      ],
+      [
         "--function ['code'/'config']",
         "[Optional] Only deploy function configuration or code. Use 'code' to deploy function code only, use 'config' to deploy function configuration only",
       ],
