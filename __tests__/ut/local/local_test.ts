@@ -339,6 +339,20 @@ describe('ComponentLocal', () => {
       expect(mockInstance.invoke).toHaveBeenCalled();
     });
 
+    it('should route micro-sandbox runtime to CustomContainerLocalInvoke', async () => {
+      mockInputs.props.runtime = 'micro-sandbox';
+      const {
+        CustomContainerLocalInvoke,
+      } = require('../../../src/subCommands/local/impl/invoke/customContainerLocalInvoke');
+      const mockInstance = { invoke: jest.fn().mockResolvedValue(undefined) };
+      (CustomContainerLocalInvoke as jest.Mock).mockImplementation(() => mockInstance);
+
+      await componentLocal.invoke(mockInputs);
+
+      expect(CustomContainerLocalInvoke).toHaveBeenCalledWith(mockInputs);
+      expect(mockInstance.invoke).toHaveBeenCalled();
+    });
+
     it('should warn when function has http trigger', async () => {
       mockInputs.props.runtime = 'nodejs18';
       mockInputs.props.triggers = [
@@ -535,6 +549,30 @@ describe('ComponentLocal', () => {
 
     it('should start custom-container function successfully', async () => {
       mockInputs.props.runtime = 'custom-container';
+      mockInputs.props.triggers = [
+        {
+          triggerType: 'http',
+          triggerName: 'httpTrigger',
+          triggerConfig: {
+            authType: 'anonymous',
+            methods: ['GET'],
+          },
+        },
+      ];
+      const {
+        CustomContainerLocalStart,
+      } = require('../../../src/subCommands/local/impl/start/customContainerLocalStart');
+      const mockInstance = { start: jest.fn().mockResolvedValue(undefined) };
+      (CustomContainerLocalStart as jest.Mock).mockImplementation(() => mockInstance);
+
+      await componentLocal.start(mockInputs);
+
+      expect(CustomContainerLocalStart).toHaveBeenCalledWith(mockInputs);
+      expect(mockInstance.start).toHaveBeenCalled();
+    });
+
+    it('should route micro-sandbox runtime to CustomContainerLocalStart', async () => {
+      mockInputs.props.runtime = 'micro-sandbox';
       mockInputs.props.triggers = [
         {
           triggerType: 'http',

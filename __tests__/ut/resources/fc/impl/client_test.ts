@@ -2,13 +2,20 @@ import FC_Client, { fc2Client } from '../../../../../src/resources/fc/impl/clien
 import { ICredentials } from '@serverless-devs/component-interface';
 import { Config } from '@alicloud/openapi-client';
 import FC2 from '@alicloud/fc2';
-import { IRegion } from '../../../../../src/interface';
+import { IRegion, IFunction } from '../../../../../src/interface';
 import * as utils from '../../../../../src/resources/fc/impl/utils';
 import _ from 'lodash';
 
 // Mock external dependencies
 jest.mock('@alicloud/openapi-client');
 jest.mock('@alicloud/fc2');
+jest.mock('@alicloud/fc20230330', () => {
+  const actual = jest.requireActual('@alicloud/fc20230330');
+  return Object.assign({}, actual, {
+    __esModule: true,
+    default: jest.fn().mockImplementation(() => ({})),
+  });
+});
 jest.mock('../../../../../src/resources/fc/impl/utils', () => ({
   ...jest.requireActual('../../../../../src/resources/fc/impl/utils'),
   getCustomEndpoint: jest.fn(),
@@ -199,6 +206,109 @@ describe('FC_Client', () => {
     it('should return false for non-custom runtime', () => {
       const result = utils.isCustomRuntime('nodejs18');
       expect(result).toBe(false);
+    });
+  });
+
+  describe('createFunction', () => {
+    let client: FC_Client;
+
+    beforeEach(() => {
+      (utils.getCustomEndpoint as jest.Mock).mockReturnValue({
+        protocol: 'https',
+        host: 'test-endpoint.com',
+        endpoint: 'https://test-endpoint.com',
+      });
+      client = new FC_Client(mockRegion, mockCredentials, mockOptions);
+    });
+
+    it('should forward microSandboxConfig to the request body', async () => {
+      const createFunctionWithOptions = jest.fn().mockResolvedValue({} as any);
+      Object.defineProperty(client, 'fc20230330Client', {
+        value: { createFunctionWithOptions },
+        writable: true,
+      });
+
+      const config: IFunction = {
+        functionName: 'test-function',
+        runtime: 'micro-sandbox',
+        microSandboxConfig: {
+          osType: 'linux',
+          readyCommand: 'echo ready',
+          startCommand: 'echo start',
+        },
+      } as IFunction;
+
+      await client.createFunction(config);
+
+      expect(createFunctionWithOptions).toHaveBeenCalledTimes(1);
+      const request = createFunctionWithOptions.mock.calls[0][0];
+      const bodyMap = request.body.toMap();
+      expect(bodyMap.runtime).toBe('micro-sandbox');
+      expect(bodyMap.microSandboxConfig).toEqual({
+        osType: 'linux',
+        readyCommand: 'echo ready',
+        startCommand: 'echo start',
+      });
+    });
+
+    it('should not set microSandboxConfig when it is not provided', async () => {
+      const createFunctionWithOptions = jest.fn().mockResolvedValue({} as any);
+      Object.defineProperty(client, 'fc20230330Client', {
+        value: { createFunctionWithOptions },
+        writable: true,
+      });
+
+      await client.createFunction({
+        functionName: 'test-function',
+        runtime: 'nodejs18',
+      } as IFunction);
+
+      const bodyMap = createFunctionWithOptions.mock.calls[0][0].body.toMap();
+      expect(bodyMap.microSandboxConfig).toBeUndefined();
+    });
+  });
+
+  describe('updateFunction', () => {
+    let client: FC_Client;
+
+    beforeEach(() => {
+      (utils.getCustomEndpoint as jest.Mock).mockReturnValue({
+        protocol: 'https',
+        host: 'test-endpoint.com',
+        endpoint: 'https://test-endpoint.com',
+      });
+      client = new FC_Client(mockRegion, mockCredentials, mockOptions);
+    });
+
+    it('should forward microSandboxConfig to the update request body', async () => {
+      const updateFunctionWithOptions = jest.fn().mockResolvedValue({} as any);
+      Object.defineProperty(client, 'fc20230330Client', {
+        value: { updateFunctionWithOptions },
+        writable: true,
+      });
+
+      const config: IFunction = {
+        functionName: 'test-function',
+        runtime: 'micro-sandbox',
+        microSandboxConfig: {
+          osType: 'linux',
+          readyCommand: 'echo ready',
+          startCommand: 'echo start',
+        },
+      } as IFunction;
+
+      await client.updateFunction(config);
+
+      expect(updateFunctionWithOptions).toHaveBeenCalledTimes(1);
+      // first positional arg is functionName, second is the request
+      expect(updateFunctionWithOptions.mock.calls[0][0]).toBe('test-function');
+      const request = updateFunctionWithOptions.mock.calls[0][1];
+      const bodyMap = request.body.toMap();
+      expect(bodyMap.microSandboxConfig).toEqual({
+        osType: 'linux',
+        readyCommand: 'echo ready',
+        startCommand: 'echo start',
+      });
     });
   });
 });
