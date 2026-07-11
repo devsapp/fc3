@@ -75,6 +75,12 @@ export interface ILogConfig {
   logBeginRule?: 'DefaultRegex' | 'None';
 }
 
+export interface IMicroSandboxConfig {
+  osType?: string;
+  readyCommand?: string;
+  startCommand?: string;
+}
+
 export interface INasConfig {
   userId: number;
   groupId: number;
@@ -141,6 +147,7 @@ export interface IFunction {
   resourceGroupId?: string;
 
   logConfig?: 'auto' | ILogConfig;
+  microSandboxConfig?: IMicroSandboxConfig;
   nasConfig?: 'auto' | INasConfig;
   ossMountConfig?: 'auto' | IOssMountConfig;
   role?: 'auto' | string;

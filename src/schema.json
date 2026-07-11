@@ -637,6 +637,20 @@
             ],
             "type": "object"
         },
+        "IMicroSandboxConfig": {
+            "properties": {
+                "osType": {
+                    "type": "string"
+                },
+                "readyCommand": {
+                    "type": "string"
+                },
+                "startCommand": {
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
         "INasConfig": {
             "properties": {
                 "groupId": {
@@ -1312,6 +1326,9 @@
           "multipleOf": 64,
           "minimum": 128,
           "maximum": 32768
+        },
+        "microSandboxConfig": {
+            "$ref": "#/definitions/IMicroSandboxConfig"
         },
         "nasConfig": {
             "anyOf": [
