@@ -81,7 +81,7 @@ export default class FC extends FC_Client {
   static isCustomRuntime = isCustomRuntime;
   static replaceFunctionConfig = replaceFunctionConfig;
 
-  async untilFunctionStateOK(config: IFunction, reason: string) {
+  async untilFunctionStateOK(config: IFunction, reason: string, skipAccelerationWait?: boolean) {
     const retryInterval = 2;
     const startTime = new Date().getTime();
     const calculateRetryTime = (minute: number) =>
@@ -93,6 +93,12 @@ export default class FC extends FC_Client {
     const retryContainerAccelerated = FC.isCustomContainerRuntime(config.runtime);
     // 部署镜像需要重试 3min, 直到达到!(State == Pending || LastUpdateStatus == InProgress)
     if (retryContainerAccelerated) {
+      if (skipAccelerationWait) {
+        logger.info(
+          `Skip waiting for ${config.customContainerConfig.image} optimization. The function will be available for invocation once the image acceleration process is complete.`,
+        );
+        return;
+      }
       console.log('');
       if (reason === 'CREATE') {
         if (isAppCenter()) {
@@ -183,7 +189,7 @@ export default class FC extends FC_Client {
   /**
    * 创建或者修改函数
    */
-  async deployFunction(config: IFunction, { slsAuto, type }): Promise<void> {
+  async deployFunction(config: IFunction, { slsAuto, type, skipAccelerationWait }): Promise<void> {
     logger.debug(`Deploy function use config:\n${JSON.stringify(config, null, 2)}`);
     let needUpdate = false;
     let remoteConfig = null;
@@ -217,7 +223,7 @@ export default class FC extends FC_Client {
           logger.debug(`Need create function ${config.functionName}`);
           try {
             await this.createFunction(config);
-            await this.untilFunctionStateOK(config, 'CREATE');
+            await this.untilFunctionStateOK(config, 'CREATE', skipAccelerationWait);
             return;
           } catch (ex) {
             logger.debug(`Create function error: ${ex.message}`);
@@ -291,7 +297,7 @@ export default class FC extends FC_Client {
           _.unset(config, 'customContainerConfig');
         }
         await this.updateFunction(config);
-        await this.untilFunctionStateOK(config, 'UPDATE');
+        await this.untilFunctionStateOK(config, 'UPDATE', skipAccelerationWait);
         if (config.resourceGroupId) {
           const remoteResourceGroupId = remoteConfig?.body?.resourceGroupId;
           if (remoteResourceGroupId !== config.resourceGroupId) {

@@ -131,6 +131,58 @@ describe('FC', () => {
       expect(mockFc20230330Client.getFunction).toHaveBeenCalled();
     });
 
+    it('should skip waiting when skipAccelerationWait is true for custom container runtime', async () => {
+      const logger = require('../../../../src/logger');
+
+      await fc.untilFunctionStateOK(mockConfig, 'CREATE', true);
+
+      expect(logger.info).toHaveBeenCalledWith(
+        expect.stringContaining('Skip waiting for test-image:latest optimization'),
+      );
+      expect(mockFc20230330Client.getFunction).not.toHaveBeenCalled();
+    });
+
+    it('should skip waiting when skipAccelerationWait is true for UPDATE reason', async () => {
+      const logger = require('../../../../src/logger');
+
+      await fc.untilFunctionStateOK(mockConfig, 'UPDATE', true);
+
+      expect(logger.info).toHaveBeenCalledWith(
+        expect.stringContaining('Skip waiting for test-image:latest optimization'),
+      );
+      expect(mockFc20230330Client.getFunction).not.toHaveBeenCalled();
+    });
+
+    it('should wait normally when skipAccelerationWait is false for custom container runtime', async () => {
+      const mockFunctionMeta = {
+        state: 'Active',
+        lastUpdateStatus: 'Success',
+      };
+
+      mockFc20230330Client.getFunction.mockResolvedValue({
+        toMap: () => ({ body: mockFunctionMeta }),
+      });
+
+      await fc.untilFunctionStateOK(mockConfig, 'CREATE', false);
+
+      expect(mockFc20230330Client.getFunction).toHaveBeenCalled();
+    });
+
+    it('should wait normally when skipAccelerationWait is undefined for custom container runtime', async () => {
+      const mockFunctionMeta = {
+        state: 'Active',
+        lastUpdateStatus: 'Success',
+      };
+
+      mockFc20230330Client.getFunction.mockResolvedValue({
+        toMap: () => ({ body: mockFunctionMeta }),
+      });
+
+      await fc.untilFunctionStateOK(mockConfig, 'CREATE');
+
+      expect(mockFc20230330Client.getFunction).toHaveBeenCalled();
+    });
+
     it('should not wait for non-custom container runtime', async () => {
       // Mock FC static method
       const FC = require('../../../../src/resources/fc').default;
@@ -174,6 +226,7 @@ describe('FC', () => {
       await fc.deployFunction(mockConfig, {
         slsAuto: false,
         type: undefined,
+        skipAccelerationWait: undefined,
       });
 
       expect(mockFc20230330Client.untagResources).toHaveBeenCalled();
@@ -187,6 +240,7 @@ describe('FC', () => {
         fc.deployFunction(mockConfig, {
           slsAuto: false,
           type: undefined,
+          skipAccelerationWait: undefined,
         }),
       ).rejects.toThrow('The number of tags cannot exceed 20');
     });
@@ -201,6 +255,7 @@ describe('FC', () => {
         fc.deployFunction(mockConfig, {
           slsAuto: false,
           type: undefined,
+          skipAccelerationWait: undefined,
         }),
       ).rejects.toThrow('The tag keys must be unique');
     });

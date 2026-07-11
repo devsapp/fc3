@@ -86,6 +86,7 @@ describe('Service', () => {
 
       expect(service.type).toBeUndefined();
       expect(service.skipPush).toBeUndefined();
+      expect(service.skipAccelerationWait).toBeUndefined();
       expect(service.local).toEqual({
         functionName: 'test-function',
         runtime: 'nodejs12',
@@ -237,7 +238,72 @@ describe('Service', () => {
         {
           slsAuto: false,
           type: 'config',
+          skipAccelerationWait: undefined,
         },
+      );
+    });
+
+    it('should pass skipAccelerationWait to deployFunction', async () => {
+      service = new Service(mockInputs, { ...mockOpts, skipAccelerationWait: true });
+      service.needDeploy = true;
+      Object.defineProperty(service, 'type', {
+        value: 'config',
+        writable: true,
+      });
+
+      const mockFcSdk = {
+        deployFunction: jest.fn().mockResolvedValue(undefined),
+      };
+      Object.defineProperty(service, 'fcSdk', {
+        value: mockFcSdk,
+        writable: true,
+      });
+
+      jest.spyOn(service as any, '_deployAuto').mockResolvedValue(undefined);
+      jest.spyOn(service as any, '_uploadCode').mockResolvedValue(true);
+
+      await service.run();
+
+      expect(service.fcSdk.deployFunction).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({
+          skipAccelerationWait: true,
+        }),
+      );
+    });
+
+    it('should pass skipAccelerationWait=true with type=code', async () => {
+      service = new Service(mockInputs, { ...mockOpts, skipAccelerationWait: true });
+      service.needDeploy = true;
+      Object.defineProperty(service, 'type', {
+        value: 'code',
+        writable: true,
+      });
+
+      const mockFcSdk = {
+        deployFunction: jest.fn().mockResolvedValue(undefined),
+        uploadCodeToTmpOss: jest
+          .fn()
+          .mockResolvedValue({ ossBucketName: 'bucket', ossObjectName: 'object' }),
+      };
+      Object.defineProperty(service, 'fcSdk', {
+        value: mockFcSdk,
+        writable: true,
+      });
+
+      jest.spyOn(service as any, '_uploadCode').mockImplementation(async function (this: any) {
+        this.local.code = { ossBucketName: 'bucket', ossObjectName: 'object' };
+        return true;
+      });
+
+      await service.run();
+
+      expect(service.fcSdk.deployFunction).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({
+          skipAccelerationWait: true,
+          type: 'code',
+        }),
       );
     });
 
@@ -308,6 +374,7 @@ describe('Service', () => {
         {
           slsAuto: false,
           type: 'code',
+          skipAccelerationWait: undefined,
         },
       );
     });
