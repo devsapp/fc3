@@ -24,7 +24,7 @@
   "dependencies": {
     "@alicloud/devs20230714": "^2.5.0",
     "@alicloud/fc2": "^2.6.6",
-    "@alicloud/fc20230330": "4.7.7",
+    "@alicloud/fc20230330": "4.7.9",
     "@alicloud/pop-core": "^1.8.0",
     "@serverless-cd/srm-aliyun-oss": "^0.0.1-beta.8",
     "@serverless-cd/srm-aliyun-pop-core": "^0.0.8-beta.1",
@@ -62,7 +62,7 @@
     "@serverless-devs/component-interface": "^0.0.6",
     "@serverless-devs/logger": "^0.0.5",
     "@types/jest": "^29.5.14",
-    "@types/lodash": "^4.17.24",
+    "@types/lodash": "^4.17.25",
     "@types/node": "^20.12.11",
     "@vercel/ncc": "^0.38.4",
     "f2elint": "^2.2.1",
