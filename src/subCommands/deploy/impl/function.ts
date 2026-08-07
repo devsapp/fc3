@@ -4,7 +4,7 @@ import inquirer from 'inquirer';
 import fs from 'fs';
 import assert from 'assert';
 import path from 'path';
-import { yellow } from 'chalk';
+import chalk from 'chalk';
 import zip from '@serverless-devs/zip';
 import { getRootHome } from '@serverless-devs/utils';
 
@@ -214,7 +214,7 @@ export default class Service extends Base {
               return;
             }
           } else {
-            tipsMsg = yellow(
+            tipsMsg = chalk.yellow(
               `WARNING: You are pushing ${image} to overwrite an existing image tag.If this image tag is being used by any other functions, subsequent calls to these functions may fail.Please confirm if you want to continue.`,
             );
           }
@@ -327,7 +327,7 @@ export default class Service extends Base {
     if (this.codeChecksum) {
       if (this.codeChecksum === crc64Value) {
         logger.debug(
-          yellow(`skip uploadCode because code is no changed, codeChecksum=${crc64Value}`),
+          chalk.yellow(`skip uploadCode because code is no changed, codeChecksum=${crc64Value}`),
         );
         if (downloadedTempFile) {
           try {
@@ -389,7 +389,7 @@ export default class Service extends Base {
         return field in customFields ? customFields[field] : defaultValue;
       };
       logger.write(
-        yellow(`Created log resource succeeded, please replace logConfig: auto in yaml with:
+        chalk.yellow(`Created log resource succeeded, please replace logConfig: auto in yaml with:
 logConfig:
   enableInstanceMetrics: ${getConfigValue('enableInstanceMetrics', true)}
   enableRequestMetrics: ${getConfigValue('enableRequestMetrics', true)}
@@ -421,7 +421,7 @@ logConfig:
       );
 
       logger.write(
-        yellow(`Created oss resource succeeded, please replace ossMountConfig: auto in yaml with:
+        chalk.yellow(`Created oss resource succeeded, please replace ossMountConfig: auto in yaml with:
 ossMountConfig:
   mountPoints:
     - mountDir: ${mountDir}
@@ -447,7 +447,7 @@ ossMountConfig:
     if (roleAuto) {
       const client = new RamClient(credential as ICredentials);
       const arn = await client.initFcDefaultServiceRole();
-      logger.write(yellow(`Using role: ${arn}\n`));
+      logger.write(chalk.yellow(`Using role: ${arn}\n`));
       this.createResource.role = { arn };
 
       _.set(this.local, 'role', arn);
@@ -473,7 +473,7 @@ ossMountConfig:
         this._assertArrayOfStrings(vSwitchIds);
         const vSwitchIdsArray: string[] = vSwitchIds as string[];
         logger.write(
-          yellow(`Created vpc resource succeeded, please manually write vpcConfig to the yaml file:
+          chalk.yellow(`Created vpc resource succeeded, please manually write vpcConfig to the yaml file:
 vpcConfig:
   vpcId: ${vpcConfig.vpcId}
   securityGroupId: ${vpcConfig.securityGroupId}
@@ -497,7 +497,7 @@ vpcConfig:
           serverAddr = serverAddr.substring(0, 128);
         }
         logger.write(
-          yellow(`Created nas resource succeeded, please replace nasConfig: auto in yaml with:
+          chalk.yellow(`Created nas resource succeeded, please replace nasConfig: auto in yaml with:
 nasConfig:
   groupId: 0
   userId: 0

@@ -6,7 +6,7 @@ import _ from 'lodash';
 import path from 'path';
 import * as fs from 'fs-extra';
 import { v4 as uuidV4 } from 'uuid';
-import tmpDir from 'temp-dir';
+import { getTempDir } from '../../../../src/utils';
 
 // Mock external dependencies
 jest.mock('../../../../src/logger', () => ({
@@ -21,7 +21,6 @@ jest.mock('lodash');
 jest.mock('path');
 jest.mock('fs-extra');
 jest.mock('uuid');
-jest.mock('temp-dir');
 
 describe('BaseLocal', () => {
   let mockInputs: IInputs;
@@ -34,7 +33,7 @@ describe('BaseLocal', () => {
     (uuidV4 as jest.Mock).mockReturnValue('test-uuid');
 
     // Mock tempDir
-    (tmpDir as any) = '/tmp';
+    (getTempDir as jest.Mock).mockReturnValue('/tmp');
 
     // Mock inputs
     mockInputs = {

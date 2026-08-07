@@ -1,6 +1,0 @@
-{
-  "body": "hello topic",
-  "attrs": {
-    "Extend": "{\"key\":\"value\"}"
-  }
-}

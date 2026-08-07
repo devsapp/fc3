@@ -26,7 +26,6 @@
 
 5. **其他工具模块**
    - `transformCustomDomainProps_test.ts` - 自定义域名转换测试
-   - `downloadFile_test.ts` - 文件下载测试
    - `crc64_test.ts` - CRC64 测试
 
 ## 需要补充测试的模块
@@ -128,7 +127,6 @@
 - `instance/index.ts` 测试
 - `version/index.ts` 测试
 - `model/index.ts` 测试
-- `trigger-template/index.ts` 测试
 
 ### 3. 资源管理模块测试
 

@@ -2,7 +2,7 @@ import _ from 'lodash';
 import * as path from 'path';
 
 import { Builder } from './baseBuilder';
-import { runCommand, isAppCenter, isYunXiao, getUserAgent } from '../../../utils';
+import { getTempDir, runCommand, isAppCenter, isYunXiao, getUserAgent } from '../../../utils';
 import logger from '../../../logger';
 import { buildPythonLocalPath } from '../../../default/image';
 import { parseArgv } from '@serverless-devs/utils';
@@ -12,7 +12,6 @@ import { ICredentials } from '@serverless-devs/component-interface';
 import Layer from '../../layer/index';
 import chalk from 'chalk';
 import { v4 as uuidV4 } from 'uuid';
-import tmpDir from 'temp-dir';
 import * as fs from 'fs-extra';
 
 export class DefaultBuilder extends Builder {
@@ -119,7 +118,7 @@ export class DefaultBuilder extends Builder {
     });
     let buildDir: string = this.getBuildDir();
     buildDir = path.isAbsolute(buildDir) ? buildDir : path.join(this.baseDir, buildDir);
-    const tmpCodeDir: string = path.join(tmpDir, uuidV4());
+    const tmpCodeDir: string = path.join(getTempDir(), uuidV4());
     await fs.ensureDir(tmpCodeDir);
 
     let buildFcIgnoreContent = '';

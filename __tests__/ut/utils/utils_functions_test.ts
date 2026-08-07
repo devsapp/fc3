@@ -1,4 +1,4 @@
-import { isAuto, isAutoVpcConfig, getTimeZone, sleep } from '../../../src/utils/index';
+import { isAuto, isAutoVpcConfig, sleep } from '../../../src/utils/index';
 import { computeLocalAuto } from '../../../src/resources/fc/impl/utils';
 import log from '../../../src/logger';
 log._set(console);
@@ -144,13 +144,6 @@ describe('Utils functions', () => {
         vSwitchIds: 'vsw-123',
       };
       expect(isAutoVpcConfig(config)).toBe(false);
-    });
-  });
-
-  describe('getTimeZone', () => {
-    it('should return a valid timezone string', () => {
-      const tz = getTimeZone();
-      expect(tz).toMatch(/^UTC[+-]\d+$/);
     });
   });
 

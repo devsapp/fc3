@@ -4,7 +4,7 @@ import _, { isEmpty } from 'lodash';
 import FC from '../../resources/fc';
 import VPC_NAS from '../../resources/vpc-nas';
 import { ICredentials } from '@serverless-devs/component-interface';
-import { yellow } from 'chalk';
+import chalk from 'chalk';
 import { getEnvVariable } from '../../default/resources';
 import commandsHelp from '../../commands-help/model';
 import { parseArgv } from '@serverless-devs/utils';
@@ -184,7 +184,7 @@ export class Model {
       this.inputs.props.ossMountConfig as string,
     );
     logger.write(
-      yellow(`Created oss resource succeeded, please replace ossMountConfig: auto in yaml with:
+      chalk.yellow(`Created oss resource succeeded, please replace ossMountConfig: auto in yaml with:
 ossMountConfig:
   mountPoints:
     - mountDir: ${mountDir}
@@ -227,7 +227,7 @@ ossMountConfig:
       this._assertArrayOfStrings(vSwitchIds);
       const vSwitchIdsArray: string[] = vSwitchIds as string[];
       logger.write(
-        yellow(`[nasAuto] Created vpc resource succeeded, please manually write vpcConfig to the yaml file:
+        chalk.yellow(`[nasAuto] Created vpc resource succeeded, please manually write vpcConfig to the yaml file:
 vpcConfig:
   vpcId: ${vpcConfig.vpcId}
   securityGroupId: ${vpcConfig.securityGroupId}
@@ -254,7 +254,7 @@ vpcConfig:
         serverAddr = serverAddr.substring(0, 128);
       }
       logger.write(
-        yellow(`[nasAuto] Created nas resource succeeded, please replace nasConfig: auto in yaml with:
+        chalk.yellow(`[nasAuto] Created nas resource succeeded, please replace nasConfig: auto in yaml with:
 nasConfig:
 groupId: 0
 userId: 0
