@@ -1,7 +1,7 @@
 {
   "transformIgnorePatterns": ["/example/*.*"],
   "transform": {
-    "^.+\\.(ts|tsx)$": "ts-jest"
+    "^.+\\.(ts|tsx)$": ["ts-jest", { "diagnostics": { "exclude": ["**/node_modules/**"] } }]
   },
   "testRegex": "(/__tests__/(ut|it)/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
   "moduleFileExtensions": ["ts", "tsx", "js", "jsx", "json", "node"],
