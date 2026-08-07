@@ -7,7 +7,6 @@ import * as fs from 'fs';
 import os from 'os';
 import logger from '../logger';
 import { execSync } from 'child_process';
-import axios from 'axios';
 import { FC_API_ERROR_CODE, isInvalidArgument } from '../resources/fc/error-code';
 import path from 'path';
 import downloads from '@serverless-devs/downloads';
@@ -15,26 +14,28 @@ import downloads from '@serverless-devs/downloads';
 export { default as verify } from './verify';
 export { default as runCommand } from './run-command';
 
-export async function downloadFile(url: string, filePath: string): Promise<void> {
-  try {
-    const response = await axios({
-      url,
-      method: 'GET',
-      responseType: 'stream',
-    });
+// Mirrors the removed `temp-dir` package: os.tmpdir() resolved through realpath.
+// On macOS os.tmpdir() is /var/folders/... , a symlink to /private/var/folders/... ,
+// and these paths reach Docker bind mounts for `s local`, which needs the real path.
+export function getTempDir(): string {
+  return fs.realpathSync(os.tmpdir());
+}
 
-    const writer = fs.createWriteStream(filePath);
-
-    response.data.pipe(writer);
-
-    return new Promise((resolve, reject) => {
-      writer.on('finish', resolve);
-      writer.on('error', reject);
-    });
-  } catch (error) {
-    console.error(`Error downloading ZIP file: ${error.message}`);
-    throw error;
+// Mirrors the removed `ip` package's ip.address(): first non-loopback IPv4 across
+// interfaces in enumeration order. Loopback is matched on the address, not on the
+// `internal` flag, since those disagree for interfaces like Docker bridges.
+export function getLocalIpAddress(): string {
+  const isLoopback = (addr: string) => /^127\./.test(addr);
+  const interfaces = os.networkInterfaces();
+  for (const nic of Object.keys(interfaces)) {
+    const match = (interfaces[nic] || []).find(
+      (d: any) => (d.family === 'IPv4' || d.family === 4) && !isLoopback(d.address),
+    );
+    if (match) {
+      return match.address;
+    }
   }
+  return '127.0.0.1';
 }
 
 export const sleep = async (second: number): Promise<void> =>
@@ -96,11 +97,6 @@ export const isAutoVpcConfig = (config: unknown): boolean => {
     (_.toUpper(_.get(config, 'vSwitchIds')) === 'AUTO' ||
       _.toUpper(_.get(config, 'securityGroupId')) === 'AUTO')
   );
-};
-
-export const getTimeZone = (): string => {
-  const timeZone = `UTC+${0 - new Date().getTimezoneOffset() / 60}`;
-  return timeZone;
 };
 
 export async function promptForConfirmOrDetails(message: string): Promise<boolean> {

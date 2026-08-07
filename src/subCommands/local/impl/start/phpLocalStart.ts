@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import * as ip from 'ip';
+import { getLocalIpAddress } from '../../../../utils';
 import { IDE_VSCODE } from '../../../../constant';
 import logger from '../../../../logger';
 import { BaseLocalStart } from './baseLocalStart';
@@ -18,7 +18,7 @@ export class PhpLocalStart extends BaseLocalStart {
   }
 
   getDebugArgs(): string {
-    const remoteIp = ip.address();
+    const remoteIp = getLocalIpAddress();
     logger.debug(`using remote_ip ${remoteIp}`);
     if (_.isFinite(this.getDebugPort())) {
       return `FC_DEBUG_ARGS=remote_enable=1 remote_autostart=1 remote_port=${this.getDebugPort()} remote_host=${remoteIp}`;

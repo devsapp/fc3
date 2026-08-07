@@ -266,7 +266,8 @@ src/
 **核心工具函数**:
 
 - `isAuto()` - 检查是否为自动配置
-- `getTimeZone()` - 获取时区
+- `getTempDir()` - 获取临时目录（realpath 解析，供 Docker 挂载）
+- `getLocalIpAddress()` - 获取本机首个非 loopback IPv4
 - `removeNullValues()` - 移除空值
 - `getFileSize()` - 获取文件大小
 - `promptForConfirmOrDetails()` - 用户确认提示

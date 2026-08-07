@@ -1,5 +1,5 @@
 import { ICredentials } from '@serverless-devs/component-interface';
-import { yellow, green, red, bold } from 'chalk';
+import chalk from 'chalk';
 import fs from 'fs';
 import _ from 'lodash';
 import path from 'path';
@@ -123,32 +123,32 @@ export default class Invoke {
       'x-fc-log-result': log,
     } = headers || {};
 
-    const startStr = yellow('========= FC invoke Logs begin =========');
-    const endStr = yellow('========= FC invoke Logs end =========');
+    const startStr = chalk.yellow('========= FC invoke Logs begin =========');
+    const endStr = chalk.yellow('========= FC invoke Logs end =========');
 
     let showLog = `${startStr}\n${log}\n${endStr}\n
-${bold('Invoke instanceId:')} ${green(instanceId)}
-${bold('Code Checksum:')} ${green(codeChecksum)}
-${bold('Qualifier:')} ${green(qualifier || 'LATEST')}
-${bold('RequestId:')} ${green(requestId)}
+${chalk.bold('Invoke instanceId:')} ${chalk.green(instanceId)}
+${chalk.bold('Code Checksum:')} ${chalk.green(codeChecksum)}
+${chalk.bold('Qualifier:')} ${chalk.green(qualifier || 'LATEST')}
+${chalk.bold('RequestId:')} ${chalk.green(requestId)}
 `;
     if (this.invokeType === 'Async') {
       const { 'x-fc-async-task-id': taskId } = headers || {};
-      showLog = `${bold('Qualifier:')} ${green(qualifier || 'LATEST')}
-${bold('RequestId:')} ${green(requestId)}
-${bold('AsyncTaskId:')} ${green(taskId)}
+      showLog = `${chalk.bold('Qualifier:')} ${chalk.green(qualifier || 'LATEST')}
+${chalk.bold('RequestId:')} ${chalk.green(requestId)}
+${chalk.bold('AsyncTaskId:')} ${chalk.green(taskId)}
 `;
     }
 
     if (headers['x-fc-error-type']) {
-      showLog += `${bold('Error Type:')} ${red(errorType)}
+      showLog += `${chalk.bold('Error Type:')} ${chalk.red(errorType)}
 
-${bold('Invoke Result:')}
-${red(body)}`;
+${chalk.bold('Invoke Result:')}
+${chalk.red(body)}`;
     } else {
       showLog += `
-${bold('Invoke Result:')}
-${green(body)}`;
+${chalk.bold('Invoke Result:')}
+${chalk.green(body)}`;
     }
 
     logger.write(showLog);

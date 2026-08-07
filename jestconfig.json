@@ -1,21 +1,13 @@
 {
-    "transformIgnorePatterns": [
-      "/example/*.*"
-    ],
-    "transform": {
-      "^.+\\.(ts|tsx)$": "ts-jest" 
-    },
-    "testRegex": "(/__tests__/(ut|it)/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$", 
-    "moduleFileExtensions": [
-        "ts",
-        "tsx",
-        "js",
-        "jsx",
-        "json",
-        "node"
-    ],
-    "collectCoverage": true,
-    "coverageReporters": ["html", "text"],
-    "testTimeout": 30000
-  }
-  
+  "transformIgnorePatterns": ["/example/*.*"],
+  "transform": {
+    "^.+\\.(ts|tsx)$": ["ts-jest", { "diagnostics": { "exclude": ["**/node_modules/**"] } }]
+  },
+  "testRegex": "(/__tests__/(ut|it)/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
+  "moduleFileExtensions": ["ts", "tsx", "js", "jsx", "json", "node"],
+  "roots": ["<rootDir>/__tests__", "<rootDir>/src"],
+  "testPathIgnorePatterns": ["/node_modules/", "/__tests__/e2e/"],
+  "collectCoverage": true,
+  "coverageReporters": ["html", "text"],
+  "testTimeout": 30000
+}

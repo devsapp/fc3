@@ -1,6 +1,5 @@
 import {
   isAuto,
-  getTimeZone,
   isAutoVpcConfig,
   removeNullValues,
   getFileSize,
@@ -95,12 +94,6 @@ describe('isAutoVpcConfig', () => {
     const config = undefined;
     expect(isAutoVpcConfig(config)).toBe(false);
   });
-});
-
-test('getTimeZone', () => {
-  const t = getTimeZone();
-  console.log(t);
-  expect(t === 'UTC+0' || t === 'UTC+8').toBe(true);
 });
 
 describe('removeNullValues', () => {

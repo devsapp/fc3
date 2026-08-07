@@ -4,9 +4,7 @@ import path from 'path';
 import _ from 'lodash';
 import { v4 as uuidV4 } from 'uuid';
 import extract from 'extract-zip';
-import tmpDir from 'temp-dir';
 import * as fs from 'fs-extra';
-import * as rimraf from 'rimraf';
 import { parseArgv, getRootHome } from '@serverless-devs/utils';
 import { ICredentials } from '@serverless-devs/component-interface';
 import logger from '../../../logger';
@@ -18,7 +16,7 @@ import {
   fcDockerVersion,
   fcDockerVersionRegistry,
 } from '../../../default/image';
-import { getUserAgent, runCommand, sleep } from '../../../utils';
+import { getTempDir, getUserAgent, runCommand, sleep } from '../../../utils';
 import { execSync } from 'child_process';
 import chalk from 'chalk';
 import * as httpx from 'httpx';
@@ -152,7 +150,7 @@ export class BaseLocal {
     const src: string = typeof codeUri === 'string' ? codeUri : codeUri.src;
     const { runtime } = props;
     if (_.endsWith(src, '.zip') || (_.endsWith(src, '.jar') && runtime.startsWith('java'))) {
-      const tmpCodeDir: string = path.join(tmpDir, uuidV4());
+      const tmpCodeDir: string = path.join(getTempDir(), uuidV4());
       await fs.ensureDir(tmpCodeDir);
       logger.log(`code is a zip or jar format, will unzipping to ${tmpCodeDir}`);
       await extract(src, { dir: tmpCodeDir });
@@ -183,7 +181,7 @@ export class BaseLocal {
 
   // jar and war try use unzip command, reminder user install unzip
   async tryUnzip(src: string): Promise<string> {
-    const tmpCodeDir: string = path.join(tmpDir, uuidV4());
+    const tmpCodeDir: string = path.join(getTempDir(), uuidV4());
     await fs.ensureDir(tmpCodeDir);
     logger.log(`code is a jar or war format, will unzipping to ${tmpCodeDir}`);
     try {
@@ -470,7 +468,7 @@ export class BaseLocal {
   after() {
     logger.debug('after ...');
     if (this.unzippedCodeDir) {
-      rimraf.sync(this.unzippedCodeDir);
+      fs.rmSync(this.unzippedCodeDir, { recursive: true, force: true });
       console.log(`clean tmp code dir ${this.unzippedCodeDir} successfully`);
       this.unzippedCodeDir = undefined;
     }

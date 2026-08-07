@@ -9,7 +9,7 @@ import { parseArgv } from '@serverless-devs/utils';
 import fs from 'fs';
 import yaml from 'js-yaml';
 import path from 'path';
-import { yellow } from 'chalk';
+import chalk from 'chalk';
 
 import logger from '../../logger';
 import Runit from './runit';
@@ -120,7 +120,7 @@ export default class BuilderFactory {
       const runit = new Runit(runitInputs);
       const result = await runit.deploy(this.debugInstance);
 
-      logger.write(yellow(`Please replace customContainerConfig.image: ${result.image}`));
+      logger.write(chalk.yellow(`Please replace customContainerConfig.image: ${result.image}`));
       return result;
     } catch (error) {
       logger.error(`Failed to execute runit: ${error.message}`);
