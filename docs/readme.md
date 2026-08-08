@@ -1,48 +1,19 @@
 # FC3 组件文档
 
-## 简介
+FC3 是阿里云函数计算 3.0 的 Serverless Devs 组件，提供创建、开发、调试、部署、运维的全生命周期管理能力。
 
-FC3 是阿里云函数计算 3.0 的 Serverless Devs 组件，提供全生命周期的函数计算管理能力，包括创建、开发、调试、部署、运维等功能。
-
-建议您直接阅读 [Serverless Devs 官方文档](https://manual.serverless-devs.com/user-guide/aliyun/#fc3)
+用户使用请优先阅读 [Serverless Devs 官方文档](https://manual.serverless-devs.com/user-guide/aliyun/#fc3)；本目录面向本仓库的开发与运维。
 
 ## 文档目录
 
-- [架构文档](./architecture.md) - 详细的项目架构说明和模块介绍
-- [技术文档](./technical-documentation.md) - 全面的技术文档，包括 API 接口、配置说明、最佳实践等
-- [测试计划](./testing-plan.md) - 完整的测试策略和实施计划
-- [项目总结](./project-summary.md) - 项目完成情况和总结
+- [架构说明](./architecture.md) — 模块划分、目录结构与核心流程
+- [贡献指南](./CONTRIB.md) — 开发环境、脚本、测试与提交流程
+- [运维手册](./RUNBOOK.md) — 部署、监控、常见故障处理与回滚
 
-## 快速开始
-
-### 安装依赖
+## 本地开发
 
 ```bash
-npm install
+npm install       # 安装依赖（需私有 Aliyun registry 鉴权，见贡献指南）
+npm run build     # 构建产物
+npm test          # 运行单元测试（含覆盖率，无需云凭证）
 ```
-
-### 构建项目
-
-```bash
-npm run build
-```
-
-### 运行测试
-
-```bash
-npm test
-```
-
-## 核心功能
-
-1. **全生命周期管理**：组件拥有项目的创建、开发、调试、部署、运维全生命周期管理能力
-2. **安全发布**：通过其他形式对函数进行变更，组件可以感知并安全更新
-3. **快速集成**：借助于 Serverless Devs 的集成性和被集成性，可以与常见的 CI/CD 平台工具集成
-4. **可观测性**：拥有完善的可观测性，在客户端可以通过日志查询等命令进行执行日志观测
-5. **多模调试**：提出了多模调试方案，可以同时满足开发态、运维态的不同调试需求
-
-## 贡献指南
-
-我们非常希望您可以和我们一起贡献这个项目。贡献内容包括不限于代码的维护、应用/组件的贡献、文档的完善等。
-
-请参考[贡献指南](../CONTRIBUTING.md)了解更多详情。

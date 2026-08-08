@@ -8,6 +8,13 @@
   "roots": ["<rootDir>/__tests__", "<rootDir>/src"],
   "testPathIgnorePatterns": ["/node_modules/", "/__tests__/e2e/"],
   "collectCoverage": true,
-  "coverageReporters": ["html", "text"],
+  "collectCoverageFrom": [
+    "src/**/*.ts",
+    "!src/**/*.d.ts",
+    "!src/schema.json",
+    "!src/commands-help/**",
+    "!src/interface/**"
+  ],
+  "coverageReporters": ["json-summary", "text", "html"],
   "testTimeout": 30000
 }

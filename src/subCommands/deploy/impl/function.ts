@@ -318,7 +318,6 @@ export default class Service extends Base {
       logger.debug(`压缩程序执行时间: ${milliseconds / 1000}s`);
       zipPath = generateZipFilePath;
     }
-    // logger.debug(`Zip file: ${zipPath}`);
     // debug show zip file size
     getFileSize(zipPath);
 

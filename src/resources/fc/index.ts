@@ -261,7 +261,6 @@ export default class FC extends FC_Client {
            * 先 diff 获取需要删除的 tags 和需要添加的 tags
            */
           const { deleteTags, addTags } = this.diffTags(remoteTags, localTags);
-          // logger.info(`deleteTags: ${JSON.stringify(deleteTags,null,2)}, addTags: ${JSON.stringify(addTags,null,2)}`);
 
           if (deleteTags?.length) {
             const untagResourcesRequest = new UntagResourcesRequest({

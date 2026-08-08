@@ -1,6 +1,6 @@
 <p align="center" class="flex justify-center">
   <a href="https://nodejs.org/en/" class="ml-1" target="_blank">
-    <img src="https://img.shields.io/badge/node-%3E%3D%2014.14.0-brightgreen" alt="node.js version">
+    <img src="https://img.shields.io/badge/node-%3E%3D%2016-brightgreen" alt="node.js version">
   </a>
   <a href="https://github.com/devsapp/fc3/blob/master/LICENSE" class="ml-1" target="_blank">
     <img src="https://img.shields.io/badge/License-MIT-green" alt="license">
@@ -57,7 +57,7 @@
 
 # 项目贡献
 
-我们非常希望您可以和我们一起贡献这个项目。贡献内容包括不限于代码的维护、应用/组件的贡献、文档的完善等，更多详情可以参考[🏆 贡献指南](./CONTRIBUTING.md)。
+我们非常希望您可以和我们一起贡献这个项目。贡献内容包括不限于代码的维护、应用/组件的贡献、文档的完善等，更多详情可以参考[🏆 贡献指南](./docs/CONTRIB.md)。
 
 与此同时，我们也非常感谢所有[👬 参与贡献的小伙伴](https://github.com/devsapp/fc3/graphs/contributors) ，为 Serverless Devs fc3 组件项目贡献的努力和汗水。
 

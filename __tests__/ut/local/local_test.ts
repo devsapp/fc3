@@ -136,7 +136,7 @@ jest.mock('../../../src/subCommands/local/impl/start/phpLocalStart', () => {
   };
 });
 
-jest.mock('../../../src/subCommands/local/impl/start/goLocalInvoke', () => {
+jest.mock('../../../src/subCommands/local/impl/start/goLocalStart', () => {
   return {
     GoLocalStart: jest.fn().mockImplementation(() => {
       return {
@@ -489,7 +489,7 @@ describe('ComponentLocal', () => {
           },
         },
       ];
-      const { GoLocalStart } = require('../../../src/subCommands/local/impl/start/goLocalInvoke');
+      const { GoLocalStart } = require('../../../src/subCommands/local/impl/start/goLocalStart');
       const mockInstance = { start: jest.fn().mockResolvedValue(undefined) };
       (GoLocalStart as jest.Mock).mockImplementation(() => mockInstance);
 

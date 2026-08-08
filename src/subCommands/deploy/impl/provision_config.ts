@@ -7,7 +7,6 @@ import logger from '../../../logger';
 import Base from './base';
 import { sleep } from '../../../utils';
 import { provisionConfigErrorRetry } from '../utils';
-// import Logs from '../../logs';
 
 interface IOpts {
   yes: boolean | undefined;

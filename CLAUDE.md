@@ -10,16 +10,20 @@ FC3 is the Serverless Devs component for Alibaba Cloud Function Compute 3.0, pro
 
 ## Available Scripts
 
-| Script                    | Description                |
-| ------------------------- | -------------------------- |
-| `npm run build`           | Production bundle with ncc |
-| `npm run watch`           | TypeScript watch mode      |
-| `npm test`                | Jest tests with coverage   |
-| `npm run format`          | Prettier formatting        |
-| `npm run lint`            | f2elint scanning           |
-| `npm run fix`             | Auto-fix lint issues       |
-| `npm run publish`         | Build and registry publish |
-| `npm run generate-schema` | Generate JSON schema       |
+| Script                    | Description                                  |
+| ------------------------- | -------------------------------------------- |
+| `npm run build`           | Production bundle with ncc                   |
+| `npm run watch`           | TypeScript watch mode                        |
+| `npm test`                | Unit tests with coverage (no credentials)    |
+| `npm run test:it`         | Integration tests (needs cloud credentials)  |
+| `npm run typecheck`       | Type-check without emitting                  |
+| `npm run deadcode`        | Audit unused exports (ts-prune)              |
+| `npm run depcheck`        | Audit unused dependencies                    |
+| `npm run format`          | Prettier formatting                          |
+| `npm run lint`            | f2elint scanning                             |
+| `npm run fix`             | Auto-fix lint issues                         |
+| `npm run publish`         | Build and registry publish                   |
+| `npm run generate-schema` | Generate JSON schema                         |
 
 ## Key Directories
 

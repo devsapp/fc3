@@ -11,7 +11,10 @@ export default class VpcNas {
   private client: PopClient;
   private vpcClient: PopClient;
 
-  constructor(private region: IRegion, credentials: ICredentials) {
+  constructor(
+    private region: IRegion,
+    credentials: ICredentials,
+  ) {
     // https://help.aliyun.com/zh/sdk/developer-reference/configure-a-timeout-period-2
     const opts = {
       connectTimeout: 5000,
@@ -80,12 +83,6 @@ export default class VpcNas {
           );
           logger.debug(`ModifyVpcAttribute: ${JSON.stringify(result2)}`);
         }
-        // } else {
-        //   const regex = /^(?!http:\/\/|https:\/\/)[a-zA-Z一-龥][a-zA-Z0-9一-龥_-]*$/;
-        //   if (!regex.test(result.VpcName)) {
-        //     return VPC_AND_NAS_NAME;
-        //   }
-        // }
         return result.VpcName;
       } catch (ex) {
         console.log(ex);

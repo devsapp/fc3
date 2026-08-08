@@ -292,10 +292,6 @@ export default class Logs {
         l = `${COLOR_MAP[colorIndex]}${instanceId}\x1B[0m ${l}`;
       }
 
-      // if (extra?.qualifier) {
-      //   l = `${extra.qualifier} ${l}`;
-      // }
-
       if (match) {
         l = replaceAll(l, match, `\x1B[7m${match}\x1B[0m`);
       }

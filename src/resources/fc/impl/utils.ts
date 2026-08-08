@@ -106,8 +106,6 @@ export const getCustomEndpoint = (
     return { protocol };
   }
 
-  // logger.info(`get custom endpoint: ${CUSTOM_ENDPOINT}`);
-
   if (CUSTOM_ENDPOINT.startsWith('http://')) {
     return {
       protocol: 'http',

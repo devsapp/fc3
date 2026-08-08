@@ -24,7 +24,6 @@ async function runCommand(
 
   if (shellScript) {
     args.push(shellScript);
-    // args.push(...shellScript.split(' '));
   }
   logger.debug(`runCommand args = ${JSON.stringify(args)}`);
 
