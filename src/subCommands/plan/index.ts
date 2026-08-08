@@ -292,7 +292,6 @@ export default class Plan {
     const planInput = _.cloneDeep(customDomainInputs);
     try {
       const onlineCustomDomain = await domainInstance.info(infoInput);
-      // console.log(JSON.stringify(onlineCustomDomain, null, 2));
       const routes = onlineCustomDomain?.routeConfig?.routes;
       let found = false;
       if (routes) {

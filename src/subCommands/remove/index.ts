@@ -495,7 +495,6 @@ export default class Remove {
           routes.splice(index, 1);
           customDomainInputs.props = onlineCustomDomain;
           onlineCustomDomain.routeConfig.routes = routes;
-          // console.log(JSON.stringify(customDomainInputs));
           if (
             customDomainInputs.args.indexOf('-y') === -1 &&
             customDomainInputs.args.indexOf('--assume-yes') === -1

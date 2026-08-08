@@ -293,88 +293,21 @@ src/
 - `IConcurrencyConfig` - 并发配置接口
 - `IProvisionConfig` - 预留配置接口
 
-## 技术特点
+## 部署流程
 
-### 1. 全生命周期管理
+`deploy` 是最复杂的命令，串联了大多数资源模块，流程如下：
 
-- 支持函数的创建、开发、调试、部署、运维全流程
-- 提供完整的 CI/CD 集成能力
+1. `base.ts` 的 `handlePreRun` 预处理输入：补全镜像、角色、NAS 配置，套用默认值。
+2. `deploy/impl/function.ts` 拉取线上函数配置，与本地做 diff（`_plan`），无差异则跳过，有差异则交互确认。
+3. 处理 `auto` 资源（`_deployAuto`）：按需创建 SLS 日志、OSS 挂载、RAM 角色、VPC/NAS，并回填到函数配置。
+4. 处理代码：非容器运行时压缩上传代码包（校验 CRC64，未变更则跳过）；容器运行时推送镜像到 ACR。
+5. 调用 FC SDK 完成函数、触发器、域名、并发、预留等配置的部署。
 
-### 2. 多环境支持
+## 配置验证
 
-- 支持多种构建环境（Docker、Kaniko、BuildKit）
-- 支持多种运行环境（本地、云端）
+组件用 `src/schema.json`（由 `npm run generate-schema` 从 `interface/` 生成）对 `IProps` 做 JSON Schema 校验，`utils/verify` 在运行前检查配置。
 
-### 3. 多语言支持
+## 已知设计说明
 
-- 支持 Python、Node.js、Java、Go、PHP、.NET 等多种语言
-- 支持自定义运行时和自定义容器
-
-### 4. 安全发布
-
-- 通过配置感知实现安全更新
-- 支持角色权限管理
-
-### 5. 可观测性
-
-- 集成 SLS 日志服务
-- 提供完善的日志查询功能
-
-### 6. 多模调试
-
-- 支持本地运行和在线运行
-- 提供多种调试模式
-
-## 配置管理
-
-### 默认配置
-
-- `FUNCTION_DEFAULT_CONFIG` - 函数默认配置
-- `FUNCTION_CUSTOM_DEFAULT_CONFIG` - 自定义函数默认配置
-- `IMAGE_ACCELERATION_REGION` - 镜像加速地域配置
-
-### 配置验证
-
-- 使用 JSON Schema 进行配置验证
-- 支持运行时配置检查
-
-## 错误处理
-
-### 错误类型
-
-- 配置错误
-- 权限错误
-- 网络错误
-- 资源错误
-
-### 错误处理策略
-
-- 提供具体的错误信息
-- 支持错误重试机制
-- 记录详细的错误日志
-
-## 性能优化
-
-### 并行处理
-
-- 支持并行部署多个资源
-- 优化网络请求性能
-
-### 缓存机制
-
-- 配置缓存
-- 资源状态缓存
-
-## 扩展性
-
-### 插件机制
-
-- 支持自定义构建器
-- 支持自定义触发器
-- 支持自定义运行时
-
-### 配置扩展
-
-- 支持自定义配置项
-- 支持环境变量配置
-- 支持配置文件继承
+- **model / fileManager 重复**：`subCommands/model/index.ts`（`ModelService`）与 `fileManager.ts`（`ArtModelService`）实现相近，按 `modelConfig.solution` 分支选择。两者逻辑存在差异，尚未合并——合并前需补齐覆盖两个分支的测试，属于风险改动。
+- **依赖重叠**：项目同时依赖 FC2 与 FC3 SDK、以及多套 OSS/归档库，均有实际引用（详见 `npm run depcheck` 报告），不可直接移除。

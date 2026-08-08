@@ -15,7 +15,7 @@ import logger from '../../logger';
 import { NodejsLocalStart } from './impl/start/nodejsLocalStart';
 import { PythonLocalStart } from './impl/start/pythonLocalStart';
 import { PhpLocalStart } from './impl/start/phpLocalStart';
-import { GoLocalStart } from './impl/start/goLocalInvoke';
+import { GoLocalStart } from './impl/start/goLocalStart';
 import { DotnetLocalStart } from './impl/start/dotnetLocalStart';
 import { JavaLocalStart } from './impl/start/javaLocalStart';
 

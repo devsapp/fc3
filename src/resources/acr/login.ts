@@ -131,7 +131,6 @@ async function getAuthorizationTokenForAcrEE(
     { InstanceId: instanceID },
     requestOption,
   );
-  // logger.debug(`GetAuthorizationToken result: ${JSON.stringify(result)}`);
   return {
     dockerTmpUser: result.TempUsername,
     dockerTmpToken: result.AuthorizationToken,

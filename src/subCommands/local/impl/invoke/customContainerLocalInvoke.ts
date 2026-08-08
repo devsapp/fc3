@@ -73,8 +73,6 @@ export class CustomContainerLocalInvoke extends BaseLocalInvoke {
 
   async getLocalInvokeCmdStr(): Promise<string> {
     const port = await portFinder.getPortPromise({ port: this.getCaPort() });
-    // const msg = `You can use curl or Postman to make an HTTP request to localhost:${port} to test the function.for example:`;
-    // console.log('\x1b[33m%s\x1b[0m', msg);
     this._port = port;
     const image = await this.getRuntimeRunImage();
     const envStr = await this.getEnvString();

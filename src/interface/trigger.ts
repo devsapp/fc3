@@ -138,11 +138,7 @@ export function convertIHttpTriggerConfig(
     // eslint-disable-next-line no-param-reassign
     httpTriggerConfig.authConfig.claimPassBy = 'query::';
   }
-  // TODO 如果同时存在，报错。
-  // if (httpTriggerConfig.authConfig.whitelist) {
-  //   // eslint-disable-next-line no-param-reassign
-  //   httpTriggerConfig.authConfig.blacklist = null;
-  // }
+  // TODO 如果 whitelist 与 blacklist 同时存在，应报错。
   return httpTriggerConfig;
 }
 

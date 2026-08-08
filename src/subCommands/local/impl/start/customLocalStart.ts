@@ -2,7 +2,6 @@ import { BaseLocalStart } from './baseLocalStart';
 import { runCommand } from '../../../../utils';
 import _ from 'lodash';
 import chalk from 'chalk';
-// import logger from '../logger';
 
 export class CustomLocalStart extends BaseLocalStart {
   getDebugArgs(): string {

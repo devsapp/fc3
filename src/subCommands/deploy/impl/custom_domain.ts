@@ -52,7 +52,6 @@ export default class CustomDomain extends Base {
     const deployInput = _.cloneDeep(this.customDomainInputs);
     try {
       const onlineCustomDomain = await this.domainInstance.info(infoInput);
-      // console.log(JSON.stringify(onlineCustomDomain, null, 2));
       let routes = onlineCustomDomain?.routeConfig?.routes;
       if (!routes) {
         routes = [];
