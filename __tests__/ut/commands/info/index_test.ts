@@ -129,10 +129,7 @@ describe('Info', () => {
     });
 
     it('should build triggersName list from props.triggers', () => {
-      mockInputs.props.triggers = [
-        { triggerName: 't1' },
-        { triggerName: 't2' },
-      ] as any;
+      mockInputs.props.triggers = [{ triggerName: 't1' }, { triggerName: 't2' }] as any;
       const info = new Info(mockInputs);
       expect(info.triggersName).toEqual(['t1', 't2']);
     });
@@ -147,9 +144,7 @@ describe('Info', () => {
 
     it('should throw when region is not specified', () => {
       mockInputs.props.region = undefined;
-      expect(() => new Info(mockInputs)).toThrow(
-        'Region not specified, please specify --region',
-      );
+      expect(() => new Info(mockInputs)).toThrow('Region not specified, please specify --region');
     });
 
     it('should throw when functionName is not specified', () => {
@@ -172,13 +167,8 @@ describe('Info', () => {
     it('should return the function config from the sdk', async () => {
       const info = new Info(mockInputs);
       const result = await info.getFunction();
-      expect(mockFcInstance.getFunction).toHaveBeenCalledWith(
-        'test-function',
-        GetApiType.simple,
-      );
-      expect(result).toEqual(
-        expect.objectContaining({ functionName: 'test-function' }),
-      );
+      expect(mockFcInstance.getFunction).toHaveBeenCalledWith('test-function', GetApiType.simple);
+      expect(result).toEqual(expect.objectContaining({ functionName: 'test-function' }));
     });
   });
 
@@ -236,10 +226,7 @@ describe('Info', () => {
       mockInputs.props.vpcBinding = { vpcIds: ['vpc-1'] } as any;
       const info = new Info(mockInputs);
       const result = await info.getVpcBing();
-      expect(mockFcInstance.getVpcBinding).toHaveBeenCalledWith(
-        'test-function',
-        GetApiType.simple,
-      );
+      expect(mockFcInstance.getVpcBinding).toHaveBeenCalledWith('test-function', GetApiType.simple);
       expect(result).toEqual({ vpcIds: ['vpc-1'] });
     });
   });

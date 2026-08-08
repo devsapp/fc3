@@ -76,9 +76,7 @@ describe('VpcBinding', () => {
     it('calls _getRemote and _plan', async () => {
       // Arrange
       const vpcBinding = new VpcBinding(mockInputs, mockOpts);
-      const getRemoteSpy = jest
-        .spyOn(vpcBinding as any, '_getRemote')
-        .mockResolvedValue(undefined);
+      const getRemoteSpy = jest.spyOn(vpcBinding as any, '_getRemote').mockResolvedValue(undefined);
       const planSpy = jest.spyOn(vpcBinding as any, '_plan').mockResolvedValue(undefined);
 
       // Act

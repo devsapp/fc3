@@ -11,10 +11,7 @@ export default class VpcNas {
   private client: PopClient;
   private vpcClient: PopClient;
 
-  constructor(
-    private region: IRegion,
-    credentials: ICredentials,
-  ) {
+  constructor(private region: IRegion, credentials: ICredentials) {
     // https://help.aliyun.com/zh/sdk/developer-reference/configure-a-timeout-period-2
     const opts = {
       connectTimeout: 5000,

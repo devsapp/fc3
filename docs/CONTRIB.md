@@ -56,23 +56,23 @@ npm run build
 
 ## Available Scripts
 
-| Script            | Command                                                               | Description                                     |
-| ----------------- | --------------------------------------------------------------------- | ----------------------------------------------- |
-| `build`           | `ncc build src/index.ts -m -o dist`                                   | Build production bundle using Vercel ncc        |
-| `watch`           | `npx tsc -w -p tsconfig.json`                                         | Watch mode for development                      |
-| `start`           | `npm run watch`                                                       | Alias for watch mode                            |
-| `test`            | `jest --config jestconfig.json __tests__/ut --coverage`               | Run unit tests with coverage (no credentials)   |
-| `test:it`         | `jest --config jestconfig.json __tests__/it`                          | Run integration tests (needs cloud credentials) |
-| `deadcode`        | `ts-prune -p tsconfig.json`                                           | Audit unused exports                            |
-| `depcheck`        | `depcheck`                                                            | Audit unused dependencies                       |
-| `format`          | `prettier --write src`                                                | Format source code with Prettier                |
-| `lint`            | `f2elint scan`                                                        | Run linter checks                               |
-| `fix`             | `f2elint fix`                                                         | Auto-fix linting issues                         |
-| `publish`         | `npm i && npm run build && s registry publish`                        | Build and publish to registry                   |
-| `generate-schema` | `typescript-json-schema ./src/interface/index.ts IProps --required`   | Generate JSON schema from TypeScript interfaces |
-| `typecheck`       | `tsc --noEmit -p tsconfig.json`                                       | Type-check without emitting (CI gate)           |
-| `prebuild`        | node one-liner: rm + mkdir `dist`, copy `src/schema.json`             | Prepare dist directory before build (portable)  |
-| `prewatch`        | node one-liner: mkdir `dist`, copy `src/schema.json`                  | Ensure dist and schema.json exist before watch  |
+| Script            | Command                                                             | Description                                     |
+| ----------------- | ------------------------------------------------------------------- | ----------------------------------------------- |
+| `build`           | `ncc build src/index.ts -m -o dist`                                 | Build production bundle using Vercel ncc        |
+| `watch`           | `npx tsc -w -p tsconfig.json`                                       | Watch mode for development                      |
+| `start`           | `npm run watch`                                                     | Alias for watch mode                            |
+| `test`            | `jest --config jestconfig.json __tests__/ut --coverage`             | Run unit tests with coverage (no credentials)   |
+| `test:it`         | `jest --config jestconfig.json __tests__/it`                        | Run integration tests (needs cloud credentials) |
+| `deadcode`        | `ts-prune -p tsconfig.json`                                         | Audit unused exports                            |
+| `depcheck`        | `depcheck`                                                          | Audit unused dependencies                       |
+| `format`          | `prettier --write src`                                              | Format source code with Prettier                |
+| `lint`            | `f2elint scan`                                                      | Run linter checks                               |
+| `fix`             | `f2elint fix`                                                       | Auto-fix linting issues                         |
+| `publish`         | `npm i && npm run build && s registry publish`                      | Build and publish to registry                   |
+| `generate-schema` | `typescript-json-schema ./src/interface/index.ts IProps --required` | Generate JSON schema from TypeScript interfaces |
+| `typecheck`       | `tsc --noEmit -p tsconfig.json`                                     | Type-check without emitting (CI gate)           |
+| `prebuild`        | node one-liner: rm + mkdir `dist`, copy `src/schema.json`           | Prepare dist directory before build (portable)  |
+| `prewatch`        | node one-liner: mkdir `dist`, copy `src/schema.json`                | Ensure dist and schema.json exist before watch  |
 
 ## Development Workflow
 

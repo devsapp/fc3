@@ -51,7 +51,7 @@ describe('VpcNas', () => {
 
       // Assert
       expect(vpcNas).toBeDefined();
-      expect((PopClient as unknown as jest.Mock)).toHaveBeenCalledTimes(2);
+      expect(PopClient as unknown as jest.Mock).toHaveBeenCalledTimes(2);
     });
   });
 
@@ -70,9 +70,7 @@ describe('VpcNas', () => {
 
     it('assigns a generated VpcName when the vpc name is empty', async () => {
       // Arrange
-      mocks.request
-        .mockResolvedValueOnce({ VpcName: '   ' })
-        .mockResolvedValueOnce({ ok: true });
+      mocks.request.mockResolvedValueOnce({ VpcName: '   ' }).mockResolvedValueOnce({ ok: true });
       const vpcNas = new VpcNas('cn-hangzhou' as any, credentials);
 
       // Act

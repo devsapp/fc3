@@ -79,9 +79,7 @@ describe('Trigger', () => {
     it('calls _getRemote and _plan', async () => {
       // Arrange
       const trigger = new Trigger(mockInputs, mockOpts);
-      const getRemoteSpy = jest
-        .spyOn(trigger as any, '_getRemote')
-        .mockResolvedValue(undefined);
+      const getRemoteSpy = jest.spyOn(trigger as any, '_getRemote').mockResolvedValue(undefined);
       const planSpy = jest.spyOn(trigger as any, '_plan').mockResolvedValue(undefined);
 
       // Act

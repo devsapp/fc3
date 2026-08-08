@@ -99,7 +99,12 @@ describe('acr/login', () => {
 
   describe('getAcrImageMeta', () => {
     it('returns false immediately for ACR EE instances', async () => {
-      const exists = await getAcrImageMeta('cn-hangzhou' as any, credentials, 'x/ns/repo:tag', 'inst-1');
+      const exists = await getAcrImageMeta(
+        'cn-hangzhou' as any,
+        credentials,
+        'x/ns/repo:tag',
+        'inst-1',
+      );
       expect(exists).toBe(false);
       expect(roaRequest).not.toHaveBeenCalled();
     });

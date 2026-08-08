@@ -1,6 +1,10 @@
 import { ICredentials } from '@serverless-devs/component-interface';
 import Acr from '../../../../src/resources/acr/index';
-import { getDockerTmpUser, getAcrEEInstanceID, getAcrImageMeta } from '../../../../src/resources/acr/login';
+import {
+  getDockerTmpUser,
+  getAcrEEInstanceID,
+  getAcrImageMeta,
+} from '../../../../src/resources/acr/login';
 import { runCommand, checkDockerIsOK, sleep } from '../../../../src/utils';
 
 jest.mock('../../../../src/resources/acr/login', () => ({

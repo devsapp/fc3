@@ -41,7 +41,13 @@ describe('provisionConfigErrorRetry', () => {
     };
 
     // Act
-    await provisionConfigErrorRetry(fcSdk, 'ProvisionConfig', FUNCTION_NAME, QUALIFIER, LOCAL_CONFIG);
+    await provisionConfigErrorRetry(
+      fcSdk,
+      'ProvisionConfig',
+      FUNCTION_NAME,
+      QUALIFIER,
+      LOCAL_CONFIG,
+    );
 
     // Assert
     expect(fcSdk.putFunctionProvisionConfig).toHaveBeenCalledWith(
@@ -101,7 +107,13 @@ describe('provisionConfigErrorRetry', () => {
     isProvisionConfigErrorMock.mockReturnValue(true);
 
     // Act
-    await provisionConfigErrorRetry(fcSdk, 'ProvisionConfig', FUNCTION_NAME, QUALIFIER, LOCAL_CONFIG);
+    await provisionConfigErrorRetry(
+      fcSdk,
+      'ProvisionConfig',
+      FUNCTION_NAME,
+      QUALIFIER,
+      LOCAL_CONFIG,
+    );
 
     // Assert
     expect(fcSdk.removeFunctionScalingConfig).toHaveBeenCalledWith(FUNCTION_NAME, QUALIFIER);

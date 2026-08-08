@@ -47,9 +47,7 @@ describe('Role', () => {
     });
 
     it('assembles an arn from a plain role name and account id', () => {
-      expect(Role.completionArn('my-role', '123456789')).toBe(
-        'acs:ram::123456789:role/my-role',
-      );
+      expect(Role.completionArn('my-role', '123456789')).toBe('acs:ram::123456789:role/my-role');
     });
   });
 });

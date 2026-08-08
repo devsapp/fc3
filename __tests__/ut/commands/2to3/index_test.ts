@@ -2,6 +2,7 @@ import SYaml2To3 from '../../../../src/subCommands/2to3';
 import { IInputs } from '../../../../src/interface';
 import { parseArgv } from '@serverless-devs/utils';
 import fs from 'fs';
+import path from 'path';
 import yaml from 'js-yaml';
 
 jest.mock('@serverless-devs/utils', () => ({
@@ -78,8 +79,8 @@ describe('SYaml2To3', () => {
   describe('constructor', () => {
     it('should resolve absolute source and target paths from baseDir', () => {
       const s = new SYaml2To3(mockInputs);
-      expect(s.source).toBe('/test/s.yaml');
-      expect(s.target).toBe('/test/s3.yaml');
+      expect(s.source).toBe(path.join('/test', 's.yaml'));
+      expect(s.target).toBe(path.join('/test', 's3.yaml'));
     });
 
     it('should keep absolute paths untouched', () => {
@@ -96,7 +97,7 @@ describe('SYaml2To3', () => {
     it('should default the target to s3.yaml when not specified', () => {
       (parseArgv as jest.Mock).mockReturnValue({ source: 's.yaml', help: false });
       const s = new SYaml2To3(mockInputs);
-      expect(s.target).toBe('/test/s3.yaml');
+      expect(s.target).toBe(path.join('/test', 's3.yaml'));
     });
 
     it('should fall back to process.cwd() when baseDir is missing', () => {
@@ -240,17 +241,12 @@ describe('SYaml2To3', () => {
                 {
                   domainName: 'test.com',
                   protocol: 'HTTP',
-                  routeConfigs: [
-                    { path: '/', serviceName: 'service1', functionName: 'function1' },
-                  ],
+                  routeConfigs: [{ path: '/', serviceName: 'service1', functionName: 'function1' }],
                 },
               ],
             },
             actions: {
-              'pre-deploy': [
-                { component: 'fc build --use-docker' },
-                { component: 'fc invoke' },
-              ],
+              'pre-deploy': [{ component: 'fc build --use-docker' }, { component: 'fc invoke' }],
               'empty-action': '',
             },
           },
@@ -263,7 +259,7 @@ describe('SYaml2To3', () => {
       await s.run();
 
       expect(dumpSpy).toHaveBeenCalled();
-      expect(writeSpy).toHaveBeenCalledWith('/test/s3.yaml', 'dumped-yaml');
+      expect(writeSpy).toHaveBeenCalledWith(path.join('/test', 's3.yaml'), 'dumped-yaml');
 
       // Inspect the transformed object handed to yaml.dump
       const transformed = dumpSpy.mock.calls[0][0] as any;
@@ -336,9 +332,7 @@ describe('SYaml2To3', () => {
               customDomain: {
                 domainName: 'test.com',
                 protocol: 'HTTP',
-                routeConfigs: [
-                  { path: '/', serviceName: 'service1', functionName: 'function1' },
-                ],
+                routeConfigs: [{ path: '/', serviceName: 'service1', functionName: 'function1' }],
               },
             },
           },
