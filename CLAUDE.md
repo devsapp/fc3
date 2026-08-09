@@ -40,7 +40,7 @@ FC3 is the Serverless Devs component for Alibaba Cloud Function Compute 3.0, pro
 
 ## Testing
 
-**Current Status**: 986 tests total, 986 passing, 2 skipped (integration tests require cloud credentials)
+**Current Status**: 1138 tests total, 1136 passing, 2 skipped (integration tests require cloud credentials)
 
 **Run tests**: `npm test`
 **Coverage**: Run with `--coverage` flag
@@ -64,6 +64,7 @@ See `docs/architecture.md` for detailed diagrams.
 - ProvisionConfig/ScalingConfig array handling
 - LLM metrics in logConfig
 - Logs command: multi-topic search (FCLogs + FCInstanceEvents) for --instance-id, SLS field-specific query syntax
+- `skill` command: install/update the bundled `s-fc3` skill into agent tools (claude/codex/cursor/qoder/agents), global or project scope; local operation, no credentials
 
 ## Development Workflow
 

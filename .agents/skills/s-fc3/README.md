@@ -11,6 +11,26 @@ npm i -g @serverless-devs/s
 s config add   # 配阿里云 AccessKey
 ```
 
+## 安装本 Skill
+
+`fc3` 组件内置了 `skill` 命令，可一键把本 skill 安装到主流 Agent 工具的 skills 目录：
+
+```bash
+# 安装到全部支持的工具（用户级，默认）：claude / codex / cursor / qoder / agents
+s cli fc3 skill install
+
+# 只装指定工具
+s cli fc3 skill install --tools claude,codex
+
+# 装到当前项目（写入 ./.claude/skills 等）
+s cli fc3 skill install --project
+
+# 覆盖更新已安装版本
+s cli fc3 skill update
+```
+
+安装位置统一为 `<工具目录>/skills/s-fc3/`（全局取用户主目录，`--project` 取当前目录）。`install` 遇到已存在目标会跳过（除非 `--force`），`update` 始终覆盖。
+
 ## 使用示例
 
 以下对话来自与 Agent 的真实交互（杭州区域，`access: default`）：
@@ -121,6 +141,7 @@ Agent 以表格呈现：运行时、CPU/内存/磁盘、超时、代码大小、
 | `s session` | 会话管理（创建/列表/更新/删除） |
 | `s sync` | 线上配置拉到本地 |
 | `s2tos3` | FC2 格式转 FC3 |
+| `s skill` | 把本 skill 安装/更新到主流 Agent 工具目录（本地操作，无需凭证） |
 | fc3-domain | 自定义域名（多函数路由、HTTPS、TLS、WAF） |
 
 详细用法见 [SKILL.md](./SKILL.md)。

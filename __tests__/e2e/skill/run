@@ -1,0 +1,85 @@
+#!/bin/bash
+
+# E2E for `fc3 skill install/update`.
+# Fully sandboxed and offline: installs the bundled s-fc3 skill into temp
+# project/home roots and asserts the files land where each tool expects them.
+# Needs NO cloud credentials.
+
+set -e
+set -v
+
+current_dir="$PWD"
+fc3_dir=$(dirname $(dirname $(dirname "$current_dir")))
+echo "fc3 root dir: $fc3_dir"
+
+TOOLS="claude codex cursor qoder agents"
+
+# Sandbox roots; cleaned up on exit.
+PROJECT_ROOT=$(mktemp -d)
+HOME_ROOT=$(mktemp -d)
+cleanup() {
+  rm -rf "$PROJECT_ROOT" "$HOME_ROOT"
+}
+trap cleanup EXIT
+
+# assert_file <path> — fail the script if the file is missing.
+assert_file() {
+  if [ ! -f "$1" ]; then
+    echo "ASSERT FAILED: expected file not found: $1"
+    exit 1
+  fi
+  echo "OK: $1"
+}
+
+assert_missing() {
+  if [ -e "$1" ]; then
+    echo "ASSERT FAILED: expected path to be gone: $1"
+    exit 1
+  fi
+  echo "OK (absent): $1"
+}
+
+skill_path() {
+  # <root> <toolDir>
+  echo "$1/.$2/skills/s-fc3/SKILL.md"
+}
+
+echo "=== project-scope install (all tools) ==="
+cd "$PROJECT_ROOT"
+s cli "$fc3_dir" skill install --project
+for t in $TOOLS; do
+  assert_file "$(skill_path "$PROJECT_ROOT" "$t")"
+done
+
+echo "=== install is idempotent: existing target is skipped, local edits preserved ==="
+MARKER="$PROJECT_ROOT/.claude/skills/s-fc3/LOCAL_MARKER"
+echo "keep-me" > "$MARKER"
+s cli "$fc3_dir" skill install --project --tools claude
+assert_file "$MARKER"
+
+echo "=== --force overwrites and cleans stale files ==="
+s cli "$fc3_dir" skill install --project --tools claude --force
+assert_missing "$MARKER"
+assert_file "$(skill_path "$PROJECT_ROOT" claude)"
+
+echo "=== update overwrites existing installations ==="
+echo "stale" > "$MARKER"
+s cli "$fc3_dir" skill update --project --tools claude
+assert_missing "$MARKER"
+assert_file "$(skill_path "$PROJECT_ROOT" claude)"
+
+echo "=== --tools filter installs only the requested tools ==="
+FILTER_ROOT=$(mktemp -d)
+cd "$FILTER_ROOT"
+s cli "$fc3_dir" skill install --project --tools codex
+assert_file "$(skill_path "$FILTER_ROOT" codex)"
+assert_missing "$FILTER_ROOT/.cursor/skills/s-fc3"
+rm -rf "$FILTER_ROOT"
+
+echo "=== global-scope install writes under the (sandboxed) home directory ==="
+cd "$fc3_dir"
+HOME="$HOME_ROOT" s cli "$fc3_dir" skill install --global --tools claude,codex
+assert_file "$(skill_path "$HOME_ROOT" claude)"
+assert_file "$(skill_path "$HOME_ROOT" codex)"
+
+echo "=== skill e2e passed ==="

@@ -31,6 +31,7 @@ graph TB
             S[version 版本]
             T[model 模型]
             U[s2tos3 转换]
+            V[skill 技能安装]
         end
 
         B --> E
@@ -50,6 +51,7 @@ graph TB
         B --> S
         B --> T
         B --> U
+        B --> V
 
         subgraph "资源管理模块"
             V[FC 函数计算]
@@ -166,6 +168,7 @@ src/
 - `version()` - 版本管理
 - `model()` - 模型管理
 - `s2tos3()` - 配置转换
+- `skill()` - 安装/更新 `s-fc3` skill 到主流 Agent 工具（本地操作，无需凭证，不走 `handlePreRun`）
 
 ### 2. 基础模块 (base.ts)
 
@@ -217,6 +220,16 @@ src/
   - .NET (`dotnetLocalStart.ts`)
   - 自定义运行时 (`customLocalStart.ts`)
   - 自定义容器 (`customContainerLocalStart.ts`)
+
+#### 3.4 技能安装模块 (skill/)
+
+- **功能**: 把随组件打包的 `s-fc3` skill 安装/更新到主流 Agent 工具目录，纯本地操作，无需云凭证
+- **核心文件**:
+  - `constants.ts` - 工具 → 目录映射（`claude/codex/cursor/qoder/agents`，统一约定 `<工具目录>/skills/s-fc3/`）
+  - `installer.ts` - skill 源解析（`dist/skills` → 仓库 `.agents` → cwd `.agents`）与拷贝逻辑（纯函数，易测）
+  - `index.ts` - 参数解析（`--tools`、`--global`、`--project`、`--force`）与 `install`/`update` 派发
+- **语义**: `install` 遇到已存在目标跳过（除非 `--force`）；`update` 始终覆盖
+- **打包**: skill 源文件在 `.agents/skills/s-fc3`，由 `prebuild`/`prewatch` 脚本拷贝进 `dist/skills/s-fc3`，随 npm 包发布
 
 ### 4. 资源管理模块 (resources/)
 

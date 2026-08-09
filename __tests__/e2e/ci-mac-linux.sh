@@ -7,6 +7,9 @@
 set -e
 set -v
 
+echo " *********  skill install/update (offline) *********"
+cd skill && bash ./run && cd ..
+
 if [[ $(uname -s) == "Linux" ]]; then
     # echo "test trigger"
     # cd trigger && ./run

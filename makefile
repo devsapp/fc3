@@ -26,7 +26,10 @@ test-custom-container:
 test-apt:
 	cd __tests__/e2e/apt && bash run && cd -
 
-test: test-nodejs test-python test-java test-go test-php test-custom  test-custom-container test-apt
+test-skill:
+	cd __tests__/e2e/skill && bash run && cd -
+
+test: test-skill test-nodejs test-python test-java test-go test-php test-custom  test-custom-container test-apt
 	echo "all test done!"
 
 release-dev:

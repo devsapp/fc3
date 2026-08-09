@@ -103,12 +103,15 @@ Types: feat, fix, refactor, docs, test, chore, perf, ci
 
 ```
 __tests__/
-├── ut/           # Unit tests
+├── ut/           # Unit tests (Jest)
 │   ├── base_test.ts
 │   ├── deploy_test.ts
 │   └── ...
-└── it/           # Integration tests
-    └── deploy_test.ts
+├── it/           # Integration tests (Jest, needs cloud credentials)
+│   └── deploy_test.ts
+└── e2e/          # End-to-end tests (shell scripts driving the `s` CLI)
+    ├── skill/    # `skill` install/update — sandboxed, no credentials
+    └── ...
 ```
 
 #### Running Tests
@@ -125,6 +128,9 @@ npm run test:it
 
 # Update snapshots
 npx jest --updateSnapshot
+
+# Run the skill install/update E2E (offline, no credentials; requires the `s` CLI + `npm run build`)
+make test-skill
 ```
 
 #### Test Naming Convention
@@ -186,6 +192,7 @@ src/
 | `version` | Version management            |
 | `alias`   | Alias management              |
 | `sync`    | Sync configurations           |
+| `skill`   | Install/update the bundled `s-fc3` skill into agent tools (local, no credentials) |
 
 ## Debugging
 
