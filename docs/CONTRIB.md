@@ -178,20 +178,20 @@ src/
 
 ## Key Subcommands
 
-| Command   | Description                   |
-| --------- | ----------------------------- |
-| `deploy`  | Deploy functions and triggers |
-| `build`   | Build function code/packages  |
-| `local`   | Local development and testing |
-| `invoke`  | Invoke functions remotely     |
-| `info`    | Query function information    |
-| `logs`    | Query function logs           |
-| `remove`  | Remove deployed resources     |
-| `plan`    | Show deployment plan          |
-| `layer`   | Manage function layers        |
-| `version` | Version management            |
-| `alias`   | Alias management              |
-| `sync`    | Sync configurations           |
+| Command   | Description                                                                       |
+| --------- | --------------------------------------------------------------------------------- |
+| `deploy`  | Deploy functions and triggers                                                     |
+| `build`   | Build function code/packages                                                      |
+| `local`   | Local development and testing                                                     |
+| `invoke`  | Invoke functions remotely                                                         |
+| `info`    | Query function information                                                        |
+| `logs`    | Query function logs                                                               |
+| `remove`  | Remove deployed resources                                                         |
+| `plan`    | Show deployment plan                                                              |
+| `layer`   | Manage function layers                                                            |
+| `version` | Version management                                                                |
+| `alias`   | Alias management                                                                  |
+| `sync`    | Sync configurations                                                               |
 | `skill`   | Install/update the bundled `s-fc3` skill into agent tools (local, no credentials) |
 
 ## Debugging

@@ -37,7 +37,7 @@ afterEach(() => {
   fs.removeSync(projectRoot);
 });
 
-const inputs = (args: string[]) => ({ args }) as any;
+const inputs = (args: string[]) => ({ args } as any);
 
 describe('installer', () => {
   test('resolveSkillSource finds a directory containing SKILL.md', () => {
