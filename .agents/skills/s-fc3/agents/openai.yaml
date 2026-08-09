@@ -1,0 +1,7 @@
+interface:
+  display_name: "s-fc3"
+  short_description: "阿里云 FC3 部署、调试、运维、域名、触发器与排障助手"
+  default_prompt: "Use $s-fc3 to help me inspect my s.yaml and safely deploy, debug, or troubleshoot an Alibaba Cloud FC3 function."
+
+policy:
+  allow_implicit_invocation: true
