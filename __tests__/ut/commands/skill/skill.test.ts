@@ -135,6 +135,11 @@ describe('Skill command', () => {
     expect(results.map((r) => r.tool).sort()).toEqual(['claude', 'codex']);
   });
 
+  test('--tools accepts whitespace-separated values (e.g. PowerShell array join)', async () => {
+    const results = await new Skill(inputs(['install', '--tools', 'claude codex'])).install();
+    expect(results.map((r) => r.tool).sort()).toEqual(['claude', 'codex']);
+  });
+
   test('install then install again skips (idempotent without force)', async () => {
     await new Skill(inputs(['install', '--tools', 'cursor'])).install();
     const again = await new Skill(inputs(['install', '--tools', 'cursor'])).install();

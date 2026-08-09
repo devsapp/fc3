@@ -47,8 +47,10 @@ export default class Skill {
     if (_.isEmpty(raw)) {
       return [...ALL_TOOLS];
     }
+    // Split on commas or whitespace: some shells (e.g. PowerShell) turn
+    // `--tools claude,codex` into a single space-joined argument.
     const requested = raw
-      .split(',')
+      .split(/[\s,]+/)
       .map((t) => t.trim().toLowerCase())
       .filter(Boolean);
     const unknown = requested.filter((t) => !ALL_TOOLS.includes(t));

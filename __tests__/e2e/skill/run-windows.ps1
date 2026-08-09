@@ -96,7 +96,7 @@ try {
   $oldHome = $env:USERPROFILE
   try {
     $env:USERPROFILE = $homeRoot
-    s skill install --global --tools claude,codex
+    s skill install --global --tools "claude,codex"
   } finally {
     $env:USERPROFILE = $oldHome
   }
