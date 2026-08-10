@@ -105,7 +105,11 @@ try {
 
   Write-Host "=== skill e2e passed ==="
 } finally {
-  Set-Location $fc3_dir
+  # Restore cwd to where this script started (the `skill` dir) so the caller's
+  # `cd ..` returns to the e2e root. Restoring to $fc3_dir instead would leave
+  # the caller one level too high. $current_dir is outside the temp sandboxes,
+  # so it is safe to sit here while they are removed.
+  Set-Location $current_dir
   Remove-Item -Recurse -Force $projectRoot -ErrorAction SilentlyContinue
   Remove-Item -Recurse -Force $homeRoot -ErrorAction SilentlyContinue
   Remove-Item -Recurse -Force $workRoot -ErrorAction SilentlyContinue
