@@ -34,6 +34,19 @@ npm i -g @serverless-devs/s
 s config add
 ```
 
+### 安装本 Skill 到 Agent 工具
+
+`fc3` 组件自带 `skill` 命令，可把本 skill 安装到主流工具（claude/codex/cursor/qoder/agents）的 `skills/s-fc3/` 目录：
+
+```bash
+s cli fc3 skill install                      # 全部工具，用户级（默认）
+s cli fc3 skill install --tools claude,codex # 指定工具
+s cli fc3 skill install --project            # 装到当前项目
+s cli fc3 skill update                       # 覆盖更新
+```
+
+`install` 已存在则跳过（`--force` 覆盖）；`update` 始终覆盖。
+
 ### 非默认 FC API 接入点
 
 - 使用 `FC_CLIENT_CUSTOM_ENDPOINT`。

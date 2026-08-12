@@ -6,6 +6,9 @@
 set -e
 set -v
 
+echo " *********  skill install/update (offline) *********"
+cd skill && bash ./run && cd -
+
 echo "test custom-domain"
 cd custom-domain
 s deploy -y

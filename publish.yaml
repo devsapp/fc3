@@ -35,6 +35,7 @@ Commands:
   info: 查看函数详情
   sync: 线上资源同步到本地
   s2tos3: fc2.0 yaml 转 fc3.0 yaml
+  skill: 安装/更新 s-fc3 skill 到主流工具（claude/codex/cursor/qoder/agents）
 
 Parameters:
   type: object

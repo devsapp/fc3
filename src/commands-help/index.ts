@@ -18,6 +18,7 @@ import session from './session';
 import scaling from './scaling';
 import list from './list';
 import model from './model';
+import skill from './skill';
 
 export default {
   deploy,
@@ -40,4 +41,5 @@ export default {
   scaling,
   list,
   model,
+  skill,
 };

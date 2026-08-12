@@ -6,6 +6,9 @@ $ErrorActionPreference = "Stop"
 # $env:OS="WIN"
 # $env:PROCESSOR_ARCHITECTURE="NT"
 
+Write-Host " *********  skill install/update (offline) *********"
+cd skill; ./run-windows.ps1; cd ..
+
 Write-Host "[PERMISSIONS_TEST] Testing nodejs permissions validation ..."
 cd nodejs
 Write-Host "[PERMISSIONS_TEST] Running permissions validation test..." -ForegroundColor Green

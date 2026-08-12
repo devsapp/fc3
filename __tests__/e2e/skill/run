@@ -1,0 +1,107 @@
+#!/bin/bash
+
+# E2E for `fc3 skill install/update`.
+# Fully sandboxed and offline: installs the bundled s-fc3 skill into temp
+# project/home roots and asserts the files land where each tool expects them.
+# Needs NO cloud credentials.
+#
+# The local component build is loaded through a minimal s.yaml that points at
+# the repo root (component: <fc3_dir>) and is driven with `s skill ...`. We do
+# NOT use `s cli <abs-path> ...`: on Windows the CLI joins that absolute path
+# into its per-run log directory, which breaks when cwd and the repo live on
+# different drives. The s.yaml path mirrors how every other e2e drives the CLI.
+
+set -e
+set -v
+
+current_dir="$PWD"
+fc3_dir=$(dirname $(dirname $(dirname "$current_dir")))
+echo "fc3 root dir: $fc3_dir"
+
+TOOLS="claude codex cursor qoder agents"
+
+# Sandbox roots; cleaned up on exit.
+PROJECT_ROOT=$(mktemp -d)
+HOME_ROOT=$(mktemp -d)
+WORK_ROOT=$(mktemp -d)
+FILTER_ROOT=$(mktemp -d)
+cleanup() {
+  rm -rf "$PROJECT_ROOT" "$HOME_ROOT" "$WORK_ROOT" "$FILTER_ROOT"
+}
+trap cleanup EXIT
+
+# write_syaml <dir> — drop a minimal offline s.yaml that loads the local build.
+write_syaml() {
+  cat > "$1/s.yaml" <<YAML
+edition: 3.0.0
+name: skill-e2e
+resources:
+  fc3:
+    component: '$fc3_dir'
+    props: {}
+YAML
+}
+
+# assert_file <path> — fail the script if the file is missing.
+assert_file() {
+  if [ ! -f "$1" ]; then
+    echo "ASSERT FAILED: expected file not found: $1"
+    exit 1
+  fi
+  echo "OK: $1"
+}
+
+assert_missing() {
+  if [ -e "$1" ]; then
+    echo "ASSERT FAILED: expected path to be gone: $1"
+    exit 1
+  fi
+  echo "OK (absent): $1"
+}
+
+skill_path() {
+  # <root> <toolDir>
+  echo "$1/.$2/skills/s-fc3/SKILL.md"
+}
+
+write_syaml "$PROJECT_ROOT"
+write_syaml "$WORK_ROOT"
+write_syaml "$FILTER_ROOT"
+
+echo "=== project-scope install (all tools) ==="
+cd "$PROJECT_ROOT"
+s skill install --project
+for t in $TOOLS; do
+  assert_file "$(skill_path "$PROJECT_ROOT" "$t")"
+done
+
+echo "=== install is idempotent: existing target is skipped, local edits preserved ==="
+MARKER="$PROJECT_ROOT/.claude/skills/s-fc3/LOCAL_MARKER"
+echo "keep-me" > "$MARKER"
+s skill install --project --tools claude
+assert_file "$MARKER"
+
+echo "=== --force overwrites and cleans stale files ==="
+s skill install --project --tools claude --force
+assert_missing "$MARKER"
+assert_file "$(skill_path "$PROJECT_ROOT" claude)"
+
+echo "=== update overwrites existing installations ==="
+echo "stale" > "$MARKER"
+s skill update --project --tools claude
+assert_missing "$MARKER"
+assert_file "$(skill_path "$PROJECT_ROOT" claude)"
+
+echo "=== --tools filter installs only the requested tools ==="
+cd "$FILTER_ROOT"
+s skill install --project --tools codex
+assert_file "$(skill_path "$FILTER_ROOT" codex)"
+assert_missing "$FILTER_ROOT/.cursor/skills/s-fc3"
+
+echo "=== global-scope install writes under the (sandboxed) home directory ==="
+cd "$WORK_ROOT"
+HOME="$HOME_ROOT" s skill install --global --tools claude,codex
+assert_file "$(skill_path "$HOME_ROOT" claude)"
+assert_file "$(skill_path "$HOME_ROOT" codex)"
+
+echo "=== skill e2e passed ==="

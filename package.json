@@ -5,8 +5,8 @@
   "main": "dist/index.js",
   "scripts": {
     "generate-schema": "npx typescript-json-schema ./src/interface/index.ts IProps --required -o ./src/schema.json",
-    "prewatch": "node -e \"const fs=require('fs');fs.mkdirSync('dist',{recursive:true});fs.copyFileSync('src/schema.json','dist/schema.json')\"",
-    "prebuild": "node -e \"const fs=require('fs');fs.rmSync('dist',{recursive:true,force:true});fs.mkdirSync('dist',{recursive:true});fs.copyFileSync('src/schema.json','dist/schema.json')\"",
+    "prewatch": "node -e \"const fs=require('fs');fs.mkdirSync('dist',{recursive:true});fs.copyFileSync('src/schema.json','dist/schema.json');fs.cpSync('.agents/skills/s-fc3','dist/skills/s-fc3',{recursive:true})\"",
+    "prebuild": "node -e \"const fs=require('fs');fs.rmSync('dist',{recursive:true,force:true});fs.mkdirSync('dist',{recursive:true});fs.copyFileSync('src/schema.json','dist/schema.json');fs.cpSync('.agents/skills/s-fc3','dist/skills/s-fc3',{recursive:true})\"",
     "watch": "npx tsc -w -p tsconfig.json",
     "start": "npm run watch",
     "build": "ncc build src/index.ts -m -o dist",

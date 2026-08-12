@@ -30,6 +30,7 @@ import List from './subCommands/list';
 import { SCHEMA_FILE_PATH } from './constant';
 import { checkDockerIsOK, isAppCenter, isYunXiao } from './utils';
 import { Model } from './subCommands/model';
+import Skill from './subCommands/skill';
 
 (process as any).noDeprecation = true;
 
@@ -202,6 +203,13 @@ export default class Fc extends Base {
     const model = new Model(inputs);
     logger.debug(`model inputs: ${model.subCommand}`);
     return await model[model.subCommand]();
+  }
+
+  // 安装/更新 s-fc3 skill 到主流工具目录（本地操作，无需凭证）
+  public async skill(inputs: IInputs) {
+    const skill = new Skill(inputs);
+    logger.debug(`skill subCommand: ${skill.subCommand}`);
+    return await skill[skill.subCommand]();
   }
 
   public async getSchema(inputs: IInputs) {
