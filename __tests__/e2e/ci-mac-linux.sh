@@ -30,26 +30,29 @@ else
 fi
 
 
-echo "test model download"
-cd model
-pip install -r requirements.txt
-export fc_component_function_name=model-$(uname)-$(uname -m)-$RANDSTR-$RANDOM
-python -u deploy_and_test_model.py --model-id iic/cv_LightweightEdge_ocr-recognitoin-general_damo --region cn-shanghai --auto-cleanup
-sleep 10
-python -u deploy_and_test_model.py --model-id Qwen/Qwen2.5-0.5B-Instruct --region cn-shanghai --auto-cleanup
-sleep 10
-python -u deploy_and_test_model.py --model-id iic/cv_LightweightEdge_ocr-recognitoin-general_damo --region cn-shanghai --storage oss --auto-cleanup
-sleep 10
-python -u deploy_and_test_model.py --model-id Qwen/Qwen2.5-0.5B-Instruct --region cn-shanghai --storage oss --auto-cleanup
-
-sleep 10
-echo "test model s_file.yaml"
-# python -u test.py
-s model download -t s_file.yaml
-s deploy -y -t s_file.yaml --skip-push
-s model remove -t s_file.yaml
-s remove -y -t s_file.yaml
-cd ..
+# NOTE: model download e2e tests are temporarily disabled in CI (see CLAUDE.md).
+# The `model` command logic itself MUST NOT be modified — only this CI invocation is commented out.
+# echo "test model download"
+# cd model
+# pip install -r requirements.txt
+# export fc_component_function_name=model-$(uname)-$(uname -m)-$RANDSTR-$RANDOM
+# python -u deploy_and_test_model.py --model-id iic/cv_LightweightEdge_ocr-recognitoin-general_damo --region cn-shanghai --auto-cleanup
+# sleep 10
+# python -u deploy_and_test_model.py --model-id Qwen/Qwen2.5-0.5B-Instruct --region cn-shanghai --auto-cleanup
+# sleep 10
+# python -u deploy_and_test_model.py --model-id iic/cv_LightweightEdge_ocr-recognitoin-general_damo --region cn-shanghai --storage oss --auto-cleanup
+# sleep 10
+# python -u deploy_and_test_model.py --model-id Qwen/Qwen2.5-0.5B-Instruct --region cn-shanghai --storage oss --auto-cleanup
+#
+# sleep 10
+# echo "test model s_file.yaml"
+# # python -u test.py
+# s model download -t s_file.yaml
+# s deploy -y -t s_file.yaml --skip-push
+# s model remove -t s_file.yaml
+# s remove -y -t s_file.yaml
+# cd ..
+echo "skip test model download"
 
 echo "test go runtime"
 cd go

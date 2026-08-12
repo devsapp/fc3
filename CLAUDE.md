@@ -66,6 +66,33 @@ See `docs/architecture.md` for detailed diagrams.
 - Logs command: multi-topic search (FCLogs + FCInstanceEvents) for --instance-id, SLS field-specific query syntax
 - `skill` command: install/update the bundled `s-fc3` skill into agent tools (claude/codex/cursor/qoder/agents), global or project scope; local operation, no credentials
 
+## Constraints
+
+### `model` Command — Frozen Logic (DO NOT MODIFY)
+
+**The logic of the `model` command must not be changed in any future iteration.**
+
+Frozen scope (read-only for all subsequent work):
+
+| Path | Contents |
+| ---- | -------- |
+| `src/subCommands/model/` | `model.ts`, `index.ts`, `fileManager.ts`, `constants.ts`, `utils/` |
+| `src/commands-help/model.ts` | `model` command help text |
+
+Rules:
+
+- Do **not** refactor, rename, restructure, or "improve" anything under the frozen scope — not even style-only or lint-driven edits.
+- Do **not** change `model` behavior indirectly via shared helpers it depends on. If a shared change is unavoidable, verify `model` behavior is bit-for-bit unchanged and call it out explicitly in the PR.
+- Only exception: an explicit, targeted request from the user to change `model`. Absent that, treat the code as frozen.
+
+### Model Download E2E Tests — Disabled in CI
+
+The model download e2e block in `__tests__/e2e/ci-mac-linux.sh` is commented out, so GitHub Actions no longer runs it. It covered `deploy_and_test_model.py` (NAS + OSS storage) and the `s model download` / `s model remove` flow via `__tests__/e2e/model/s_file.yaml`.
+
+- Keep it commented out. Do not re-enable it without an explicit request.
+- The `__tests__/e2e/model/` fixtures stay in the repo for manual runs — do not delete them.
+- Unit tests under `__tests__/ut/commands/model_test.ts`, `model_utils_test.ts`, `modelService_test.ts`, and `artModelService_test.ts` are fully mocked (no real downloads) and **remain enabled** in `npm test`.
+
 ## Development Workflow
 
 1. Create branch from `master`
