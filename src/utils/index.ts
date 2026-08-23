@@ -388,3 +388,44 @@ async function isZipFile(filePath: string): Promise<boolean> {
     return false;
   }
 }
+
+// s CLI 默认输出格式下，内核用 prettyjson 渲染组件返回值。prettyjson 会把整个返回值
+// 拍平成一个字符串数组，再用 `push.apply(lines, subLines)` 回灌，参数个数超过 V8 上限时抛
+// RangeError: Maximum call stack size exceeded（本机 Node 22 实测 12w 个参数可以、13w 抛错）。
+// estimateRenderLines 是下界估算，用 prettyjson 1.2.5 实测：list 返回值偏低约 7%，
+// 最坏的结构形状（字段值是空数组/空对象）偏低 25%，即 5w 行阈值对应实际最多约 6.2w 行，
+// 距离 12w 的上限仍有充足余量。
+export const MAX_DEFAULT_RENDER_LINES = 50000;
+
+/**
+ * 返回值是否会走 CLI 内核的默认渲染器 (prettyjson)。
+ * 指定 -o/--output-format/--output 时内核用 JSON/YAML 序列化，指定 --output-file 时写文件，
+ * 都不经过 prettyjson。
+ */
+export function isDefaultRenderOutput(argv: string[] = process.argv.slice(2)): boolean {
+  const outputFlags = ['-o', '--output-format', '--output', '--output-file'];
+  return !argv.some((arg) => outputFlags.includes(arg.split('=')[0]));
+}
+
+/**
+ * 估算 prettyjson 渲染 data 需要的行数：每个字段一行，嵌套对象/数组的字段各自再算一行，
+ * 数组里的对象/数组元素额外算一行（prettyjson 会给它们多输出一行分隔）。
+ */
+export function estimateRenderLines(data: any): number {
+  if (_.isArray(data)) {
+    return _.sum(
+      data.map((item) =>
+        _.isArray(item) || _.isPlainObject(item) ? estimateRenderLines(item) + 1 : 1,
+      ),
+    );
+  }
+  if (_.isPlainObject(data)) {
+    return _.sum(
+      Object.values(data).map(
+        (value) =>
+          1 + (_.isArray(value) || _.isPlainObject(value) ? estimateRenderLines(value) : 0),
+      ),
+    );
+  }
+  return 1;
+}

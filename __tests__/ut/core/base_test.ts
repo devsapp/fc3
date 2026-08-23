@@ -86,6 +86,32 @@ describe('Base', () => {
       // Logger is mocked, so we can't verify specific calls
     });
 
+    it('should take endpoint from command line args', async () => {
+      mockInputs.args = ['--endpoint', 'http://127.0.0.1:8080'];
+
+      await base.handlePreRun(mockInputs, false);
+
+      expect(mockInputs.props.endpoint).toBe('http://127.0.0.1:8080');
+    });
+
+    it('should let command line endpoint win over yaml props', async () => {
+      mockInputs.props.endpoint = 'https://fcv3.cn-hangzhou.aliyuncs.com';
+      mockInputs.args = ['--endpoint', 'http://127.0.0.1:8080'];
+
+      await base.handlePreRun(mockInputs, false);
+
+      expect(mockInputs.props.endpoint).toBe('http://127.0.0.1:8080');
+    });
+
+    it('should keep yaml endpoint when no endpoint arg is given', async () => {
+      mockInputs.props.endpoint = 'https://fcv3.cn-hangzhou.aliyuncs.com';
+      mockInputs.args = [];
+
+      await base.handlePreRun(mockInputs, false);
+
+      expect(mockInputs.props.endpoint).toBe('https://fcv3.cn-hangzhou.aliyuncs.com');
+    });
+
     it('should trim image whitespace for custom container', async () => {
       mockInputs.props.customContainerConfig = {
         image: '  test-image:latest  ',

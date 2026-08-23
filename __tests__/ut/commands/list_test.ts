@@ -1,7 +1,8 @@
 import List from '../../../src/subCommands/list';
 import FC from '../../../src/resources/fc';
 import { IInputs } from '../../../src/interface';
-import { tableShow } from '../../../src/utils';
+import { isAppCenter, tableShow } from '../../../src/utils';
+import logger from '../../../src/logger';
 
 // Mock dependencies
 jest.mock('../../../src/resources/fc');
@@ -12,17 +13,24 @@ jest.mock('../../../src/logger', () => ({
   error: jest.fn(),
   warn: jest.fn(),
   log: jest.fn(),
+  write: jest.fn(),
 }));
-jest.mock('../../../src/utils', () => ({
-  tableShow: jest.fn(),
-  isAppCenter: jest.fn(),
-  getUserAgent: jest.fn((userAgent, command) => {
-    return (
-      userAgent ||
-      `Component:fc3;Nodejs:${process.version};OS:${process.platform}-${process.arch};command:${command}`
-    );
-  }),
-}));
+jest.mock('../../../src/utils', () => {
+  const actual = jest.requireActual('../../../src/utils');
+  return {
+    tableShow: jest.fn(),
+    isAppCenter: jest.fn(),
+    getUserAgent: jest.fn((userAgent, command) => {
+      return (
+        userAgent ||
+        `Component:fc3;Nodejs:${process.version};OS:${process.platform}-${process.arch};command:${command}`
+      );
+    }),
+    MAX_DEFAULT_RENDER_LINES: actual.MAX_DEFAULT_RENDER_LINES,
+    estimateRenderLines: actual.estimateRenderLines,
+    isDefaultRenderOutput: actual.isDefaultRenderOutput,
+  };
+});
 
 describe('List', () => {
   let list: List;
@@ -234,6 +242,91 @@ describe('List', () => {
         [],
         ['functionName', 'runtime', 'handler', 'memorySize', 'state', 'lastModifiedTime'],
       );
+    });
+  });
+
+  describe('run - output too large for the default renderer', () => {
+    // 每个函数约 6 个字段，2 万个函数 > MAX_DEFAULT_RENDER_LINES(5w) 行
+    const hugeFunctionsArray = Array.from({ length: 20000 }, (_v, i) => ({
+      functionName: `test-func-${i}`,
+      runtime: 'nodejs18',
+      handler: 'index.handler',
+      memorySize: 128,
+      state: 'Active',
+      lastModifiedTime: '2024-01-01T00:00:00Z',
+    }));
+
+    let originalArgv: string[];
+
+    beforeEach(() => {
+      originalArgv = process.argv;
+      // clearAllMocks 不会清掉 mockReturnValue，这里显式回到默认值
+      (isAppCenter as jest.Mock).mockReturnValue(false);
+    });
+
+    afterEach(() => {
+      process.argv = originalArgv;
+    });
+
+    it('should print raw JSON instead of returning it when the default output format is used', async () => {
+      process.argv = ['node', 's', 'cli', 'fc3', 'list'];
+      mockInputs.args = [];
+      list = new List(mockInputs);
+      mockFcSdk.listFunctions = jest.fn().mockResolvedValue(hugeFunctionsArray);
+
+      const result = await list.run();
+      expect(result).toBeUndefined();
+      expect(logger.warn).toHaveBeenCalledWith(expect.stringContaining('20000 functions'));
+      expect(logger.write).toHaveBeenCalledWith(
+        JSON.stringify({ functions: hugeFunctionsArray }, null, 2),
+      );
+    });
+
+    it('should return the result untouched when an output format is specified', async () => {
+      process.argv = ['node', 's', 'cli', 'fc3', 'list', '-o', 'json'];
+      mockInputs.args = [];
+      list = new List(mockInputs);
+      mockFcSdk.listFunctions = jest.fn().mockResolvedValue(hugeFunctionsArray);
+
+      const result = await list.run();
+      expect(result).toEqual({ functions: hugeFunctionsArray });
+      expect(logger.write).not.toHaveBeenCalled();
+    });
+
+    it('should return the result untouched when it is small enough to render', async () => {
+      process.argv = ['node', 's', 'cli', 'fc3', 'list'];
+      mockInputs.args = [];
+      list = new List(mockInputs);
+      mockFcSdk.listFunctions = jest.fn().mockResolvedValue(mockFunctionsArray);
+
+      const result = await list.run();
+      expect(result).toEqual({ functions: mockFunctionsArray });
+      expect(logger.write).not.toHaveBeenCalled();
+    });
+
+    it('should return the result untouched for programmatic app center callers', async () => {
+      process.argv = ['node', 's', 'cli', 'fc3', 'list'];
+      (isAppCenter as jest.Mock).mockReturnValue(true);
+      mockInputs.args = [];
+      list = new List(mockInputs);
+      mockFcSdk.listFunctions = jest.fn().mockResolvedValue(hugeFunctionsArray);
+
+      const result = await list.run();
+      expect(result).toEqual({ functions: hugeFunctionsArray });
+      expect(logger.write).not.toHaveBeenCalled();
+    });
+
+    it('should also guard the single page path', async () => {
+      process.argv = ['node', 's', 'cli', 'fc3', 'list'];
+      mockInputs.args = ['--limit', '20000'];
+      list = new List(mockInputs);
+      mockFcSdk.listFunctionsPage = jest
+        .fn()
+        .mockResolvedValue({ functions: hugeFunctionsArray, nextToken: 'next' });
+
+      const result = await list.run();
+      expect(result).toBeUndefined();
+      expect(logger.write).toHaveBeenCalled();
     });
   });
 
