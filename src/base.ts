@@ -2,6 +2,7 @@
 /* eslint-disable require-atomic-updates */
 /* eslint-disable no-await-in-loop */
 import _ from 'lodash';
+import { parseArgv } from '@serverless-devs/utils';
 import { IInputs, INasConfig } from './interface';
 // eslint-disable-next-line @typescript-eslint/no-shadow
 import log from './logger';
@@ -30,6 +31,13 @@ export default class Base {
   // 在运行方法之前运行
   async handlePreRun(inputs: IInputs, needCredential: boolean) {
     log._set(this.logger);
+    // --endpoint 只出现在命令行参数里（yaml 模式下走 props.endpoint），
+    // s cli 模式没有 yaml，必须从 argv 取，命令行优先级高于 yaml
+    const argvEndpoint = _.get(parseArgv(inputs.args || [], { string: ['endpoint'] }), 'endpoint');
+    if (!_.isEmpty(argvEndpoint)) {
+      log.debug(`use endpoint from command line: ${argvEndpoint}`);
+      _.set(inputs, 'props.endpoint', argvEndpoint);
+    }
     // fc组件镜像 trim 左右空格
     const image = _.get(inputs, 'props.customContainerConfig.image');
     if (!_.isEmpty(image)) {

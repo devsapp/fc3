@@ -21,6 +21,7 @@ Example:
         '[Optional] Specify the next token for pagination, only works with --limit',
       ],
       ['--table', '[Optional] Specify if output the result as table format'],
+      ['--endpoint <endpoint>', '[Optional] Specify the fc endpoint, e.g. http://192.168.1.1:8080'],
     ],
   },
 };
