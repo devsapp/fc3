@@ -12,7 +12,7 @@ import {
   tableShow,
 } from '../../utils';
 
-interface IListResult {
+export interface IListResult {
   functions?: unknown[];
   nextToken?: string;
 }
