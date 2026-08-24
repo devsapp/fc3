@@ -215,7 +215,7 @@ export class BaseLocal {
     let image: string;
 
     if (this.isCustomContainerRuntime()) {
-      image = this.inputs.props.customContainerConfig.image;
+      image = FC.getContainerImage(this.inputs.props);
       logger.debug(`use fc docker CustomContainer image: ${image}`);
     } else if (fcDockerUseImage) {
       image = fcDockerUseImage;

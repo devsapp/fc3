@@ -1,5 +1,12 @@
 import _ from 'lodash';
-import { INasConfig, IVpcConfig, ILogConfig, Runtime, IOssMountConfig } from '../../../interface';
+import {
+  INasConfig,
+  IVpcConfig,
+  ILogConfig,
+  Runtime,
+  IOssMountConfig,
+  IFunction,
+} from '../../../interface';
 import { isAuto, isAutoVpcConfig } from '../../../utils';
 import logger from '../../../logger';
 import * as fs from 'fs';
@@ -8,6 +15,16 @@ import { isDebugMode } from '@serverless-devs/utils';
 
 export function isCustomContainerRuntime(runtime: string): boolean {
   return runtime === Runtime['custom-container'] || runtime === Runtime['micro-sandbox'];
+}
+
+/**
+ * microSandboxConfig.image 优先级高于 customContainerConfig.image
+ */
+export function getContainerImage(
+  props: Pick<IFunction, 'microSandboxConfig' | 'customContainerConfig'>,
+): string | undefined {
+  const image = props?.microSandboxConfig?.image || props?.customContainerConfig?.image;
+  return _.isEmpty(image) ? undefined : image;
 }
 
 export function isCustomRuntime(runtime: string): boolean {

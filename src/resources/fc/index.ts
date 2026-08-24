@@ -61,7 +61,12 @@ import {
   isFunctionStateWaitTimedOut,
   isFunctionScalingConfigError,
 } from './error-code';
-import { isCustomContainerRuntime, isCustomRuntime, computeLocalAuto } from './impl/utils';
+import {
+  isCustomContainerRuntime,
+  isCustomRuntime,
+  computeLocalAuto,
+  getContainerImage,
+} from './impl/utils';
 import replaceFunctionConfig from './impl/replace-function-config';
 import { IAlias } from '../../interface/cli-config/alias';
 import { TriggerType } from '../../interface/base';
@@ -79,6 +84,7 @@ export default class FC extends FC_Client {
   static computeLocalAuto = computeLocalAuto;
   static isCustomContainerRuntime = isCustomContainerRuntime;
   static isCustomRuntime = isCustomRuntime;
+  static getContainerImage = getContainerImage;
   static replaceFunctionConfig = replaceFunctionConfig;
 
   async untilFunctionStateOK(config: IFunction, reason: string, skipAccelerationWait?: boolean) {
@@ -93,9 +99,10 @@ export default class FC extends FC_Client {
     const retryContainerAccelerated = FC.isCustomContainerRuntime(config.runtime);
     // 部署镜像需要重试 3min, 直到达到!(State == Pending || LastUpdateStatus == InProgress)
     if (retryContainerAccelerated) {
+      const image = getContainerImage(config);
       if (skipAccelerationWait) {
         logger.info(
-          `Skip waiting for ${config.customContainerConfig.image} optimization. The function will be available for invocation once the image acceleration process is complete.`,
+          `Skip waiting for ${image} optimization. The function will be available for invocation once the image acceleration process is complete.`,
         );
         return;
       }
@@ -103,24 +110,24 @@ export default class FC extends FC_Client {
       if (reason === 'CREATE') {
         if (isAppCenter()) {
           logger.info(
-            `${config.customContainerConfig.image} optimization to be ready, the function will be available for invocation once this process is complete`,
+            `${image} optimization to be ready, the function will be available for invocation once this process is complete`,
           );
         } else {
           logger.spin(
             'checking',
-            `${config.customContainerConfig.image} `,
+            `${image} `,
             `optimization to be ready, the function will be available for invocation once this process is complete ...`,
           );
         }
       } else if (reason === 'UPDATE') {
         if (isAppCenter()) {
           logger.info(
-            `${config.customContainerConfig.image} optimization to be ready, function calls will be updated to the latest deployed version once the image optimization process is complete ...`,
+            `${image} optimization to be ready, function calls will be updated to the latest deployed version once the image optimization process is complete ...`,
           );
         } else {
           logger.spin(
             'checking',
-            `${config.customContainerConfig.image}`,
+            `${image}`,
             `optimization to be ready, function calls will be updated to the latest deployed version once the image optimization process is complete ...`,
           );
         }
@@ -145,16 +152,14 @@ export default class FC extends FC_Client {
           await sleep(retryInterval);
           if (isAppCenter()) {
             logger.info(
-              `${
-                config.customContainerConfig.image
-              } optimization is not ready, function state=${state}, lastUpdateStatus=${lastUpdateStatus}, waiting ${
+              `${image} optimization is not ready, function state=${state}, lastUpdateStatus=${lastUpdateStatus}, waiting ${
                 (new Date().getTime() - startTime) / 1000
               } seconds...`,
             );
           } else {
             logger.spin(
               'checking',
-              `${config.customContainerConfig.image}`,
+              `${image}`,
               `optimization is not ready, function state=${state}, lastUpdateStatus=${lastUpdateStatus}, waiting ${
                 (new Date().getTime() - startTime) / 1000
               } seconds...`,
@@ -172,13 +177,9 @@ export default class FC extends FC_Client {
           await sleep(retryInterval);
         } else {
           if (isAppCenter()) {
-            logger.info(`${config.customContainerConfig.image} optimization is ready`);
+            logger.info(`${image} optimization is ready`);
           } else {
-            logger.spin(
-              'checked',
-              `${config.customContainerConfig.image}`,
-              `optimization is ready`,
-            );
+            logger.spin('checked', `${image}`, `optimization is ready`);
           }
           break;
         }
@@ -290,6 +291,7 @@ export default class FC extends FC_Client {
             functionName: config.functionName,
             code: config.code,
             customContainerConfig: config.customContainerConfig,
+            microSandboxConfig: config.microSandboxConfig,
           } as any;
         } else if (type === 'config') {
           _.unset(config, 'code');

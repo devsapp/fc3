@@ -80,7 +80,7 @@ export abstract class Builder {
   async getRuntimeBuildImage(): Promise<string> {
     let image: string;
     if (FC.isCustomContainerRuntime(this.getRuntime())) {
-      image = this.getProps().customContainerConfig?.image;
+      image = FC.getContainerImage(this.getProps());
       if (_.isEmpty(image)) {
         throw new Error('image must be set in custom-container runtime');
       }

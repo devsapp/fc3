@@ -4,6 +4,7 @@ import {
   getRemoteResourceConfig,
   computeLocalAuto,
   getCustomEndpoint,
+  getContainerImage,
 } from '../../../../../src/resources/fc/impl/utils';
 import { INasConfig, IVpcConfig, ILogConfig, IOssMountConfig } from '../../../../../src/interface';
 import * as utils from '../../../../../src/utils';
@@ -65,6 +66,28 @@ describe('utils', () => {
     it('should return false for non-custom runtime', () => {
       const result = isCustomRuntime('nodejs18');
       expect(result).toBe(false);
+    });
+  });
+
+  describe('getContainerImage', () => {
+    it('should prefer microSandboxConfig.image over customContainerConfig.image', () => {
+      const result = getContainerImage({
+        microSandboxConfig: { image: 'registry/sandbox:v1' },
+        customContainerConfig: { image: 'registry/container:v1' },
+      });
+      expect(result).toBe('registry/sandbox:v1');
+    });
+
+    it('should fall back to customContainerConfig.image', () => {
+      const result = getContainerImage({
+        customContainerConfig: { image: 'registry/container:v1' },
+      });
+      expect(result).toBe('registry/container:v1');
+    });
+
+    it('should return undefined when no image is configured', () => {
+      expect(getContainerImage({})).toBeUndefined();
+      expect(getContainerImage({ customContainerConfig: { image: '' } })).toBeUndefined();
     });
   });
 

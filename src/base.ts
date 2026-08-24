@@ -39,9 +39,14 @@ export default class Base {
       _.set(inputs, 'props.endpoint', argvEndpoint);
     }
     // fc组件镜像 trim 左右空格
-    const image = _.get(inputs, 'props.customContainerConfig.image');
-    if (!_.isEmpty(image)) {
-      _.set(inputs, 'props.customContainerConfig.image', _.trim(image));
+    for (const imagePath of [
+      'props.microSandboxConfig.image',
+      'props.customContainerConfig.image',
+    ]) {
+      const image = _.get(inputs, imagePath);
+      if (!_.isEmpty(image)) {
+        _.set(inputs, imagePath, _.trim(image));
+      }
     }
 
     const role = _.get(inputs, 'props.role');
