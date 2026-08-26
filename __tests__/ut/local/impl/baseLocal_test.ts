@@ -7,6 +7,7 @@ import path from 'path';
 import * as fs from 'fs-extra';
 import { v4 as uuidV4 } from 'uuid';
 import { getTempDir } from '../../../../src/utils';
+import FC from '../../../../src/resources/fc';
 
 // Mock external dependencies
 jest.mock('../../../../src/logger', () => ({
@@ -210,11 +211,40 @@ describe('BaseLocal', () => {
       expect(result).toBe(true);
     });
 
+    it('should return true for micro-sandbox runtime', () => {
+      const inputsWithMicroSandbox = JSON.parse(JSON.stringify(mockInputs));
+      inputsWithMicroSandbox.props.runtime = 'micro-sandbox';
+
+      const instance = new BaseLocal(inputsWithMicroSandbox);
+      const result = instance.isCustomContainerRuntime();
+
+      expect(result).toBe(true);
+    });
+
     it('should return false for non custom-container runtime', () => {
       const instance = new BaseLocal(mockInputs);
       const result = instance.isCustomContainerRuntime();
 
       expect(result).toBe(false);
+    });
+  });
+
+  describe('getRuntimeRunImage', () => {
+    it('should use microSandboxConfig.image for micro-sandbox runtime', async () => {
+      const inputsWithMicroSandbox = JSON.parse(JSON.stringify(mockInputs));
+      inputsWithMicroSandbox.props.runtime = 'micro-sandbox';
+      inputsWithMicroSandbox.props.microSandboxConfig = { image: 'registry/sandbox:v1' };
+
+      const instance = new BaseLocal(inputsWithMicroSandbox);
+      (FC.getContainerImage as jest.Mock).mockReturnValue('registry/sandbox:v1');
+
+      const image = await instance.getRuntimeRunImage();
+
+      expect(image).toBe('registry/sandbox:v1');
+      expect(FC.getContainerImage).toHaveBeenCalledWith(inputsWithMicroSandbox.props);
+      expect(logger.debug).toHaveBeenCalledWith(
+        'use fc docker CustomContainer image: registry/sandbox:v1',
+      );
     });
   });
 

@@ -285,6 +285,7 @@ describe('Builder', () => {
       const builderWithCustomContainer = new TestBuilder(inputsWithCustomContainer);
 
       (FC.isCustomContainerRuntime as jest.Mock).mockReturnValue(true);
+      (FC.getContainerImage as jest.Mock).mockReturnValue('custom-image:latest');
 
       const image = await builderWithCustomContainer.getRuntimeBuildImage();
       expect(image).toBe('custom-image:latest');
@@ -300,6 +301,7 @@ describe('Builder', () => {
       const builderWithCustomContainer = new TestBuilder(inputsWithCustomContainer);
 
       (FC.isCustomContainerRuntime as jest.Mock).mockReturnValue(true);
+      (FC.getContainerImage as jest.Mock).mockReturnValue('');
       (_.isEmpty as any).mockReturnValue(true);
 
       await expect(builderWithCustomContainer.getRuntimeBuildImage()).rejects.toThrow(

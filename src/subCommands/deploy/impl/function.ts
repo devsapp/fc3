@@ -196,7 +196,7 @@ export default class Service extends Base {
     // custom-container 检查 s.yaml 中 image 是否存在 acr 中， 如果存在， 则弹出交互提示
     // --skip-push 则不用提示
     if (FC.isCustomContainerRuntime(this.local.runtime)) {
-      const { image } = this.local.customContainerConfig || {};
+      const image = FC.getContainerImage(this.local);
       if (_.isNil(image)) {
         throw new Error('CustomContainerRuntime must have a valid image URL');
       }
@@ -256,7 +256,7 @@ export default class Service extends Base {
       logger.debug(`skip push is ${this.skipPush}`);
       return;
     }
-    const { image } = this.local.customContainerConfig || {};
+    const image = FC.getContainerImage(this.local);
     if (_.isNil(image)) {
       throw new Error('CustomContainerRuntime must have a valid image URL');
     }

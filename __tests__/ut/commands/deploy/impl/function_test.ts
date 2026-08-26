@@ -442,6 +442,9 @@ describe('Service', () => {
         customContainerConfig: {},
       } as IFunction;
 
+      // Mock FC.getContainerImage
+      (FC.getContainerImage as jest.Mock).mockReturnValue(undefined);
+
       await expect((service as any)._pushImage()).rejects.toThrow(
         'CustomContainerRuntime must have a valid image URL',
       );
@@ -454,6 +457,11 @@ describe('Service', () => {
         runtime: 'custom-container',
         customContainerConfig: { image: 'registry.cn-hangzhou.aliyuncs.com/test/image' },
       } as IFunction;
+
+      // Mock FC.getContainerImage
+      (FC.getContainerImage as jest.Mock).mockReturnValue(
+        'registry.cn-hangzhou.aliyuncs.com/test/image',
+      );
 
       // Mock Acr.isAcrRegistry
       Acr.isAcrRegistry = jest.fn().mockReturnValue(true);
@@ -474,6 +482,9 @@ describe('Service', () => {
         runtime: 'custom-container',
         customContainerConfig: { image: 'docker.io/test/image' },
       } as IFunction;
+
+      // Mock FC.getContainerImage
+      (FC.getContainerImage as jest.Mock).mockReturnValue('docker.io/test/image');
 
       // Mock Acr.isAcrRegistry
       Acr.isAcrRegistry = jest.fn().mockReturnValue(false);

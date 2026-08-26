@@ -76,6 +76,7 @@ export interface ILogConfig {
 }
 
 export interface IMicroSandboxConfig {
+  image?: string;
   osType?: string;
   readyCommand?: string;
   startCommand?: string;

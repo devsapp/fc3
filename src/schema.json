@@ -639,6 +639,9 @@
         },
         "IMicroSandboxConfig": {
             "properties": {
+                "image": {
+                    "type": "string"
+                },
                 "osType": {
                     "type": "string"
                 },
@@ -1454,8 +1457,19 @@
       "required": [
         "region",
         "functionName",
-        "runtime",
-        "customContainerConfig"
+        "runtime"
+      ],
+      "anyOf": [
+        {
+          "required": [
+            "microSandboxConfig"
+          ]
+        },
+        {
+          "required": [
+            "customContainerConfig"
+          ]
+        }
       ]
     },
     "else": {

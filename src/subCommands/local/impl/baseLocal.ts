@@ -133,7 +133,8 @@ export class BaseLocal {
   }
 
   isCustomContainerRuntime(): boolean {
-    return this.inputs.props.runtime === 'custom-container';
+    const { runtime } = this.inputs.props;
+    return runtime === 'custom-container' || runtime === 'micro-sandbox';
   }
 
   // 判断是否开启rie的debug，只要使用了--debug或断点调试就开启。此时，不再打印result header中的日志。
@@ -215,7 +216,7 @@ export class BaseLocal {
     let image: string;
 
     if (this.isCustomContainerRuntime()) {
-      image = this.inputs.props.customContainerConfig.image;
+      image = FC.getContainerImage(this.inputs.props);
       logger.debug(`use fc docker CustomContainer image: ${image}`);
     } else if (fcDockerUseImage) {
       image = fcDockerUseImage;
