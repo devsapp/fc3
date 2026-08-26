@@ -133,7 +133,8 @@ export class BaseLocal {
   }
 
   isCustomContainerRuntime(): boolean {
-    return this.inputs.props.runtime === 'custom-container';
+    const runtime = this.inputs.props.runtime;
+    return runtime === 'custom-container' || runtime === 'micro-sandbox';
   }
 
   // 判断是否开启rie的debug，只要使用了--debug或断点调试就开启。此时，不再打印result header中的日志。

@@ -74,10 +74,10 @@ See `docs/architecture.md` for detailed diagrams.
 
 Frozen scope (read-only for all subsequent work):
 
-| Path | Contents |
-| ---- | -------- |
-| `src/subCommands/model/` | `model.ts`, `index.ts`, `fileManager.ts`, `constants.ts`, `utils/` |
-| `src/commands-help/model.ts` | `model` command help text |
+| Path                         | Contents                                                           |
+| ---------------------------- | ------------------------------------------------------------------ |
+| `src/subCommands/model/`     | `model.ts`, `index.ts`, `fileManager.ts`, `constants.ts`, `utils/` |
+| `src/commands-help/model.ts` | `model` command help text                                          |
 
 Rules:
 
