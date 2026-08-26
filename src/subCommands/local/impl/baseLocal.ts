@@ -133,7 +133,7 @@ export class BaseLocal {
   }
 
   isCustomContainerRuntime(): boolean {
-    const {runtime} = this.inputs.props;
+    const { runtime } = this.inputs.props;
     return runtime === 'custom-container' || runtime === 'micro-sandbox';
   }
 
