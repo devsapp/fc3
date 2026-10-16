@@ -42,6 +42,8 @@ export const FC_RESOURCES_EMPTY_CONFIG = {
   layers: [],
   instanceIsolationMode: 'SHARE',
   sessionAffinity: 'NONE',
+  // 服务端不支持通过省略该字段或置 0 清除线上值，-1 表示关闭延时释放弹性实例
+  idleTimeout: -1,
 };
 
 export const FC_TRIGGER_DEFAULT_CONFIG = {

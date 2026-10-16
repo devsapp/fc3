@@ -124,6 +124,11 @@ export default class Service extends Base {
     }
     // 部署函数
     const config = _.defaults(this.local, FC_RESOURCES_EMPTY_CONFIG);
+    // idleTimeout 0 / null 均非法（服务端最小 300 且不支持空值清除），与未配置一致按关闭处理
+    if (config.idleTimeout === 0 || config.idleTimeout === null) {
+      logger.debug('idleTimeout 0/null is converted to -1 (disabled)');
+      config.idleTimeout = -1;
+    }
     if (
       !_.isEmpty(config.sessionAffinityConfig) &&
       typeof config.sessionAffinityConfig !== 'string'
