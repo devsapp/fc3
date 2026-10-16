@@ -378,6 +378,98 @@ describe('Service', () => {
         },
       );
     });
+
+    it('should set idleTimeout to -1 when it is not configured', async () => {
+      service = new Service(mockInputs, mockOpts);
+      service.needDeploy = true;
+      Object.defineProperty(service, 'type', {
+        value: 'config',
+        writable: true,
+      });
+
+      const mockFcSdk = {
+        deployFunction: jest.fn().mockResolvedValue(undefined),
+      };
+      Object.defineProperty(service, 'fcSdk', {
+        value: mockFcSdk,
+        writable: true,
+      });
+
+      jest.spyOn(service as any, '_deployAuto').mockResolvedValue(undefined);
+
+      await service.run();
+
+      expect(service.fcSdk.deployFunction).toHaveBeenCalledWith(
+        expect.objectContaining({
+          idleTimeout: -1,
+        }),
+        expect.anything(),
+      );
+    });
+
+    it('should convert idleTimeout 0 or null to -1', async () => {
+      for (const idleTimeout of [0, null]) {
+        service = new Service(
+          { ...mockInputs, props: { ...mockInputs.props, idleTimeout } } as any,
+          mockOpts,
+        );
+        service.needDeploy = true;
+        Object.defineProperty(service, 'type', {
+          value: 'config',
+          writable: true,
+        });
+
+        const mockFcSdk = {
+          deployFunction: jest.fn().mockResolvedValue(undefined),
+        };
+        Object.defineProperty(service, 'fcSdk', {
+          value: mockFcSdk,
+          writable: true,
+        });
+
+        jest.spyOn(service as any, '_deployAuto').mockResolvedValue(undefined);
+
+        await service.run();
+
+        expect(service.fcSdk.deployFunction).toHaveBeenCalledWith(
+          expect.objectContaining({
+            idleTimeout: -1,
+          }),
+          expect.anything(),
+        );
+      }
+    });
+
+    it('should keep configured idleTimeout', async () => {
+      service = new Service(
+        { ...mockInputs, props: { ...mockInputs.props, idleTimeout: 600 } } as any,
+        mockOpts,
+      );
+      service.needDeploy = true;
+      Object.defineProperty(service, 'type', {
+        value: 'config',
+        writable: true,
+      });
+
+      const mockFcSdk = {
+        deployFunction: jest.fn().mockResolvedValue(undefined),
+      };
+      Object.defineProperty(service, 'fcSdk', {
+        value: mockFcSdk,
+        writable: true,
+      });
+
+      jest.spyOn(service as any, '_deployAuto').mockResolvedValue(undefined);
+
+      await service.run();
+
+      expect(service.fcSdk.deployFunction).toHaveBeenCalledWith(
+        expect.objectContaining({
+          idleTimeout: 600,
+        }),
+        expect.anything(),
+      );
+    });
   });
 
   describe('_getAcr', () => {
